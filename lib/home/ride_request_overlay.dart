@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ugo_driver/app_state.dart';
 import './ride_request_model.dart'; // Ensure this points to your model file
 import 'package:dio/dio.dart';
-
+import 'package:geolocator/geolocator.dart';
+import 'package:ugo_driver/home/openGoogleMapsNavigation.dart';
 class RideRequestOverlay extends StatefulWidget {
   const RideRequestOverlay({Key? key}) : super(key: key);
 
@@ -23,21 +24,31 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
   }
 
   // 🔓 PUBLIC METHOD: Call this from your Home Screen socket listener
-  void handleNewRide(Map<String, dynamic> rawData) {
+ void handleNewRide(Map<String, dynamic> rawData) {
     print("🔎 DEBUG: processing ride data: $rawData");
+
     try {
-      final newRide = RideRequest.fromJson(rawData);
+      final updatedRide = RideRequest.fromJson(rawData);
 
-      // 1. Deduplication Check
-      if (_seenRideIds.contains(newRide.id)) return;
+      final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
 
-      // 2. Add to State
-      if (mounted) {
+      if (!mounted) return;
+
+      if (index != -1) {
+        // 🔄 UPDATE EXISTING RIDE
         setState(() {
-          _seenRideIds.add(newRide.id);
-          _activeRequests.add(newRide);
+          _activeRequests[index] = updatedRide;
         });
-        print("   🚀 Card added to UI. Total cards: ${_activeRequests.length}");
+
+        print("🔁 Ride ${updatedRide.id} updated → ${updatedRide.status}");
+      } else {
+        // ➕ ADD NEW RIDE
+        setState(() {
+          _activeRequests.add(updatedRide);
+          _seenRideIds.add(updatedRide.id);
+        });
+
+        print("➕ Ride ${updatedRide.id} added → ${updatedRide.status}");
       }
     } catch (e) {
       print("❌ Error parsing ride request: $e");
@@ -220,6 +231,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
                   flex: 2,
                   child: ElevatedButton(
                     onPressed: () async {
+                        if (ride.status == 'accepted') {
+                        // 🚀 NAVIGATE
+                        final position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.bestForNavigation,
+                        );
+
+                        await GoogleMapsNavigation.open(
+                          originLat: position.latitude,
+                          originLng: position.longitude,
+                          destLat: ride.dropLat,
+                          destLng: ride.dropLng,
+                        );
+                        return;
+                      }
+                         
                       try {
                         // 1. Define the endpoint
                         // ⚠️ Ensure the URL structure matches your backend route exactly

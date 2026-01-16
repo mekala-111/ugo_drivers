@@ -320,9 +320,18 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                       if ((_model.apiResult7ju?.succeeded ?? true)) {
                         FFAppState().update(() {
                         FFAppState().isLoggedIn = true;   // ✅ user logged in
-                        FFAppState().driverid = 1;       // ✅ example (use real id)
-                        FFAppState().accessToken = 'token_here'; // ✅ example
+                        FFAppState().driverid = getJsonField(
+                            (_model.apiResult7ju?.jsonBody ?? ''),
+                            r'''$.data.driver.id''',
+                          );
+                                 // ✅ example (use real id)
+                        FFAppState().accessToken = getJsonField(
+                            (_model.apiResult7ju?.jsonBody ?? ''),
+                            r'''$.data.access_token''',
+                          ).toString();
+                          ; // ✅ example
                       });
+                      print('Driver Created Successfully with ID: ${FFAppState().driverid} and Access Token: ${FFAppState().accessToken}');
                         context.pushReplacementNamed(HomeWidget.routeName);
 
                       } else {

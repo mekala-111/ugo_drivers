@@ -573,7 +573,8 @@ class ApiManager {
     } catch (e) {
       result = ApiCallResponse(null, {}, -1, exception: e);
     }
-
+    print(  'API Call [$callName] to $apiUrl completed with status '
+        '${result.statusCode}.response ${result.response!.body}');
     return result;
   }
 }

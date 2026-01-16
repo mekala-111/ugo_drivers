@@ -51,7 +51,6 @@
 // }
 
 // lib/models/ride_request_model.dart
-
 class RideRequest {
   final int id;
   final int userId;
@@ -61,15 +60,28 @@ class RideRequest {
   final String pickupAddress;
   final String dropAddress;
 
-  // ✅ LOCATION KEYS (IMPORTANT)
+  // 📍 LOCATION
   final double pickupLat;
   final double pickupLng;
   final double dropLat;
   final double dropLng;
 
+  // 💰 RIDE INFO
   final double? distance;
   final double? estimatedFare;
+
+  // ⏱ TIME
   final DateTime? createdAt;
+
+  // 🔐 OTP (if already added)
+  final String? otp;
+  final String? otpHash;
+  final DateTime? otpExpiresAt;
+  final int otpAttempts;
+  final DateTime? otpVerifiedAt;
+
+  // ✅ UI-ONLY STATE (NEW)
+  final bool isAtPickup;
 
   RideRequest({
     required this.id,
@@ -85,6 +97,16 @@ class RideRequest {
     this.distance,
     this.estimatedFare,
     this.createdAt,
+
+    // OTP
+    this.otp,
+    this.otpHash,
+    this.otpExpiresAt,
+    this.otpAttempts = 0,
+    this.otpVerifiedAt,
+
+    // UI-only
+    this.isAtPickup = false, // ✅ DEFAULT
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
@@ -94,12 +116,9 @@ class RideRequest {
       driverId: json['driver_id'],
       status: json['ride_status'] ?? 'SEARCHING',
 
-      pickupAddress:
-          json['pickup_location_address'] ?? 'Unknown Pickup',
-      dropAddress:
-          json['drop_location_address'] ?? 'Unknown Dropoff',
+      pickupAddress: json['pickup_location_address'] ?? 'Unknown Pickup',
+      dropAddress: json['drop_location_address'] ?? 'Unknown Dropoff',
 
-      // 🔥 MAP LAT / LNG CORRECTLY
       pickupLat: _parseToDouble(json['pickup_latitude']) ?? 0.0,
       pickupLng: _parseToDouble(json['pickup_longitude']) ?? 0.0,
       dropLat: _parseToDouble(json['drop_latitude']) ?? 0.0,
@@ -107,17 +126,54 @@ class RideRequest {
 
       distance: _parseToDouble(json['ride_distance_km']),
       estimatedFare: _parseToDouble(json['estimated_fare']),
+      createdAt: DateTime.tryParse(json['created_at'] ?? ''),
 
-      createdAt:
-          DateTime.tryParse(json['created_at'] ?? ''),
+      // OTP
+      otp: json['otp']?.toString(),
+      otpHash: json['otp_hash']?.toString(),
+      otpExpiresAt: DateTime.tryParse(json['otp_expires_at'] ?? ''),
+      otpAttempts: json['otp_attempts'] ?? 0,
+      otpVerifiedAt: DateTime.tryParse(json['otp_verified_at'] ?? ''),
+
+      // ⚠️ NOT from backend
+      isAtPickup: false,
     );
   }
 
-  // 🛡️ SAFE PARSER
+  // 🛡 SAFE PARSER
   static double? _parseToDouble(dynamic value) {
     if (value == null) return null;
     if (value is num) return value.toDouble();
     if (value is String) return double.tryParse(value);
     return null;
   }
+
+  // ✅ STRONGLY RECOMMENDED (for updates)
+  RideRequest copyWith({
+    String? status,
+    bool? isAtPickup,
+  }) {
+    return RideRequest(
+      id: id,
+      userId: userId,
+      driverId: driverId,
+      status: status ?? this.status,
+      pickupAddress: pickupAddress,
+      dropAddress: dropAddress,
+      pickupLat: pickupLat,
+      pickupLng: pickupLng,
+      dropLat: dropLat,
+      dropLng: dropLng,
+      distance: distance,
+      estimatedFare: estimatedFare,
+      createdAt: createdAt,
+      otp: otp,
+      otpHash: otpHash,
+      otpExpiresAt: otpExpiresAt,
+      otpAttempts: otpAttempts,
+      otpVerifiedAt: otpVerifiedAt,
+      isAtPickup: isAtPickup ?? this.isAtPickup,
+    );
+  }
 }
+

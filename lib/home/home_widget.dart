@@ -340,7 +340,7 @@ bool showNavigateButton = false;
       String status = rideData['ride_status'] ?? 'SEARCHING';
       int rideId = rideData['id'];
       _overlayKey.currentState!.handleNewRide(rideData);
-
+print("Processing ride ID: $rideId with status: $status");
       // if (status == 'accepted') {
       //   _overlayKey.currentState!.removeRideById(rideId);
       //   
@@ -448,225 +448,274 @@ bool showNavigateButton = false;
                               context.pushNamed(AccountManagementWidget.routeName);
                             },
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
+                          Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            context.pushNamed(ScanToBookWidget.routeName);
+                          },
+                          child: Icon(
+                            Icons.qr_code,
+                            color: Color(0xFFFF6600),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                      
+                       Row(
+                         children: [
+                          Text(
+                              (_model.switchValue ?? false)
+                                ? FFLocalizations.of(context).getVariableText(
+                                    enText: 'ON',
+                                    teText: '',
+                                    hiText: '',
+                                  )
+                                : FFLocalizations.of(context).getVariableText(
+                                    enText: 'OFF',
+                                    teText: '',
+                                    hiText: '',
+                                  ),
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  font: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .fontStyle,
+                                  ),
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                  fontStyle: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .fontStyle,
                                 ),
-                                child: InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    context.pushNamed(ScanToBookWidget.routeName);
-                                  },
-                                  child: Icon(
-                                    Icons.qr_code,
-                                    color: Color(0xFFFF6600),
-                                    size: 24,
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Text(
-                                    _model.switchValue!
-                                        ? FFLocalizations.of(context).getVariableText(
-                                            enText: 'ON',
-                                            teText: '',
-                                            hiText: '',
-                                          )
-                                        : FFLocalizations.of(context).getVariableText(
-                                            enText: 'OFF',
-                                            teText: '',
-                                            hiText: '',
-                                          ),
-                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                          ),
-                                          color: Colors.white,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                        ),
-                                  ),
-                                  Switch(
-                                    value: _model.switchValue!,
-                                    onChanged: _isDataLoaded ? (newValue) async {
-                                      if (newValue!) {
-                                        // ✅ GOING ONLINE - DEBUG KYC STATUS
-                                        print("🔍 Attempting to go ONLINE");
-                                        print("🔍 Current KYC Status: '${FFAppState().kycStatus}'");
-                                        print("🔍 Status length: ${FFAppState().kycStatus.length}");
-                                        print("🔍 Status comparison: ${FFAppState().kycStatus.trim().toLowerCase() == 'approved'}");
-                                        
-                                        // ✅ IMPROVED KYC CHECK - Trim and lowercase comparison
-                                        if (FFAppState().kycStatus.trim().toLowerCase() == 'approved') {
-                                          Position? currentPosition;
-                                          try {
-                                            print("📡 Getting current location for going online...");
-                                            currentPosition = await Geolocator.getCurrentPosition(
-                                              desiredAccuracy: LocationAccuracy.high,
-                                            );
-                                            print("✅ Got location: ${currentPosition.latitude}, ${currentPosition.longitude}");
-                                          } catch (e) {
-                                            print("❌ Error getting location: $e");
-                                          }
-        
-                                          print("🔄 Calling UpdateDriver API to go ONLINE...");
-                                          _model.updatedriver = await UpdateDriverCall.call(
-                                            id: FFAppState().driverid,
-                                            token: FFAppState().accessToken,
-                                            isonline: true,
-                                            latitude: currentPosition?.latitude,
-                                            longitude: currentPosition?.longitude,
+                          ),
+                           Switch(
+                            value: _model.switchValue ?? false,
+                            onChanged: _isDataLoaded
+                                ? (newValue) async {
+                                    if (newValue!) {
+                                      // ✅ GOING ONLINE - DEBUG KYC STATUS
+                                      print("🔍 Attempting to go ONLINE");
+                                      print(
+                                          "🔍 Current KYC Status: '${FFAppState().kycStatus}'");
+                                      print(
+                                          "🔍 Status length: ${FFAppState().kycStatus.length}");
+                                      print(
+                                          "🔍 Status comparison: ${FFAppState().kycStatus.trim().toLowerCase() == 'approved'}");
+                           
+                                      // ✅ IMPROVED KYC CHECK - Trim and lowercase comparison
+                                      if (FFAppState()
+                                              .kycStatus
+                                              .trim()
+                                              .toLowerCase() ==
+                                          'approved') {
+                                        Position? currentPosition;
+                                        try {
+                                          print(
+                                              "📡 Getting current location for going online...");
+                                          currentPosition =
+                                              await Geolocator.getCurrentPosition(
+                                            desiredAccuracy: LocationAccuracy.high,
                                           );
-        
-                                          if ((_model.updatedriver?.succeeded ?? false)) {
-                                            safeSetState(() {
-                                              _model.switchValue = true;
-                                            });
-                                            
-                                            print("✅ Successfully went ONLINE");
-                                            _startLocationTracking();
-                                            
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  UpdateDriverCall.message(_model.updatedriver?.jsonBody) ?? 
-                                                  'Driver is now online',
-                                                  style: TextStyle(
-                                                    color: FlutterFlowTheme.of(context).primaryText,
-                                                  ),
-                                                ),
-                                                duration: Duration(milliseconds: 4000),
-                                                backgroundColor: FlutterFlowTheme.of(context).success,
-                                              ),
-                                            );
-                                          } else {
-                                            safeSetState(() {
-                                              _model.switchValue = false;
-                                            });
-                                            
-                                            print("❌ Failed to go ONLINE");
-                                            
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  UpdateDriverCall.message(_model.updatedriver?.jsonBody) ?? 
-                                                  'Failed to go online',
-                                                  style: TextStyle(
-                                                    color: FlutterFlowTheme.of(context).primaryText,
-                                                  ),
-                                                ),
-                                                duration: Duration(milliseconds: 4000),
-                                                backgroundColor: FlutterFlowTheme.of(context).error,
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          // ❌ KYC NOT APPROVED
-                                          print("❌ KYC Status is NOT approved: '${FFAppState().kycStatus}'");
-                                          
-                                          safeSetState(() {
-                                            _model.switchValue = false;
-                                          });
-                                          
-                                          await showDialog(
-                                            context: context,
-                                            builder: (alertDialogContext) {
-                                              return AlertDialog(
-                                                title: Text('KYC Status Not Approved'),
-                                                content: Text(
-                                                  'Your KYC status is "${FFAppState().kycStatus}". '
-                                                  'Please complete your KYC verification to go online.'
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(alertDialogContext),
-                                                    child: Text('Ok'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
+                                          print(
+                                              "✅ Got location: ${currentPosition.latitude}, ${currentPosition.longitude}");
+                                        } catch (e) {
+                                          print("❌ Error getting location: $e");
                                         }
-                                        safeSetState(() {});
-                                      } else {
-                                        // ✅ GOING OFFLINE
-                                        print("🛑 Driver going offline...");
-                                        _stopLocationTracking();
-                                        
-                                        print("🔄 Calling UpdateDriver API to go OFFLINE...");
-                                        _model.apiResultrv8 = await UpdateDriverCall.call(
+                           
+                                        print(
+                                            "🔄 Calling UpdateDriver API to go ONLINE...");
+                                        _model.updatedriver =
+                                            await UpdateDriverCall.call(
                                           id: FFAppState().driverid,
                                           token: FFAppState().accessToken,
-                                          isonline: false,
-                                          latitude: null,
-                                          longitude: null,
+                                          isonline: true,
+                                          latitude: currentPosition?.latitude,
+                                          longitude: currentPosition?.longitude,
                                         );
-        
-                                        if (_model.apiResultrv8?.succeeded ?? false) {
-                                          safeSetState(() {
-                                            _model.switchValue = false;
-                                          });
-                                          
-                                          print("✅ Successfully went OFFLINE");
-                                          
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                UpdateDriverCall.message(_model.apiResultrv8?.jsonBody) ?? 
-                                                'Driver is now offline',
-                                                style: TextStyle(
-                                                  color: FlutterFlowTheme.of(context).primaryText,
-                                                ),
-                                              ),
-                                              duration: Duration(milliseconds: 2000),
-                                              backgroundColor: FlutterFlowTheme.of(context).secondary,
-                                            ),
-                                          );
-                                        } else {
+                           
+                                        if ((_model.updatedriver?.succeeded ??
+                                            false)) {
                                           safeSetState(() {
                                             _model.switchValue = true;
                                           });
-                                          
-                                          print("❌ Failed to go OFFLINE, restarting tracking...");
+                           
+                                          print("✅ Successfully went ONLINE");
                                           _startLocationTracking();
-                                          
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                           
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                'Failed to go offline. Please try again.',
+                                                UpdateDriverCall.message(_model
+                                                        .updatedriver?.jsonBody) ??
+                                                    'Driver is now online',
                                                 style: TextStyle(
-                                                  color: FlutterFlowTheme.of(context).primaryText,
+                                                  color:
+                                                      FlutterFlowTheme.of(context)
+                                                          .primaryText,
                                                 ),
                                               ),
-                                              duration: Duration(milliseconds: 2000),
-                                              backgroundColor: FlutterFlowTheme.of(context).error,
+                                              duration:
+                                                  Duration(milliseconds: 4000),
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .success,
+                                            ),
+                                          );
+                                        } else {
+                                          safeSetState(() {
+                                            _model.switchValue = false;
+                                          });
+                           
+                                          print("❌ Failed to go ONLINE");
+                           
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                UpdateDriverCall.message(_model
+                                                        .updatedriver?.jsonBody) ??
+                                                    'Failed to go online',
+                                                style: TextStyle(
+                                                  color:
+                                                      FlutterFlowTheme.of(context)
+                                                          .primaryText,
+                                                ),
+                                              ),
+                                              duration:
+                                                  Duration(milliseconds: 4000),
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .error,
                                             ),
                                           );
                                         }
-                                        
-                                        safeSetState(() {});
+                                      } else {
+                                        // ❌ KYC NOT APPROVED
+                                        print(
+                                            "❌ KYC Status is NOT approved: '${FFAppState().kycStatus}'");
+                           
+                                        safeSetState(() {
+                                          _model.switchValue = false;
+                                        });
+                           
+                                        await showDialog(
+                                          context: context,
+                                          builder: (alertDialogContext) {
+                                            return AlertDialog(
+                                              title:
+                                                  Text('KYC Status Not Approved'),
+                                              content: Text(
+                                                  'Your KYC status is "${FFAppState().kycStatus}". '
+                                                  'Please complete your KYC verification to go online.'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(
+                                                      alertDialogContext),
+                                                  child: Text('Ok'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
                                       }
-                                    } : null, // ✅ Disable switch until data loads
-                                    activeColor: Color(0xFF0D3072),
-                                    activeTrackColor: Color(0xFF1C6EAB),
-                                    inactiveTrackColor: Color(0xFF13181B),
-                                    inactiveThumbColor: FlutterFlowTheme.of(context).secondaryText,
-                                  ),
-                                ].divide(SizedBox(width: 8)),
-                              ),
+                                      safeSetState(() {});
+                                    } else {
+                                      // ✅ GOING OFFLINE
+                                      print("🛑 Driver going offline...");
+                                      _stopLocationTracking();
+                           
+                                      print(
+                                          "🔄 Calling UpdateDriver API to go OFFLINE...");
+                                      _model.apiResultrv8 =
+                                          await UpdateDriverCall.call(
+                                        id: FFAppState().driverid,
+                                        token: FFAppState().accessToken,
+                                        isonline: false,
+                                        latitude: null,
+                                        longitude: null,
+                                      );
+                           
+                                      if (_model.apiResultrv8?.succeeded ?? false) {
+                                        safeSetState(() {
+                                          _model.switchValue = false;
+                                        });
+                           
+                                        print("✅ Successfully went OFFLINE");
+                           
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              UpdateDriverCall.message(_model
+                                                      .apiResultrv8?.jsonBody) ??
+                                                  'Driver is now offline',
+                                              style: TextStyle(
+                                                color: FlutterFlowTheme.of(context)
+                                                    .primaryText,
+                                              ),
+                                            ),
+                                            duration: Duration(milliseconds: 2000),
+                                            backgroundColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .secondary,
+                                          ),
+                                        );
+                                      } else {
+                                        safeSetState(() {
+                                          _model.switchValue = true;
+                                        });
+                           
+                                        print(
+                                            "❌ Failed to go OFFLINE, restarting tracking...");
+                                        _startLocationTracking();
+                           
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to go offline. Please try again.',
+                                              style: TextStyle(
+                                                color: FlutterFlowTheme.of(context)
+                                                    .primaryText,
+                                              ),
+                                            ),
+                                            duration: Duration(milliseconds: 2000),
+                                            backgroundColor:
+                                                FlutterFlowTheme.of(context).error,
+                                          ),
+                                        );
+                                      }
+                           
+                                      safeSetState(() {});
+                                    }
+                                  }
+                                : null, // ✅ Disable switch until data loads
+                            activeColor: Color(0xFF0D3072),
+                            activeTrackColor: Color(0xFF1C6EAB),
+                            inactiveTrackColor: Color(0xFF13181B),
+                            inactiveThumbColor:
+                                FlutterFlowTheme.of(context).secondaryText,
+                                                 ),
+                         ],
+                       ),
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              
+                            
                               Container(
                                 width: 40,
                                 height: 40,
