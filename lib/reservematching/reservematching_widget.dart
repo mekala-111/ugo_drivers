@@ -200,7 +200,7 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                       onChanged: (newValue) async {
                         safeSetState(() => _model.switchValue = newValue);
                       },
-                      activeColor:
+                      activeThumbColor:
                           FlutterFlowTheme.of(context).secondaryBackground,
                       activeTrackColor: FlutterFlowTheme.of(context).accent1,
                       inactiveTrackColor:

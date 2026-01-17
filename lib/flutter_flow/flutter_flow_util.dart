@@ -172,21 +172,30 @@ T? castToType<T>(dynamic value) {
   if (value == null) {
     return null;
   }
+  if (value is T) {
+    return value;
+  }
   switch (T) {
     case double:
-      // Doubles may be stored as ints in some cases.
-      return value.toDouble() as T;
+      if (value is num) {
+        return value.toDouble() as T;
+      }
+      if (value is String) {
+        return double.tryParse(value) as T?;
+      }
+      break;
     case int:
-      // Likewise, ints may be stored as doubles. If this is the case
-      // (i.e. no decimal value), return the value as an int.
-      if (value is num && value.toInt() == value) {
+      if (value is num) {
         return value.toInt() as T;
+      }
+      if (value is String) {
+        return int.tryParse(value) as T?;
       }
       break;
     default:
       break;
   }
-  return value as T;
+  return value as T?;
 }
 
 dynamic getJsonField(
@@ -194,20 +203,24 @@ dynamic getJsonField(
   String jsonPath, [
   bool isForList = false,
 ]) {
-  final field = JsonPath(jsonPath).read(response);
-  if (field.isEmpty) {
+  try {
+    final field = JsonPath(jsonPath).read(response);
+    if (field.isEmpty) {
+      return null;
+    }
+    if (field.length > 1) {
+      return field.map((f) => f.value).toList();
+    }
+    final value = field.first.value;
+    if (isForList) {
+      return value is! Iterable
+          ? [value]
+          : (value is List ? value : value.toList());
+    }
+    return value;
+  } catch (_) {
     return null;
   }
-  if (field.length > 1) {
-    return field.map((f) => f.value).toList();
-  }
-  final value = field.first.value;
-  if (isForList) {
-    return value is! Iterable
-        ? [value]
-        : (value is List ? value : value.toList());
-  }
-  return value;
 }
 
 Rect? getWidgetBoundingBox(BuildContext context) {
@@ -266,7 +279,7 @@ Future<LatLng> getCurrentUserLocation(
     }
     return loc ?? defaultLocation;
   }).onError((error, _) {
-    print("Error querying user location: $error");
+    debugPrint("Error querying user location: $error");
     return defaultLocation;
   });
 }
@@ -338,16 +351,17 @@ void showSnackbar(
         children: [
           if (loading)
             Padding(
-              padding: EdgeInsetsDirectional.only(end: 10.0),
-              child: Container(
+              padding: const EdgeInsetsDirectional.only(end: 10.0),
+              child: SizedBox(
                 height: 20,
                 width: 20,
                 child: const CircularProgressIndicator(
                   color: Colors.white,
+                  strokeWidth: 2,
                 ),
               ),
             ),
-          Text(message),
+          Expanded(child: Text(message)),
         ],
       ),
       duration: Duration(seconds: duration),

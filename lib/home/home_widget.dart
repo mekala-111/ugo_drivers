@@ -5,8 +5,6 @@ import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -506,7 +504,7 @@ print("Processing ride ID: $rideId with status: $status");
                             value: _model.switchValue ?? false,
                             onChanged: _isDataLoaded
                                 ? (newValue) async {
-                                    if (newValue!) {
+                                    if (newValue) {
                                       // ✅ GOING ONLINE - DEBUG KYC STATUS
                                       print("🔍 Attempting to go ONLINE");
                                       print(
@@ -703,7 +701,7 @@ print("Processing ride ID: $rideId with status: $status");
                                     }
                                   }
                                 : null, // ✅ Disable switch until data loads
-                            activeColor: Color(0xFF0D3072),
+                            activeThumbColor: Color(0xFF0D3072),
                             activeTrackColor: Color(0xFF1C6EAB),
                             inactiveTrackColor: Color(0xFF13181B),
                             inactiveThumbColor:

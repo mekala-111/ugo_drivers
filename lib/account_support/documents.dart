@@ -54,7 +54,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       final driverId = FFAppState().driverid;
       final token = FFAppState().accessToken;
 
-      if (driverId == null || driverId == 0 || token == null || token.isEmpty) {
+      if (driverId == 0 || token.isEmpty) {
         setState(() {
           _isFetchingDocuments = false;
         });
@@ -191,7 +191,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       final token = FFAppState().accessToken;
 
       // Validate authentication
-      if (driverId == null || driverId == 0) {
+      if (driverId == 0) {
         _showErrorMessage('Please login first');
         setState(() {
           _isLoading = false;
@@ -199,7 +199,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         return;
       }
 
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         _showErrorMessage('Authentication token missing. Please login again.');
         setState(() {
           _isLoading = false;
@@ -251,7 +251,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       else {
         try {
           final successField = getJsonField(
-            (apiResult?.jsonBody ?? ''),
+            (apiResult.jsonBody ?? ''),
             r'''$.success''',
           );
           if (successField == true) {
@@ -297,7 +297,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         try {
           // First try to get the message field
           final message = getJsonField(
-            (apiResult?.jsonBody ?? ''),
+            (apiResult.jsonBody ?? ''),
             r'''$.message''',
           );
           if (message != null && message.toString().isNotEmpty) {
@@ -307,7 +307,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           // If no message, try to get error field
           if (errorMessage == 'Failed to update documents') {
             final error = getJsonField(
-              (apiResult?.jsonBody ?? ''),
+              (apiResult.jsonBody ?? ''),
               r'''$.error''',
             );
             if (error != null && error.toString().isNotEmpty) {

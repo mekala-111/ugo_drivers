@@ -6,7 +6,6 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 // import 'package:share_plus/share_plus.dart';
 
 class ReferFriendWidget extends StatefulWidget {
@@ -43,7 +42,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       final token = FFAppState().accessToken;
 
       // Validate authentication
-      if (driverId == null || driverId == 0 || token == null || token.isEmpty) {
+      if (driverId == 0 || token.isEmpty) {
         setState(() {
           _errorMessage = FFLocalizations.of(context).getVariableText(
             enText: 'Please login first',
@@ -80,7 +79,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       } else {
         try {
           final successField = getJsonField(
-            (response?.jsonBody ?? ''),
+            (response.jsonBody ?? ''),
             r'''$.success''',
           );
           if (successField == true) {
@@ -122,7 +121,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
         try {
           final message = getJsonField(
-            (response?.jsonBody ?? ''),
+            (response.jsonBody ?? ''),
             r'''$.message''',
           );
           if (message != null && message.toString().isNotEmpty) {
