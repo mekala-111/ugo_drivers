@@ -159,36 +159,55 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
     );
   }
 
-  void handleNewRide(Map<String, dynamic> rawData) {
+ void handleNewRide(Map<String, dynamic> rawData) {
+    print("🔎 DEBUG: processing ride data: $rawData");
+
     try {
       final updatedRide = RideRequest.fromJson(rawData);
+
       if (!mounted) return;
 
-      setState(() {
-        final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
+      // 🚫 HANDLE CANCELLATION FIRST
+      if (updatedRide.status.toLowerCase() == "cancelled") {
+        print("🛑 Ride ${updatedRide.id} cancelled");
 
-        if (index != -1) {
-          // If ride is no longer available to accept, remove it
-          if (updatedRide.status == 'cancelled' || updatedRide.status == 'expired' || (updatedRide.status == 'accepted' && updatedRide.driverId != FFAppState().driverid)) {
-            _activeRequests.removeAt(index);
-            _timers.remove(updatedRide.id);
-            _seenRideIds.remove(updatedRide.id);
-          } else {
-            // Update the ride in the list
-            _activeRequests[index] = updatedRide;
-          }
-        } else if (updatedRide.status == 'SEARCHING') {
+        removeRideById(updatedRide.id);
+        _showCancelledSnackBar(updatedRide.id);
+        return;
+      }
+
+      final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
+
+      if (index != -1) {
+        // 🔄 UPDATE EXISTING RIDE
+        setState(() {
+          _activeRequests[index] = updatedRide;
+        });
+
+        print("🔁 Ride ${updatedRide.id} updated → ${updatedRide.status}");
+      } else {
+        // ➕ ADD NEW RIDE
+        setState(() {
           _activeRequests.add(updatedRide);
           _seenRideIds.add(updatedRide.id);
-          _timers[updatedRide.id] = 30;
-          _showNotification(updatedRide);
-        }
+        });
 
-        _updateAlertState();
-      });
+        print("➕ Ride ${updatedRide.id} added → ${updatedRide.status}");
+      }
     } catch (e) {
-      debugPrint("❌ Error parsing ride: $e");
+      print("❌ Error parsing ride request: $e");
     }
+  }
+  void _showCancelledSnackBar(int rideId) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Ride #$rideId has been cancelled"),
+        backgroundColor: Colors.red.shade600,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void removeRideById(int idToRemove) {
