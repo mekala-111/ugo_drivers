@@ -18,6 +18,11 @@ class FFAppState extends ChangeNotifier {
       bool hasPan = false;
       bool hasVehicleImage = false;
       bool hasRC = false;
+      int _activeRideId = 0;
+String _activeRideStatus = '';
+
+// int get activeRideId => _activeRideId;
+// String get activeRideStatus => _activeRideStatus;
 
 
   static void reset() {
@@ -47,6 +52,14 @@ _safeInit(() {
   _safeInit(() {
   _isonline = prefs.getBool('ff_isonline') ?? false;
 });
+_safeInit(() {
+  _activeRideId = prefs.getInt('ff_activeRideId') ?? 0;
+});
+
+_safeInit(() {
+  _activeRideStatus = prefs.getString('ff_activeRideStatus') ?? '';
+});
+
 
 
 
@@ -57,6 +70,21 @@ _safeInit(() {
     callback();
     notifyListeners();
   }
+  int get activeRideId => _activeRideId;
+String get activeRideStatus => _activeRideStatus;
+
+set activeRideId(int value) {
+  _activeRideId = value;
+  prefs.setInt('ff_activeRideId', value);
+  notifyListeners();
+}
+
+set activeRideStatus(String value) {
+  _activeRideStatus = value;
+  prefs.setString('ff_activeRideStatus', value);
+  notifyListeners();
+}
+
 
 
   late SharedPreferences prefs;
