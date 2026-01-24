@@ -30,6 +30,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
   String? _selectedPaymentMethod; // "cash" | "razorpay"
   final Set<int> _completedRides = {};
   bool _showCashAmount = false;
+  int? _cashCollectedRideId;
+bool _cashCollected = false;
+
 
 
 
@@ -89,6 +92,7 @@ Future<void> _fetchRideFromBackend(int rideId) async {
     debugPrint("❌ Failed to restore ride: $e");
   }
 }
+
 
 
   void _configureAudio() {
@@ -721,7 +725,9 @@ Widget _buildPaymentUI(RideRequest ride) {
       ElevatedButton(
         onPressed: () {
           setState(() {
-            _selectedPaymentMethod = "cash";
+             _selectedPaymentMethod = "cash";
+              _cashCollectedRideId = ride.id;
+              _cashCollected = false;
           });
         },
         style: ElevatedButton.styleFrom(
@@ -772,9 +778,70 @@ Widget _buildPaymentUI(RideRequest ride) {
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
+      if (_selectedPaymentMethod == "cash" &&
+          _cashCollectedRideId == ride.id &&
+          !_cashCollected)
+        _buildCashCollectUI(ride),
     ],
   );
 }
+Widget _buildCashCollectUI(RideRequest ride) {
+  return Container(
+    margin: const EdgeInsets.only(top: 16),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.yellow.shade50,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.orange, width: 2),
+    ),
+    child: Column(
+      children: [
+        const Icon(Icons.payments, size: 40, color: Colors.orange),
+        const SizedBox(height: 10),
+        const Text(
+          "COLLECT CASH FROM PASSENGER",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "₹${ride.estimatedFare?.toStringAsFixed(0)}",
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w900,
+            color: Colors.green,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        ElevatedButton(
+          onPressed: () async {
+            setState(() {
+              _cashCollected = true;
+            });
+
+            await _completeRide(ride.id);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green.shade700,
+            minimumSize: const Size(double.infinity, 52),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: const Text(
+            "CASH COLLECTED",
+            style: TextStyle(fontWeight: FontWeight.w900),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 void _startRazorpayPayment(RideRequest ride) {
   print("💳 Starting Razorpay for ride ${ride.id}");
 
@@ -784,6 +851,7 @@ void _startRazorpayPayment(RideRequest ride) {
   // 3. On success -> call _completeRide()
   // 4. On failure -> show error
 }
+
 
 
 Future<void> _completeRide(int rideId) async {
@@ -872,29 +940,93 @@ Future<void> _completeRide(int rideId) async {
 
   void _showOtpDialog(int rideId) {
   final controller = TextEditingController();
+
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text("Enter Passenger OTP"),
-      content: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        maxLength: 4,
-        decoration: const InputDecoration(
-          hintText: "4-digit OTP",
-          counterText: "", // Hide character counter
-        ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
+      title: Column(
+        children: [
+          Icon(
+            Icons.lock_outline,
+            size: 36,
+            color: Colors.grey.shade700,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "Enter Passenger OTP",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Ask passenger for the 4-digit code",
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+
+          // OTP input styled like PIN
+          SizedBox(
+            height: 60,
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 12,
+              ),
+              decoration: InputDecoration(
+                counterText: "",
+                hintText: "••••",
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actionsPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(ctx), 
-          child: const Text("Cancel")
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text(
+            "CANCEL",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
           onPressed: () {
             final otp = controller.text.trim();
-            
-            // Validate OTP
+
+            // 🔒 SAME LOGIC (unchanged)
             if (otp.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -904,7 +1036,7 @@ Future<void> _completeRide(int rideId) async {
               );
               return;
             }
-            
+
             if (otp.length != 4) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -914,17 +1046,22 @@ Future<void> _completeRide(int rideId) async {
               );
               return;
             }
-            
+
             Navigator.pop(ctx);
             _verifyOtp(rideId, otp);
           },
-          child: const Text("Verify"),
+          child: const Text(
+            "VERIFY OTP",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
       ],
     ),
   );
 }
-
 
 // Future<void> _verifyOtp(int rideId, String otp) async {
 //   try {

@@ -11,6 +11,7 @@ import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
 import 'flutter_flow/firebase_app_check_util.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoRouter.optionURLReflectsImperativeAPIs = true;
@@ -19,6 +20,7 @@ void main() async {
   await initFirebase();
 
   await FlutterFlowTheme.initialize();
+
 
   final appState = FFAppState(); // Initialize FFAppState
   // ✅ PRINT HERE (AFTER restore)

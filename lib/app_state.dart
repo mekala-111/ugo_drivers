@@ -25,9 +25,9 @@ String _activeRideStatus = '';
 // String get activeRideStatus => _activeRideStatus;
 
 
-  static void reset() {
-    _instance = FFAppState._internal();
-  }
+  // static void reset() {
+  //   _instance = FFAppState._internal();
+  // }
 
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
@@ -41,7 +41,7 @@ String _activeRideStatus = '';
       _qrImage = prefs.getString('ff_qrImage') ?? _qrImage;
     });
     _safeInit(() {
-  _isLoggedIn = prefs.getBool('ff_isLoggedIn') ?? false;
+  isLoggedIn = prefs.getBool('ff_isLoggedIn') ?? false;
 });
 _safeInit(() {
   _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
@@ -59,6 +59,7 @@ _safeInit(() {
 _safeInit(() {
   _activeRideStatus = prefs.getString('ff_activeRideStatus') ?? '';
 });
+
 
 
 
@@ -88,17 +89,25 @@ set activeRideStatus(String value) {
 
 
   late SharedPreferences prefs;
-  bool _isLoggedIn = false;
+  
+// bool get isLoggedIn => _accessToken.isNotEmpty;
+
+bool _isLoggedIn = false;
+
 bool get isLoggedIn => _isLoggedIn;
+
 set isLoggedIn(bool value) {
-  _isLoggedIn = value;
+  _isLoggedIn = value; // ✅ correct
   prefs.setBool('ff_isLoggedIn', value);
+  notifyListeners();
 }
+
 bool _isRegistered = false;
 bool get isRegistered => _isRegistered;
 set isRegistered(bool value) {
   _isRegistered = value;
   prefs.setBool('ff_isRegistered', value);
+  notifyListeners();
 }
 
 
@@ -109,6 +118,7 @@ set isRegistered(bool value) {
   String get selectvehicle => _selectvehicle;
   set selectvehicle(String value) {
     _selectvehicle = value;
+    notifyListeners();
   }
 
    // DRIVING LICENSE IMAGE
@@ -247,6 +257,7 @@ set kycStatus(String value) {
   set qrImage(String value) {
     _qrImage = value;
     prefs.setString('ff_qrImage', value);
+    notifyListeners();
   }
 }
 
