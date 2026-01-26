@@ -1063,47 +1063,7 @@ Future<void> _completeRide(int rideId) async {
   );
 }
 
-// Future<void> _verifyOtp(int rideId, String otp) async {
-//   try {
-//     print("🔢 OTP ENTERED: $otp");
-//     print("🔍 VERIFYING OTP FOR RIDE $rideId");
 
-//     final url = "https://ugotaxi.icacorp.org/api/rides/verify-otp";
-
-//     final response = await Dio().post(
-//       url,
-//       data: {
-//         "otp": otp,
-//         "ride_id": rideId,
-//       },
-//       options: Options(
-//         headers: {
-//           "Authorization": "Bearer ${FFAppState().accessToken}",
-//         },
-//       ),
-//     );
-
-//     print("📡 OTP RESPONSE: ${response.data}");
-
-//     if (response.data['success'] == true) {
-//       final newStatus = response.data['data']['status']; // started
-
-//       print("✅ OTP VERIFIED → STATUS = $newStatus");
-
-//       // ✅ UPDATE UI USING BACKEND STATUS
-//       setState(() {
-//         final index =
-//             _activeRequests.indexWhere((r) => r.id == rideId);
-//         if (index != -1) {
-//           _activeRequests[index] =
-//               _activeRequests[index].copyWith(status: newStatus);
-//         }
-//       });
-//     }
-//   } catch (e) {
-//     debugPrint("❌ OTP ERROR: $e");
-//   }
-// }
 Future<void> _verifyOtp(int rideId, String otp) async {
   try {
     print("🔢 OTP ENTERED: $otp");
