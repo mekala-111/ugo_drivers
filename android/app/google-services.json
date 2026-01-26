@@ -1,90 +1,37 @@
 {
   "project_info": {
-    "project_number": "987401672169",
-    "firebase_url": "https://ugocabs-789f3-default-rtdb.firebaseio.com",
-    "project_id": "ugocabs-789f3",
-    "storage_bucket": "ugocabs-789f3.firebasestorage.app"
+    "project_number": "804974852515",
+    "project_id": "ugo-driver-8ff43",
+    "storage_bucket": "ugo-driver-8ff43.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:987401672169:android:609564634103aa1403e778",
-        "android_client_info": {
-          "package_name": "com.mycompany.ugoadmin"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "987401672169-2u6ovbg1pi26ik5a11os72t206kdai8p.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mycompany.ugoadmin",
-            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
-          }
-        },
-        {
-          "client_id": "987401672169-7umpfr5q979c42i9863ihtmk9ig4hvmd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBKGzwIhviPtNBMwXB2-SFzkI54-l-LYtw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "987401672169-7umpfr5q979c42i9863ihtmk9ig4hvmd.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "987401672169-c14vnd1g5ohanh724aier6f2bhcmelu3.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.ugocabs.driver"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:987401672169:android:e3d28d1856c8537103e778",
+        "mobilesdk_app_id": "1:804974852515:android:ba9d7736c4cedf890c8216",
         "android_client_info": {
           "package_name": "com.ugocabs.driver"
         }
       },
       "oauth_client": [
         {
-          "client_id": "987401672169-tlf5e77gtddajtgisc49j4coh82mt0mo.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ugocabs.driver",
-            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
-          }
-        },
-        {
-          "client_id": "987401672169-7umpfr5q979c42i9863ihtmk9ig4hvmd.apps.googleusercontent.com",
+          "client_id": "804974852515-65ceh32deq7nh7dt4rgkg3nqcvst64sf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBKGzwIhviPtNBMwXB2-SFzkI54-l-LYtw"
+          "current_key": "AIzaSyB1OovgzdJ6ygvtaxSQ9VzkZzDt1t757aY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "987401672169-7umpfr5q979c42i9863ihtmk9ig4hvmd.apps.googleusercontent.com",
+              "client_id": "804974852515-65ceh32deq7nh7dt4rgkg3nqcvst64sf.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "987401672169-c14vnd1g5ohanh724aier6f2bhcmelu3.apps.googleusercontent.com",
+              "client_id": "804974852515-r980ua77r50331rg11qnpm2amp7ujo7u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.ugocabs.driver"
