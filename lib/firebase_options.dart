@@ -47,30 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAJy53wYAPtl6ij6DEOZTyn6KjUZAyCnIY',
-    appId: '1:804974852515:web:e8e9c0f19ddd39e40c8216',
-    messagingSenderId: '804974852515',
-    projectId: 'ugo-driver-8ff43',
-    authDomain: 'ugo-driver-8ff43.firebaseapp.com',
-    storageBucket: 'ugo-driver-8ff43.firebasestorage.app',
+    apiKey: 'AIzaSyBRIJD6DFvRS7N77UFyId3uva16GhkUyD8',
+    appId: '1:477734229226:web:8e6208dfa8a9fc05757393',
+    messagingSenderId: '477734229226',
+    projectId: 'ugo-drivers-8ff87',
+    authDomain: 'ugo-drivers-8ff87.firebaseapp.com',
+    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB1OovgzdJ6ygvtaxSQ9VzkZzDt1t757aY',
-    appId: '1:804974852515:android:ba9d7736c4cedf890c8216',
-    messagingSenderId: '804974852515',
-    projectId: 'ugo-driver-8ff43',
-    storageBucket: 'ugo-driver-8ff43.firebasestorage.app',
+    apiKey: 'AIzaSyCmYtUMdxt1X-x8-tQ6_Zlo5S84d8hprQA',
+    appId: '1:477734229226:android:331721b39698ae65757393',
+    messagingSenderId: '477734229226',
+    projectId: 'ugo-drivers-8ff87',
+    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDxLrJS3uG0A9Y0SsM3rIPwNW_88APksEI',
-    appId: '1:804974852515:ios:6c90e9db1685e34f0c8216',
-    messagingSenderId: '804974852515',
-    projectId: 'ugo-driver-8ff43',
-    storageBucket: 'ugo-driver-8ff43.firebasestorage.app',
-    iosClientId: '804974852515-r980ua77r50331rg11qnpm2amp7ujo7u.apps.googleusercontent.com',
-    iosBundleId: 'com.ugocabs.driver',
+    apiKey: 'AIzaSyB74iIzKjczDwXHSdmzI5aWmi_TenJuvhs',
+    appId: '1:477734229226:ios:a1a7e001f37b816d757393',
+    messagingSenderId: '477734229226',
+    projectId: 'ugo-drivers-8ff87',
+    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
+    iosBundleId: 'com.ugocabs.drivers',
   );
 
 }

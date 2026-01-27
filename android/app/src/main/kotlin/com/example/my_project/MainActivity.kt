@@ -1,4 +1,4 @@
-package com.ugocabs.driver
+package com.ugocabs.drivers
 
 import io.flutter.embedding.android.FlutterActivity
 

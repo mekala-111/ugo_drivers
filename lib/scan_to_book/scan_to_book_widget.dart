@@ -71,17 +71,17 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget> {
               't346q4kk' /* Scan Qr */,
             ),
             style: FlutterFlowTheme.of(context).titleMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.w500,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                  ),
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                  fontSize: 16.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                ),
+              font: GoogleFonts.interTight(
+                fontWeight: FontWeight.w500,
+                fontStyle:
+                FlutterFlowTheme.of(context).titleMedium.fontStyle,
+              ),
+              color: FlutterFlowTheme.of(context).secondaryBackground,
+              fontSize: 16.0,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w500,
+              fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
+            ),
           ),
           actions: [],
           centerTitle: false,
@@ -102,18 +102,18 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget> {
                   ),
                   textAlign: TextAlign.center,
                   style: FlutterFlowTheme.of(context).titleLarge.override(
-                        font: GoogleFonts.interTight(
-                          fontWeight: FontWeight.w500,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                        ),
-                        color: FlutterFlowTheme.of(context).accent1,
-                        fontSize: 16.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w500,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                      ),
+                    font: GoogleFonts.interTight(
+                      fontWeight: FontWeight.w500,
+                      fontStyle:
+                      FlutterFlowTheme.of(context).titleLarge.fontStyle,
+                    ),
+                    color: FlutterFlowTheme.of(context).accent1,
+                    fontSize: 16.0,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w500,
+                    fontStyle:
+                    FlutterFlowTheme.of(context).titleLarge.fontStyle,
+                  ),
                 ),
               ),
               Container(

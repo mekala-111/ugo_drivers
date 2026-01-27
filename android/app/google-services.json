@@ -1,43 +1,26 @@
 {
   "project_info": {
-    "project_number": "804974852515",
-    "project_id": "ugo-driver-8ff43",
-    "storage_bucket": "ugo-driver-8ff43.firebasestorage.app"
+    "project_number": "477734229226",
+    "project_id": "ugo-drivers-8ff87",
+    "storage_bucket": "ugo-drivers-8ff87.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:804974852515:android:ba9d7736c4cedf890c8216",
+        "mobilesdk_app_id": "1:477734229226:android:331721b39698ae65757393",
         "android_client_info": {
-          "package_name": "com.ugocabs.driver"
+          "package_name": "com.ugocabs.drivers"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "804974852515-65ceh32deq7nh7dt4rgkg3nqcvst64sf.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB1OovgzdJ6ygvtaxSQ9VzkZzDt1t757aY"
+          "current_key": "AIzaSyCmYtUMdxt1X-x8-tQ6_Zlo5S84d8hprQA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "804974852515-65ceh32deq7nh7dt4rgkg3nqcvst64sf.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "804974852515-r980ua77r50331rg11qnpm2amp7ujo7u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.ugocabs.driver"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
