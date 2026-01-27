@@ -4,28 +4,24 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="new project of ugo">
-      <change afterPath="$PROJECT_DIR$/assets/audios/ride_request.mp3" afterDir="false" />
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="Package update">
       <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ugo_drivers.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ugo_drivers.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/profile/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/profile/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner/GoogleService-Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/GoogleService-Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/firebase_options.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home/ride_request_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_setting/profile_setting_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/profile_setting/profile_setting_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/reservematching/reservematching_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/reservematching/reservematching_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ridecheck/ridecheck_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ridecheck/ridecheck_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/tipautomatically/tipautomatically_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/tipautomatically/tipautomatically_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,9 +31,10 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="DartProblemsView" auto-scroll-to-source="true" group-by-severity="false" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -47,7 +44,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/dhacodedesignersprivatelimited/DRIVER_UGO.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/mekala-111/ugo_drivers.git&quot;,
     &quot;accountId&quot;: &quot;4ee35345-86d9-41f6-9b9c-d46fd7985e51&quot;
   }
 }</component>
@@ -59,29 +56,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Flutter.main.dart.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "com.google.services.firebase.aqiPopupShown": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "io.flutter.project.isFirstOpen": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/mekalamanjunadh/StudioProjects/ugo_drivers",
-    "settings.editor.selected.configurable": "flutter.settings",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;io.flutter.project.isFirstOpen&quot;: &quot;true&quot;,
+    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mekalamanjunadh/StudioProjects/ugo_drivers/android/app&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;templates.modelproviders.configurable&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/android/app" />
+    </key>
+  </component>
   <component name="SvnConfiguration">
     <configuration>$USER_HOME$/.subversion</configuration>
   </component>
@@ -101,7 +104,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768546578103</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Package update">
+      <option name="closed" value="true" />
+      <created>1769416117615</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1769416117615</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -117,6 +128,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="new project of ugo" />
-    <option name="LAST_COMMIT_MESSAGE" value="new project of ugo" />
+    <MESSAGE value="Package update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Package update" />
   </component>
 </project>
