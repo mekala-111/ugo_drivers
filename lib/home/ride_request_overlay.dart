@@ -771,15 +771,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
     } catch (e) {
       FFAppState().activeRideId = 0;
       FFAppState().activeRideStatus = '';
-      _showSnack("❌ Unable to accept ride", color: Colors.red);
+      _showSnack("❌ Unable to accept ride ${e.toString()}", color: Colors.red);
     }
   }
 
   Future<void> _updateRideStatus(int rideId, String status) async {
     try {
       await Dio().put(
-          "https://ugotaxi.icacorp.org/api/rides/rides/$rideId/status",
-          data: {"status": status},
+          "https://ugotaxi.icacorp.org/api/rides/$rideId",
+          data: {"ride_status": status,"driver_id" : FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
