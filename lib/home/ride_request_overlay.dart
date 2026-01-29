@@ -32,6 +32,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
   final Set<int> _completedRides = {};
 
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  
 
   @override
   void initState() {
@@ -269,8 +270,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
             child: ListView.builder(
+              scrollDirection: Axis.horizontal,
               shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
+              physics: const BouncingScrollPhysics(), 
               itemCount: _activeRequests.length,
               itemBuilder: (context, index) {
                 final ride = _activeRequests[index];

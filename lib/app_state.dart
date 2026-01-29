@@ -85,6 +85,14 @@ set activeRideStatus(String value) {
   prefs.setString('ff_activeRideStatus', value);
   notifyListeners();
 }
+int _activeRideCount = 0;
+int get activeRideCount => _activeRideCount;
+
+set activeRideCount(int value) {
+  _activeRideCount = value;
+  notifyListeners();
+}
+
 
 
 

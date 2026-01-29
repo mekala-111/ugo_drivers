@@ -9,7 +9,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'package:provider/provider.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 
@@ -500,7 +500,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             children: [
               Container(
                 width: double.infinity,
-                height: 100,
+                height: 115,
                 decoration: BoxDecoration(
                   color: Color(0xFFFF6600),
                 ),
@@ -632,161 +632,204 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                 ),
               ),
-              Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
+          Container(
+  width: double.infinity,
+  height: 40,
+  decoration: BoxDecoration(
+    color: FlutterFlowTheme.of(context).secondaryBackground,
+  ),
+  child: Padding(
+    padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+    child: Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Original Row with Today text
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  FFLocalizations.of(context).getText('nrjzvb2s'),
+                  style: FlutterFlowTheme.of(context).bodyLarge,
                 ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Text(
-                            FFLocalizations.of(context).getText('nrjzvb2s'),
-                            style: FlutterFlowTheme.of(context).bodyLarge.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context).bodyLarge.fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context).bodyLarge.fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              letterSpacing: 0.0,
-                              fontWeight: FlutterFlowTheme.of(context).bodyLarge.fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context).bodyLarge.fontStyle,
-                            ),
-                          ),
-                          Text(
-                            FFLocalizations.of(context).getText('od11ng7s'),
-                            style: FlutterFlowTheme.of(context).bodyLarge.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FlutterFlowTheme.of(context).bodyLarge.fontWeight,
-                                fontStyle: FlutterFlowTheme.of(context).bodyLarge.fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              letterSpacing: 0.0,
-                              fontWeight: FlutterFlowTheme.of(context).bodyLarge.fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context).bodyLarge.fontStyle,
-                            ),
-                          ),
-                        ].divide(SizedBox(width: 8)),
-                      ),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: FlutterFlowTheme.of(context).secondaryText,
-                        size: 24,
-                      ),
-                    ],
-                  ),
+                Text(
+                  FFLocalizations.of(context).getText('od11ng7s'),
+                  style: FlutterFlowTheme.of(context).bodyLarge,
                 ),
-              ),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  // height: 600,
+              ].divide(SizedBox(width: 8)),
+            ),
+            SizedBox(width: 48), // space for the circle
+          ],
+        ),
+
+        // Circle with ride count on the right (only visible if driver is online)
+        if (FFAppState().isonline) 
+          Positioned(
+            right: -16, // outside padding
+            top: -6,
+            child: AnimatedBuilder(
+              animation: FFAppState(),
+              builder: (context, _) {
+                final int rideCount = FFAppState().activeRideId; // dynamic ride count
+
+                return Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Color(0xFFE6F2FF),
+                    color: FlutterFlowTheme.of(context).secondaryBackground, // row bg
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.orange, // circle border color
+                      width: 2,
+                    ),
                   ),
-                  child: Stack(
-                    children: [
-                      FlutterFlowGoogleMap(
-                        controller: _model.googleMapsController,
-                        onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                        initialLocation: _model.googleMapsCenter ??= currentUserLocationValue!,
-                        markerColor: GoogleMarkerColor.violet,
-                        mapType: MapType.normal,
-                        style: GoogleMapStyle.standard,
-                        initialZoom: 14,
-                        allowInteraction: true,
-                        allowZoom: true,
-                        showZoomControls: false,
-                        showLocation: true,
-                        showCompass: false,
-                        showMapToolbar: false,
-                        showTraffic: false,
-                        centerMapOnMarkerTap: true,
-                        mapTakesGesturePreference: false,
-                      ),
-                      RideRequestOverlay(key: _overlayKey),
-                      Align(
-                        alignment: AlignmentDirectional(0.9, 0.9),
-                        child: PointerInterceptor(
-                          intercepting: isWeb,
-                          child: FlutterFlowIconButton(
-                            borderRadius: 25,
-                            buttonSize: 50,
-                            fillColor: Colors.white,
-                            icon: Icon(
-                              Icons.my_location,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              size: 24,
-                            ),
-                            onPressed: () async {
-                              if (currentUserLocationValue != null) {
-                                await _model.googleMapsController.future.then(
-                                      (c) => c.animateCamera(
-                                    CameraUpdate.newLatLng(currentUserLocationValue!.toGoogleMaps()),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    rideCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                height: 70,
-                decoration: BoxDecoration(
-                  color: Color(0xF357636C),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    LinearPercentIndicator(
-                      percent: 0.5,
-                      width: MediaQuery.sizeOf(context).width * 0.5,
+                );
+              },
+            ),
+          ),
+      ],
+    ),
+  ),
+),
+
+
+              Expanded(
+  child: Container(
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: Color(0xFFE6F2FF),
+    ),
+    child: Stack(
+      children: [
+        // ✅ Google Map
+        FlutterFlowGoogleMap(
+          controller: _model.googleMapsController,
+          onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
+          initialLocation: _model.googleMapsCenter ??= currentUserLocationValue!,
+          markerColor: GoogleMarkerColor.violet,
+          mapType: MapType.normal,
+          style: GoogleMapStyle.standard,
+          initialZoom: 14,
+          allowInteraction: true,
+          allowZoom: true,
+          showZoomControls: false,
+          showLocation: true,
+          showCompass: false,
+          showMapToolbar: false,
+          showTraffic: false,
+          centerMapOnMarkerTap: true,
+          mapTakesGesturePreference: false,
+        ),
+
+        // ✅ RideRequest overlay (if you still have it)
+        RideRequestOverlay(key: _overlayKey),
+
+        // ✅ Floating progress bar + image
+        Positioned(
+          top:520,
+          left: 16,
+          right: 16,
+          child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+              // color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                // BoxShadow(
+                //   color: Colors.black26,
+                //   blurRadius: 8,
+                //   offset: Offset(0, 4),
+                // ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  // Dynamic percentage bar
+                  Expanded(
+                    child: LinearPercentIndicator(
+                      percent: 0.6, // replace with dynamic value
                       lineHeight: 30,
                       animation: true,
                       animateFromLastPercent: true,
                       progressColor: Color(0xFF329556),
                       backgroundColor: FlutterFlowTheme.of(context).accent4,
                       center: Text(
-                        FFLocalizations.of(context).getText('lvps3bvl'),
+                        "${(0.6 * 100).toInt()}%", // show percentage dynamically
                         style: FlutterFlowTheme.of(context).headlineSmall.override(
                           font: GoogleFonts.interTight(
                             fontWeight: FlutterFlowTheme.of(context).headlineSmall.fontWeight,
                             fontStyle: FlutterFlowTheme.of(context).headlineSmall.fontStyle,
                           ),
                           letterSpacing: 0.0,
-                          // fontWeight: Flutt
-                          fontWeight: FlutterFlowTheme.of(context).headlineSmall.fontWeight,
-                          fontStyle: FlutterFlowTheme.of(context).headlineSmall.fontStyle,
+                          color: Colors.black,
                         ),
                       ),
                       barRadius: Radius.circular(50),
                       padding: EdgeInsets.zero,
                     ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/Group_2994.png',
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                  ),
+                  SizedBox(width: 16),
+
+                  // Image on the right
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      'assets/images/Group_2994.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ),
+
+        // ✅ My location button
+        // Align(
+        //   alignment: AlignmentDirectional(0.9, 0.9),
+        //   child: PointerInterceptor(
+        //     intercepting: isWeb,
+        //     child: FlutterFlowIconButton(
+        //       borderRadius: 25,
+        //       buttonSize: 50,
+        //       // fillColor: Colors.white,
+        //       icon: Icon(
+        //         // Icons.my_location,
+        //         // color: FlutterFlowTheme.of(context).primaryText,
+        //         // size: 24,
+        //       ),
+        //       onPressed: () async {
+        //         if (currentUserLocationValue != null) {
+        //           await _model.googleMapsController.future.then(
+        //                 (c) => c.animateCamera(
+        //               CameraUpdate.newLatLng(currentUserLocationValue!.toGoogleMaps()),
+        //             ),
+        //           );
+        //         }
+        //       },
+        //     ),
+        //   ),
+        // ),
+      ],
+    ),
+  ),
+),
+
+
             ].divide(SizedBox(height: 0)),
           ),
           // ),
