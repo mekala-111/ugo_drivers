@@ -199,10 +199,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
         _showCancelledSnackBar(updatedRide.id);
         return;
       }
-      if (updatedRide.status.toLowerCase() == 'accepted' && updatedRide.driverId != FFAppState().driverid) {
-        removeRideById(updatedRide.id);
-        return;
-      }
+      // if (updatedRide.status.toLowerCase() == 'accepted' && updatedRide.driverId != FFAppState().driverid) {
+      //   removeRideById(updatedRide.id);
+      //   return;
+      // }
 
       final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
       if (index != -1) {
