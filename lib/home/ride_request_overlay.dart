@@ -166,7 +166,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
                   ? _activeRequests.firstWhere((r) => r.id == id)
                   : null;
           if (rideToRemove != null &&
-              rideToRemove.status.toLowerCase() != 'accepted') {
+              rideToRemove.status.toLowerCase() != 'accepted' &&
+              rideToRemove.status.toLowerCase() != 'arrived' &&
+              rideToRemove.status.toLowerCase() != 'started' &&
+              rideToRemove.status.toLowerCase() != 'completed') {
             _activeRequests.removeWhere((r) => r.id == id);
             _timers.remove(id);
             _seenRideIds.remove(id);
@@ -275,30 +278,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
     if (_activeRequests.isEmpty) return const SizedBox.shrink();
 
     return Positioned(
-      bottom: 0,
+      bottom: 50,
       left: 0,
       right: 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              itemCount: _activeRequests.length,
-              itemBuilder: (context, index) {
-                final ride = _activeRequests[index];
-                if (ride.status == 'SEARCHING') {
-                  return _buildSearchingCard(ride);
-                } else {
-                  return _buildActiveRideCard(ride);
-                }
-              },
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _activeRequests.map((ride) {
+            return SizedBox(
+              width: MediaQuery.of(context).size.width * 0.95,
+              child: ride.status == 'SEARCHING'
+                  ? _buildSearchingCard(ride)
+                  : _buildActiveRideCard(ride),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -520,7 +514,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
                             setState(() => _paymentPendingRides.add(ride.id));
                           })
                     else if (isCompleted)
-                      _buildRideCompletedUI(),
+                      _buildRideCompletedUI(ride),
                     if (_paymentPendingRides.contains(ride.id)) ...[
                       const SizedBox(height: 20),
                       _buildPaymentUI(ride),
@@ -738,13 +732,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
       });
       FFAppState().activeRideId = 0;
       FFAppState().activeRideStatus = '';
-      Future.delayed(const Duration(seconds: 10), () {
-        if (!mounted) return;
-        setState(() {
-          _completedRides.remove(rideId);
-          _activeRequests.removeWhere((r) => r.id == rideId);
-        });
-      });
+      // Ride card will stay visible until driver confirms cash collection
     } catch (e) {
       debugPrint("❌ Complete Ride Error: $e");
     }
@@ -777,14 +765,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
 
   Future<void> _updateRideStatus(int rideId, String status) async {
     try {
-      await Dio().put(
-          "https://ugotaxi.icacorp.org/api/rides/$rideId",
-          data: {"ride_status": status,"driver_id" : FFAppState().driverid},
+      await Dio().put("https://ugotaxi.icacorp.org/api/rides/$rideId",
+          data: {"ride_status": status, "driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
       if (status == 'completed') {
         removeRideById(rideId);
+        FFAppState().activeRideId = 0;
+        FFAppState().activeRideStatus = '';
       } else {
         setState(() {
           final index = _activeRequests.indexWhere((r) => r.id == rideId);
@@ -863,18 +852,77 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
     }
   }
 
-  Widget _buildRideCompletedUI() {
+  Widget _buildRideCompletedUI(RideRequest ride) {
     return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            borderRadius: BorderRadius.circular(16)),
-        child: Column(children: const [
-          Icon(Icons.check_circle, size: 48, color: Colors.green),
-          SizedBox(height: 12),
-          Text("Ride Completed Successfully",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900))
-        ]));
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.check_circle, size: 48, color: Colors.green),
+          const SizedBox(height: 12),
+          const Text(
+            "Ride Completed Successfully",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Final Fare",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    Text(
+                      "₹${ride.estimatedFare?.toStringAsFixed(0) ?? '0'}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _completedRides.remove(ride.id);
+                _activeRequests.removeWhere((r) => r.id == ride.id);
+              });
+              _showSnack("✅ Cash collected", color: Colors.green);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 50),
+            ),
+            child: const Text(
+              "CASH COLLECTED",
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
