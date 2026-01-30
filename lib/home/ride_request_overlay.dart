@@ -8,6 +8,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:ugo_driver/services/floating_bubble_service.dart';
 
 class RideRequestOverlay extends StatefulWidget {
   const RideRequestOverlay({Key? key}) : super(key: key);
@@ -16,7 +18,8 @@ class RideRequestOverlay extends StatefulWidget {
   RideRequestOverlayState createState() => RideRequestOverlayState();
 }
 
-class RideRequestOverlayState extends State<RideRequestOverlay> {
+class RideRequestOverlayState extends State<RideRequestOverlay>
+    with WidgetsBindingObserver {
   static const Color primaryColor = Color(0xFFFF7B10);
 
   final List<RideRequest> _activeRequests = [];
@@ -37,6 +40,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final rideId = FFAppState().activeRideId;
     if (rideId != 0) {
       _fetchRideFromBackend(rideId);
@@ -46,6 +50,66 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
     _configureAudio();
     _initializeNotifications();
     _startTickTimer();
+    _initializeFloatingBubbleService();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        // App went to background - show floating bubble
+        _showFloatingBubble();
+        break;
+      case AppLifecycleState.resumed:
+      case AppLifecycleState.detached:
+        // App came back to foreground - hide floating bubble immediately
+        _hideFloatingBubble();
+        break;
+    }
+  }
+
+  Future<void> _showFloatingBubble() async {
+    try {
+      await FloatingBubbleService.showFloatingBubble();
+      print('🎈 Floating bubble SHOWN - App in background');
+    } catch (e) {
+      print('Error showing floating bubble: $e');
+    }
+  }
+
+  Future<void> _hideFloatingBubble() async {
+    try {
+      await FloatingBubbleService.hideFloatingBubble();
+      print('🛑 Floating bubble HIDDEN - App in foreground');
+    } catch (e) {
+      print('❌ Error hiding floating bubble: $e');
+    }
+  }
+
+  Future<void> _initializeFloatingBubbleService() async {
+    try {
+      bool hasPermission = await FloatingBubbleService.checkOverlayPermission();
+      if (!hasPermission) {
+        // Request permission if not granted
+        await FloatingBubbleService.requestOverlayPermission();
+        // Try again after a short delay
+        await Future.delayed(const Duration(seconds: 2));
+        hasPermission = await FloatingBubbleService.checkOverlayPermission();
+      }
+
+      if (hasPermission) {
+        // Service will be started when needed in showFloatingBubble()
+        print(
+            '🎈 Floating bubble permission granted - service will start when needed');
+      } else {
+        print('❌ Floating bubble permission denied');
+      }
+    } catch (e) {
+      print('Error initializing floating bubble service: $e');
+    }
   }
 
   void _showSnack(String message, {Color color = Colors.black}) {
@@ -116,13 +180,76 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
       iOS: DarwinInitializationSettings(),
     );
     await _localNotifications.initialize(initializationSettings);
+
+    // Create notification channel for persistent notifications
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'ugo_driver_channel',
+      'UGO Driver Notifications',
+      description: 'Persistent notifications for UGO Driver app',
+      importance: Importance.max,
+      showBadge: true,
+      playSound: true,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  Future<void> _showPersistentNotification() async {
+    final activeRides =
+        _activeRequests.where((r) => r.status != 'COMPLETED').length;
+    final searchingRides =
+        _activeRequests.where((r) => r.status == 'SEARCHING').length;
+
+    String title = 'UGO Driver';
+    String body = 'App running in background';
+
+    if (activeRides > 0) {
+      title = 'Active Ride${activeRides > 1 ? 's' : ''} ($activeRides)';
+      body = searchingRides > 0
+          ? '$searchingRides ride${searchingRides > 1 ? 's' : ''} waiting for acceptance'
+          : 'Ride in progress';
+    }
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'ugo_driver_channel',
+      'UGO Driver Notifications',
+      channelDescription: 'Persistent notifications for UGO Driver app',
+      importance: Importance.max,
+      priority: Priority.high,
+      ongoing: true,
+      autoCancel: false,
+      showWhen: false,
+      icon: '@mipmap/ic_launcher',
+      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+    );
+
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await _localNotifications.show(
+      999, // Unique ID for persistent notification
+      title,
+      body,
+      notificationDetails,
+    );
+  }
+
+  Future<void> _hidePersistentNotification() async {
+    await _localNotifications.cancel(999);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tickTimer?.cancel();
     _audioPlayer.dispose();
     _stopAlert();
+    _hideFloatingBubble();
     super.dispose();
   }
 
@@ -133,6 +260,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
       _startAlert();
     } else {
       _stopAlert();
+    }
+
+    // Update persistent notification if app is in background
+    if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.paused ||
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.inactive) {
+      _showPersistentNotification();
     }
   }
 
