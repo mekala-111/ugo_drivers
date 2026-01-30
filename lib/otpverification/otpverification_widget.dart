@@ -282,8 +282,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                           (_model.apiResultk3y?.jsonBody ?? ''),
                           r'''$.data.accessToken''',
                         ).toString();
-                        context.pushNamedAuth(
-                            HomeWidget.routeName, context.mounted);
+                       context.goNamedAuth(
+                          HomeWidget.routeName,
+                          context.mounted,
+                        );
                         safeSetState(() {});
                       } else {
                         FFAppState().isRegistered = false;

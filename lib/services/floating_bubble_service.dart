@@ -44,6 +44,20 @@ class FloatingBubbleService {
     }
   }
 
+  /// Update the floating bubble content
+  static Future<String> updateBubbleContent(
+      String title, String subtitle) async {
+    try {
+      final String result = await _channel.invokeMethod('updateBubbleContent', {
+        'title': title,
+        'subtitle': subtitle,
+      });
+      return result;
+    } on PlatformException catch (e) {
+      return 'Failed to update bubble content: ${e.message}';
+    }
+  }
+
   /// Check if overlay permission is granted
   static Future<bool> checkOverlayPermission() async {
     try {

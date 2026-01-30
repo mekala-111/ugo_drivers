@@ -62,7 +62,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget> {
                 size: 16.0,
               ),
               onPressed: () async {
-                context.safePop();
+                context.pop();
               },
             ),
           ),

@@ -136,6 +136,10 @@ public class FloatingBubbleService extends Service {
                 showBubble();
             } else if ("HIDE_BUBBLE".equals(action)) {
                 hideBubble();
+            } else if ("UPDATE_BUBBLE_CONTENT".equals(action)) {
+                String title = intent.getStringExtra("title");
+                String subtitle = intent.getStringExtra("subtitle");
+                updateBubbleContent(title, subtitle);
             }
         } else {
             Log.d("FloatingBubbleService", "onStartCommand called with null intent");
@@ -186,12 +190,17 @@ public class FloatingBubbleService extends Service {
             TextView titleView = floatingBubble.findViewById(R.id.bubble_title);
             TextView subtitleView = floatingBubble.findViewById(R.id.bubble_subtitle);
 
-            if (titleView != null) {
+            if (titleView != null && title != null) {
                 titleView.setText(title);
+                titleView.setVisibility(View.VISIBLE);
             }
-            if (subtitleView != null) {
+            if (subtitleView != null && subtitle != null) {
                 subtitleView.setText(subtitle);
+                subtitleView.setVisibility(View.VISIBLE);
             }
+            Log.d("FloatingBubbleService", "Bubble content updated - title: " + title + ", subtitle: " + subtitle);
+        } else {
+            Log.e("FloatingBubbleService", "Cannot update bubble content - floatingBubble is null");
         }
     }
 }

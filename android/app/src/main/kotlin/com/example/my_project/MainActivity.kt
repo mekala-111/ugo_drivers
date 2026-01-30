@@ -36,6 +36,12 @@ class MainActivity: FlutterActivity() {
                     hideFloatingBubble()
                     result.success("Floating bubble hidden")
                 }
+                "updateBubbleContent" -> {
+                    val title = call.argument<String>("title") ?: ""
+                    val subtitle = call.argument<String>("subtitle") ?: ""
+                    updateBubbleContent(title, subtitle)
+                    result.success("Bubble content updated")
+                }
                 "checkOverlayPermission" -> {
                     val hasPermission = Settings.canDrawOverlays(this)
                     result.success(hasPermission)
@@ -100,6 +106,24 @@ class MainActivity: FlutterActivity() {
 
         val intent = Intent(this, FloatingBubbleService::class.java)
         intent.action = "HIDE_BUBBLE"
+        startService(intent)
+    }
+
+    private fun updateBubbleContent(title: String, subtitle: String) {
+        // Ensure service is running before trying to update
+        if (!isServiceRunning(FloatingBubbleService::class.java)) {
+            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        }
+
+        val intent = Intent(this, FloatingBubbleService::class.java)
+        intent.action = "UPDATE_BUBBLE_CONTENT"
+        intent.putExtra("title", title)
+        intent.putExtra("subtitle", subtitle)
         startService(intent)
     }
 

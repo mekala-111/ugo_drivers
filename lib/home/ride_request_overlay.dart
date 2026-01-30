@@ -37,6 +37,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  // Track app lifecycle state
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +59,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    _appLifecycleState = state;
+
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
@@ -179,7 +184,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       android: initializationSettingsAndroid,
       iOS: DarwinInitializationSettings(),
     );
-    await _localNotifications.initialize(initializationSettings);
+    await _localNotifications.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
+    );
 
     // Create notification channel for persistent notifications
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -195,6 +203,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
+
+    // Create ride requests channel
+    const AndroidNotificationChannel rideChannel = AndroidNotificationChannel(
+      'ride_requests_channel',
+      'Ride Requests',
+      description: 'Notifications for new ride requests',
+      importance: Importance.max,
+      showBadge: true,
+      playSound: true,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(rideChannel);
   }
 
   Future<void> _showPersistentNotification() async {
@@ -241,6 +264,92 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   Future<void> _hidePersistentNotification() async {
     await _localNotifications.cancel(999);
+  }
+
+  Future<void> _showRideRequestNotification(RideRequest ride) async {
+    try {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'ride_requests_channel',
+        'Ride Requests',
+        channelDescription: 'Notifications for new ride requests',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: true,
+        autoCancel: false,
+        ongoing: true,
+        actions: <AndroidNotificationAction>[
+          AndroidNotificationAction('accept_ride', 'Accept'),
+          AndroidNotificationAction('reject_ride', 'Reject'),
+        ],
+      );
+
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+
+      await _localNotifications.show(
+        999, // Use a fixed ID for ride requests
+        'New Ride Request',
+        'From: ${ride.pickupAddress}\nTo: ${ride.dropAddress}\nFare: ₹${ride.estimatedFare ?? 0}',
+        platformChannelSpecifics,
+        payload: ride.id.toString(),
+      );
+    } catch (e) {
+      print('❌ Error showing ride request notification: $e');
+    }
+  }
+
+  void _onNotificationResponse(NotificationResponse response) async {
+    final String? payload = response.payload;
+    if (payload == null) return;
+
+    final rideId = int.tryParse(payload);
+    if (rideId == null) return;
+
+    // Find the ride in active requests
+    final rideIndex = _activeRequests.indexWhere((r) => r.id == rideId);
+    if (rideIndex == -1) return;
+
+    final ride = _activeRequests[rideIndex];
+
+    if (response.actionId == 'accept_ride') {
+      await _acceptRideFromNotification(ride);
+    } else if (response.actionId == 'reject_ride') {
+      await _rejectRideFromNotification(ride);
+    }
+
+    // Hide the notification after action
+    await _hidePersistentNotification();
+  }
+
+  Future<void> _acceptRideFromNotification(RideRequest ride) async {
+    try {
+      // Bring app to foreground first
+      await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+
+      // Then accept the ride
+      await _acceptRide(ride.id);
+      print('✅ Ride accepted from notification: ${ride.id}');
+    } catch (e) {
+      print('❌ Error accepting ride from notification: $e');
+    }
+  }
+
+  Future<void> _rejectRideFromNotification(RideRequest ride) async {
+    try {
+      // Remove the ride from active requests
+      setState(() {
+        _activeRequests.removeWhere((r) => r.id == ride.id);
+        _timers.remove(ride.id);
+      });
+
+      // Update alert state
+      _updateAlertState();
+
+      print('❌ Ride rejected from notification: ${ride.id}');
+    } catch (e) {
+      print('❌ Error rejecting ride from notification: $e');
+    }
   }
 
   @override
@@ -370,9 +479,35 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           _timers[updatedRide.id] = 30;
         });
         _updateAlertState();
+
+        // Show background overlay if app is in background
+        if (_isAppInBackground()) {
+          _showBackgroundRideOverlay(updatedRide);
+        }
       }
     } catch (e) {
       print("❌ Error parsing ride request: $e");
+    }
+  }
+
+  bool _isAppInBackground() {
+    return _appLifecycleState == AppLifecycleState.paused ||
+        _appLifecycleState == AppLifecycleState.inactive ||
+        _appLifecycleState == AppLifecycleState.hidden;
+  }
+
+  Future<void> _showBackgroundRideOverlay(RideRequest ride) async {
+    try {
+      // Show persistent notification with ride details
+      await _showRideRequestNotification(ride);
+
+      // Also show the floating bubble with ride info if not already shown
+      await FloatingBubbleService.updateBubbleContent(
+          'New Ride Request', 'Tap to view details');
+
+      print('🚗 Background ride overlay shown for ride #${ride.id}');
+    } catch (e) {
+      print('❌ Error showing background ride overlay: $e');
     }
   }
 
