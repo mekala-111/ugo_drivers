@@ -281,18 +281,47 @@ class RideRequestOverlayState extends State<RideRequestOverlay> {
       bottom: 50,
       left: 0,
       right: 0,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _activeRequests.map((ride) {
-            return SizedBox(
-              width: MediaQuery.of(context).size.width * 0.95,
-              child: ride.status == 'SEARCHING'
-                  ? _buildSearchingCard(ride)
-                  : _buildActiveRideCard(ride),
-            );
-          }).toList(),
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Ride count indicator
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              '${_activeRequests.length} Ride${_activeRequests.length == 1 ? '' : 's'}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _activeRequests.map((ride) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  child: ride.status == 'SEARCHING'
+                      ? _buildSearchingCard(ride)
+                      : _buildActiveRideCard(ride),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
