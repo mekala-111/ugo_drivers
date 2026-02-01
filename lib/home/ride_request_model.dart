@@ -83,6 +83,9 @@ class RideRequest {
   // ✅ UI-ONLY STATE (NEW)
   final bool isAtPickup;
 
+  final String? firstName;
+  final String? mobileNumber;
+
   RideRequest({
     required this.id,
     required this.userId,
@@ -97,6 +100,10 @@ class RideRequest {
     this.distance,
     this.estimatedFare,
     this.createdAt,
+
+    // Customer info
+    this.firstName,
+    this.mobileNumber,
 
     // OTP
     this.otp,
@@ -128,6 +135,10 @@ class RideRequest {
       estimatedFare: _parseToDouble(json['estimated_fare']),
       createdAt: DateTime.tryParse(json['created_at'] ?? ''),
 
+      // Customer info
+      firstName: json['first_name']?.toString(),
+      mobileNumber: json['mobile_number']?.toString(),
+
       // OTP
       otp: json['otp']?.toString(),
       otpHash: json['otp_hash']?.toString(),
@@ -152,6 +163,8 @@ class RideRequest {
   RideRequest copyWith({
     String? status,
     bool? isAtPickup,
+    String? firstName,
+    String? mobileNumber,
   }) {
     return RideRequest(
       id: id,
@@ -167,6 +180,8 @@ class RideRequest {
       distance: distance,
       estimatedFare: estimatedFare,
       createdAt: createdAt,
+      firstName: firstName ?? this.firstName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
       otp: otp,
       otpHash: otpHash,
       otpExpiresAt: otpExpiresAt,
