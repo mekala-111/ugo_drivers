@@ -677,33 +677,37 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         if (!isCompleted)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final pos = await Geolocator.getCurrentPosition();
-                await GoogleMapsNavigation.open(
-                  originLat: pos.latitude,
-                  originLng: pos.longitude,
-                  destLat:
-                      (isAccepted || isArrived) ? ride.pickupLat : ride.dropLat,
-                  destLng:
-                      (isAccepted || isArrived) ? ride.pickupLng : ride.dropLng,
-                );
-              },
-              icon: const Icon(Icons.navigation, color: Colors.black),
-              label: Text(
-                (isAccepted || isArrived) ? "Go to pickup" : "Go to drop",
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFCC33),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)),
+            child: Align(
+              alignment: Alignment.centerRight, // 👈 moves button to the right
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final pos = await Geolocator.getCurrentPosition();
+                  await GoogleMapsNavigation.open(
+                    originLat: pos.latitude,
+                    originLng: pos.longitude,
+                    destLat:
+                    (isAccepted || isArrived) ? ride.pickupLat : ride.dropLat,
+                    destLng:
+                    (isAccepted || isArrived) ? ride.pickupLng : ride.dropLng,
+                  );
+                },
+                icon: const Icon(Icons.navigation, color: Colors.black),
+                label: Text(
+                  (isAccepted || isArrived) ? "Pickup" : "Drop",
+                  style: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                ),
               ),
             ),
           ),
+
         Container(
           width: double.infinity,
           decoration: const BoxDecoration(
@@ -723,15 +727,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                           top: Radius.circular(24))),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.check_circle, color: Colors.green, size: 16),
-                      SizedBox(width: 8),
-                      Text("Customer Verified Location",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: Colors.black54)),
-                    ],
+                    // children: const [
+                    //   Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    //   SizedBox(width: 8),
+                    //   Text("Customer Verified Location",
+                    //       style: TextStyle(
+                    //           fontWeight: FontWeight.bold,
+                    //           fontSize: 12,
+                    //           color: Colors.black54)),
+                    // ],
                   ),
                 ),
               if (isArrived && _waitTimers.containsKey(ride.id))
@@ -741,7 +745,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Customer",
+                    const Text("Sony Reddy",
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -752,66 +756,153 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                           ? ride.pickupAddress
                           : ride.dropAddress,
                       style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                      TextStyle(color: Colors.grey.shade600, fontSize: 14),
                     ),
                     const SizedBox(height: 20),
-                    if (isAccepted || isArrived) ...[
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.message, color: Colors.black),
-                        label: const Text("Message customer",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold)),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
+                    const SizedBox(height: 20),
+
+                    /// ================= ACCEPTED =================
+                    if (isAccepted) ...[
+                      /// ▶️ ARRIVED SWIPE
+                      UgoSwipeButton(
+                        key: ValueKey(
+                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                        text: "Arrived",
+                        color: Colors.black,
+                        onSwipe: () {
+                          _updateRideStatus(ride.id, 'arrived');
+                          FFAppState().activeRideStatus = 'arrived';
+                        },
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // 📞 Call customer
+                              },
+                              icon: const Icon(Icons.call, color: Colors.black),
+                              label: const Text(
+                                "Call",
+                                style: TextStyle(
+                                    color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                side: BorderSide(color: Colors.grey.shade300),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // ❌ Cancel ride
+                              },
+                              icon: const Icon(Icons.close, color: Colors.red),
+                              label: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                side: BorderSide(color: Colors.red.shade300),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]
+
+                    /// ================= ARRIVED =================
+                    else if (isArrived) ...[
+                      /// ▶️ START RIDE
+                      UgoSwipeButton(
+                        key: ValueKey(
+                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                        text: "Start Ride",
+                        color: Colors.green.shade700,
+                        onSwipe: () {
+                          _showOtpDialog(ride.id);
+                        },
                       ),
                       const SizedBox(height: 12),
-                    ],
-                    if (isAccepted)
-                      UgoSwipeButton(
-                          key: ValueKey(
-                              'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                          text: "Arrived",
-                          color: Colors.blue.shade700,
-                          onSwipe: () {
-                            _updateRideStatus(ride.id, 'arrived');
-                            FFAppState().activeRideStatus = 'arrived';
-                          })
-                    else if (isArrived)
-                      UgoSwipeButton(
-                          key: ValueKey(
-                              'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                          text: "Start Ride",
-                          color: Colors.green.shade700,
-                          onSwipe: () {
-                            _showOtpDialog(ride.id);
-                          })
+
+                      /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // 📞 Call customer
+                              },
+                              icon: const Icon(Icons.call, color: Colors.black),
+                              label: const Text(
+                                "Call",
+                                style: TextStyle(
+                                    color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                side: BorderSide(color: Colors.grey.shade300),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // ❌ Cancel ride
+                              },
+                              icon: const Icon(Icons.close, color: Colors.red),
+                              label: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                side: BorderSide(color: Colors.red.shade300),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]
                     else if (isOtpVerified)
-                      UgoSwipeButton(
-                          key: ValueKey(
-                              'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                          text: "Start Ride",
-                          color: Colors.green.shade700,
-                          onSwipe: () {
-                            _updateRideStatus(ride.id, 'started');
-                            FFAppState().activeRideStatus = 'started';
-                          })
-                    else if (isStarted)
-                      UgoSwipeButton(
-                          key: ValueKey(
-                              'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                          text: "Complete Ride",
-                          color: Colors.red.shade800,
-                          onSwipe: () {
-                            setState(() => _paymentPendingRides.add(ride.id));
-                          })
-                    else if (isCompleted)
-                      _buildRideCompletedUI(ride),
+                        UgoSwipeButton(
+                            key: ValueKey(
+                                'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                            text: "Start Ride",
+                            color: Colors.green.shade700,
+                            onSwipe: () {
+                              _updateRideStatus(ride.id, 'started');
+                              FFAppState().activeRideStatus = 'started';
+                            })
+                      else if (isStarted)
+                          UgoSwipeButton(
+                              key: ValueKey(
+                                  'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                              text: "Complete Ride",
+                              color: Colors.red.shade800,
+                              onSwipe: () {
+                                setState(() => _paymentPendingRides.add(ride.id));
+                              })
+                        else if (isCompleted)
+                            _buildRideCompletedUI(ride),
                     if (_paymentPendingRides.contains(ride.id)) ...[
                       const SizedBox(height: 20),
                       _buildPaymentUI(ride),

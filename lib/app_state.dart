@@ -11,15 +11,21 @@ class FFAppState extends ChangeNotifier {
   }
 
   FFAppState._internal();
-  
-        bool hasProfilePhoto = false;
-      bool hasLicense = false;
-      bool hasAadhar = false;
-      bool hasPan = false;
-      bool hasVehicleImage = false;
-      bool hasRC = false;
-      int _activeRideId = 0;
-String _activeRideStatus = '';
+
+  bool hasProfilePhoto = false;
+  bool hasLicense = false;
+  bool hasAadhar = false;
+  bool hasPan = false;
+  bool hasVehicleImage = false;
+  bool hasRC = false;
+  int _activeRideId = 0;
+  String _activeRideStatus = '';
+  int _mobileNo = 0;
+  String _firstName = '';
+  String _lastName = '';
+  String _email = '';
+  String _referralCode = '';
+
 
 // int get activeRideId => _activeRideId;
 // String get activeRideStatus => _activeRideStatus;
@@ -41,26 +47,43 @@ String _activeRideStatus = '';
       _qrImage = prefs.getString('ff_qrImage') ?? _qrImage;
     });
     _safeInit(() {
-  isLoggedIn = prefs.getBool('ff_isLoggedIn') ?? false;
-});
-_safeInit(() {
-  _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
-});
- _safeInit(() {
-    _driverid = prefs.getInt('ff_driverid') ?? _driverid; // 🔥 MISSING LINE
-  });
-  _safeInit(() {
-  _isonline = prefs.getBool('ff_isonline') ?? false;
-});
-_safeInit(() {
-  _activeRideId = prefs.getInt('ff_activeRideId') ?? 0;
-});
+      isLoggedIn = prefs.getBool('ff_isLoggedIn') ?? false;
+    });
+    _safeInit(() {
+      _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
+    });
+    _safeInit(() {
+      _driverid = prefs.getInt('ff_driverid') ?? _driverid; // 🔥 MISSING LINE
+    });
+    _safeInit(() {
+      _isonline = prefs.getBool('ff_isonline') ?? false;
+    });
+    _safeInit(() {
+      _activeRideId = prefs.getInt('ff_activeRideId') ?? 0;
+    });
 
-_safeInit(() {
-  _activeRideStatus = prefs.getString('ff_activeRideStatus') ?? '';
-});
+    _safeInit(() {
+      _activeRideStatus = prefs.getString('ff_activeRideStatus') ?? '';
+    });
+    _safeInit(() {
+      _mobileNo = prefs.getInt('ff_mobileNo') ?? 0;
+    });
+    _safeInit(() {
+      _firstName = prefs.getString('ff_firstName') ?? '';
+    });
+    _safeInit(() {
+      _lastName = prefs.getString('ff_lastName') ?? '';
+    });
+    _safeInit(() {
+      _email = prefs.getString('ff_email') ?? '';
+    });
+    _safeInit(() {
+      _referralCode = prefs.getString('ff_referralCode') ?? '';
+    });
 
-
+    _safeInit(() {
+      _fcmToken = prefs.getString('ff_fcmToken') ?? '';
+    });
 
 
 
@@ -72,55 +95,106 @@ _safeInit(() {
     notifyListeners();
   }
   int get activeRideId => _activeRideId;
-String get activeRideStatus => _activeRideStatus;
+  String get activeRideStatus => _activeRideStatus;
 
-set activeRideId(int value) {
-  _activeRideId = value;
-  prefs.setInt('ff_activeRideId', value);
-  notifyListeners();
-}
+  set activeRideId(int value) {
+    _activeRideId = value;
+    prefs.setInt('ff_activeRideId', value);
+    notifyListeners();
+  }
 
-set activeRideStatus(String value) {
-  _activeRideStatus = value;
-  prefs.setString('ff_activeRideStatus', value);
-  notifyListeners();
-}
-int _activeRideCount = 0;
-int get activeRideCount => _activeRideCount;
+  set activeRideStatus(String value) {
+    _activeRideStatus = value;
+    prefs.setString('ff_activeRideStatus', value);
+    notifyListeners();
+  }
+  int _activeRideCount = 0;
+  int get activeRideCount => _activeRideCount;
 
-set activeRideCount(int value) {
-  _activeRideCount = value;
-  notifyListeners();
-}
+  set activeRideCount(int value) {
+    _activeRideCount = value;
+    notifyListeners();
+  }
+
+  int get mobileNo => _mobileNo;
+
+  set mobileNo(int value) {
+    _mobileNo = value;
+    prefs.setInt('ff_mobileNo', value);
+    notifyListeners();
+  }
+
+
+  String get firstName => _firstName;
+
+  set firstName(String value) {
+    _firstName = value;
+    prefs.setString('ff_firstName', value);
+    notifyListeners();
+  }
+
+  String _fcmToken = '';
+  String get fcmToken => _fcmToken;
+  set fcmToken(String value) {
+    _fcmToken = value;
+    prefs.setString('ff_fcmToken', value);
+  }
+
+  String get lastName => _lastName;
+
+  set lastName(String value) {
+    _lastName = value;
+    prefs.setString('ff_lastName', value);
+    notifyListeners();
+  }
+
+
+  String get email => _email;
+
+  set email(String value) {
+    _email = value;
+    prefs.setString('ff_email', value);
+    notifyListeners();
+  }
+
+
+  String get referralCode => _referralCode;
+
+  set referralCode(String value) {
+    _referralCode = value;
+    prefs.setString('ff_referralCode', value);
+    notifyListeners();
+  }
+
 
 
 
 
   late SharedPreferences prefs;
-  
+
 // bool get isLoggedIn => _accessToken.isNotEmpty;
 
-bool _isLoggedIn = false;
+  bool _isLoggedIn = false;
 
-bool get isLoggedIn => _isLoggedIn;
+  bool get isLoggedIn => _isLoggedIn;
 
-set isLoggedIn(bool value) {
-  _isLoggedIn = value; // ✅ correct
-  prefs.setBool('ff_isLoggedIn', value);
-  notifyListeners();
-}
+  set isLoggedIn(bool value) {
+    _isLoggedIn = value; // ✅ correct
+    prefs.setBool('ff_isLoggedIn', value);
+    notifyListeners();
+  }
 
-bool _isRegistered = false;
-bool get isRegistered => _isRegistered;
-set isRegistered(bool value) {
-  _isRegistered = value;
-  prefs.setBool('ff_isRegistered', value);
-  notifyListeners();
-}
+  bool _isRegistered = false;
+  bool get isRegistered => _isRegistered;
+  set isRegistered(bool value) {
+    _isRegistered = value;
+    prefs.setBool('ff_isRegistered', value);
+    notifyListeners();
+  }
 
 
 
-  
+
 
   String _selectvehicle = '';
   String get selectvehicle => _selectvehicle;
@@ -129,7 +203,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
-   // DRIVING LICENSE IMAGE
+  // DRIVING LICENSE IMAGE
   // --------------------------------
   FFUploadedFile? _imageLicense;
   FFUploadedFile? get imageLicense => _imageLicense;
@@ -138,7 +212,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
-  
+
   FFUploadedFile? _aadharImage;
   FFUploadedFile? get aadharImage => _aadharImage;
   set aadharImage(FFUploadedFile? value) {
@@ -146,7 +220,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
-  
+
   FFUploadedFile? _profilePhoto;
   FFUploadedFile? get profilePhoto => _profilePhoto;
   set profilePhoto(FFUploadedFile? value) {
@@ -154,7 +228,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
-  
+
   FFUploadedFile? _panImage;
   FFUploadedFile? get panImage => _panImage;
   set panImage(FFUploadedFile? value) {
@@ -162,7 +236,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
- 
+
   FFUploadedFile? _vehicleImage;
   FFUploadedFile? get vehicleImage => _vehicleImage;
   set vehicleImage(FFUploadedFile? value) {
@@ -170,7 +244,7 @@ set isRegistered(bool value) {
     notifyListeners();
   }
 
-  
+
   FFUploadedFile? _registrationImage;
   FFUploadedFile? get registrationImage => _registrationImage;
   set registrationImage(FFUploadedFile? value) {
@@ -198,9 +272,9 @@ set isRegistered(bool value) {
     _pollutioncertificateImage = value;
     notifyListeners();
   }
-  
 
-  
+
+
 
   // int _driverid = 0;
   // int get driverid => _driverid;
@@ -208,56 +282,56 @@ set isRegistered(bool value) {
   //   _driverid = value;
   // }
   int _driverid = 0;
-int get driverid => _driverid;
+  int get driverid => _driverid;
 
-set driverid(int value) {
-  _driverid = value;
-  prefs.setInt('ff_driverid', value); // 🔥 REQUIRED
-}
+  set driverid(int value) {
+    _driverid = value;
+    prefs.setInt('ff_driverid', value); // 🔥 REQUIRED
+  }
 
 
   bool _isonline = false;
-bool get isonline => _isonline;
+  bool get isonline => _isonline;
 
-set isonline(bool value) {
-  _isonline = value;
-  prefs.setBool('ff_isonline', value);
-  notifyListeners();
-}
+  set isonline(bool value) {
+    _isonline = value;
+    prefs.setBool('ff_isonline', value);
+    notifyListeners();
+  }
 
 
   String _accessToken = '';
-String get accessToken => _accessToken;
+  String get accessToken => _accessToken;
 
-set accessToken(String value) {
-  _accessToken = value;
-  if (value.isEmpty) {
-    prefs.remove('ff_accessToken');
-  } else {
-    prefs.setString('ff_accessToken', value);
+  set accessToken(String value) {
+    _accessToken = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_accessToken');
+    } else {
+      prefs.setString('ff_accessToken', value);
+    }
+    notifyListeners();
   }
-  notifyListeners();
-}
 
 
   String _kycStatus = '';
-String get kycStatus => _kycStatus;
+  String get kycStatus => _kycStatus;
 
-set kycStatus(String value) {
-  final cleanValue = value.trim().toLowerCase() == 'null'
-      ? ''
-      : value.trim();
+  set kycStatus(String value) {
+    final cleanValue = value.trim().toLowerCase() == 'null'
+        ? ''
+        : value.trim();
 
-  _kycStatus = cleanValue;
+    _kycStatus = cleanValue;
 
-  if (cleanValue.isEmpty) {
-    prefs.remove('ff_kycStatus');
-  } else {
-    prefs.setString('ff_kycStatus', cleanValue);
+    if (cleanValue.isEmpty) {
+      prefs.remove('ff_kycStatus');
+    } else {
+      prefs.setString('ff_kycStatus', cleanValue);
+    }
+
+    notifyListeners();
   }
-
-  notifyListeners();
-}
 
 
   String _qrImage = '';

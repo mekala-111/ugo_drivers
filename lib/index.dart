@@ -40,7 +40,6 @@ export '/payment_options/payment_options_widget.dart' show PaymentOptionsWidget;
 export '/add_payment/add_payment_widget.dart' show AddPaymentWidget;
 export '/voucher/voucher_widget.dart' show VoucherWidget;
 export '/wallet_password/wallet_password_widget.dart' show WalletPasswordWidget;
-export '/driver_details/driver_details_widget.dart' show DriverDetailsWidget;
 export '/messages/messages_widget.dart' show MessagesWidget;
 export '/account_support/account_support_widget.dart' show AccountSupportWidget;
 export '/support_ride/support_ride_widget.dart' show SupportRideWidget;
@@ -50,9 +49,6 @@ export '/customer_suport/customer_suport_widget.dart' show CustomerSuportWidget;
 export '/book_sucessfull/book_sucessfull_widget.dart' show BookSucessfullWidget;
 export '/cancel_ride/cancel_ride_widget.dart' show CancelRideWidget;
 export '/add_stop/add_stop_widget.dart' show AddStopWidget;
-export '/detailspage_copy/detailspage_copy_widget.dart'
-    show DetailspageCopyWidget;
-export '/details_p1/details_p1_widget.dart' show DetailsP1Widget;
 export '/choose_vehicle/choose_vehicle_widget.dart' show ChooseVehicleWidget;
 export '/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
 export '/driving_dl/driving_dl_widget.dart' show DrivingDlWidget;

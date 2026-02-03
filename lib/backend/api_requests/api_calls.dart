@@ -57,11 +57,11 @@ class ChoosevehicleCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/admins/api/admins/vehicles',
+      apiUrl: 'https://ugotaxi.icacorp.org/api/vehicle-types/get',
       callType: ApiCallType.GET,
-      // headers: {
-      //   'Authorization': 'Bearer Token',
-      // },
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -72,44 +72,56 @@ class ChoosevehicleCall {
     );
   }
 
-  static List? vehiclename(dynamic response) => getJsonField(
+  // Get all data array
+  static List<dynamic>? data(dynamic response) => getJsonField(
         response,
-        r'''$.data[:].vehicle_name''',
+        r'$.data',
         true,
       ) as List?;
-      static List<dynamic>? data(dynamic response) => getJsonField(
-      response,
-      r'''$.data''',
-      true,
-    ) as List?;
 
-  static List<String>? vehicleimage(dynamic response) => (getJsonField(
+  // Get list of vehicle type names
+  static List<String>? vehiclename(dynamic response) => (getJsonField(
         response,
-        r'''$.data[:].vehicle_image''',
+        r'$.data[:].name',
         true,
       ) as List?)
           ?.withoutNulls
-          .map((x) {
-            final img = castToType<String>(x);
-            if (img == null || img.isEmpty) return null;
-            if (img.startsWith('http')) return img;
-            return 'http://www.ugotaxi.com/$img';
-          })
+          .map((x) => castToType<String>(x))
           .withoutNulls
           .toList();
 
+  // Get list of vehicle type IDs
   static List<int>? vehicleId(dynamic response) => (getJsonField(
         response,
-        r'''$.data[:].id''',
+        r'$.data[:].id',
         true,
       ) as List?)
           ?.withoutNulls
           .map((x) => castToType<int>(x))
           .withoutNulls
           .toList();
-  static List<String>? vehicletype(dynamic response) => (getJsonField(
+
+  // Get success status
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
         response,
-        r'''$.data[:].vehicle_type''',
+        r'$.success',
+      ));
+
+  // Get created dates
+  static List<String>? createdAt(dynamic response) => (getJsonField(
+        response,
+        r'$.data[:].createdAt',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+
+  // Get updated dates
+  static List<String>? updatedAt(dynamic response) => (getJsonField(
+        response,
+        r'$.data[:].updatedAt',
         true,
       ) as List?)
           ?.withoutNulls
@@ -134,6 +146,16 @@ class CreateDriverCall {
   }) async {
     final driver = _serializeJson(driverJson);
     final vehicle = _serializeJson(vehicleJson);
+
+    print("🚀 CreateDriver API Request}");
+    print("🚀 CreateDriver API Request");
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    print("📍 URL: https://ugotaxi.icacorp.org/api/drivers/signup-with-vehicle");
+    print("📦 Body Type: ${BodyType.MULTIPART}");
+    print("\n📄 FORM FIELDS:");
+    print("  • driver: $driver");
+    print("  • vehicle: $vehicle");
+    print("  • fcm_token: $fcmToken");
 
     return ApiManager.instance.makeApiCall(
       callName: 'createDriver',
@@ -167,6 +189,7 @@ class CreateDriverCall {
         response,
         r'''$.message''',
       ));
+
 }
 
 class UpdateDriverCall {
@@ -185,59 +208,58 @@ class UpdateDriverCall {
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionCertificateImage,
   }) async {
-    
     // Build params dynamically - only include non-null values
     final Map<String, dynamic> params = {};
-    
+
     // ✅ CRITICAL FIX: Backend expects "is_online" not "isonline"
     if (isonline != null) {
-      params['is_online'] = isonline;  // Changed from 'isonline' to 'is_online'
+      params['is_online'] = isonline; // Changed from 'isonline' to 'is_online'
     }
-    
+
     if (latitude != null) {
       params['current_location_latitude'] = latitude.toString();
     }
-    
+
     if (longitude != null) {
       params['current_location_longitude'] = longitude.toString();
     }
-     if (profileimage != null) {
+    if (profileimage != null) {
       params['profile_image'] = profileimage;
     }
-    
+
     if (licenseimage != null) {
       params['license_image'] = licenseimage;
     }
-    
+
     if (aadhaarimage != null) {
       params['aadhaar_image'] = aadhaarimage;
     }
-    
+
     if (panimage != null) {
       params['pan_image'] = panimage;
     }
-    
+
     if (vehicleImage != null) {
       params['vehicle_image'] = vehicleImage;
     }
-    
+
     if (registrationImage != null) {
       params['registration_image'] = registrationImage;
     }
-    
+
     if (insuranceImage != null) {
       params['insurance_image'] = insuranceImage;
     }
-    
+
     if (pollutionCertificateImage != null) {
       params['pollution_certificate_image'] = pollutionCertificateImage;
     }
-    
+
     print("🚀 UpdateDriver API Request:");
     print("   URL: https://ugotaxi.icacorp.org/api/drivers/$id");
     print("   Token: ${token?.substring(0, 20)}...");
     print("   Params: $params");
-    
+
     final response = await ApiManager.instance.makeApiCall(
       callName: 'updateDriver',
       apiUrl: 'https://ugotaxi.icacorp.org/api/drivers/$id',
@@ -254,12 +276,12 @@ class UpdateDriverCall {
       isStreamingApi: false,
       alwaysAllowBody: false,
     );
-    
+
     print("📥 UpdateDriver API Response:");
     print("   Status: ${response.statusCode}");
     print("   Success: ${response.succeeded}");
     print("   Body: ${response.jsonBody}");
-    
+
     return response;
   }
 
@@ -267,12 +289,13 @@ class UpdateDriverCall {
         response,
         r'''$.message''',
       ));
-  
+
   static bool? isOnline(dynamic response) => castToType<bool>(getJsonField(
         response,
         r'''$.data.is_online''',
       ));
 }
+
 class DriverIdfetchCall {
   static Future<ApiCallResponse> call({
     String? token = '',
@@ -307,25 +330,29 @@ class DriverIdfetchCall {
         response,
         r'''$.data''',
       );
-       static String? referralCode(dynamic response) => castToType<String>(getJsonField(
+  static String? referralCode(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.referral_code''',
       ));
 
   /// Get profile image URL
-  static String? profileImage(dynamic response) => castToType<String>(getJsonField(
+  static String? profileImage(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.profile_image''',
       ));
 
   /// Get license image URL
-  static String? licenseImage(dynamic response) => castToType<String>(getJsonField(
+  static String? licenseImage(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.license_image''',
       ));
 
   /// Get aadhaar image URL
-  static String? aadhaarImage(dynamic response) => castToType<String>(getJsonField(
+  static String? aadhaarImage(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.aadhaar_image''',
       ));
@@ -337,7 +364,8 @@ class DriverIdfetchCall {
       ));
 
   /// Get vehicle image URL
-  static String? vehicleImage(dynamic response) => castToType<String>(getJsonField(
+  static String? vehicleImage(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.vehicle_image''',
       ));
@@ -367,31 +395,36 @@ class DriverIdfetchCall {
       ));
 
   /// Get driver mobile number
-  static String? mobileNumber(dynamic response) => castToType<String>(getJsonField(
+  static String? mobileNumber(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.mobile_number''',
       ));
 
   /// Get wallet balance
-  static String? walletBalance(dynamic response) => castToType<String>(getJsonField(
+  static String? walletBalance(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.wallet_balance''',
       ));
 
   /// Get driver rating
-  static String? driverRating(dynamic response) => castToType<String>(getJsonField(
+  static String? driverRating(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.driver_rating''',
       ));
 
   /// Get total rides completed
-  static int? totalRidesCompleted(dynamic response) => castToType<int>(getJsonField(
+  static int? totalRidesCompleted(dynamic response) =>
+      castToType<int>(getJsonField(
         response,
         r'''$.data.total_rides_completed''',
       ));
 
   /// Get total earnings
-  static String? totalEarnings(dynamic response) => castToType<String>(getJsonField(
+  static String? totalEarnings(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.total_earnings''',
       ));
@@ -403,7 +436,8 @@ class DriverIdfetchCall {
       ));
 
   /// Get account status
-  static String? accountStatus(dynamic response) => castToType<String>(getJsonField(
+  static String? accountStatus(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
         r'''$.data.account_status''',
       ));

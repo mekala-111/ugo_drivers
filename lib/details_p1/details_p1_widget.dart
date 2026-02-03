@@ -242,10 +242,7 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                                 widget.email,
                                 ParamType.String,
                               ),
-                              'referalcode': serializeParam(
-                                int.tryParse(_model.textController.text),
-                                ParamType.int,
-                              ),
+
                             }.withoutNulls,
                           );
                         },

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -19,7 +20,6 @@ class OtpverificationWidget extends StatefulWidget {
   });
 
   final int? mobile;
-
   static String routeName = 'otpverification';
   static String routePath = '/otpverification';
 
@@ -264,7 +264,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       if (phoneVerifiedUser == null) {
                         return;
                       }
-
+                      FFAppState().fcmToken = (await FirebaseMessaging.instance.getToken())!;
+                      FFAppState().mobileNo = widget.mobile!;
                       _model.apiResultk3y = await LoginCall.call(
                         mobile: widget.mobile,
                       );
@@ -272,7 +273,6 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
                       if ((_model.apiResultk3y?.succeeded ?? false)) {
                          FFAppState().isRegistered = true;
-                        
 
                         FFAppState().driverid = getJsonField(
                           (_model.apiResultk3y?.jsonBody ?? ''),

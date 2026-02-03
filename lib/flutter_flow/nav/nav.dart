@@ -251,11 +251,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: WalletPasswordWidget.routePath,
           builder: (context, params) => WalletPasswordWidget(),
         ),
-        FFRoute(
-          name: DriverDetailsWidget.routeName,
-          path: DriverDetailsWidget.routePath,
-          builder: (context, params) => DriverDetailsWidget(),
-        ),
+
         FFRoute(
           name: MessagesWidget.routeName,
           path: MessagesWidget.routePath,
@@ -300,33 +296,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: AddStopWidget.routeName,
           path: AddStopWidget.routePath,
           builder: (context, params) => AddStopWidget(),
-        ),
-        FFRoute(
-          name: DetailspageCopyWidget.routeName,
-          path: DetailspageCopyWidget.routePath,
-          builder: (context, params) => DetailspageCopyWidget(),
-        ),
-        FFRoute(
-          name: DetailsP1Widget.routeName,
-          path: DetailsP1Widget.routePath,
-          builder: (context, params) => DetailsP1Widget(
-            mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
-            firstname: params.getParam(
-              'firstname',
-              ParamType.String,
-            ),
-            lastname: params.getParam(
-              'lastname',
-              ParamType.String,
-            ),
-            email: params.getParam(
-              'email',
-              ParamType.String,
-            ),
-          ),
         ),
         FFRoute(
           name: ChooseVehicleWidget.routeName,

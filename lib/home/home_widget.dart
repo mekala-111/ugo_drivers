@@ -23,7 +23,6 @@ const String BASE_URL = "http://192.168.1.14:5001";
 String DRIVER_TOKEN = FFAppState().accessToken;
 int DRIVER_ID = FFAppState().driverid;
 
-// 🎯 DISTANCE THRESHOLD
 const double LOCATION_UPDATE_THRESHOLD = 50.0;
 
 class HomeWidget extends StatefulWidget {
@@ -39,7 +38,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-      GlobalKey<RideRequestOverlayState>();
+  GlobalKey<RideRequestOverlayState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -50,7 +49,9 @@ class _HomeWidgetState extends State<HomeWidget> {
   Position? _lastSavedPosition;
   bool _isTrackingLocation = false;
   DateTime? _lastBackPressed;
-  bool _isDataLoaded = false; // ✅ Track if data is loaded
+  bool _isDataLoaded = false;
+
+  bool _isPanelExpanded = true;
 
   @override
   void initState() {
@@ -76,13 +77,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       print(
           '✅ accessToken: ${FFAppState().accessToken}, driverId: ${FFAppState().driverid}');
 
-      // ✅ SET KYC STATUS WITH PROPER ERROR HANDLING
       String kycStatus = getJsonField(
         (_model.userDetails?.jsonBody ?? ''),
         r'''$.data.kyc_status''',
       ).toString();
 
-      // Remove any extra whitespace and convert to lowercase for comparison
       FFAppState().kycStatus = kycStatus.trim();
 
       print('🔍 KYC Status Retrieved: "${FFAppState().kycStatus}"');
@@ -93,7 +92,6 @@ class _HomeWidgetState extends State<HomeWidget> {
         r'''$.data.qr_code_image''',
       ).toString();
 
-      // Check if driver is already online and start tracking
       bool? isOnline = DriverIdfetchCall.isonline(_model.userDetails?.jsonBody);
       if (isOnline == true) {
         _model.switchValue = true;
@@ -104,7 +102,6 @@ class _HomeWidgetState extends State<HomeWidget> {
         safeSetState(() {});
       }
 
-      // ✅ Mark data as loaded
       setState(() {
         _isDataLoaded = true;
       });
@@ -115,21 +112,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
   }
-//   void _onRideAccepted(RideRequest ride) async {
-//   print("🚕 Ride accepted in HomeWidget");
-
-//   final position = await Geolocator.getCurrentPosition(
-//     desiredAccuracy: LocationAccuracy.high,
-//   );
-
-//   setState(() {
-//     acceptedPickupLocation = LatLng(
-//       ride.pickupLat,
-//       ride.pickupLng,
-//     );
-//     showNavigateButton = true;
-//   });
-// }
 
   Future<void> _startLocationTracking() async {
     if (_isTrackingLocation) {
@@ -283,7 +265,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> _goOnlineAsync() async {
-    // KYC check
     if (FFAppState().kycStatus.trim().toLowerCase() != 'approved') {
       safeSetState(() => _model.switchValue = false);
 
@@ -293,7 +274,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           title: const Text('KYC Not Approved'),
           content: Text(
             'Your KYC status is "${FFAppState().kycStatus}". '
-            'Please complete KYC to go online.',
+                'Please complete KYC to go online.',
           ),
           actions: [
             TextButton(
@@ -419,13 +400,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       int rideId = rideData['id'];
       _overlayKey.currentState!.handleNewRide(rideData);
       print("Processing ride ID: $rideId with status: $status");
-      // if (status == 'accepted') {
-      //   _overlayKey.currentState!.removeRideById(rideId);
-      //
-      // }
-      //  else {
-      //   _overlayKey.currentState!.handleNewRide(rideData);
-      // }
     }
 
     if (data is List) {
@@ -447,18 +421,22 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // context.watch<FFAppState>();
+    // ✅ Get screen dimensions for responsive sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 360;
+    final isMediumScreen = screenWidth >= 360 && screenWidth < 400;
 
     if (currentUserLocationValue == null) {
       return Container(
-        color: FlutterFlowTheme.of(context).primaryBackground,
+        color: Colors.white,
         child: Center(
           child: SizedBox(
             width: 50,
             height: 50,
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                FlutterFlowTheme.of(context).primary,
+                Color(0xFFFF6600),
               ),
             ),
           ),
@@ -492,361 +470,412 @@ class _HomeWidgetState extends State<HomeWidget> {
           key: scaffoldKey,
           resizeToAvoidBottomInset: false,
           backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-          body:
-              // Container(
-              // decoration: BoxDecoration(),
-              // child:
-              // SingleChildScrollView(
-              // primary: false,
-              // child:
-              Column(
+          body: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container(
-                width: double.infinity,
-                height: 115,
-                decoration: BoxDecoration(
-                  color: Color(0xFFFF6600),
-                ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      FlutterFlowIconButton(
-                        buttonSize: 40,
-                        icon: Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        onPressed: () async {
-                          context.pushNamed(AccountManagementWidget.routeName);
-                        },
-                      ),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(ScanToBookWidget.routeName);
-                          },
-                          child: Icon(
-                            Icons.qr_code,
-                            color: Color(0xFFFF6600),
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            (_model.switchValue ?? false)
-                                ? FFLocalizations.of(context).getVariableText(
-                                    enText: 'ON',
-                                    teText: '',
-                                    hiText: '',
-                                  )
-                                : FFLocalizations.of(context).getVariableText(
-                                    enText: 'OFF',
-                                    teText: '',
-                                    hiText: '',
-                                  ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: Colors.white,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                          Switch(
-                            value: _model.switchValue ?? false,
-                            onChanged: _isDataLoaded
-                                ? (newValue) {
-                                    // ⚡ UI updates instantly
-                                    safeSetState(
-                                        () => _model.switchValue = newValue);
-
-                                    if (newValue) {
-                                      _goOnlineAsync(); // heavy work
-                                    } else {
-                                      _goOfflineAsync(); // heavy work
-                                    }
-                                  }
-                                : null,
-                            activeThumbColor: Color(0xFF0D3072),
-                            activeTrackColor: Color(0xFF1C6EAB),
-                            inactiveTrackColor: Color(0xFF13181B),
-                            inactiveThumbColor:
-                                FlutterFlowTheme.of(context).secondaryText,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                context.pushNamed(TeampageWidget.routeName);
-                              },
-                              child: Icon(
-                                Icons.group,
-                                color: Color(0xFFFF6600),
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ].divide(SizedBox(width: 12)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Original Row with Today text
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText('nrjzvb2s'),
-                                style: FlutterFlowTheme.of(context).bodyLarge,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText('od11ng7s'),
-                                style: FlutterFlowTheme.of(context).bodyLarge,
-                              ),
-                            ].divide(SizedBox(width: 8)),
-                          ),
-                          SizedBox(width: 48), // space for the circle
-                        ],
-                      ),
-
-                      // Circle with ride count on the right (only visible if driver is online)
-                      if (FFAppState().isonline)
-                        Positioned(
-                          right: -16, // outside padding
-                          top: -6,
-                          child: AnimatedBuilder(
-                            animation: FFAppState(),
-                            builder: (context, _) {
-                              final int rideCount = FFAppState()
-                                  .activeRideId; // dynamic ride count
-
-                              return Container(
-                                width: 48,
-                                height: 48,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground, // row bg
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.orange, // circle border color
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Text(
-                                  rideCount.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.orange,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+              SizedBox(height: isSmallScreen ? 20 : 32),
+              // ✅ TOP ORANGE APP BAR
+              _buildTopAppBar(screenWidth, isSmallScreen),
+              // ✅ GOOGLE MAP (takes remaining space)
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE6F2FF),
-                  ),
-                  child: Stack(
-                    children: [
-                      // ✅ Google Map
-                      FlutterFlowGoogleMap(
-                        controller: _model.googleMapsController,
-                        onCameraIdle: (latLng) =>
-                            _model.googleMapsCenter = latLng,
-                        initialLocation: _model.googleMapsCenter ??=
-                            currentUserLocationValue!,
-                        markerColor: GoogleMarkerColor.violet,
-                        mapType: MapType.normal,
-                        style: GoogleMapStyle.standard,
-                        initialZoom: 14,
-                        allowInteraction: true,
-                        allowZoom: true,
-                        showZoomControls: false,
-                        showLocation: true,
-                        showCompass: false,
-                        showMapToolbar: false,
-                        showTraffic: false,
-                        centerMapOnMarkerTap: true,
-                        mapTakesGesturePreference: false,
-                      ),
+                child: Stack(
+                  children: [
+                    // Google Map
+                    FlutterFlowGoogleMap(
+                      controller: _model.googleMapsController,
+                      onCameraIdle: (latLng) =>
+                      _model.googleMapsCenter = latLng,
+                      initialLocation: _model.googleMapsCenter ??=
+                      currentUserLocationValue!,
+                      markerColor: GoogleMarkerColor.violet,
+                      mapType: MapType.normal,
+                      style: GoogleMapStyle.standard,
+                      initialZoom: 14,
+                      allowInteraction: true,
+                      allowZoom: true,
+                      showZoomControls: false,
+                      showLocation: true,
+                      showCompass: false,
+                      showMapToolbar: false,
+                      showTraffic: false,
+                      centerMapOnMarkerTap: true,
+                    ),
 
-                      // ✅ RideRequest overlay (if you still have it)
-                      RideRequestOverlay(key: _overlayKey),
+                    // Ride Request Overlay
+                    RideRequestOverlay(key: _overlayKey),
 
-                      // ✅ Floating progress bar + image
-                      Positioned(
-                        bottom: 0,
-                        left: 16,
-                        right: 16,
-                        child: Container(
-                          height: 70,
-                          decoration: BoxDecoration(
-                            // color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              // BoxShadow(
-                              //   color: Colors.black26,
-                              //   blurRadius: 8,
-                              //   offset: Offset(0, 4),
-                              // ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Row(
-                              children: [
-                                // Dynamic percentage bar
-                                Expanded(
-                                  child: LinearPercentIndicator(
-                                    percent: 0.6, // replace with dynamic value
-                                    lineHeight: 30,
-                                    animation: true,
-                                    animateFromLastPercent: true,
-                                    progressColor: Color(0xFF329556),
-                                    backgroundColor:
-                                        FlutterFlowTheme.of(context).accent4,
-                                    center: Text(
-                                      "${(0.6 * 100).toInt()}%", // show percentage dynamically
-                                      style: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .override(
-                                            font: GoogleFonts.interTight(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineSmall
-                                                      .fontStyle,
-                                            ),
-                                            letterSpacing: 0.0,
-                                            color: Colors.black,
-                                          ),
-                                    ),
-                                    barRadius: Radius.circular(50),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                ),
-                                SizedBox(width: 16),
+                    // ✅ My Location Button (responsive position)
 
-                                // Image on the right
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.asset(
-                                    'assets/images/Group_2994.png',
-                                    width: 40,
-                                    height: 40,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // ✅ My location button
-                      // Align(
-                      //   alignment: AlignmentDirectional(0.9, 0.9),
-                      //   child: PointerInterceptor(
-                      //     intercepting: isWeb,
-                      //     child: FlutterFlowIconButton(
-                      //       borderRadius: 25,
-                      //       buttonSize: 50,
-                      //       // fillColor: Colors.white,
-                      //       icon: Icon(
-                      //         // Icons.my_location,
-                      //         // color: FlutterFlowTheme.of(context).primaryText,
-                      //         // size: 24,
-                      //       ),
-                      //       onPressed: () async {
-                      //         if (currentUserLocationValue != null) {
-                      //           await _model.googleMapsController.future.then(
-                      //                 (c) => c.animateCamera(
-                      //               CameraUpdate.newLatLng(currentUserLocationValue!.toGoogleMaps()),
-                      //             ),
-                      //           );
-                      //         }
-                      //       },
-                      //     ),
-                      //   ),
-                      // ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            ].divide(SizedBox(height: 0)),
+
+              // ✅ COLLAPSIBLE BOTTOM PANEL
+              _buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
+
+              // ✅ PROGRESS BAR AT VERY BOTTOM
+              _buildBottomProgressBar(screenWidth, isSmallScreen),
+            ],
           ),
-          // ),
-          // ),
         ),
       ),
     );
   }
+
+  // ✅ RESPONSIVE TOP APP BAR WIDGET
+  Widget _buildTopAppBar(double screenWidth, bool isSmallScreen) {
+    return Container(
+      width: double.infinity,
+      height: isSmallScreen ? 45 : 60,
+      decoration: BoxDecoration(
+        color: Color(0xFFFF7B10),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 12 : 16,
+            vertical: 8,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Hamburger Menu
+              InkWell(
+                onTap: () async {
+                  context.pushNamed(AccountManagementWidget.routeName);
+                },
+                child: Container(
+                  width: isSmallScreen ? 36 : 40,
+                  height: isSmallScreen ? 36 : 40,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: isSmallScreen ? 24 : 28,
+                        height: isSmallScreen ? 2.5 : 3,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      SizedBox(height: isSmallScreen ? 4 : 5),
+                      Container(
+                        width: isSmallScreen ? 24 : 28,
+                        height: isSmallScreen ? 2.5 : 3,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      SizedBox(height: isSmallScreen ? 4 : 5),
+                      Container(
+                        width: isSmallScreen ? 24 : 28,
+                        height: isSmallScreen ? 2.5 : 3,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // QR Code Button
+              Container(
+                width: isSmallScreen ? 30 :30,
+                height: isSmallScreen ? 30 : 30,
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    context.pushNamed(ScanToBookWidget.routeName);
+                  },
+                  child: Center(
+                    child: Icon(
+                      Icons.qr_code,
+                      color: Colors.black,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                  ),
+                ),
+              ),
+
+              // ON/OFF Toggle
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(30),),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      (_model.switchValue ?? false) ? 'ON' : 'OFF',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    SizedBox(width: isSmallScreen ? 4 : 6),
+                    Transform.scale(
+                      scale: isSmallScreen ? 0.9 : 1.0,
+                      child: Switch(
+                        value: _model.switchValue ?? false,
+                        onChanged: _isDataLoaded
+                            ? (newValue) {
+                          safeSetState(
+                                  () => _model.switchValue = newValue);
+                          if (newValue) {
+                            _goOnlineAsync();
+                          } else {
+                            _goOfflineAsync();
+                          }
+                        }
+                            : null,
+                        activeColor: Colors.black,
+                        activeTrackColor: Colors.grey.shade300,
+                        inactiveThumbColor: Colors.black,
+                        inactiveTrackColor: Colors.grey.shade400,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Team Icon + Label
+              InkWell(
+                onTap: () async {
+                  context.pushNamed(TeampageWidget.routeName);
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: isSmallScreen ? 25 : 30,
+                      height: isSmallScreen ? 20 : 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.people,
+                          color: Color(0xFFFF6600),
+                          size: isSmallScreen ? 12 : 14,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'TEAM',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isSmallScreen ? 10 : 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✅ RESPONSIVE COLLAPSIBLE BOTTOM PANEL
+  Widget _buildCollapsibleBottomPanel(double screenWidth, bool isSmallScreen) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header Row (Today Total + Arrow)
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isPanelExpanded = !_isPanelExpanded;
+              });
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 10 : 12,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Today Total',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        '500.00',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 16 : 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: isSmallScreen ? 8 : 12),
+                      Icon(
+                        _isPanelExpanded
+                            ? Icons.keyboard_arrow_down
+                            : Icons.keyboard_arrow_up,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Collapsible Content (Orange Cards)
+          if (_isPanelExpanded)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 12 : 16,
+                0,
+                isSmallScreen ? 12 : 16,
+                isSmallScreen ? 12 : 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      child: _buildOrangeCard(
+                          'Ride Count', '13', screenWidth, isSmallScreen)),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                      child: _buildOrangeCard(
+                          'Wallet', '600.00', screenWidth, isSmallScreen)),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                      child: _buildOrangeCard(
+                          'Last Ride', '100', screenWidth, isSmallScreen)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ RESPONSIVE ORANGE METRIC CARD
+  Widget _buildOrangeCard(
+      String title, String value, double screenWidth, bool isSmallScreen) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: isSmallScreen ? 8 : 12,
+        horizontal: isSmallScreen ? 4 : 8,
+      ),
+      decoration: BoxDecoration(
+        color: Color(0xFFFFB785),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: isSmallScreen ? 11 : 13,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: isSmallScreen ? 6 : 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: isSmallScreen ? 18 : 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ RESPONSIVE BOTTOM PROGRESS BAR
+  Widget _buildBottomProgressBar(double screenWidth, bool isSmallScreen) {
+    return Container(
+      height: isSmallScreen ? 20 : 40,
+      color: Colors.grey.shade200,
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16,
+        vertical: isSmallScreen ? 8 : 10,
+      ),
+      child: Row(
+        children: [
+          // Progress Bar
+          Expanded(
+            child: Container(
+              height: isSmallScreen ? 32 : 40,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+                child: Stack(
+                  children: [
+                    // Tire Track Watermark Pattern
+                    FractionallySizedBox(
+                      widthFactor: 0.3, // 30% progress (replace dynamically)
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4CAF50),
+                          borderRadius:
+                          BorderRadius.circular(isSmallScreen ? 16 : 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+// ✅ CUSTOM PAINTER FOR BIKE TIRE TRACK WATERMARK

@@ -24,7 +24,7 @@ class ChooseVehicleWidget extends StatefulWidget {
   final String? firstname;
   final String? lastname;
   final String? email;
-  final int? referalcode;
+  final String? referalcode; // Changed from int? to String?
 
   static String routeName = 'Choose_vehicle';
   static String routePath = '/chooseVehicle';
@@ -41,6 +41,12 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ChooseVehicleModel());
+
+    print("hello${widget.mobile}");
+    print("hello${widget.firstname}");
+    print("hello${widget.lastname}");
+    print("hello${widget.referalcode}");
+    print("hello${widget.email}");
   }
 
   @override
@@ -178,8 +184,8 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                       Icon(
                                         Icons.error_outline,
                                         size: 60,
-                                        color: FlutterFlowTheme.of(context)
-                                            .error,
+                                        color:
+                                            FlutterFlowTheme.of(context).error,
                                       ),
                                       SizedBox(height: 16),
                                       Text(
@@ -199,8 +205,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                         text: 'Retry',
                                         options: FFButtonOptions(
                                           height: 40,
-                                          padding: EdgeInsetsDirectional
-                                              .fromSTEB(24, 0, 24, 0),
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  24, 0, 24, 0),
                                           color: FlutterFlowTheme.of(context)
                                               .primary,
                                           textStyle:
@@ -263,16 +270,18 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                   itemBuilder: (context, vechiclenameIndex) {
                                     final vechiclenameItem =
                                         vechiclename[vechiclenameIndex];
-                                    
-                                    // Extract vehicle type string
-                                    final vehicleType = getJsonField(
-                                      vechiclenameItem,
-                                      r'''$.vehicle_type''',
-                                    ).toString();
-                                    
-                                    // Check if this vehicle is selected by comparing vehicle type
+
+                                    // Extract vehicle name (new API uses "name" field)
+                                    final vehicleName = getJsonField(
+                                          vechiclenameItem,
+                                          r'$["name"]',
+                                        )?.toString() ??
+                                        '';
+
+                                    // Check if this vehicle is selected
                                     final isSelected =
-                                        FFAppState().selectvehicle == vehicleType;
+                                        FFAppState().selectvehicle ==
+                                            vehicleName;
 
                                     return InkWell(
                                       splashColor: Colors.transparent,
@@ -281,13 +290,16 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                       highlightColor: Colors.transparent,
                                       onTap: () async {
                                         setState(() {
-                                          // Store ONLY the vehicle type string in app state
-                                          FFAppState().selectvehicle = vehicleType;
+                                          // Store vehicle name in app state
+                                          FFAppState().selectvehicle =
+                                              vehicleName;
                                         });
-                                        
+
                                         // Debug: Print what's being stored
-                                        print('Selected vehicle type: $vehicleType');
-                                        print('App state value: ${FFAppState().selectvehicle}');
+                                        print(
+                                            'Selected vehicle name: $vehicleName');
+                                        print(
+                                            'App state value: ${FFAppState().selectvehicle}');
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
@@ -313,71 +325,66 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: Image.network(
-                                                  'https://ugotaxi.icacorp.org/${getJsonField(
-                                                    vechiclenameItem,
-                                                    r'''$.vehicle_image''',
-                                                  ).toString()}',
-                                                  width: 70,
-                                                  height: 70,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                      width: 70,
-                                                      height: 70,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .alternate,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                      child: Icon(
-                                                        Icons
-                                                            .directions_car_rounded,
-                                                        size: 40,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                      ),
-                                                    );
-                                                  },
+                                              // Vehicle icon placeholder (no image in new API)
+                                              Container(
+                                                width: 70,
+                                                height: 70,
+                                                decoration: BoxDecoration(
+                                                  color: isSelected
+                                                      ? Color(0xFFFF6B35)
+                                                          .withOpacity(0.2)
+                                                      : FlutterFlowTheme.of(
+                                                              context)
+                                                          .alternate,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Icon(
+                                                  _getVehicleIcon(vehicleName),
+                                                  size: 40,
+                                                  color: isSelected
+                                                      ? Color(0xFFFF6B35)
+                                                      : FlutterFlowTheme.of(
+                                                              context)
+                                                          .secondaryText,
                                                 ),
                                               ),
                                               Expanded(
                                                 child: Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(16, 0, 0, 0),
-                                                  child: Text(
-                                                    vehicleType,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyLarge
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .inter(
-                                                            fontWeight: isSelected
-                                                                ? FontWeight
-                                                                    .w600
-                                                                : FontWeight
-                                                                    .normal,
-                                                          ),
-                                                          color: isSelected
-                                                              ? Color(
-                                                                  0xFFFF6B35)
-                                                              : FlutterFlowTheme
-                                                                      .of(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        vehicleName
+                                                            .toUpperCase(),
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyLarge
+                                                            .override(
+                                                              font: GoogleFonts
+                                                                  .inter(
+                                                                fontWeight: isSelected
+                                                                    ? FontWeight
+                                                                        .w600
+                                                                    : FontWeight
+                                                                        .w500,
+                                                              ),
+                                                              color: isSelected
+                                                                  ? Color(
+                                                                      0xFFFF6B35)
+                                                                  : FlutterFlowTheme.of(
                                                                           context)
-                                                                  .primaryText,
-                                                          letterSpacing: 0.0,
-                                                        ),
+                                                                      .primaryText,
+                                                              fontSize: 18,
+                                                              letterSpacing:
+                                                                  0.0,
+                                                            ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ),
@@ -438,7 +445,8 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                           }
 
                           // Debug: Print before navigation
-                          print('Navigating with vehicle type: ${FFAppState().selectvehicle}');
+                          print(
+                              'Navigating with vehicle type: ${FFAppState().selectvehicle}');
 
                           context.pushNamed(
                             OnBoardingWidget.routeName,
@@ -461,7 +469,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                               ),
                               'referalcode': serializeParam(
                                 widget.referalcode,
-                                ParamType.int,
+                                ParamType.String, // Changed from int to String
                               ),
                               'vehicletype': serializeParam(
                                 FFAppState().selectvehicle,
@@ -503,5 +511,21 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
         ),
       ),
     );
+  }
+
+  // Helper method to get appropriate icon based on vehicle name
+  IconData _getVehicleIcon(String vehicleName) {
+    final name = vehicleName.toLowerCase();
+    if (name.contains('auto')) {
+      return Icons.local_taxi;
+    } else if (name.contains('bike') || name.contains('motorcycle')) {
+      return Icons.two_wheeler;
+    } else if (name.contains('car')) {
+      return Icons.directions_car;
+    } else if (name.contains('truck')) {
+      return Icons.local_shipping;
+    } else {
+      return Icons.directions_car_rounded;
+    }
   }
 }
