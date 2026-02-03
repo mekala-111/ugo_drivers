@@ -29,6 +29,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   final Set<int> _seenRideIds = {};
   late AudioPlayer _audioPlayer;
   bool _isAlerting = false;
+  Timer? _tickTimer;
   final Set<int> _paymentPendingRides = {};
   String? _selectedPaymentMethod;
   final Set<int> _completedRides = {};
@@ -38,8 +39,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   // Track app lifecycle state
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
-
-  static const platform = MethodChannel('com.ugocabs.drivers/floating_bubble');
 
   @override
   void initState() {
@@ -55,8 +54,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     _initializeNotifications();
     _startTickTimer();
     _initializeFloatingBubbleService();
-    _setupOverlayActionHandler();
-    _setupMethodChannelHandler();
   }
 
   @override
@@ -118,32 +115,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     } catch (e) {
       print('Error initializing floating bubble service: $e');
     }
-  }
-
-  void _setupOverlayActionHandler() {
-    FloatingBubbleService.setOverlayActionHandler((action, rideIdString) {
-      final rideId = int.tryParse(rideIdString);
-      if (rideId != null) {
-        _handleOverlayAction(action, rideId);
-      }
-    });
-  }
-
-  void _setupMethodChannelHandler() {
-    platform.setMethodCallHandler((call) async {
-      print('🎯 Method channel call received: ${call.method}');
-      if (call.method == 'onOverlayAction') {
-        final Map<String, dynamic> args =
-            Map<String, dynamic>.from(call.arguments);
-        final String action = args['action'];
-        final String rideIdString = args['rideId'];
-        print('🎯 Overlay action: $action for ride: $rideIdString');
-        final rideId = int.tryParse(rideIdString);
-        if (rideId != null) {
-          _handleOverlayAction(action, rideId);
-        }
-      }
-    });
   }
 
   void _showSnack(String message, {Color color = Colors.black}) {
@@ -349,35 +320,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
     // Hide the notification after action
     await _hidePersistentNotification();
-    // Also hide the overlay if it's showing
-    await FloatingBubbleService.hideRideRequestOverlay();
-  }
-
-  void _handleOverlayAction(String action, int rideId) async {
-    print('🎯 Handling overlay action: $action for ride: $rideId');
-    // Find the ride in active requests
-    final rideIndex = _activeRequests.indexWhere((r) => r.id == rideId);
-    if (rideIndex == -1) {
-      print('❌ Ride not found in active requests: $rideId');
-      return;
-    }
-
-    final ride = _activeRequests[rideIndex];
-    print('✅ Found ride: ${ride.id}');
-
-    if (action == 'accept') {
-      await _acceptRideFromOverlay(ride);
-      // Hide the overlay after accepting
-      await FloatingBubbleService.hideRideRequestOverlay();
-    } else if (action == 'reject') {
-      await _rejectRideFromOverlay(ride);
-      // Hide the overlay after rejecting
-      await FloatingBubbleService.hideRideRequestOverlay();
-    }
   }
 
   Future<void> _acceptRideFromNotification(RideRequest ride) async {
-    _stopAlert();
     try {
       // Bring app to foreground first
       await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
@@ -407,43 +352,23 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
-  Future<void> _acceptRideFromOverlay(RideRequest ride) async {
-    print('🎯 Accepting ride from overlay: ${ride.id}');
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _tickTimer?.cancel();
+    _audioPlayer.dispose();
     _stopAlert();
-    try {
-      // For overlay actions (when app is in background), directly accept the ride
-      // without trying to bring app to foreground
-      await _acceptRide(ride.id);
-      print('✅ Ride accepted from overlay: ${ride.id}');
-    } catch (e) {
-      print('❌ Error accepting ride from overlay: $e');
-    }
-  }
-
-  Future<void> _rejectRideFromOverlay(RideRequest ride) async {
-    try {
-      // Remove the ride from active requests
-      setState(() {
-        _activeRequests.removeWhere((r) => r.id == ride.id);
-        _timers.remove(ride.id);
-      });
-
-      // Update alert state
-      _updateAlertState();
-
-      print('❌ Ride rejected from overlay: ${ride.id}');
-    } catch (e) {
-      print('❌ Error rejecting ride from overlay: $e');
-    }
+    _hideFloatingBubble();
+    super.dispose();
   }
 
   void _updateAlertState() {
-    // Only play alert if there is at least one ride in SEARCHING status
-    final hasSearching = _activeRequests.any((r) => r.status == 'SEARCHING');
-    if (!hasSearching) {
-      _stopAlert();
-    } else {
+    bool hasSearchingRequests =
+        _activeRequests.any((r) => r.status == 'SEARCHING');
+    if (hasSearchingRequests) {
       _startAlert();
+    } else {
+      _stopAlert();
     }
 
     // Update persistent notification if app is in background
@@ -454,7 +379,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   void _startTickTimer() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
 
       bool changed = false;
@@ -573,18 +498,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   Future<void> _showBackgroundRideOverlay(RideRequest ride) async {
     try {
-      // Show the detailed ride request overlay
-      await FloatingBubbleService.showRideRequestOverlay(
-        ride.pickupAddress,
-        ride.dropAddress,
-        ride.estimatedFare?.toStringAsFixed(0) ?? '0',
-        ride.id.toString(),
-        FFAppState().accessToken,
-        FFAppState().driverid.toString(),
-      );
-
-      // Also show persistent notification as backup
+      // Show persistent notification with ride details
       await _showRideRequestNotification(ride);
+
+      // Also show the floating bubble with ride info if not already shown
+      await FloatingBubbleService.updateBubbleContent(
+          'New Ride Request', 'Tap to view details');
+
+      print('🚗 Background ride overlay shown for ride #${ride.id}');
     } catch (e) {
       print('❌ Error showing background ride overlay: $e');
     }
@@ -661,11 +582,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               children: _activeRequests.map((ride) {
                 return SizedBox(
                   width: MediaQuery.of(context).size.width * 0.95,
-                  child: _isAppInBackground()
-                      ? _buildBothCards(ride)
-                      : (ride.status == 'SEARCHING'
-                          ? _buildSearchingCard(ride)
-                          : _buildActiveRideCard(ride)),
+                  child: ride.status == 'SEARCHING'
+                      ? _buildSearchingCard(ride)
+                      : _buildActiveRideCard(ride),
                 );
               }).toList(),
             ),
@@ -711,16 +630,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            // First name and mobile number
-            if (ride.firstName != null && ride.firstName!.isNotEmpty)
-              Text('Name: ${ride.firstName}',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold)),
-            if (ride.mobileNumber != null && ride.mobileNumber!.isNotEmpty)
-              Text('Mobile: ${ride.mobileNumber}',
-                  style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -831,16 +741,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // First name and mobile number
-                    if (ride.firstName != null && ride.firstName!.isNotEmpty)
-                      Text('Name: ${ride.firstName}',
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    if (ride.mobileNumber != null &&
-                        ride.mobileNumber!.isNotEmpty)
-                      Text('Mobile: ${ride.mobileNumber}',
-                          style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
                     const Text("Customer",
                         style: TextStyle(
                             fontSize: 22,
@@ -922,16 +822,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildBothCards(RideRequest ride) {
-    return Column(
-      children: [
-        _buildSearchingCard(ride),
-        const SizedBox(height: 16),
-        _buildActiveRideCard(ride),
       ],
     );
   }
@@ -1079,7 +969,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         Expanded(
           child: ElevatedButton(
             onPressed: () async {
-              _stopAlert(); // Stop the alert sound when Accept is pressed
+              _stopAlert();
               await _acceptRide(ride.id);
             },
             style: ElevatedButton.styleFrom(
@@ -1146,23 +1036,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   Future<void> _acceptRide(int rideId) async {
-    print('🎯 Making API call to accept ride: $rideId');
-    _stopAlert();
     try {
       FFAppState().activeRideId = rideId;
       FFAppState().activeRideStatus = 'accepted';
-      print(
-          '📤 Sending accept request to: https://ugotaxi.icacorp.org/api/rides/rides/$rideId/accept');
-      print('📤 Driver ID: ${FFAppState().driverid}');
-      print('📤 Token: ${FFAppState().accessToken}');
-      final response = await Dio().post(
+      await Dio().post(
           "https://ugotaxi.icacorp.org/api/rides/rides/$rideId/accept",
           data: {"driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
-      print(
-          '📥 Accept API response: ${response.statusCode} - ${response.data}');
       _showSnack("✅ Ride accepted", color: Colors.green);
       setState(() {
         final index = _activeRequests.indexWhere((r) => r.id == rideId);
@@ -1172,7 +1054,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         }
       });
     } catch (e) {
-      print('❌ Accept API error: $e');
       FFAppState().activeRideId = 0;
       FFAppState().activeRideStatus = '';
       _showSnack("❌ Unable to accept ride ${e.toString()}", color: Colors.red);
@@ -1181,13 +1062,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   Future<void> _updateRideStatus(int rideId, String status) async {
     try {
-      final response = await Dio().put(
-          "https://ugotaxi.icacorp.org/api/rides/$rideId",
+      await Dio().put("https://ugotaxi.icacorp.org/api/rides/$rideId",
           data: {"ride_status": status, "driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
-      print('Status update response: \\n${response.data}');
       if (status == 'completed') {
         removeRideById(rideId);
         FFAppState().activeRideId = 0;

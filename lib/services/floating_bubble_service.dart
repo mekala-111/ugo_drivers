@@ -4,22 +4,6 @@ class FloatingBubbleService {
   static const MethodChannel _channel =
       MethodChannel('com.ugocabs.drivers/floating_bubble');
 
-  static Function(String action, String rideId)? _onOverlayAction;
-
-  static void setOverlayActionHandler(
-      Function(String action, String rideId) handler) {
-    _onOverlayAction = handler;
-    _channel.setMethodCallHandler(_handleMethodCall);
-  }
-
-  static Future<void> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'onOverlayAction') {
-      final action = call.arguments['action'] as String;
-      final rideId = call.arguments['rideId'] as String;
-      _onOverlayAction?.call(action, rideId);
-    }
-  }
-
   /// Start the floating bubble service
   static Future<String> startFloatingBubble() async {
     try {
@@ -71,36 +55,6 @@ class FloatingBubbleService {
       return result;
     } on PlatformException catch (e) {
       return 'Failed to update bubble content: ${e.message}';
-    }
-  }
-
-  /// Show the detailed ride request overlay
-  static Future<String> showRideRequestOverlay(String pickup, String drop,
-      String fare, String rideId, String accessToken, String driverId) async {
-    try {
-      final String result =
-          await _channel.invokeMethod('showRideRequestOverlay', {
-        'pickup': pickup,
-        'drop': drop,
-        'fare': fare,
-        'rideId': rideId,
-        'accessToken': accessToken,
-        'driverId': driverId,
-      });
-      return result;
-    } on PlatformException catch (e) {
-      return 'Failed to show ride request overlay: ${e.message}';
-    }
-  }
-
-  /// Hide the detailed ride request overlay
-  static Future<String> hideRideRequestOverlay() async {
-    try {
-      final String result =
-          await _channel.invokeMethod('hideRideRequestOverlay');
-      return result;
-    } on PlatformException catch (e) {
-      return 'Failed to hide ride request overlay: ${e.message}';
     }
   }
 
