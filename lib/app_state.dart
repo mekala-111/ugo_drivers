@@ -92,6 +92,80 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _aadharBackBase64 = prefs.getString('ff_aadharBackBase64') ?? '';
     });
+
+    _safeInit(() {
+      _panImageUrl = prefs.getString('ff_panImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _panBase64 = prefs.getString('ff_panBase64') ?? '';
+    });
+    _safeInit(() {
+      _panNumber = prefs.getString('ff_panNumber') ?? '';
+    });
+
+    _safeInit(() {
+      _profilePhotoUrl = prefs.getString('ff_profilePhotoUrl') ?? '';
+    });
+    _safeInit(() {
+      _profilePhotoBase64 = prefs.getString('ff_profilePhotoBase64') ?? '';
+    });
+
+    _safeInit(() {
+      _licenseFrontImageUrl = prefs.getString('ff_licenseFrontImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _licenseBackImageUrl = prefs.getString('ff_licenseBackImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _licenseFrontBase64 = prefs.getString('ff_licenseFrontBase64') ?? '';
+    });
+    _safeInit(() {
+      _licenseBackBase64 = prefs.getString('ff_licenseBackBase64') ?? '';
+    });
+    _safeInit(() {
+      _licenseNumber = prefs.getString('ff_licenseNumber') ?? '';
+    });
+
+    _safeInit(() {
+      _rcFrontImageUrl = prefs.getString('ff_rcFrontImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _rcBackImageUrl = prefs.getString('ff_rcBackImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _rcFrontBase64 = prefs.getString('ff_rcFrontBase64') ?? '';
+    });
+    _safeInit(() {
+      _rcBackBase64 = prefs.getString('ff_rcBackBase64') ?? '';
+    });
+    _safeInit(() {
+      _registrationNumber = prefs.getString('ff_registrationNumber') ?? '';
+    });
+
+    _safeInit(() {
+      _vehicleYear = prefs.getString('ff_vehicleYear') ?? '';
+    });
+
+    _safeInit(() {
+      _vehicleImageUrl = prefs.getString('ff_vehicleImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _vehicleBase64 = prefs.getString('ff_vehicleBase64') ?? '';
+    });
+    _safeInit(() {
+      _vehicleType = prefs.getString('ff_vehicleType') ?? '';
+    });
+    _safeInit(() {
+      _vehicleMake = prefs.getString('ff_vehicleMake') ?? '';
+    });
+    _safeInit(() {
+      _vehicleModel = prefs.getString('ff_vehicleModel') ?? '';
+    });
+    _safeInit(() {
+      _vehicleColor = prefs.getString('ff_vehicleColor') ?? '';
+    });
+
+
   }
 
   void update(VoidCallback callback) {
@@ -293,13 +367,9 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  FFUploadedFile? _profilePhoto;
-  FFUploadedFile? get profilePhoto => _profilePhoto;
-  set profilePhoto(FFUploadedFile? value) {
-    _profilePhoto = value;
-    notifyListeners();
-  }
-
+// ==========================================
+// PAN CARD (temporary in-memory)
+// ==========================================
   FFUploadedFile? _panImage;
   FFUploadedFile? get panImage => _panImage;
   set panImage(FFUploadedFile? value) {
@@ -307,12 +377,320 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+// ==========================================
+// PAN IMAGE URL (persistent - from server)
+// ==========================================
+  String _panImageUrl = '';
+  String get panImageUrl => _panImageUrl;
+  set panImageUrl(String value) {
+    _panImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_panImageUrl');
+    } else {
+      prefs.setString('ff_panImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+// ==========================================
+// PAN BASE64 (temporary persistence)
+// ==========================================
+  String _panBase64 = '';
+  String get panBase64 => _panBase64;
+  set panBase64(String value) {
+    _panBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_panBase64');
+    } else {
+      prefs.setString('ff_panBase64', value);
+    }
+    notifyListeners();
+  }
+
+// ==========================================
+// PAN NUMBER (persistent)
+// ==========================================
+  String _panNumber = '';
+  String get panNumber => _panNumber;
+  set panNumber(String value) {
+    _panNumber = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_panNumber');
+    } else {
+      prefs.setString('ff_panNumber', value);
+    }
+    notifyListeners();
+  }
+
+
+  // Vehicle Image
   FFUploadedFile? _vehicleImage;
   FFUploadedFile? get vehicleImage => _vehicleImage;
   set vehicleImage(FFUploadedFile? value) {
     _vehicleImage = value;
     notifyListeners();
   }
+
+// Vehicle Image URL
+  String _vehicleImageUrl = '';
+  String get vehicleImageUrl => _vehicleImageUrl;
+  set vehicleImageUrl(String value) {
+    _vehicleImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleImageUrl');
+    } else {
+      prefs.setString('ff_vehicleImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Base64
+  String _vehicleBase64 = '';
+  String get vehicleBase64 => _vehicleBase64;
+  set vehicleBase64(String value) {
+    _vehicleBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleBase64');
+    } else {
+      prefs.setString('ff_vehicleBase64', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Type
+  String _vehicleType = '';
+  String get vehicleType => _vehicleType;
+  set vehicleType(String value) {
+    _vehicleType = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleType');
+    } else {
+      prefs.setString('ff_vehicleType', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Make
+  String _vehicleMake = '';
+  String get vehicleMake => _vehicleMake;
+  set vehicleMake(String value) {
+    _vehicleMake = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleMake');
+    } else {
+      prefs.setString('ff_vehicleMake', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Model
+  String _vehicleModel = '';
+  String get vehicleModel => _vehicleModel;
+  set vehicleModel(String value) {
+    _vehicleModel = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleModel');
+    } else {
+      prefs.setString('ff_vehicleModel', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Color
+  String _vehicleColor = '';
+  String get vehicleColor => _vehicleColor;
+  set vehicleColor(String value) {
+    _vehicleColor = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleColor');
+    } else {
+      prefs.setString('ff_vehicleColor', value);
+    }
+    notifyListeners();
+  }
+
+
+
+// ==========================================
+// PROFILE PHOTO URL (persistent - from server)
+// ==========================================
+  String _profilePhotoUrl = '';
+  String get profilePhotoUrl => _profilePhotoUrl;
+  set profilePhotoUrl(String value) {
+    _profilePhotoUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_profilePhotoUrl');
+    } else {
+      prefs.setString('ff_profilePhotoUrl', value);
+    }
+    notifyListeners();
+  }
+
+
+// License URLs
+  String _licenseFrontImageUrl = '';
+  String get licenseFrontImageUrl => _licenseFrontImageUrl;
+  set licenseFrontImageUrl(String value) {
+    _licenseFrontImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseFrontImageUrl');
+    } else {
+      prefs.setString('ff_licenseFrontImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+  String _licenseBackImageUrl = '';
+  String get licenseBackImageUrl => _licenseBackImageUrl;
+  set licenseBackImageUrl(String value) {
+    _licenseBackImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseBackImageUrl');
+    } else {
+      prefs.setString('ff_licenseBackImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+// License Base64
+  String _licenseFrontBase64 = '';
+  String get licenseFrontBase64 => _licenseFrontBase64;
+  set licenseFrontBase64(String value) {
+    _licenseFrontBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseFrontBase64');
+    } else {
+      prefs.setString('ff_licenseFrontBase64', value);
+    }
+    notifyListeners();
+  }
+
+  String _licenseBackBase64 = '';
+  String get licenseBackBase64 => _licenseBackBase64;
+  set licenseBackBase64(String value) {
+    _licenseBackBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseBackBase64');
+    } else {
+      prefs.setString('ff_licenseBackBase64', value);
+    }
+    notifyListeners();
+  }
+
+// License Number
+  String _licenseNumber = '';
+  String get licenseNumber => _licenseNumber;
+  set licenseNumber(String value) {
+    _licenseNumber = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseNumber');
+    } else {
+      prefs.setString('ff_licenseNumber', value);
+    }
+    notifyListeners();
+  }
+// RC Front URL
+  String _rcFrontImageUrl = '';
+  String get rcFrontImageUrl => _rcFrontImageUrl;
+  set rcFrontImageUrl(String value) {
+    _rcFrontImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_rcFrontImageUrl');
+    } else {
+      prefs.setString('ff_rcFrontImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+// RC Back URL (NEW)
+  String _rcBackImageUrl = '';
+  String get rcBackImageUrl => _rcBackImageUrl;
+  set rcBackImageUrl(String value) {
+    _rcBackImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_rcBackImageUrl');
+    } else {
+      prefs.setString('ff_rcBackImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+// RC Front Base64
+  String _rcFrontBase64 = '';
+  String get rcFrontBase64 => _rcFrontBase64;
+  set rcFrontBase64(String value) {
+    _rcFrontBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_rcFrontBase64');
+    } else {
+      prefs.setString('ff_rcFrontBase64', value);
+    }
+    notifyListeners();
+  }
+
+// RC Back Base64 (NEW)
+  String _rcBackBase64 = '';
+  String get rcBackBase64 => _rcBackBase64;
+  set rcBackBase64(String value) {
+    _rcBackBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_rcBackBase64');
+    } else {
+      prefs.setString('ff_rcBackBase64', value);
+    }
+    notifyListeners();
+  }
+
+// Registration Number (existing)
+  String _registrationNumber = '';
+  String get registrationNumber => _registrationNumber;
+  set registrationNumber(String value) {
+    _registrationNumber = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_registrationNumber');
+    } else {
+      prefs.setString('ff_registrationNumber', value);
+    }
+    notifyListeners();
+  }
+
+// Vehicle Year (NEW)
+  String _vehicleYear = '';
+  String get vehicleYear => _vehicleYear;
+  set vehicleYear(String value) {
+    _vehicleYear = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleYear');
+    } else {
+      prefs.setString('ff_vehicleYear', value);
+    }
+    notifyListeners();
+  }
+
+// ==========================================
+// PROFILE PHOTO BASE64 (temporary persistence)
+// ==========================================
+  String _profilePhotoBase64 = '';
+  String get profilePhotoBase64 => _profilePhotoBase64;
+  set profilePhotoBase64(String value) {
+    _profilePhotoBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_profilePhotoBase64');
+    } else {
+      prefs.setString('ff_profilePhotoBase64', value);
+    }
+    notifyListeners();
+  }
+
+
+  FFUploadedFile? _profilePhoto;
+  FFUploadedFile? get profilePhoto => _profilePhoto;
+  set profilePhoto(FFUploadedFile? value) {
+    _profilePhoto = value;
+    notifyListeners();
+  }
+
+
 
   FFUploadedFile? _registrationImage;
   FFUploadedFile? get registrationImage => _registrationImage;
@@ -332,6 +710,22 @@ class FFAppState extends ChangeNotifier {
   FFUploadedFile? get pollutioncertificateImage => _pollutioncertificateImage;
   set pollutioncertificateImage(FFUploadedFile? value) {
     _pollutioncertificateImage = value;
+    notifyListeners();
+  }
+
+
+  FFUploadedFile? _licenseBackImage;
+  FFUploadedFile? get licenseBackImage => _licenseBackImage;
+  set licenseBackImage(FFUploadedFile? value) {
+    _licenseBackImage = value;
+    notifyListeners();
+  }
+
+// RC Back (NEW)
+  FFUploadedFile? _rcBackImage;
+  FFUploadedFile? get rcBackImage => _rcBackImage;
+  set rcBackImage(FFUploadedFile? value) {
+    _rcBackImage = value;
     notifyListeners();
   }
 

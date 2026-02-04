@@ -291,7 +291,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   icon: Icons.person_outline,
                   title: 'Account',
                   subtitle: 'Manage your profile',
-                  routeName: 'Account_support',
+                  routeName: AccountManagementWidget.routeName,
                 ),
                 _buildDivider(),
 
