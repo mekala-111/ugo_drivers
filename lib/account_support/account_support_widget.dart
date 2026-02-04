@@ -294,7 +294,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                 color: Color(0xFFF0F8FF),
                                 borderRadius: BorderRadius.circular(8.0),
                                 border: Border.all(
-                                  color: FlutterFlowTheme.of(context).primary.withOpacity(0.3),
+                                  color: FlutterFlowTheme.of(context).primary.withAlpha(77),
                                   width: 1,
                                 ),
                               ),

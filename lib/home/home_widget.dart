@@ -1,23 +1,21 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-
 import 'home_model.dart';
 export 'home_model.dart';
 
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import './ride_request_overlay.dart';
+// ✅ Import the incentive model
+import './incentive_model.dart';
+import '/components/menu_widget.dart';
 
 const String BASE_URL = "http://192.168.1.14:5001";
 String DRIVER_TOKEN = FFAppState().accessToken;
@@ -38,7 +36,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-  GlobalKey<RideRequestOverlayState>();
+      GlobalKey<RideRequestOverlayState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -52,6 +50,13 @@ class _HomeWidgetState extends State<HomeWidget> {
   bool _isDataLoaded = false;
 
   bool _isPanelExpanded = true;
+  bool _isIncentivePanelExpanded = true;
+
+  // ✅ Incentive Data from API
+  int currentRides = 0;
+  double totalIncentiveEarned = 0.0;
+  List<IncentiveTier> incentiveTiers = [];
+  bool isLoadingIncentives = true;
 
   @override
   void initState() {
@@ -71,6 +76,10 @@ class _HomeWidgetState extends State<HomeWidget> {
             token: FFAppState().accessToken,
             driverId: FFAppState().driverid,
           );
+        }),
+        // ✅ Fetch Incentive Data
+        Future(() async {
+          await _fetchIncentiveData();
         }),
       ]);
 
@@ -111,6 +120,61 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
+  }
+
+  // ✅ NEW: Fetch Incentive Data from API
+  Future<void> _fetchIncentiveData() async {
+    try {
+      setState(() {
+        isLoadingIncentives = true;
+      });
+
+      final response = await GetDriverIncentivesCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+      );
+
+      if (response.succeeded) {
+        print('✅ Incentive data fetched successfully');
+        print('📦 Response: ${response.jsonBody}');
+
+        // Parse the response
+        final data = response.jsonBody;
+
+        // Extract current rides
+        currentRides = getJsonField(data, r'''$.data.current_rides''') ?? 0;
+
+        // Extract total earned
+        totalIncentiveEarned =
+            (getJsonField(data, r'''$.data.total_earned''') ?? 0.0).toDouble();
+
+        // Extract incentive tiers array
+        final tiersData =
+            getJsonField(data, r'''$.data.incentive_tiers''', true);
+
+        if (tiersData != null && tiersData is List) {
+          incentiveTiers = tiersData
+              .map((tier) =>
+                  IncentiveTier.fromJson(tier as Map<String, dynamic>))
+              .toList();
+
+          print('✅ Parsed ${incentiveTiers.length} incentive tiers');
+        } else {
+          print('⚠️ No incentive tiers found');
+          incentiveTiers = [];
+        }
+      } else {
+        print('❌ Failed to fetch incentives: ${response.statusCode}');
+        incentiveTiers = [];
+      }
+    } catch (e) {
+      print('❌ Error fetching incentive data: $e');
+      incentiveTiers = [];
+    } finally {
+      setState(() {
+        isLoadingIncentives = false;
+      });
+    }
   }
 
   Future<void> _startLocationTracking() async {
@@ -274,7 +338,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           title: const Text('KYC Not Approved'),
           content: Text(
             'Your KYC status is "${FFAppState().kycStatus}". '
-                'Please complete KYC to go online.',
+            'Please complete KYC to go online.',
           ),
           actions: [
             TextButton(
@@ -421,7 +485,6 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Get screen dimensions for responsive sizing
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 360;
@@ -470,23 +533,24 @@ class _HomeWidgetState extends State<HomeWidget> {
           key: scaffoldKey,
           resizeToAvoidBottomInset: false,
           backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+          drawer: Drawer(
+            elevation: 16.0,
+            child: MenuWidget(),
+          ),
           body: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
               SizedBox(height: isSmallScreen ? 20 : 32),
-              // ✅ TOP ORANGE APP BAR
               _buildTopAppBar(screenWidth, isSmallScreen),
-              // ✅ GOOGLE MAP (takes remaining space)
               Expanded(
                 child: Stack(
                   children: [
-                    // Google Map
                     FlutterFlowGoogleMap(
                       controller: _model.googleMapsController,
                       onCameraIdle: (latLng) =>
-                      _model.googleMapsCenter = latLng,
+                          _model.googleMapsCenter = latLng,
                       initialLocation: _model.googleMapsCenter ??=
-                      currentUserLocationValue!,
+                          currentUserLocationValue!,
                       markerColor: GoogleMarkerColor.violet,
                       mapType: MapType.normal,
                       style: GoogleMapStyle.standard,
@@ -500,21 +564,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                       showTraffic: false,
                       centerMapOnMarkerTap: true,
                     ),
-
-                    // Ride Request Overlay
                     RideRequestOverlay(key: _overlayKey),
-
-                    // ✅ My Location Button (responsive position)
-
                   ],
                 ),
               ),
-
-              // ✅ COLLAPSIBLE BOTTOM PANEL
+              _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
               _buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
-
-              // ✅ PROGRESS BAR AT VERY BOTTOM
-              _buildBottomProgressBar(screenWidth, isSmallScreen),
+              SizedBox(height: isSmallScreen ? 10 : 15),
+              // _buildBottomProgressBar(screenWidth, isSmallScreen),
             ],
           ),
         ),
@@ -522,7 +579,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  // ✅ RESPONSIVE TOP APP BAR WIDGET
   Widget _buildTopAppBar(double screenWidth, bool isSmallScreen) {
     return Container(
       width: double.infinity,
@@ -542,10 +598,9 @@ class _HomeWidgetState extends State<HomeWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Hamburger Menu
               InkWell(
-                onTap: () async {
-                  context.pushNamed(AccountManagementWidget.routeName);
+                onTap: () {
+                  scaffoldKey.currentState?.openDrawer(); // Opens the drawer
                 },
                 child: Container(
                   width: isSmallScreen ? 36 : 40,
@@ -583,12 +638,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                 ),
               ),
-
-              // QR Code Button
               Container(
-                width: isSmallScreen ? 30 :30,
+                width: isSmallScreen ? 30 : 30,
                 height: isSmallScreen ? 30 : 30,
-
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
@@ -606,13 +658,12 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                 ),
               ),
-
-              // ON/OFF Toggle
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(30),),
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -632,14 +683,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                         value: _model.switchValue ?? false,
                         onChanged: _isDataLoaded
                             ? (newValue) {
-                          safeSetState(
-                                  () => _model.switchValue = newValue);
-                          if (newValue) {
-                            _goOnlineAsync();
-                          } else {
-                            _goOfflineAsync();
-                          }
-                        }
+                                safeSetState(
+                                    () => _model.switchValue = newValue);
+                                if (newValue) {
+                                  _goOnlineAsync();
+                                } else {
+                                  _goOfflineAsync();
+                                }
+                              }
                             : null,
                         activeColor: Colors.black,
                         activeTrackColor: Colors.grey.shade300,
@@ -651,8 +702,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ],
                 ),
               ),
-
-              // Team Icon + Label
               InkWell(
                 onTap: () async {
                   context.pushNamed(TeampageWidget.routeName);
@@ -696,7 +745,280 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  // ✅ RESPONSIVE COLLAPSIBLE BOTTOM PANEL
+  // ✅ COLLAPSIBLE INCENTIVE PANEL WITH DYNAMIC DATA
+  Widget _buildCollapsibleBottomIncentive(
+      double screenWidth, bool isSmallScreen) {
+    bool hasIncentives = incentiveTiers.isNotEmpty;
+
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header Row
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isIncentivePanelExpanded = !_isIncentivePanelExpanded;
+              });
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 10 : 12,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Incentives',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      if (isLoadingIncentives)
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xFFFF7B10),
+                            ),
+                          ),
+                        )
+                      else
+                        Text(
+                          hasIncentives
+                              ? '₹${totalIncentiveEarned.toStringAsFixed(0)}'
+                              : 'Coming Soon',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 16 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: hasIncentives ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                      SizedBox(width: isSmallScreen ? 8 : 12),
+                      Icon(
+                        _isIncentivePanelExpanded
+                            ? Icons.keyboard_arrow_down
+                            : Icons.keyboard_arrow_up,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Collapsible Content
+          if (_isIncentivePanelExpanded)
+            isLoadingIncentives
+                ? _buildLoadingIndicator(isSmallScreen)
+                : hasIncentives
+                    ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
+                    : _buildComingSoonMessage(isSmallScreen),
+        ],
+      ),
+    );
+  }
+
+  // ✅ Loading Indicator
+  Widget _buildLoadingIndicator(bool isSmallScreen) {
+    return Padding(
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7B10)),
+      ),
+    );
+  }
+
+  // ✅ BUILD INCENTIVE PROGRESS BARS FROM API DATA
+  Widget _buildIncentiveProgressBars(double screenWidth, bool isSmallScreen) {
+    // Calculate total required rides from highest tier
+    int totalRequiredRides = incentiveTiers.isNotEmpty
+        ? incentiveTiers
+            .map((t) => t.targetRides)
+            .reduce((a, b) => a > b ? a : b)
+        : 0;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        isSmallScreen ? 12 : 16,
+        0,
+        isSmallScreen ? 12 : 16,
+        isSmallScreen ? 12 : 16,
+      ),
+      child: Column(
+        children: [
+          // Progress Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$currentRides/$totalRequiredRides',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '₹${totalIncentiveEarned.toStringAsFixed(0)}',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFF7B10),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+
+          // ✅ DYNAMIC Incentive Tier Progress Bars from API
+          ...incentiveTiers
+              .map((tier) => _buildIncentiveTierBar(
+                    tier: tier,
+                    currentRides: currentRides,
+                    isSmallScreen: isSmallScreen,
+                  ))
+              .toList(),
+        ],
+      ),
+    );
+  }
+
+  // ✅ BUILD INDIVIDUAL INCENTIVE TIER BAR
+  Widget _buildIncentiveTierBar({
+    required IncentiveTier tier,
+    required int currentRides,
+    required bool isSmallScreen,
+  }) {
+    double progress = (currentRides / tier.targetRides).clamp(0.0, 1.0);
+    bool isCompleted = currentRides >= tier.targetRides;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Tier Info Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    tier.isLocked ? Icons.lock : Icons.lock_open,
+                    size: isSmallScreen ? 16 : 18,
+                    color: tier.isLocked ? Colors.grey : Color(0xFFFF7B10),
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    '${tier.targetRides} rides',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 13 : 14,
+                      fontWeight: FontWeight.w600,
+                      color: tier.isLocked ? Colors.grey : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                '+₹${tier.rewardAmount.toStringAsFixed(0)}',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  fontWeight: FontWeight.bold,
+                  color: isCompleted ? Colors.green : Color(0xFFFF7B10),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+
+          // Progress Bar
+          Container(
+            height: isSmallScreen ? 28 : 32,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
+              child: Stack(
+                children: [
+                  // Progress Fill
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: tier.isLocked
+                              ? [Colors.grey.shade400, Colors.grey.shade500]
+                              : isCompleted
+                                  ? [Colors.green, Colors.green.shade700]
+                                  : [Color(0xFFFFB785), Color(0xFFFF7B10)],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ COMING SOON MESSAGE
+  Widget _buildComingSoonMessage(bool isSmallScreen) {
+    return Padding(
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      child: Column(
+        children: [
+          Icon(
+            Icons.star_border_rounded,
+            size: isSmallScreen ? 48 : 64,
+            color: Colors.grey.shade400,
+          ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          Text(
+            'Coming Soon',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 18 : 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Exciting incentive programs will be available soon!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 13 : 14,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCollapsibleBottomPanel(double screenWidth, bool isSmallScreen) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
@@ -714,7 +1036,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Row (Today Total + Arrow)
           InkWell(
             onTap: () {
               setState(() {
@@ -758,8 +1079,6 @@ class _HomeWidgetState extends State<HomeWidget> {
               ),
             ),
           ),
-
-          // Collapsible Content (Orange Cards)
           if (_isPanelExpanded)
             Padding(
               padding: EdgeInsets.fromLTRB(
@@ -790,7 +1109,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  // ✅ RESPONSIVE ORANGE METRIC CARD
   Widget _buildOrangeCard(
       String title, String value, double screenWidth, bool isSmallScreen) {
     return Container(
@@ -833,49 +1151,44 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  // ✅ RESPONSIVE BOTTOM PROGRESS BAR
-  Widget _buildBottomProgressBar(double screenWidth, bool isSmallScreen) {
-    return Container(
-      height: isSmallScreen ? 20 : 40,
-      color: Colors.grey.shade200,
-      padding: EdgeInsets.symmetric(
-        horizontal: isSmallScreen ? 12 : 16,
-        vertical: isSmallScreen ? 8 : 10,
-      ),
-      child: Row(
-        children: [
-          // Progress Bar
-          Expanded(
-            child: Container(
-              height: isSmallScreen ? 32 : 40,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-                child: Stack(
-                  children: [
-                    // Tire Track Watermark Pattern
-                    FractionallySizedBox(
-                      widthFactor: 0.3, // 30% progress (replace dynamically)
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF4CAF50),
-                          borderRadius:
-                          BorderRadius.circular(isSmallScreen ? 16 : 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildBottomProgressBar(double screenWidth, bool isSmallScreen) {
+  //   return Container(
+  //     height: isSmallScreen ? 20 : 40,
+  //     color: Colors.grey.shade200,
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: isSmallScreen ? 12 : 16,
+  //       vertical: isSmallScreen ? 8 : 10,
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: Container(
+  //             height: isSmallScreen ? 32 : 40,
+  //             decoration: BoxDecoration(
+  //               color: Colors.grey.shade300,
+  //               borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+  //             ),
+  //             child: ClipRRect(
+  //               borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+  //               child: Stack(
+  //                 children: [
+  //                   FractionallySizedBox(
+  //                     widthFactor: 0.3,
+  //                     child: Container(
+  //                       decoration: BoxDecoration(
+  //                         color: Color(0xFF4CAF50),
+  //                         borderRadius:
+  //                         BorderRadius.circular(isSmallScreen ? 16 : 20),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
-
-// ✅ CUSTOM PAINTER FOR BIKE TIRE TRACK WATERMARK

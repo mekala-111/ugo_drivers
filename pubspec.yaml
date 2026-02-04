@@ -79,6 +79,7 @@ dependencies:
   infinite_scroll_pagination: ^5.1.1
   dio: ^5.9.0
   haptic_feedback: ^0.6.4+3
+  google_mlkit_text_recognition: ^0.15.1
 
 # --- Overrides to force compatibility ---
 dependency_overrides:

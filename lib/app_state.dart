@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/uploaded_file.dart';
-
+import 'dart:convert';
+import 'dart:typed_data';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -26,15 +27,6 @@ class FFAppState extends ChangeNotifier {
   String _email = '';
   String _referralCode = '';
 
-
-// int get activeRideId => _activeRideId;
-// String get activeRideStatus => _activeRideStatus;
-
-
-  // static void reset() {
-  //   _instance = FFAppState._internal();
-  // }
-
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
     _safeInit(() {
@@ -53,7 +45,7 @@ class FFAppState extends ChangeNotifier {
       _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
     });
     _safeInit(() {
-      _driverid = prefs.getInt('ff_driverid') ?? _driverid; // 🔥 MISSING LINE
+      _driverid = prefs.getInt('ff_driverid') ?? _driverid;
     });
     _safeInit(() {
       _isonline = prefs.getBool('ff_isonline') ?? false;
@@ -61,7 +53,6 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _activeRideId = prefs.getInt('ff_activeRideId') ?? 0;
     });
-
     _safeInit(() {
       _activeRideStatus = prefs.getString('ff_activeRideStatus') ?? '';
     });
@@ -80,20 +71,34 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _referralCode = prefs.getString('ff_referralCode') ?? '';
     });
-
     _safeInit(() {
       _fcmToken = prefs.getString('ff_fcmToken') ?? '';
     });
-
-
-
+    // Aadhaar number
+    _safeInit(() {
+      _aadharNumber = prefs.getString('ff_aadharNumber') ?? '';
+    });
+    // Aadhaar image URLs (persistent)
+    _safeInit(() {
+      _aadharFrontImageUrl = prefs.getString('ff_aadharFrontImageUrl') ?? '';
+    });
+    _safeInit(() {
+      _aadharBackImageUrl = prefs.getString('ff_aadharBackImageUrl') ?? '';
+    });
+    // Base64 strings (for temporary persistence - optional)
+    _safeInit(() {
+      _aadharFrontBase64 = prefs.getString('ff_aadharFrontBase64') ?? '';
+    });
+    _safeInit(() {
+      _aadharBackBase64 = prefs.getString('ff_aadharBackBase64') ?? '';
+    });
   }
-
 
   void update(VoidCallback callback) {
     callback();
     notifyListeners();
   }
+
   int get activeRideId => _activeRideId;
   String get activeRideStatus => _activeRideStatus;
 
@@ -108,6 +113,7 @@ class FFAppState extends ChangeNotifier {
     prefs.setString('ff_activeRideStatus', value);
     notifyListeners();
   }
+
   int _activeRideCount = 0;
   int get activeRideCount => _activeRideCount;
 
@@ -123,7 +129,6 @@ class FFAppState extends ChangeNotifier {
     prefs.setInt('ff_mobileNo', value);
     notifyListeners();
   }
-
 
   String get firstName => _firstName;
 
@@ -148,7 +153,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   String get email => _email;
 
   set email(String value) {
@@ -156,7 +160,6 @@ class FFAppState extends ChangeNotifier {
     prefs.setString('ff_email', value);
     notifyListeners();
   }
-
 
   String get referralCode => _referralCode;
 
@@ -166,20 +169,14 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-
-
   late SharedPreferences prefs;
-
-// bool get isLoggedIn => _accessToken.isNotEmpty;
 
   bool _isLoggedIn = false;
 
   bool get isLoggedIn => _isLoggedIn;
 
   set isLoggedIn(bool value) {
-    _isLoggedIn = value; // ✅ correct
+    _isLoggedIn = value;
     prefs.setBool('ff_isLoggedIn', value);
     notifyListeners();
   }
@@ -192,10 +189,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-
-
   String _selectvehicle = '';
   String get selectvehicle => _selectvehicle;
   set selectvehicle(String value) {
@@ -203,8 +196,9 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ==========================================
   // DRIVING LICENSE IMAGE
-  // --------------------------------
+  // ==========================================
   FFUploadedFile? _imageLicense;
   FFUploadedFile? get imageLicense => _imageLicense;
   set imageLicense(FFUploadedFile? value) {
@@ -212,7 +206,9 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
+  // ==========================================
+  // AADHAAR IMAGES (temporary in-memory)
+  // ==========================================
   FFUploadedFile? _aadharImage;
   FFUploadedFile? get aadharImage => _aadharImage;
   set aadharImage(FFUploadedFile? value) {
@@ -220,6 +216,82 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  FFUploadedFile? _aadharBackImage;
+  FFUploadedFile? get aadharBackImage => _aadharBackImage;
+  set aadharBackImage(FFUploadedFile? value) {
+    _aadharBackImage = value;
+    notifyListeners();
+  }
+
+  // ==========================================
+  // AADHAAR IMAGE URLs (persistent - from server)
+  // ==========================================
+  String _aadharFrontImageUrl = '';
+  String get aadharFrontImageUrl => _aadharFrontImageUrl;
+  set aadharFrontImageUrl(String value) {
+    _aadharFrontImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_aadharFrontImageUrl');
+    } else {
+      prefs.setString('ff_aadharFrontImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+  String _aadharBackImageUrl = '';
+  String get aadharBackImageUrl => _aadharBackImageUrl;
+  set aadharBackImageUrl(String value) {
+    _aadharBackImageUrl = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_aadharBackImageUrl');
+    } else {
+      prefs.setString('ff_aadharBackImageUrl', value);
+    }
+    notifyListeners();
+  }
+
+  // ==========================================
+  // AADHAAR BASE64 (temporary persistence - for testing only)
+  // WARNING: Not recommended for production
+  // ==========================================
+  String _aadharFrontBase64 = '';
+  String get aadharFrontBase64 => _aadharFrontBase64;
+  set aadharFrontBase64(String value) {
+    _aadharFrontBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_aadharFrontBase64');
+    } else {
+      prefs.setString('ff_aadharFrontBase64', value);
+    }
+    notifyListeners();
+  }
+
+  String _aadharBackBase64 = '';
+  String get aadharBackBase64 => _aadharBackBase64;
+  set aadharBackBase64(String value) {
+    _aadharBackBase64 = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_aadharBackBase64');
+    } else {
+      prefs.setString('ff_aadharBackBase64', value);
+    }
+    notifyListeners();
+  }
+
+  // ==========================================
+  // AADHAAR NUMBER (persistent)
+  // ==========================================
+  String _aadharNumber = '';
+  String get aadharNumber => _aadharNumber;
+  set aadharNumber(String value) {
+    _aadharNumber = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_aadharNumber');
+    } else {
+      prefs.setString('ff_aadharNumber', value);
+    }
+    notifyListeners();
+  }
 
   FFUploadedFile? _profilePhoto;
   FFUploadedFile? get profilePhoto => _profilePhoto;
@@ -228,14 +300,12 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   FFUploadedFile? _panImage;
   FFUploadedFile? get panImage => _panImage;
   set panImage(FFUploadedFile? value) {
     _panImage = value;
     notifyListeners();
   }
-
 
   FFUploadedFile? _vehicleImage;
   FFUploadedFile? get vehicleImage => _vehicleImage;
@@ -244,7 +314,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   FFUploadedFile? _registrationImage;
   FFUploadedFile? get registrationImage => _registrationImage;
   set registrationImage(FFUploadedFile? value) {
@@ -252,9 +321,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --------------------------------
-  // INSURANCE IMAGE
-  // --------------------------------
   FFUploadedFile? _insurenceImge;
   FFUploadedFile? get insurenceImge => _insurenceImge;
   set insurenceImge(FFUploadedFile? value) {
@@ -262,33 +328,20 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --------------------------------
-  // POLLUTION CERTIFICATE IMAGE
-  // --------------------------------
   FFUploadedFile? _pollutioncertificateImage;
-  FFUploadedFile? get pollutioncertificateImage =>
-      _pollutioncertificateImage;
+  FFUploadedFile? get pollutioncertificateImage => _pollutioncertificateImage;
   set pollutioncertificateImage(FFUploadedFile? value) {
     _pollutioncertificateImage = value;
     notifyListeners();
   }
 
-
-
-
-  // int _driverid = 0;
-  // int get driverid => _driverid;
-  // set driverid(int value) {
-  //   _driverid = value;
-  // }
   int _driverid = 0;
   int get driverid => _driverid;
 
   set driverid(int value) {
     _driverid = value;
-    prefs.setInt('ff_driverid', value); // 🔥 REQUIRED
+    prefs.setInt('ff_driverid', value);
   }
-
 
   bool _isonline = false;
   bool get isonline => _isonline;
@@ -298,7 +351,6 @@ class FFAppState extends ChangeNotifier {
     prefs.setBool('ff_isonline', value);
     notifyListeners();
   }
-
 
   String _accessToken = '';
   String get accessToken => _accessToken;
@@ -313,14 +365,12 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   String _kycStatus = '';
   String get kycStatus => _kycStatus;
 
   set kycStatus(String value) {
-    final cleanValue = value.trim().toLowerCase() == 'null'
-        ? ''
-        : value.trim();
+    final cleanValue =
+    value.trim().toLowerCase() == 'null' ? '' : value.trim();
 
     _kycStatus = cleanValue;
 
@@ -332,7 +382,6 @@ class FFAppState extends ChangeNotifier {
 
     notifyListeners();
   }
-
 
   String _qrImage = '';
   String get qrImage => _qrImage;

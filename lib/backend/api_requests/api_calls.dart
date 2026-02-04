@@ -477,6 +477,42 @@ class PostQRcodeCall {
       ));
 }
 
+class GetDriverIncentivesCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getDriverIncentives',
+      apiUrl: 'https://ugotaxi.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static int? currentRides(dynamic response) => castToType<int>(getJsonField(
+    response,
+    r'''$.data.current_rides''',
+  ));
+
+  static double? totalEarned(dynamic response) => castToType<double>(getJsonField(
+    response,
+    r'''$.data.total_earned''',
+  ));
+
+  static List? incentiveTiers(dynamic response) => getJsonField(
+    response,
+    r'''$.data.incentive_tiers''',
+    true,
+  ) as List?;
+}
+
+
 class ApiPagingParams {
   int nextPageNumber = 0;
   int numItems = 0;

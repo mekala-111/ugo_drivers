@@ -625,6 +625,20 @@
             </list>
           </value>
         </entry>
+        <entry key="google_mlkit_commons">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="google_mlkit_text_recognition">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="google_sign_in">
           <value>
             <list>
@@ -1504,6 +1518,8 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_maps_flutter_platform_interface-2.12.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_maps_flutter_web-0.5.12/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_maps_webservice-0.0.20-nullsafety.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in-6.3.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in_android-6.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/lib" />
