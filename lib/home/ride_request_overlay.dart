@@ -595,370 +595,779 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   Widget _buildSearchingCard(RideRequest ride) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF2ECC71), width: 2),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black12, blurRadius: 12, offset: const Offset(0, 4))
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                  color: const Color(0xFFF2F4F7),
-                  borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.directions_car,
-                      size: 18, color: Color(0xFF344054)),
-                  SizedBox(width: 6),
-                  Text("Auto",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Color(0xFF344054))),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text("₹${ride.estimatedFare?.toStringAsFixed(0) ?? '0'}",
-                    style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF101828))),
-                const SizedBox(width: 10),
-                const Text("+",
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black26)),
-                const SizedBox(width: 10),
-                const Text("₹6",
-                    style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF2ECC71))),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildLocationSection(ride),
-            const SizedBox(height: 24),
-            _buildAcceptUI(ride),
-          ],
-        ),
-      ),
-    );
-  }
+  final remaining = _timers[ride.id] ?? 0;
 
-  Widget _buildActiveRideCard(RideRequest ride) {
-    final bool isAccepted = ride.status == 'accepted';
-    final bool isArrived = ride.status == 'arrived';
-    final bool isStarted = ride.status == 'started';
-    final bool isOtpVerified = ride.status == 'otp_verified';
-    final bool isCompleted = _completedRides.contains(ride.id);
-
-    return Column(
+  return Container(
+    margin: const EdgeInsets.fromLTRB(12, 0, 12, 20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: const [
+        BoxShadow(color: Colors.black26, blurRadius: 8)
+      ],
+    ),
+    child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!isCompleted)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Align(
-              alignment: Alignment.centerRight, // 👈 moves button to the right
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final pos = await Geolocator.getCurrentPosition();
-                  await GoogleMapsNavigation.open(
-                    originLat: pos.latitude,
-                    originLng: pos.longitude,
-                    destLat:
-                    (isAccepted || isArrived) ? ride.pickupLat : ride.dropLat,
-                    destLng:
-                    (isAccepted || isArrived) ? ride.pickupLng : ride.dropLng,
-                  );
-                },
-                icon: const Icon(Icons.navigation, color: Colors.black),
-                label: Text(
-                  (isAccepted || isArrived) ? "Pickup" : "Drop",
-                  style: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                ),
-              ),
-            ),
-          ),
 
+        /// 🔴 HEADER
         Container(
-          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+            color: Colors.green,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("NEW REQUEST",
+                  style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+              Text("${remaining}s",
+                  style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              if (isAccepted || isArrived)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(24))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    // children: const [
-                    //   Icon(Icons.check_circle, color: Colors.green, size: 16),
-                    //   SizedBox(width: 8),
-                    //   Text("Customer Verified Location",
-                    //       style: TextStyle(
-                    //           fontWeight: FontWeight.bold,
-                    //           fontSize: 12,
-                    //           color: Colors.black54)),
-                    // ],
-                  ),
-                ),
-              if (isArrived && _waitTimers.containsKey(ride.id))
-                _buildWaitTimerUI(ride.id),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Sony Reddy",
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87)),
-                    const SizedBox(height: 4),
-                    Text(
-                      (isAccepted || isArrived)
-                          ? ride.pickupAddress
-                          : ride.dropAddress,
-                      style:
-                      TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                    ),
-                    const SizedBox(height: 20),
-                    const SizedBox(height: 20),
 
-                    /// ================= ACCEPTED =================
-                    if (isAccepted) ...[
-                      /// ▶️ ARRIVED SWIPE
-                      UgoSwipeButton(
-                        key: ValueKey(
-                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                        text: "Arrived",
-                        color: Colors.black,
-                        onSwipe: () {
-                          _updateRideStatus(ride.id, 'arrived');
-                          FFAppState().activeRideStatus = 'arrived';
-                        },
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                // 📞 Call customer
-                              },
-                              icon: const Icon(Icons.call, color: Colors.black),
-                              label: const Text(
-                                "Call",
-                                style: TextStyle(
-                                    color: Colors.black, fontWeight: FontWeight.bold),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                side: BorderSide(color: Colors.grey.shade300),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                // ❌ Cancel ride
-                              },
-                              icon: const Icon(Icons.close, color: Colors.red),
-                              label: const Text(
-                                "Cancel",
-                                style: TextStyle(
-                                    color: Colors.red, fontWeight: FontWeight.bold),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                side: BorderSide(color: Colors.red.shade300),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ]
-
-                    /// ================= ARRIVED =================
-                    else if (isArrived) ...[
-                      /// ▶️ START RIDE
-                      UgoSwipeButton(
-                        key: ValueKey(
-                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                        text: "Start Ride",
-                        color: Colors.green.shade700,
-                        onSwipe: () {
-                          _showOtpDialog(ride.id);
-                        },
-                      ),
-                      const SizedBox(height: 12),
-
-                      /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                // 📞 Call customer
-                              },
-                              icon: const Icon(Icons.call, color: Colors.black),
-                              label: const Text(
-                                "Call",
-                                style: TextStyle(
-                                    color: Colors.black, fontWeight: FontWeight.bold),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                side: BorderSide(color: Colors.grey.shade300),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                // ❌ Cancel ride
-                              },
-                              icon: const Icon(Icons.close, color: Colors.red),
-                              label: const Text(
-                                "Cancel",
-                                style: TextStyle(
-                                    color: Colors.red, fontWeight: FontWeight.bold),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                side: BorderSide(color: Colors.red.shade300),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ]
-                    else if (isOtpVerified)
-                        UgoSwipeButton(
-                            key: ValueKey(
-                                'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                            text: "Start Ride",
-                            color: Colors.green.shade700,
-                            onSwipe: () {
-                              _updateRideStatus(ride.id, 'started');
-                              FFAppState().activeRideStatus = 'started';
-                            })
-                      else if (isStarted)
-                          UgoSwipeButton(
-                              key: ValueKey(
-                                  'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
-                              text: "Complete Ride",
-                              color: Colors.red.shade800,
-                              onSwipe: () {
-                                setState(() => _paymentPendingRides.add(ride.id));
-                              })
-                        else if (isCompleted)
-                            _buildRideCompletedUI(ride),
-                    if (_paymentPendingRides.contains(ride.id)) ...[
-                      const SizedBox(height: 20),
-                      _buildPaymentUI(ride),
+              /// 💰 FARE + DISTANCE
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("EARNINGS",style: TextStyle(color: Colors.grey,fontSize:10),),
+                      Text("₹${ride.estimatedFare?.toStringAsFixed(0) ?? '0'}",
+                          style: const TextStyle(fontSize: 28,fontWeight: FontWeight.bold,color: Color.fromARGB(255, 5, 74, 130))),
                     ],
-                  ],
-                ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text("DISTANCE",style: TextStyle(color: Colors.grey,fontSize:10),),
+                      Text("${ride.distance?.toStringAsFixed(2) ?? '0'} km",
+                          style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
+                    ],
+                  )
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              /// 📍 PICKUP
+              Row(
+                children: [
+                  const Icon(Icons.location_on,color: Colors.green,size: 12),
+                  const SizedBox(width: 8),
+                  Expanded(child: highlightedAddress(ride.dropAddress,maxLines: 2)),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              /// 📍 DROP
+              Row(
+                children: [
+                  const Icon(Icons.circle,color: Colors.red,size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: highlightedAddress(ride.pickupAddress,maxLines: 2)),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              /// BUTTONS
+              Row(
+                children: [
+
+                  /// DECLINE
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => removeRideById(ride.id),
+                      child: const Text("DECLINE",style: TextStyle(color: Colors.black),),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  /// ACCEPT
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        minimumSize: const Size(double.infinity,50),
+                      ),
+                      onPressed: () async {
+                        _stopAlert();
+                        await _acceptRide(ride.id);
+                      },
+                      child: const Text("ACCEPT",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+  // Widget _buildActiveRideCard(RideRequest ride) {
+  //   final bool isAccepted = ride.status == 'accepted';
+  //   final bool isArrived = ride.status == 'arrived';
+  //   final bool isStarted = ride.status == 'started';
+  //   final bool isOtpVerified = ride.status == 'otp_verified';
+  //   final bool isCompleted = _completedRides.contains(ride.id);
 
-  Widget _buildWaitTimerUI(int rideId) {
-    final int remaining = _waitTimers[rideId] ?? 0;
-    final int minutes = remaining ~/ 60;
-    final int seconds = remaining % 60;
-    final String timerText =
-        "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       if (!isCompleted)
+  //         Padding(
+  //           padding: const EdgeInsets.only(bottom: 12),
+  //           child: Align(
+  //             alignment: Alignment.centerRight, // 👈 moves button to the right
+  //             child: ElevatedButton.icon(
+  //               onPressed: () async {
+  //                 final pos = await Geolocator.getCurrentPosition();
+  //                 await GoogleMapsNavigation.open(
+  //                   originLat: pos.latitude,
+  //                   originLng: pos.longitude,
+  //                   destLat:
+  //                   (isAccepted || isArrived) ? ride.pickupLat : ride.dropLat,
+  //                   destLng:
+  //                   (isAccepted || isArrived) ? ride.pickupLng : ride.dropLng,
+  //                 );
+  //               },
+  //               icon: const Icon(Icons.navigation, color: Colors.black),
+  //               label: Text(
+  //                 (isAccepted || isArrived) ? "Pickup" : "Drop",
+  //                 style: const TextStyle(
+  //                     color: Colors.black, fontWeight: FontWeight.bold),
+  //               ),
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: Colors.orange,
+  //                 padding:
+  //                 const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+  //                 shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(30)),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F4F7),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Wait Timer",
-                    style: TextStyle(color: Colors.black54, fontSize: 14)),
-                Text(timerText,
-                    style: const TextStyle(
-                        color: Colors.orange,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
-              ],
+  //       Container(
+  //         width: double.infinity,
+  //         decoration: BoxDecoration(
+  //     color: Colors.white,
+  //     borderRadius: BorderRadius.circular(20),
+  //     boxShadow: const [
+  //       BoxShadow(color: Colors.black26, blurRadius: 8)
+  //     ],
+  //   ),
+  //         child: Column(
+  //           children: [
+  //             if (isAccepted || isArrived)
+  //               Container(
+  //                 width: double.infinity,
+  //                 padding: const EdgeInsets.symmetric(vertical: 12),
+  //                 decoration: BoxDecoration(
+  //                     color: Colors.green,
+  //                     borderRadius: const BorderRadius.vertical(
+  //                         top: Radius.circular(24))),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   // children: const [
+  //                   //   Icon(Icons.check_circle, color: Colors.green, size: 16),
+  //                   //   SizedBox(width: 8),
+  //                   //   Text("Customer Verified Location",
+  //                   //       style: TextStyle(
+  //                   //           fontWeight: FontWeight.bold,
+  //                   //           fontSize: 12,
+  //                   //           color: Colors.black54)),
+  //                   // ],
+  //                 ),
+  //               ),
+  //             if (isArrived && _waitTimers.containsKey(ride.id))
+  //               _buildWaitTimerUI(ride.id),
+  //             Padding(
+  //               padding: const EdgeInsets.all(20),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   const Text("Sony Reddy",
+  //                       style: TextStyle(
+  //                           fontSize: 22,
+  //                           fontWeight: FontWeight.bold,
+  //                           color: Colors.black87)),
+  //                   const SizedBox(height: 4),
+  //                   highlightedAddress(
+  //                     (isAccepted || isArrived)
+  //                         ? ride.pickupAddress
+  //                         : ride.dropAddress,
+  //                     style:
+  //                     TextStyle(color: Colors.grey.shade600, fontSize: 14),
+  //                   ),
+  //                   const SizedBox(height: 20),
+  //                   // const SizedBox(height: 20),
+
+  //                   /// ================= ACCEPTED =================
+  //                   if (isAccepted) ...[
+  //                     /// ▶️ ARRIVED SWIPE
+  //                     UgoSwipeButton(
+  //                       key: ValueKey(
+  //                           'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+  //                       text: "Arrived",
+  //                       color: Colors.green.shade700,
+  //                       onSwipe: () {
+  //                         _updateRideStatus(ride.id, 'arrived');
+  //                         FFAppState().activeRideStatus = 'arrived';
+  //                       },
+  //                     ),
+
+  //                     const SizedBox(height: 12),
+
+  //                     /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
+  //                     Row(
+  //                       children: [
+  //                         Expanded(
+  //                           child: OutlinedButton.icon(
+  //                             onPressed: () {
+  //                               // 📞 Call customer
+  //                             },
+  //                             icon: const Icon(Icons.call, color: Colors.black),
+  //                             label: const Text(
+  //                               "Call",
+  //                               style: TextStyle(
+  //                                   color: Colors.black, fontWeight: FontWeight.bold),
+  //                             ),
+  //                             style: OutlinedButton.styleFrom(
+  //                               minimumSize: const Size(double.infinity, 50),
+  //                               shape: RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(30)),
+  //                               side: BorderSide(color: Colors.grey.shade300),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 12),
+  //                         Expanded(
+  //                           child: OutlinedButton.icon(
+  //                             onPressed: () {
+  //                               // ❌ Cancel ride
+  //                             },
+  //                             icon: const Icon(Icons.close, color: Colors.red),
+  //                             label: const Text(
+  //                               "Cancel",
+  //                               style: TextStyle(
+  //                                   color: Colors.red, fontWeight: FontWeight.bold),
+  //                             ),
+  //                             style: OutlinedButton.styleFrom(
+  //                               minimumSize: const Size(double.infinity, 50),
+  //                               shape: RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(30)),
+  //                               side: BorderSide(color: Colors.red.shade300),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ]
+
+  //                   /// ================= ARRIVED =================
+  //                   else if (isArrived) ...[
+  //                     /// ▶️ START RIDE
+  //                     UgoSwipeButton(
+  //                       key: ValueKey(
+  //                           'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+  //                       text: "Start Ride",
+  //                       color: Colors.green.shade700,
+  //                       onSwipe: () {
+  //                         _showOtpDialog(ride.id);
+  //                       },
+  //                     ),
+  //                     const SizedBox(height: 12),
+
+  //                     /// 📞 CALL + ❌ CANCEL (VISIBLE BEFORE ARRIVED SWIPE)
+  //                     Row(
+  //                       children: [
+  //                         Expanded(
+  //                           child: OutlinedButton.icon(
+  //                             onPressed: () {
+  //                               // 📞 Call customer
+  //                             },
+  //                             icon: const Icon(Icons.call, color: Colors.black),
+  //                             label: const Text(
+  //                               "Call",
+  //                               style: TextStyle(
+  //                                   color: Colors.black, fontWeight: FontWeight.bold),
+  //                             ),
+  //                             style: OutlinedButton.styleFrom(
+  //                               minimumSize: const Size(double.infinity, 50),
+  //                               shape: RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(30)),
+  //                               side: BorderSide(color: Colors.grey.shade300),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 12),
+  //                         Expanded(
+  //                           child: OutlinedButton.icon(
+  //                             onPressed: () {
+  //                               // ❌ Cancel ride
+  //                             },
+  //                             icon: const Icon(Icons.close, color: Colors.red),
+  //                             label: const Text(
+  //                               "Cancel",
+  //                               style: TextStyle(
+  //                                   color: Colors.red, fontWeight: FontWeight.bold),
+  //                             ),
+  //                             style: OutlinedButton.styleFrom(
+  //                               minimumSize: const Size(double.infinity, 50),
+  //                               shape: RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(30)),
+  //                               side: BorderSide(color: Colors.red.shade300),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ]
+  //                   else if (isOtpVerified)
+  //                       UgoSwipeButton(
+  //                           key: ValueKey(
+  //                               'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+  //                           text: "Start Ride",
+  //                           color: Colors.green.shade700,
+  //                           onSwipe: () {
+  //                             _updateRideStatus(ride.id, 'started');
+  //                             FFAppState().activeRideStatus = 'started';
+  //                           })
+  //                     else if (isStarted)
+  //                         UgoSwipeButton(
+  //                             key: ValueKey(
+  //                                 'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+  //                             text: "Complete Ride",
+  //                             color: Colors.red.shade800,
+  //                             onSwipe: () {
+  //                               setState(() => _paymentPendingRides.add(ride.id));
+  //                             })
+  //                       else if (isCompleted)
+  //                           _buildRideCompletedUI(ride),
+  //                   if (_paymentPendingRides.contains(ride.id)) ...[
+  //                     const SizedBox(height: 20),
+  //                     _buildPaymentUI(ride),
+  //                   ],
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  // Widget _buildWaitTimerUI(int rideId) {
+  //   final int remaining = _waitTimers[rideId] ?? 0;
+  //   final int minutes = remaining ~/ 60;
+  //   final int seconds = remaining % 60;
+  //   final String timerText =
+  //       "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade200,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: Row(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const Text("Wait Timer",
+  //                   style: TextStyle(color: Colors.black54, fontSize: 14)),
+  //                   const SizedBox(width:100),
+  //               Text(timerText,
+  //                   style: const TextStyle(
+  //                       color: Colors.orange,
+  //                       fontSize: 20,
+  //                       fontWeight: FontWeight.bold)),
+  //             ],
+  //           ),
+  //         ),
+  //         const VerticalDivider(width: 20),
+  //         // const Expanded(
+  //         //   flex: 2,
+  //         //   child: Text(
+  //         //     "After 3 minutes, you will get extra charge for waiting",
+  //         //     style: TextStyle(color: Colors.black54, fontSize: 12),
+  //         //   ),
+  //         // ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildActiveRideCard(RideRequest ride) {
+  final bool isAccepted = ride.status == 'accepted';
+  final bool isArrived = ride.status == 'arrived';
+  final bool isStarted = ride.status == 'started';
+  final bool isOtpVerified = ride.status == 'otp_verified';
+  final bool isCompleted = _completedRides.contains(ride.id);
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+
+      if (!isCompleted)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                final pos = await Geolocator.getCurrentPosition();
+                await GoogleMapsNavigation.open(
+                  originLat: pos.latitude,
+                  originLng: pos.longitude,
+                  destLat: (isAccepted || isArrived)
+                      ? ride.pickupLat
+                      : ride.dropLat,
+                  destLng: (isAccepted || isArrived)
+                      ? ride.pickupLng
+                      : ride.dropLng,
+                );
+              },
+              icon: const Icon(Icons.navigation, color: Colors.black),
+              label: Text(
+                (isAccepted || isArrived) ? "Pickup" : "Drop",
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
+              ),
             ),
           ),
-          const VerticalDivider(width: 20),
-          const Expanded(
-            flex: 2,
-            child: Text(
-              "After 3 minutes, you will get extra charge for waiting",
-              style: TextStyle(color: Colors.black54, fontSize: 12),
+        ),
+
+      Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 8)
+          ],
+        ),
+        child: Column(
+          children: [
+
+            /// 🟢 TOP GREEN BAR WITH TIMER
+            if (isAccepted || isArrived)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: const BoxDecoration(
+                  color: Colors.green,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    Text(
+                      isArrived ? "WAITING TIME" : "ON THE WAY",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    if (isArrived && _waitTimers.containsKey(ride.id)) ...[
+                      const SizedBox(width: 16),
+                      Text(
+                        _formatWaitTime(ride.id),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  const Text("Sony Reddy",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87)),
+
+                  const SizedBox(height: 4),
+
+                  highlightedAddress(
+                    (isAccepted || isArrived)
+                        ? ride.pickupAddress
+                        : ride.dropAddress,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// ACCEPTED
+                  if (isAccepted)
+                    UgoSwipeButton(
+                      key: ValueKey(
+                          'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                      text: "Arrived",
+                      color: Colors.green.shade700,
+                      onSwipe: () {
+                        _updateRideStatus(ride.id, 'arrived');
+                        FFAppState().activeRideStatus = 'arrived';
+                      },
+                    )
+
+                  /// ARRIVED
+                  else if (isArrived)
+                    UgoSwipeButton(
+                      key: ValueKey(
+                          'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                      text: "Start Ride",
+                      color: Colors.green.shade700,
+                      onSwipe: () {
+                        _showOtpDialog(ride.id);
+                      },
+                    ),
+                    if (_showOtpOverlay.contains(ride.id)) ...[
+  const SizedBox(height: 20),
+
+  const Text(
+    "Enter Passenger OTP",
+    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  ),
+
+  const SizedBox(height: 12),
+
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: List.generate(4, (i) {
+      return SizedBox(
+        width: 50,
+        height: 50,
+        child: TextField(
+          controller: _otpControllers[ride.id]![i],
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          decoration: InputDecoration(
+            counterText: "",
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
-        ],
+          onChanged: (v) {
+            if (v.isNotEmpty && i < 3) {
+              FocusScope.of(context).nextFocus();
+            }
+          },
+        ),
+      );
+    }),
+  ),
+
+  const SizedBox(height: 16),
+
+  Row(
+  children: [
+    /// CANCEL (BLACK)
+    Expanded(
+      child: OutlinedButton(
+        onPressed: () {
+          setState(() => _showOtpOverlay.remove(ride.id));
+        },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          side: const BorderSide(color: Colors.black),
+          minimumSize: const Size(double.infinity, 48),
+        ),
+        child: const Text(
+          "CANCEL",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
-    );
+    ),
+
+    const SizedBox(width: 12),
+
+    /// VERIFY (GREEN)
+    Expanded(
+      child: ElevatedButton(
+        onPressed: () {
+          final otp = _otpControllers[ride.id]!
+              .map((e) => e.text)
+              .join();
+
+          _verifyOtp(ride.id, otp);
+          setState(() => _showOtpOverlay.remove(ride.id));
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green.shade700,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 48),
+        ),
+        child: const Text(
+          "VERIFY",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    ),
+  ],
+),
+
+]
+
+
+                  /// OTP VERIFIED
+                  else if (isOtpVerified)
+                    UgoSwipeButton(
+                        key: ValueKey(
+                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                        text: "Start Ride",
+                        color: Colors.green.shade700,
+                        onSwipe: () {
+                          _updateRideStatus(ride.id, 'started');
+                          FFAppState().activeRideStatus = 'started';
+                        })
+
+                  /// STARTED
+                  else if (isStarted)
+                    UgoSwipeButton(
+                        key: ValueKey(
+                            'swipe_${ride.id}_${_swipeResets[ride.id] ?? 0}'),
+                        text: "Complete Ride",
+                        color: Colors.red.shade800,
+                        onSwipe: () {
+                          setState(() =>
+                              _paymentPendingRides.add(ride.id));
+                        })
+
+                  else if (isCompleted)
+                    _buildRideCompletedUI(ride),
+
+                  if (_paymentPendingRides.contains(ride.id)) ...[
+                    const SizedBox(height: 20),
+                    _buildPaymentUI(ride),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+String _formatWaitTime(int rideId) {
+  final remaining = _waitTimers[rideId] ?? 0;
+  final minutes = remaining ~/ 60;
+  final seconds = remaining % 60;
+
+  return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+}
+
+
+  Widget highlightedAddress(
+  String address, {
+  int maxLines = 3,
+  TextStyle? style,
+  TextOverflow overflow = TextOverflow.ellipsis,
+}) {
+  // Extract pincode
+  final pinMatch = RegExp(r'\b\d{6}\b').firstMatch(address);
+
+  String pincode = "";
+  if (pinMatch != null) {
+    pincode = pinMatch.group(0)!;
+    address = address.replaceAll(pincode, "").trim();
   }
+
+  final parts = address.split(',').map((e) => e.trim()).toList();
+
+  String locality = "";
+  String rest = address;
+
+  // Google India format:
+  // Street, Colony, Locality, City, State, Country
+  if (parts.length >= 4) {
+    locality = parts[parts.length - 4]; // ⭐ Karmanghat
+    rest = address.replaceFirst(locality, '');
+  }
+
+  return RichText(
+    maxLines: maxLines,
+    overflow: overflow,
+    text: TextSpan(
+      children: [
+        /// 🖤 LOCALITY
+        TextSpan(
+          text: "$locality ",
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+
+        /// Remaining address
+        TextSpan(
+          text: rest,
+          style: const TextStyle(
+            color: Colors.black54,
+            fontSize: 13,
+          ),
+        ),
+
+        /// 🟠 PINCODE
+        if (pincode.isNotEmpty)
+          TextSpan(
+            text: " $pincode",
+            style: const TextStyle(
+              color: Colors.orange,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+
+
+
 
   Widget _buildLocationSection(RideRequest ride) {
     return Column(
@@ -990,7 +1399,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
                           color: Colors.black)),
-                  Text(ride.pickupAddress,
+                  highlightedAddress(ride.pickupAddress,
                       style: const TextStyle(
                           fontSize: 15,
                           color: Color(0xFF475467),
@@ -1017,7 +1426,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
                           color: Colors.black)),
-                  Text(ride.dropAddress,
+                  highlightedAddress(ride.dropAddress,
                       style: const TextStyle(
                           fontSize: 15,
                           color: Color(0xFF475467),
@@ -1179,37 +1588,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
+  final Map<int, List<TextEditingController>> _otpControllers = {};
+final Set<int> _showOtpOverlay = {};
+
+
   void _showOtpDialog(int rideId) {
-    final controller = TextEditingController();
-    showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-                title: const Text("Enter Passenger OTP"),
-                content: TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    maxLength: 4),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text("CANCEL")),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _verifyOtp(rideId, controller.text.trim());
-                      },
-                      child: const Text("VERIFY"))
-                ])).then((_) {
-      // If the ride is still in a state that requires swiping to start, reset the swipe button
-      final index = _activeRequests.indexWhere((r) => r.id == rideId);
-      if (index != -1) {
-        final r = _activeRequests[index];
-        if (r.status == 'arrived' || r.status == 'otp_verified') {
-          _resetSwipe(rideId);
-        }
-      }
-    });
+  if (!_otpControllers.containsKey(rideId)) {
+    _otpControllers[rideId] =
+        List.generate(4, (_) => TextEditingController());
   }
+
+  setState(() {
+    _showOtpOverlay.add(rideId); // show OTP overlay
+  });
+}
+
 
   Future<void> _verifyOtp(int rideId, String otp) async {
     try {
