@@ -1,26 +1,191 @@
 {
   "project_info": {
-    "project_number": "477734229226",
-    "project_id": "ugo-drivers-8ff87",
-    "storage_bucket": "ugo-drivers-8ff87.firebasestorage.app"
+    "project_number": "1002601441010",
+    "project_id": "ugo-user-8ff52",
+    "storage_bucket": "ugo-user-8ff52.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:477734229226:android:331721b39698ae65757393",
+        "mobilesdk_app_id": "1:1002601441010:android:0c06660f5aba9126bc926b",
         "android_client_info": {
-          "package_name": "com.ugocabs.drivers"
+          "package_name": "com.mycompany.ugoadmin"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1002601441010-201hun9q43ttimgmmrgcv98t0e5b5nbv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mycompany.ugoadmin",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCmYtUMdxt1X-x8-tQ6_Zlo5S84d8hprQA"
+          "current_key": "AIzaSyA29RG-kmbZmXU6BxF2Uo2qqR3_Jr84ltU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1002601441010-44bjb08tu28lqlaluuj8pntjsardis9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.ugocabs"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002601441010:android:f0db914c11b6edffbc926b",
+        "android_client_info": {
+          "package_name": "com.mycompany.ugocabs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1002601441010-4f292cf57gaq9pqqfo3539ca5a37po38.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mycompany.ugocabs",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA29RG-kmbZmXU6BxF2Uo2qqR3_Jr84ltU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1002601441010-44bjb08tu28lqlaluuj8pntjsardis9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.ugocabs"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002601441010:android:b21a1e0e86467f74bc926b",
+        "android_client_info": {
+          "package_name": "com.ugocabs.drivers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA29RG-kmbZmXU6BxF2Uo2qqR3_Jr84ltU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1002601441010-44bjb08tu28lqlaluuj8pntjsardis9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.ugocabs"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002601441010:android:764afa4a462d3c3ebc926b",
+        "android_client_info": {
+          "package_name": "com.ugocabs.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1002601441010-ean525do6belq590mlhsjpfrh5j3gn2u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ugocabs.user",
+            "certificate_hash": "4c2e1385fdf58a74dd1d0991cbed73ba6c73a275"
+          }
+        },
+        {
+          "client_id": "1002601441010-prsh4e5t7bn4fvjm365ghh0vnurk1e57.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ugocabs.user",
+            "certificate_hash": "780e4782f228543434ee9f8ec2d8114d63caace8"
+          }
+        },
+        {
+          "client_id": "1002601441010-sv43bhbpuf7gvgtq6jrqbtuj9ppkdtij.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ugocabs.user",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA29RG-kmbZmXU6BxF2Uo2qqR3_Jr84ltU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1002601441010-o6s301bgj6hrir1g0t21fmkjim8fempq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1002601441010-44bjb08tu28lqlaluuj8pntjsardis9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.ugocabs"
+              }
+            }
+          ]
         }
       }
     }

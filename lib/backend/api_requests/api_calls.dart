@@ -18,7 +18,7 @@ class LoginCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'login',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/drivers/login',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/login',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -57,7 +57,7 @@ class ChoosevehicleCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/vehicle-types/get',
+      apiUrl: 'https://ugo-api.icacorp.org/api/vehicle-types/getall-vehicle',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -150,7 +150,7 @@ class CreateDriverCall {
     print("🚀 CreateDriver API Request}");
     print("🚀 CreateDriver API Request");
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    print("📍 URL: https://ugotaxi.icacorp.org/api/drivers/signup-with-vehicle");
+    print("📍 URL: https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle");
     print("📦 Body Type: ${BodyType.MULTIPART}");
     print("\n📄 FORM FIELDS:");
     print("  • driver: $driver");
@@ -159,7 +159,7 @@ class CreateDriverCall {
 
     return ApiManager.instance.makeApiCall(
       callName: 'createDriver',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/drivers/signup-with-vehicle',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle',
       callType: ApiCallType.POST,
       headers: {},
       params: {
@@ -256,13 +256,13 @@ class UpdateDriverCall {
     }
 
     print("🚀 UpdateDriver API Request:");
-    print("   URL: https://ugotaxi.icacorp.org/api/drivers/$id");
+    print("   URL: https://ugo-api.icacorp.org/api/drivers/$id");
     print("   Token: ${token?.substring(0, 20)}...");
     print("   Params: $params");
 
     final response = await ApiManager.instance.makeApiCall(
       callName: 'updateDriver',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/drivers/$id',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/$id',
       callType: ApiCallType.PUT,
       headers: {
         'Authorization': 'Bearer $token',
@@ -303,7 +303,7 @@ class DriverIdfetchCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'driverIdfetch',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/drivers/${id}',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/${id}',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer ${token}',
@@ -454,7 +454,7 @@ class PostQRcodeCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'postQRcode',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/qr-codes/generate',
+      apiUrl: 'https://ugo-api.icacorp.org/api/qr-codes/generate',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': 'Bearer ${token}',
@@ -484,7 +484,7 @@ class GetDriverIncentivesCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getDriverIncentives',
-      apiUrl: 'https://ugotaxi.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
+      apiUrl: 'https://ugo-api.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',

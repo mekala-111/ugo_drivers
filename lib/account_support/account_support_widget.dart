@@ -64,7 +64,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget>
       return imagePath;
     }
 
-    const String baseUrl = 'https://ugotaxi.icacorp.org';
+    const String baseUrl = 'https://ugo-api.icacorp.org';
     String cleanPath = imagePath;
     if (imagePath.startsWith('uploads/')) {
       cleanPath = imagePath.substring('uploads/'.length);

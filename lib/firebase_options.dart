@@ -47,28 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBRIJD6DFvRS7N77UFyId3uva16GhkUyD8',
-    appId: '1:477734229226:web:8e6208dfa8a9fc05757393',
-    messagingSenderId: '477734229226',
-    projectId: 'ugo-drivers-8ff87',
-    authDomain: 'ugo-drivers-8ff87.firebaseapp.com',
-    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
+    apiKey: 'AIzaSyD7nAniQNk4_AWyCu6HiOO4kMcaBISBP5U',
+    appId: '1:1002601441010:web:1286b2b6038e798bbc926b',
+    messagingSenderId: '1002601441010',
+    projectId: 'ugo-user-8ff52',
+    authDomain: 'ugo-user-8ff52.firebaseapp.com',
+    storageBucket: 'ugo-user-8ff52.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCmYtUMdxt1X-x8-tQ6_Zlo5S84d8hprQA',
-    appId: '1:477734229226:android:331721b39698ae65757393',
-    messagingSenderId: '477734229226',
-    projectId: 'ugo-drivers-8ff87',
-    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
+    apiKey: 'AIzaSyA29RG-kmbZmXU6BxF2Uo2qqR3_Jr84ltU',
+    appId: '1:1002601441010:android:b21a1e0e86467f74bc926b',
+    messagingSenderId: '1002601441010',
+    projectId: 'ugo-user-8ff52',
+    storageBucket: 'ugo-user-8ff52.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB74iIzKjczDwXHSdmzI5aWmi_TenJuvhs',
-    appId: '1:477734229226:ios:a1a7e001f37b816d757393',
-    messagingSenderId: '477734229226',
-    projectId: 'ugo-drivers-8ff87',
-    storageBucket: 'ugo-drivers-8ff87.firebasestorage.app',
+    apiKey: 'AIzaSyBvO0YV3ejXEiTcy0dhppGzXp_8wRObF18',
+    appId: '1:1002601441010:ios:7f60a128b98f3fa9bc926b',
+    messagingSenderId: '1002601441010',
+    projectId: 'ugo-user-8ff52',
+    storageBucket: 'ugo-user-8ff52.firebasestorage.app',
+    androidClientId: '1002601441010-201hun9q43ttimgmmrgcv98t0e5b5nbv.apps.googleusercontent.com',
+    iosClientId: '1002601441010-p31r1rm4s1ps8g7l62ef3jmk11e8c547.apps.googleusercontent.com',
     iosBundleId: 'com.ugocabs.drivers',
   );
 

@@ -127,7 +127,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
-                    'https://ugotaxi.icacorp.org/${FFAppState().qrImage}',
+                    'https://ugo-api.icacorp.org/${FFAppState().qrImage}',
                     width: 200.0,
                     height: 200.0,
                     fit: BoxFit.cover,

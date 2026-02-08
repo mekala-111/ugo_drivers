@@ -17,7 +17,7 @@ import './ride_request_overlay.dart';
 import './incentive_model.dart';
 import '/components/menu_widget.dart';
 
-const String BASE_URL = "http://192.168.1.14:5001";
+const String BASE_URL = "https://ugo-api.icacorp.org";
 String DRIVER_TOKEN = FFAppState().accessToken;
 int DRIVER_ID = FFAppState().driverid;
 
@@ -424,7 +424,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     print("🔌 Initializing Socket...");
 
     socket = IO.io(
-      'https://ugotaxi.icacorp.org',
+      'https://ugo-api.icacorp.org',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

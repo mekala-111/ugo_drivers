@@ -131,7 +131,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<void> _fetchRideFromBackend(int rideId) async {
     try {
       final response = await Dio().get(
-        "https://ugotaxi.icacorp.org/api/rides/$rideId",
+        "https://ugo-api.icacorp.org/api/rides/$rideId",
         options: Options(
           headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}",
@@ -1518,7 +1518,7 @@ String _formatWaitTime(int rideId) {
   Future<void> _completeRide(int rideId) async {
     try {
       await Dio().post(
-          "https://ugotaxi.icacorp.org/api/drivers/update-ride-status",
+          "https://ugo-api.icacorp.org/api/drivers/update-ride-status",
           data: {"ride_id": rideId, "status": "completed"},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
@@ -1540,7 +1540,7 @@ String _formatWaitTime(int rideId) {
       FFAppState().activeRideId = rideId;
       FFAppState().activeRideStatus = 'accepted';
       await Dio().post(
-          "https://ugotaxi.icacorp.org/api/rides/rides/$rideId/accept",
+          "https://ugo-api.icacorp.org/api/rides/rides/$rideId/accept",
           data: {"driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
@@ -1562,7 +1562,7 @@ String _formatWaitTime(int rideId) {
 
   Future<void> _updateRideStatus(int rideId, String status) async {
     try {
-      await Dio().put("https://ugotaxi.icacorp.org/api/rides/$rideId",
+      await Dio().put("https://ugo-api.icacorp.org/api/rides/$rideId",
           data: {"ride_status": status, "driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
@@ -1607,7 +1607,7 @@ final Set<int> _showOtpOverlay = {};
   Future<void> _verifyOtp(int rideId, String otp) async {
     try {
       final res = await Dio().post(
-          "https://ugotaxi.icacorp.org/api/rides/verify-otp",
+          "https://ugo-api.icacorp.org/api/rides/verify-otp",
           data: {"otp": otp, "ride_id": rideId},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"

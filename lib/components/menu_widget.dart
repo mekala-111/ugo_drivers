@@ -38,7 +38,7 @@
 //     if (imagePath == null || imagePath.isEmpty) {
 //       return '';
 //     }
-//     const String baseUrl = 'https://ugotaxi.icacorp.org';
+//     const String baseUrl = 'https://ugo-api.icacorp.org';
 //     if (imagePath.startsWith('http')) {
 //       return imagePath;
 //     }
@@ -469,7 +469,7 @@ class _MenuWidgetState extends State<MenuWidget> {
   }
 
   String img(String path) =>
-      path.startsWith("http") ? path : "https://ugotaxi.icacorp.org/$path";
+      path.startsWith("http") ? path : "https://ugo-api.icacorp.org/$path";
 
   Widget tile(
       {required IconData icon,
