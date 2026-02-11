@@ -1,5 +1,4 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
 import 'choose_vehicle_widget.dart' show ChooseVehicleWidget;
 import 'package:flutter/material.dart';
 

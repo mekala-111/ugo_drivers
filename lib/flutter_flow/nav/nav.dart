@@ -1,15 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ugo_driver/SplashWidget/splashwidget.dart';
-
+import '../../app_settings/app_setting_widget.dart';
 import '/auth/base_auth_user_provider.dart';
-
 import '/flutter_flow/flutter_flow_util.dart';
-
 import '/index.dart';
-
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
 
@@ -28,11 +24,6 @@ class AppStateNotifier extends ChangeNotifier {
   bool showSplashImage = true;
   String? _redirectLocation;
 
-  /// Determines whether the app will refresh and build again when a sign
-  /// in or sign out happens. This is useful when the app is launched or
-  /// on an unexpected logout. However, this must be turned off when we
-  /// intend to sign in/out and then navigate or perform any actions after.
-  /// Otherwise, this will trigger a refresh and interrupt the action(s).
   bool notifyOnAuthChange = true;
 
   bool get loading => user == null || showSplashImage;
@@ -45,8 +36,6 @@ class AppStateNotifier extends ChangeNotifier {
   void setRedirectLocationIfUnset(String loc) => _redirectLocation ??= loc;
   void clearRedirectLocation() => _redirectLocation = null;
 
-  /// Mark as not needing to notify on a sign in / out when we intend
-  /// to perform subsequent actions (such as navigation) afterwards.
   void updateNotifyOnAuthChange(bool notify) => notifyOnAuthChange = notify;
 
   void update(BaseAuthUser newUser) {
@@ -54,13 +43,9 @@ class AppStateNotifier extends ChangeNotifier {
         user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
     initialUser ??= newUser;
     user = newUser;
-    // Refresh the app on auth change unless explicitly marked otherwise.
-    // No need to update unless the user has changed.
     if (notifyOnAuthChange && shouldUpdate) {
       notifyListeners();
     }
-    // Once again mark the notifier as needing to update on auth change
-    // (in order to catch sign in / out events).
     updateNotifyOnAuthChange(true);
   }
 
@@ -71,412 +56,413 @@ class AppStateNotifier extends ChangeNotifier {
 }
 
 GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
-      // initialLocation: '/',
-      initialLocation: SplashWidget.routePath,
-      debugLogDiagnostics: true,
-      refreshListenable: appStateNotifier,
-      navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? HomeWidget() : LoginWidget(),
-      routes: [
-        FFRoute(
-          name: '_initialize',
-          path: '/',
-          builder: (context, _) =>
-              appStateNotifier.loggedIn ? HomeWidget() : LoginWidget(),
+  initialLocation: SplashWidget.routePath,
+  debugLogDiagnostics: true,
+  refreshListenable: appStateNotifier,
+  navigatorKey: appNavigatorKey,
+  errorBuilder: (context, state) =>
+  appStateNotifier.loggedIn ? HomeWidget() : LoginWidget(),
+  routes: [
+    FFRoute(
+      name: '_initialize',
+      path: '/',
+      builder: (context, _) =>
+      appStateNotifier.loggedIn ? HomeWidget() : LoginWidget(),
+    ),
+    FFRoute(
+      name: LoginWidget.routeName,
+      path: LoginWidget.routePath,
+      builder: (context, params) => LoginWidget(),
+    ),
+    FFRoute(
+      name: OtpverificationWidget.routeName,
+      path: OtpverificationWidget.routePath,
+      builder: (context, params) => OtpverificationWidget(
+        mobile: params.getParam(
+          'mobile',
+          ParamType.int,
         ),
-        FFRoute(
-          name: LoginWidget.routeName,
-          path: LoginWidget.routePath,
-          builder: (context, params) => LoginWidget(),
-        ),
-        FFRoute(
-          name: OtpverificationWidget.routeName,
-          path: OtpverificationWidget.routePath,
-          builder: (context, params) => OtpverificationWidget(
-            mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
-          ),
-        ),
-        FFRoute(
-          name: PrivacypolicyWidget.routeName,
-          path: PrivacypolicyWidget.routePath,
-          builder: (context, params) => PrivacypolicyWidget(),
-        ),
-        FFRoute(
-          name: ServiceoptionsWidget.routeName,
-          path: ServiceoptionsWidget.routePath,
-          builder: (context, params) => ServiceoptionsWidget(),
-        ),
-        FFRoute(
-        name: SplashWidget.routeName,
-        path: SplashWidget.routePath,
-        builder: (context, params) => const SplashWidget(),
       ),
-
-        FFRoute(
-          name: HomeWidget.routeName,
-          path: HomeWidget.routePath,
-          builder: (context, params) => HomeWidget(),
+    ),
+    FFRoute(
+      name: PrivacypolicyWidget.routeName,
+      path: PrivacypolicyWidget.routePath,
+      builder: (context, params) => PrivacypolicyWidget(),
+    ),
+    FFRoute(
+      name: ServiceoptionsWidget.routeName,
+      path: ServiceoptionsWidget.routePath,
+      builder: (context, params) => ServiceoptionsWidget(),
+    ),
+    FFRoute(
+      name: SplashWidget.routeName,
+      path: SplashWidget.routePath,
+      builder: (context, params) => const SplashWidget(),
+    ),
+    FFRoute(
+      name: HomeWidget.routeName,
+      path: HomeWidget.routePath,
+      builder: (context, params) => HomeWidget(),
+    ),
+    FFRoute(
+      name: AccountManagementWidget.routeName,
+      path: AccountManagementWidget.routePath,
+      builder: (context, params) => AccountManagementWidget(),
+    ),
+    FFRoute(
+      name: SupportWidget.routeName,
+      path: SupportWidget.routePath,
+      builder: (context, params) => SupportWidget(),
+    ),
+    FFRoute(
+      name: WalletWidget.routeName,
+      path: WalletWidget.routePath,
+      builder: (context, params) => WalletWidget(),
+    ),
+    FFRoute(
+      name: AutoBookWidget.routeName,
+      path: AutoBookWidget.routePath,
+      builder: (context, params) => AutoBookWidget(),
+    ),
+    FFRoute(
+      name: AvaliableOptionsWidget.routeName,
+      path: AvaliableOptionsWidget.routePath,
+      builder: (context, params) => AvaliableOptionsWidget(),
+    ),
+    FFRoute(
+      name: ConformLocationWidget.routeName,
+      path: ConformLocationWidget.routePath,
+      builder: (context, params) => ConformLocationWidget(),
+    ),
+    FFRoute(
+      name: ScanToBookWidget.routeName,
+      path: ScanToBookWidget.routePath,
+      builder: (context, params) => ScanToBookWidget(),
+    ),
+    FFRoute(
+      name: HistoryWidget.routeName,
+      path: HistoryWidget.routePath,
+      builder: (context, params) => HistoryWidget(),
+    ),
+    FFRoute(
+      name: ProfileSettingWidget.routeName,
+      path: ProfileSettingWidget.routePath,
+      builder: (context, params) => ProfileSettingWidget(),
+    ),
+    FFRoute(
+      name: AddOfficeWidget.routeName,
+      path: AddOfficeWidget.routePath,
+      builder: (context, params) => AddOfficeWidget(),
+    ),
+    FFRoute(
+      name: SavedAddWidget.routeName,
+      path: SavedAddWidget.routePath,
+      builder: (context, params) => SavedAddWidget(),
+    ),
+    FFRoute(
+      name: AccessibilitySettingsWidget.routeName,
+      path: AccessibilitySettingsWidget.routePath,
+      builder: (context, params) => AccessibilitySettingsWidget(),
+    ),
+    FFRoute(
+      name: HearingWidget.routeName,
+      path: HearingWidget.routePath,
+      builder: (context, params) => HearingWidget(),
+    ),
+    FFRoute(
+      name: VisionWidget.routeName,
+      path: VisionWidget.routePath,
+      builder: (context, params) => VisionWidget(),
+    ),
+    FFRoute(
+      name: PushnotificationsWidget.routeName,
+      path: PushnotificationsWidget.routePath,
+      builder: (context, params) => PushnotificationsWidget(),
+    ),
+    FFRoute(
+      name: SafetypreferencesWidget.routeName,
+      path: SafetypreferencesWidget.routePath,
+      builder: (context, params) => SafetypreferencesWidget(),
+    ),
+    FFRoute(
+      name: TrustedcontactsWidget.routeName,
+      path: TrustedcontactsWidget.routePath,
+      builder: (context, params) => TrustedcontactsWidget(),
+    ),
+    FFRoute(
+      name: RidecheckWidget.routeName,
+      path: RidecheckWidget.routePath,
+      builder: (context, params) => RidecheckWidget(),
+    ),
+    FFRoute(
+      name: TipautomaticallyWidget.routeName,
+      path: TipautomaticallyWidget.routePath,
+      builder: (context, params) => TipautomaticallyWidget(),
+    ),
+    FFRoute(
+      name: ReservematchingWidget.routeName,
+      path: ReservematchingWidget.routePath,
+      builder: (context, params) => ReservematchingWidget(),
+    ),
+    FFRoute(
+      name: ChooserideWidget.routeName,
+      path: ChooserideWidget.routePath,
+      builder: (context, params) => ChooserideWidget(),
+    ),
+    FFRoute(
+      name: CommuteAlertsWidget.routeName,
+      path: CommuteAlertsWidget.routePath,
+      builder: (context, params) => CommuteAlertsWidget(),
+    ),
+    FFRoute(
+      name: PaymentOptionsWidget.routeName,
+      path: PaymentOptionsWidget.routePath,
+      builder: (context, params) => PaymentOptionsWidget(),
+    ),
+    FFRoute(
+      name: AddPaymentWidget.routeName,
+      path: AddPaymentWidget.routePath,
+      builder: (context, params) => AddPaymentWidget(),
+    ),
+    FFRoute(
+      name: VoucherWidget.routeName,
+      path: VoucherWidget.routePath,
+      builder: (context, params) => VoucherWidget(),
+    ),
+    FFRoute(
+      name: WalletPasswordWidget.routeName,
+      path: WalletPasswordWidget.routePath,
+      builder: (context, params) => WalletPasswordWidget(),
+    ),
+    FFRoute(
+      name: MessagesWidget.routeName,
+      path: MessagesWidget.routePath,
+      builder: (context, params) => MessagesWidget(),
+    ),
+    FFRoute(
+      name: AccountSupportWidget.routeName,
+      path: AccountSupportWidget.routePath,
+      builder: (context, params) => AccountSupportWidget(),
+    ),
+    FFRoute(
+      name: SupportRideWidget.routeName,
+      path: SupportRideWidget.routePath,
+      builder: (context, params) => SupportRideWidget(),
+    ),
+    FFRoute(
+      name: RideOverviewWidget.routeName,
+      path: RideOverviewWidget.routePath,
+      builder: (context, params) => RideOverviewWidget(),
+    ),
+    FFRoute(
+      name: ReportIssuesWidget.routeName,
+      path: ReportIssuesWidget.routePath,
+      builder: (context, params) => ReportIssuesWidget(),
+    ),
+    FFRoute(
+      name: CustomerSuportWidget.routeName,
+      path: CustomerSuportWidget.routePath,
+      builder: (context, params) => CustomerSuportWidget(),
+    ),
+    FFRoute(
+      name: BookSucessfullWidget.routeName,
+      path: BookSucessfullWidget.routePath,
+      builder: (context, params) => BookSucessfullWidget(),
+    ),
+    FFRoute(
+      name: CancelRideWidget.routeName,
+      path: CancelRideWidget.routePath,
+      builder: (context, params) => CancelRideWidget(),
+    ),
+    FFRoute(
+      name: AddStopWidget.routeName,
+      path: AddStopWidget.routePath,
+      builder: (context, params) => AddStopWidget(),
+    ),
+    FFRoute(
+      name: ChooseVehicleWidget.routeName,
+      path: ChooseVehicleWidget.routePath,
+      builder: (context, params) => ChooseVehicleWidget(
+        mobile: params.getParam(
+          'mobile',
+          ParamType.int,
         ),
-        FFRoute(
-          name: AccountManagementWidget.routeName,
-          path: AccountManagementWidget.routePath,
-          builder: (context, params) => AccountManagementWidget(),
+        firstname: params.getParam(
+          'firstname',
+          ParamType.String,
         ),
-        FFRoute(
-          name: SupportWidget.routeName,
-          path: SupportWidget.routePath,
-          builder: (context, params) => SupportWidget(),
+        lastname: params.getParam(
+          'lastname',
+          ParamType.String,
         ),
-        FFRoute(
-          name: WalletWidget.routeName,
-          path: WalletWidget.routePath,
-          builder: (context, params) => WalletWidget(),
+        email: params.getParam(
+          'email',
+          ParamType.String,
         ),
-        FFRoute(
-          name: AutoBookWidget.routeName,
-          path: AutoBookWidget.routePath,
-          builder: (context, params) => AutoBookWidget(),
+        referalcode: params.getParam(
+          'referalcode',
+          ParamType.String,
         ),
-        FFRoute(
-          name: AvaliableOptionsWidget.routeName,
-          path: AvaliableOptionsWidget.routePath,
-          builder: (context, params) => AvaliableOptionsWidget(),
+      ),
+    ),
+    FFRoute(
+      name: OnBoardingWidget.routeName,
+      path: OnBoardingWidget.routePath,
+      builder: (context, params) => OnBoardingWidget(
+        mobile: params.getParam(
+          'mobile',
+          ParamType.int,
         ),
-        FFRoute(
-          name: ConformLocationWidget.routeName,
-          path: ConformLocationWidget.routePath,
-          builder: (context, params) => ConformLocationWidget(),
+        firstname: params.getParam(
+          'firstname',
+          ParamType.String,
         ),
-        FFRoute(
-          name: ScanToBookWidget.routeName,
-          path: ScanToBookWidget.routePath,
-          builder: (context, params) => ScanToBookWidget(),
+        lastname: params.getParam(
+          'lastname',
+          ParamType.String,
         ),
-        FFRoute(
-          name: HistoryWidget.routeName,
-          path: HistoryWidget.routePath,
-          builder: (context, params) => HistoryWidget(),
+        email: params.getParam(
+          'email',
+          ParamType.String,
         ),
-        FFRoute(
-          name: ProfileSettingWidget.routeName,
-          path: ProfileSettingWidget.routePath,
-          builder: (context, params) => ProfileSettingWidget(),
+        referalcode: params.getParam(
+          'referalcode',
+          ParamType.int,
         ),
-        FFRoute(
-          name: AddOfficeWidget.routeName,
-          path: AddOfficeWidget.routePath,
-          builder: (context, params) => AddOfficeWidget(),
+        vehicletype: params.getParam(
+          'vehicletype',
+          ParamType.String,
         ),
-        FFRoute(
-          name: SavedAddWidget.routeName,
-          path: SavedAddWidget.routePath,
-          builder: (context, params) => SavedAddWidget(),
+      ),
+    ),
+    FFRoute(
+      name: DrivingDlWidget.routeName,
+      path: DrivingDlWidget.routePath,
+      builder: (context, params) => DrivingDlWidget(),
+    ),
+    FFRoute(
+      name: FaceVerifyWidget.routeName,
+      path: FaceVerifyWidget.routePath,
+      builder: (context, params) => FaceVerifyWidget(),
+    ),
+    FFRoute(
+      name: AdharUploadWidget.routeName,
+      path: AdharUploadWidget.routePath,
+      builder: (context, params) => AdharUploadWidget(),
+    ),
+    FFRoute(
+      name: UploadRcWidget.routeName,
+      path: UploadRcWidget.routePath,
+      builder: (context, params) => UploadRcWidget(),
+    ),
+    FFRoute(
+      name: RCUploadWidget.routeName,
+      path: RCUploadWidget.routePath,
+      builder: (context, params) => RCUploadWidget(),
+    ),
+    FFRoute(
+      name: InboxPageWidget.routeName,
+      path: InboxPageWidget.routePath,
+      builder: (context, params) => InboxPageWidget(),
+    ),
+    FFRoute(
+      name: InvitePageWidget.routeName,
+      path: InvitePageWidget.routePath,
+      builder: (context, params) => InvitePageWidget(),
+    ),
+    FFRoute(
+      name: TeampageWidget.routeName,
+      path: TeampageWidget.routePath,
+      builder: (context, params) => TeampageWidget(),
+    ),
+    FFRoute(
+      name: TeamridesWidget.routeName,
+      path: TeamridesWidget.routePath,
+      builder: (context, params) => TeamridesWidget(),
+    ),
+    FFRoute(
+      name: TeamearningWidget.routeName,
+      path: TeamearningWidget.routePath,
+      builder: (context, params) => TeamearningWidget(),
+    ),
+    FFRoute(
+      name: FirstdetailsWidget.routeName,
+      path: FirstdetailsWidget.routePath,
+      builder: (context, params) => FirstdetailsWidget(
+        mobile: params.getParam(
+          'mobile',
+          ParamType.int,
         ),
-        FFRoute(
-          name: AccessibilitySettingsWidget.routeName,
-          path: AccessibilitySettingsWidget.routePath,
-          builder: (context, params) => AccessibilitySettingsWidget(),
-        ),
-        FFRoute(
-          name: HearingWidget.routeName,
-          path: HearingWidget.routePath,
-          builder: (context, params) => HearingWidget(),
-        ),
-        FFRoute(
-          name: VisionWidget.routeName,
-          path: VisionWidget.routePath,
-          builder: (context, params) => VisionWidget(),
-        ),
-        FFRoute(
-          name: PushnotificationsWidget.routeName,
-          path: PushnotificationsWidget.routePath,
-          builder: (context, params) => PushnotificationsWidget(),
-        ),
-        FFRoute(
-          name: SafetypreferencesWidget.routeName,
-          path: SafetypreferencesWidget.routePath,
-          builder: (context, params) => SafetypreferencesWidget(),
-        ),
-        FFRoute(
-          name: TrustedcontactsWidget.routeName,
-          path: TrustedcontactsWidget.routePath,
-          builder: (context, params) => TrustedcontactsWidget(),
-        ),
-        FFRoute(
-          name: RidecheckWidget.routeName,
-          path: RidecheckWidget.routePath,
-          builder: (context, params) => RidecheckWidget(),
-        ),
-        FFRoute(
-          name: TipautomaticallyWidget.routeName,
-          path: TipautomaticallyWidget.routePath,
-          builder: (context, params) => TipautomaticallyWidget(),
-        ),
-        FFRoute(
-          name: ReservematchingWidget.routeName,
-          path: ReservematchingWidget.routePath,
-          builder: (context, params) => ReservematchingWidget(),
-        ),
-        FFRoute(
-          name: ChooserideWidget.routeName,
-          path: ChooserideWidget.routePath,
-          builder: (context, params) => ChooserideWidget(),
-        ),
-        FFRoute(
-          name: CommuteAlertsWidget.routeName,
-          path: CommuteAlertsWidget.routePath,
-          builder: (context, params) => CommuteAlertsWidget(),
-        ),
-        FFRoute(
-          name: PaymentOptionsWidget.routeName,
-          path: PaymentOptionsWidget.routePath,
-          builder: (context, params) => PaymentOptionsWidget(),
-        ),
-        FFRoute(
-          name: AddPaymentWidget.routeName,
-          path: AddPaymentWidget.routePath,
-          builder: (context, params) => AddPaymentWidget(),
-        ),
-        FFRoute(
-          name: VoucherWidget.routeName,
-          path: VoucherWidget.routePath,
-          builder: (context, params) => VoucherWidget(),
-        ),
-        FFRoute(
-          name: WalletPasswordWidget.routeName,
-          path: WalletPasswordWidget.routePath,
-          builder: (context, params) => WalletPasswordWidget(),
-        ),
-
-        FFRoute(
-          name: MessagesWidget.routeName,
-          path: MessagesWidget.routePath,
-          builder: (context, params) => MessagesWidget(),
-        ),
-        FFRoute(
-          name: AccountSupportWidget.routeName,
-          path: AccountSupportWidget.routePath,
-          builder: (context, params) => AccountSupportWidget(),
-        ),
-        FFRoute(
-          name: SupportRideWidget.routeName,
-          path: SupportRideWidget.routePath,
-          builder: (context, params) => SupportRideWidget(),
-        ),
-        FFRoute(
-          name: RideOverviewWidget.routeName,
-          path: RideOverviewWidget.routePath,
-          builder: (context, params) => RideOverviewWidget(),
-        ),
-        FFRoute(
-          name: ReportIssuesWidget.routeName,
-          path: ReportIssuesWidget.routePath,
-          builder: (context, params) => ReportIssuesWidget(),
-        ),
-        FFRoute(
-          name: CustomerSuportWidget.routeName,
-          path: CustomerSuportWidget.routePath,
-          builder: (context, params) => CustomerSuportWidget(),
-        ),
-        FFRoute(
-          name: BookSucessfullWidget.routeName,
-          path: BookSucessfullWidget.routePath,
-          builder: (context, params) => BookSucessfullWidget(),
-        ),
-        FFRoute(
-          name: CancelRideWidget.routeName,
-          path: CancelRideWidget.routePath,
-          builder: (context, params) => CancelRideWidget(),
-        ),
-        FFRoute(
-          name: AddStopWidget.routeName,
-          path: AddStopWidget.routePath,
-          builder: (context, params) => AddStopWidget(),
-        ),
-        FFRoute(
-          name: ChooseVehicleWidget.routeName,
-          path: ChooseVehicleWidget.routePath,
-          builder: (context, params) => ChooseVehicleWidget(
-            mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
-            firstname: params.getParam(
-              'firstname',
-              ParamType.String,
-            ),
-            lastname: params.getParam(
-              'lastname',
-              ParamType.String,
-            ),
-            email: params.getParam(
-              'email',
-              ParamType.String,
-            ),
-            referalcode: params.getParam(
-              'referalcode',
-              ParamType.int,
-            ),
-          ),
-        ),
-        FFRoute(
-          name: OnBoardingWidget.routeName,
-          path: OnBoardingWidget.routePath,
-          builder: (context, params) => OnBoardingWidget(
-            mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
-            firstname: params.getParam(
-              'firstname',
-              ParamType.String,
-            ),
-            lastname: params.getParam(
-              'lastname',
-              ParamType.String,
-            ),
-            email: params.getParam(
-              'email',
-              ParamType.String,
-            ),
-            referalcode: params.getParam(
-              'referalcode',
-              ParamType.int,
-            ),
-            vehicletype: params.getParam(
-              'vehicletype',
-              ParamType.String,
-            ),
-          ),
-        ),
-        FFRoute(
-          name: DrivingDlWidget.routeName,
-          path: DrivingDlWidget.routePath,
-          builder: (context, params) => DrivingDlWidget(),
-        ),
-        FFRoute(
-          name: FaceVerifyWidget.routeName,
-          path: FaceVerifyWidget.routePath,
-          builder: (context, params) => FaceVerifyWidget(),
-        ),
-        FFRoute(
-          name: AdharUploadWidget.routeName,
-          path: AdharUploadWidget.routePath,
-          builder: (context, params) => AdharUploadWidget(),
-        ),
-        FFRoute(
-          name: UploadRcWidget.routeName,
-          path: UploadRcWidget.routePath,
-          builder: (context, params) => UploadRcWidget(),
-        ),
-        FFRoute(
-          name: RCUploadWidget.routeName,
-          path: RCUploadWidget.routePath,
-          builder: (context, params) => RCUploadWidget(),
-        ),
-        FFRoute(
-          name: InboxPageWidget.routeName,
-          path: InboxPageWidget.routePath,
-          builder: (context, params) => InboxPageWidget(),
-        ),
-        FFRoute(
-          name: InvitePageWidget.routeName,
-          path: InvitePageWidget.routePath,
-          builder: (context, params) => InvitePageWidget(),
-        ),
-        FFRoute(
-          name: TeampageWidget.routeName,
-          path: TeampageWidget.routePath,
-          builder: (context, params) => TeampageWidget(),
-        ),
-        FFRoute(
-          name: TeamridesWidget.routeName,
-          path: TeamridesWidget.routePath,
-          builder: (context, params) => TeamridesWidget(),
-        ),
-        FFRoute(
-          name: TeamearningWidget.routeName,
-          path: TeamearningWidget.routePath,
-          builder: (context, params) => TeamearningWidget(),
-        ),
-        FFRoute(
-          name: FirstdetailsWidget.routeName,
-          path: FirstdetailsWidget.routePath,
-          builder: (context, params) => FirstdetailsWidget(
-            mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
-          ),
-        ),
-        FFRoute(
-          name: PanuploadScreenWidget.routeName,
-          path: PanuploadScreenWidget.routePath,
-          builder: (context, params) => PanuploadScreenWidget(),
-        ),
-        FFRoute(
-          name: VehicleImageWidget.routeName,
-          path: VehicleImageWidget.routePath,
-          builder: (context, params) => VehicleImageWidget(),
-        ),
-        FFRoute(
-          name: RegistrationImageWidget.routeName,
-          path: RegistrationImageWidget.routePath,
-          builder: (context, params) => RegistrationImageWidget(),
-        )
-      ].map((r) => r.toRoute(appStateNotifier)).toList(),
-    );
+      ),
+    ),
+    FFRoute(
+      name: PanuploadScreenWidget.routeName,
+      path: PanuploadScreenWidget.routePath,
+      builder: (context, params) => PanuploadScreenWidget(),
+    ),
+    FFRoute(
+      name: VehicleImageWidget.routeName,
+      path: VehicleImageWidget.routePath,
+      builder: (context, params) => VehicleImageWidget(),
+    ),
+    FFRoute(
+      name: RegistrationImageWidget.routeName,
+      path: RegistrationImageWidget.routePath,
+      builder: (context, params) => RegistrationImageWidget(),
+    ),
+    // Add AppSettingsWidget Route
+    FFRoute(
+      name: AppSettingsWidget.routeName,
+      path: AppSettingsWidget.routePath,
+      builder: (context, params) => AppSettingsWidget(),
+    ),
+  ].map((r) => r.toRoute(appStateNotifier)).toList(),
+);
 
 extension NavParamExtensions on Map<String, String?> {
   Map<String, String> get withoutNulls => Map.fromEntries(
-        entries
-            .where((e) => e.value != null)
-            .map((e) => MapEntry(e.key, e.value!)),
-      );
+    entries
+        .where((e) => e.value != null)
+        .map((e) => MapEntry(e.key, e.value!)),
+  );
 }
 
 extension NavigationExtensions on BuildContext {
   void goNamedAuth(
-    String name,
-    bool mounted, {
-    Map<String, String> pathParameters = const <String, String>{},
-    Map<String, String> queryParameters = const <String, String>{},
-    Object? extra,
-    bool ignoreRedirect = false,
-  }) =>
+      String name,
+      bool mounted, {
+        Map<String, String> pathParameters = const <String, String>{},
+        Map<String, String> queryParameters = const <String, String>{},
+        Object? extra,
+        bool ignoreRedirect = false,
+      }) =>
       !mounted || GoRouter.of(this).shouldRedirect(ignoreRedirect)
           ? null
           : goNamed(
-              name,
-              pathParameters: pathParameters,
-              queryParameters: queryParameters,
-              extra: extra,
-            );
+        name,
+        pathParameters: pathParameters,
+        queryParameters: queryParameters,
+        extra: extra,
+      );
 
   void pushNamedAuth(
-    String name,
-    bool mounted, {
-    Map<String, String> pathParameters = const <String, String>{},
-    Map<String, String> queryParameters = const <String, String>{},
-    Object? extra,
-    bool ignoreRedirect = false,
-  }) =>
+      String name,
+      bool mounted, {
+        Map<String, String> pathParameters = const <String, String>{},
+        Map<String, String> queryParameters = const <String, String>{},
+        Object? extra,
+        bool ignoreRedirect = false,
+      }) =>
       !mounted || GoRouter.of(this).shouldRedirect(ignoreRedirect)
           ? null
           : pushNamed(
-              name,
-              pathParameters: pathParameters,
-              queryParameters: queryParameters,
-              extra: extra,
-            );
+        name,
+        pathParameters: pathParameters,
+        queryParameters: queryParameters,
+        extra: extra,
+      );
 
   void safePop() {
-    // If there is only one route on the stack, navigate to the initial
-    // page instead of popping.
     if (canPop()) {
       pop();
     } else {
@@ -518,34 +504,32 @@ class FFParameters {
 
   Map<String, dynamic> futureParamValues = {};
 
-  // Parameters are empty if the params map is empty or if the only parameter
-  // present is the special extra parameter reserved for the transition info.
   bool get isEmpty =>
       state.allParams.isEmpty ||
-      (state.allParams.length == 1 &&
-          state.extraMap.containsKey(kTransitionInfoKey));
+          (state.allParams.length == 1 &&
+              state.extraMap.containsKey(kTransitionInfoKey));
   bool isAsyncParam(MapEntry<String, dynamic> param) =>
       asyncParams.containsKey(param.key) && param.value is String;
   bool get hasFutures => state.allParams.entries.any(isAsyncParam);
   Future<bool> completeFutures() => Future.wait(
-        state.allParams.entries.where(isAsyncParam).map(
+    state.allParams.entries.where(isAsyncParam).map(
           (param) async {
-            final doc = await asyncParams[param.key]!(param.value)
-                .onError((_, __) => null);
-            if (doc != null) {
-              futureParamValues[param.key] = doc;
-              return true;
-            }
-            return false;
-          },
-        ),
-      ).onError((_, __) => [false]).then((v) => v.every((e) => e));
+        final doc = await asyncParams[param.key]!(param.value)
+            .onError((_, __) => null);
+        if (doc != null) {
+          futureParamValues[param.key] = doc;
+          return true;
+        }
+        return false;
+      },
+    ),
+  ).onError((_, __) => [false]).then((v) => v.every((e) => e));
 
   dynamic getParam<T>(
-    String paramName,
-    ParamType type, {
-    bool isList = false,
-  }) {
+      String paramName,
+      ParamType type, {
+        bool isList = false,
+      }) {
     if (futureParamValues.containsKey(paramName)) {
       return futureParamValues[paramName];
     }
@@ -553,11 +537,9 @@ class FFParameters {
       return null;
     }
     final param = state.allParams[paramName];
-    // Got parameter from `extras`, so just directly return it.
     if (param is! String) {
       return param;
     }
-    // Return serialized value.
     return deserializeParam<T>(
       param,
       type,
@@ -584,65 +566,65 @@ class FFRoute {
   final List<GoRoute> routes;
 
   GoRoute toRoute(AppStateNotifier appStateNotifier) => GoRoute(
-        name: name,
-        path: path,
-        redirect: (context, state) {
-          if (appStateNotifier.shouldRedirect) {
-            final redirectLocation = appStateNotifier.getRedirectLocation();
-            appStateNotifier.clearRedirectLocation();
-            return redirectLocation;
-          }
+    name: name,
+    path: path,
+    redirect: (context, state) {
+      if (appStateNotifier.shouldRedirect) {
+        final redirectLocation = appStateNotifier.getRedirectLocation();
+        appStateNotifier.clearRedirectLocation();
+        return redirectLocation;
+      }
 
-          if (requireAuth && !appStateNotifier.loggedIn) {
-            appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
-            return '/login';
-          }
-          return null;
-        },
-        pageBuilder: (context, state) {
-          fixStatusBarOniOS16AndBelow(context);
-          final ffParams = FFParameters(state, asyncParams);
-          final page = ffParams.hasFutures
-              ? FutureBuilder(
-                  future: ffParams.completeFutures(),
-                  builder: (context, _) => builder(context, ffParams),
-                )
-              : builder(context, ffParams);
-          final child = appStateNotifier.loading
-              ? Container(
-                  color: Color(0xFFFF7B10),
-                  child: Image.asset(
-                    'assets/images/logo--_1.png',
-                    fit: BoxFit.none,
-                  ),
-                )
-              : page;
+      if (requireAuth && !appStateNotifier.loggedIn) {
+        appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
+        return '/login';
+      }
+      return null;
+    },
+    pageBuilder: (context, state) {
+      fixStatusBarOniOS16AndBelow(context);
+      final ffParams = FFParameters(state, asyncParams);
+      final page = ffParams.hasFutures
+          ? FutureBuilder(
+        future: ffParams.completeFutures(),
+        builder: (context, _) => builder(context, ffParams),
+      )
+          : builder(context, ffParams);
+      final child = appStateNotifier.loading
+          ? Container(
+        color: Color(0xFFFF7B10),
+        child: Image.asset(
+          'assets/images/logo--_1.png',
+          fit: BoxFit.none,
+        ),
+      )
+          : page;
 
-          final transitionInfo = state.transitionInfo;
-          return transitionInfo.hasTransition
-              ? CustomTransitionPage(
-                  key: state.pageKey,
-                  child: child,
-                  transitionDuration: transitionInfo.duration,
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) =>
-                          PageTransition(
-                    type: transitionInfo.transitionType,
-                    duration: transitionInfo.duration,
-                    reverseDuration: transitionInfo.duration,
-                    alignment: transitionInfo.alignment,
-                    child: child,
-                  ).buildTransitions(
-                    context,
-                    animation,
-                    secondaryAnimation,
-                    child,
-                  ),
-                )
-              : MaterialPage(key: state.pageKey, child: child);
-        },
-        routes: routes,
-      );
+      final transitionInfo = state.transitionInfo;
+      return transitionInfo.hasTransition
+          ? CustomTransitionPage(
+        key: state.pageKey,
+        child: child,
+        transitionDuration: transitionInfo.duration,
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) =>
+            PageTransition(
+              type: transitionInfo.transitionType,
+              duration: transitionInfo.duration,
+              reverseDuration: transitionInfo.duration,
+              alignment: transitionInfo.alignment,
+              child: child,
+            ).buildTransitions(
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ),
+      )
+          : MaterialPage(key: state.pageKey, child: child);
+    },
+    routes: routes,
+  );
 }
 
 class TransitionInfo {
@@ -676,9 +658,9 @@ class RootPageContext {
   }
 
   static Widget wrap(Widget child, {String? errorRoute}) => Provider.value(
-        value: RootPageContext(true, errorRoute),
-        child: child,
-      );
+    value: RootPageContext(true, errorRoute),
+    child: child,
+  );
 }
 
 extension GoRouterLocationExtension on GoRouter {

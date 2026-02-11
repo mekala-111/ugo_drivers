@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 class LoginModel extends FlutterFlowModel<LoginWidget> {
   ///  State fields for stateful widgets in this page.
 
-  // State field(s) for mobileNo widget.
-  FocusNode? mobileNoFocusNode;
-  TextEditingController? mobileNoTextController;
-  String? Function(BuildContext, String?)? mobileNoTextControllerValidator;
+  // State field(s) for TextField widget.
+  FocusNode? textFieldFocusNode;
+  TextEditingController? textController;
+  String? Function(BuildContext, String?)? textControllerValidator;
 
   @override
   void initState(BuildContext context) {}
 
   @override
   void dispose() {
-    mobileNoFocusNode?.dispose();
-    mobileNoTextController?.dispose();
+    textFieldFocusNode?.dispose();
+    textController?.dispose();
   }
 }

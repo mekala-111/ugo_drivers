@@ -52,16 +52,12 @@ class LoginCall {
 }
 
 class ChoosevehicleCall {
-  static Future<ApiCallResponse> call({
-    String? token = '',
-  }) async {
+  static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
       apiUrl: 'https://ugo-api.icacorp.org/api/vehicle-types/getall-vehicle',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
+      headers: {}, // ✅ Clear that no auth needed
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -72,14 +68,13 @@ class ChoosevehicleCall {
     );
   }
 
-  // Get all data array
+  // Keep all your existing response parsers
   static List<dynamic>? data(dynamic response) => getJsonField(
         response,
         r'$.data',
         true,
       ) as List?;
 
-  // Get list of vehicle type names
   static List<String>? vehiclename(dynamic response) => (getJsonField(
         response,
         r'$.data[:].name',
@@ -90,7 +85,6 @@ class ChoosevehicleCall {
           .withoutNulls
           .toList();
 
-  // Get list of vehicle type IDs
   static List<int>? vehicleId(dynamic response) => (getJsonField(
         response,
         r'$.data[:].id',
@@ -101,13 +95,11 @@ class ChoosevehicleCall {
           .withoutNulls
           .toList();
 
-  // Get success status
   static bool? success(dynamic response) => castToType<bool>(getJsonField(
         response,
         r'$.success',
       ));
 
-  // Get created dates
   static List<String>? createdAt(dynamic response) => (getJsonField(
         response,
         r'$.data[:].createdAt',
@@ -118,7 +110,6 @@ class ChoosevehicleCall {
           .withoutNulls
           .toList();
 
-  // Get updated dates
   static List<String>? updatedAt(dynamic response) => (getJsonField(
         response,
         r'$.data[:].updatedAt',
@@ -143,6 +134,12 @@ class CreateDriverCall {
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionCertificateImage,
     String? fcmToken = '',
+    FFUploadedFile? licenseFrontImage,
+    FFUploadedFile? licenseBackImage,
+    FFUploadedFile? aadhaarFrontImage,
+    FFUploadedFile? aadhaarBackImage,
+    FFUploadedFile? rcFrontImage,
+    FFUploadedFile? rcBackImage,
   }) async {
     final driver = _serializeJson(driverJson);
     final vehicle = _serializeJson(vehicleJson);
@@ -150,7 +147,8 @@ class CreateDriverCall {
     print("🚀 CreateDriver API Request}");
     print("🚀 CreateDriver API Request");
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    print("📍 URL: https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle");
+    print(
+        "📍 URL: https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle");
     print("📦 Body Type: ${BodyType.MULTIPART}");
     print("\n📄 FORM FIELDS:");
     print("  • driver: $driver");
@@ -189,7 +187,6 @@ class CreateDriverCall {
         response,
         r'''$.message''',
       ));
-
 }
 
 class UpdateDriverCall {
@@ -484,7 +481,8 @@ class GetDriverIncentivesCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getDriverIncentives',
-      apiUrl: 'https://ugo-api.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
+      apiUrl:
+          'https://ugo-api.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -496,22 +494,22 @@ class GetDriverIncentivesCall {
   }
 
   static int? currentRides(dynamic response) => castToType<int>(getJsonField(
-    response,
-    r'''$.data.current_rides''',
-  ));
+        response,
+        r'''$.data.current_rides''',
+      ));
 
-  static double? totalEarned(dynamic response) => castToType<double>(getJsonField(
-    response,
-    r'''$.data.total_earned''',
-  ));
+  static double? totalEarned(dynamic response) =>
+      castToType<double>(getJsonField(
+        response,
+        r'''$.data.total_earned''',
+      ));
 
   static List? incentiveTiers(dynamic response) => getJsonField(
-    response,
-    r'''$.data.incentive_tiers''',
-    true,
-  ) as List?;
+        response,
+        r'''$.data.incentive_tiers''',
+        true,
+      ) as List?;
 }
-
 
 class ApiPagingParams {
   int nextPageNumber = 0;

@@ -149,7 +149,18 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
     // Fourth character validation (specific rules)
     String fourthChar = cleanedValue[3];
-    List<String> validFourthChars = ['P', 'C', 'H', 'F', 'A', 'T', 'B', 'L', 'J', 'G'];
+    List<String> validFourthChars = [
+      'P',
+      'C',
+      'H',
+      'F',
+      'A',
+      'T',
+      'B',
+      'L',
+      'J',
+      'G'
+    ];
 
     if (!validFourthChars.contains(fourthChar)) {
       return 'Invalid PAN number';
@@ -225,9 +236,10 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                     Text(
                       title,
                       style: FlutterFlowTheme.of(context).bodyLarge.override(
-                        font: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                        letterSpacing: 0.0,
-                      ),
+                            font:
+                                GoogleFonts.inter(fontWeight: FontWeight.w600),
+                            letterSpacing: 0.0,
+                          ),
                     ),
                     Text(
                       subtitle,
@@ -239,7 +251,6 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
             ],
           ),
           SizedBox(height: 16),
-
           GestureDetector(
             onTap: onTap,
             child: Container(
@@ -267,82 +278,84 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                     borderRadius: BorderRadius.circular(14.0),
                     child: image?.bytes != null && image!.bytes!.isNotEmpty
                         ? Image.memory(
-                      image.bytes!,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                    )
+                            image.bytes!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.contain,
+                          )
                         : (imageUrl != null && imageUrl.isNotEmpty)
-                        ? Image.network(
-                      imageUrl,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                      loadingBuilder:
-                          (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress
-                                .expectedTotalBytes !=
-                                null
-                                ? loadingProgress
-                                .cumulativeBytesLoaded /
-                                loadingProgress
-                                    .expectedTotalBytes!
-                                : null,
-                            color: Color(0xFFFF8C00),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 40, color: Colors.red),
-                            SizedBox(height: 8),
-                            Text('Failed to load image',
-                                style: TextStyle(color: Colors.red)),
-                          ],
-                        );
-                      },
-                    )
-                        : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color:
-                            Color(0xFFFF8C00).withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: 40.0,
-                            color: Color(0xFFFF8C00),
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          'Tap to upload $title',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A1A1A),
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Camera or Gallery',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
+                            ? Image.network(
+                                imageUrl,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.contain,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                      color: Color(0xFFFF8C00),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.error_outline,
+                                          size: 40, color: Colors.red),
+                                      SizedBox(height: 8),
+                                      Text('Failed to load image',
+                                          style: TextStyle(color: Colors.red)),
+                                    ],
+                                  );
+                                },
+                              )
+                            : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color(0xFFFF8C00).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.add_a_photo,
+                                        size: 40.0,
+                                        color: Color(0xFFFF8C00),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Tap to upload $title',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF1A1A1A),
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Camera or Gallery',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                   ),
 
                   // VERIFIED STAMP WATERMARK
@@ -389,7 +402,6 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
               ),
             ),
           ),
-
           if (hasImage)
             Padding(
               padding: EdgeInsets.only(top: 12),
@@ -460,12 +472,12 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
               Text(
                 'UGQ TAXI',
                 style: FlutterFlowTheme.of(context).titleLarge.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  color: Colors.white,
-                  letterSpacing: 0.5,
-                ),
+                      font: GoogleFonts.interTight(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
               ),
             ],
           ),
@@ -555,7 +567,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         isValid: _isPanValid,
                         onTap: () async {
                           final selectedMedia =
-                          await selectMediaWithSourceBottomSheet(
+                              await selectMediaWithSourceBottomSheet(
                             context: context,
                             allowPhoto: true,
                           );
@@ -566,13 +578,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                             try {
                               selectedUploadedFiles = selectedMedia
                                   .map((m) => FFUploadedFile(
-                                name: m.storagePath.split('/').last,
-                                bytes: m.bytes,
-                                height: m.dimensions?.height,
-                                width: m.dimensions?.width,
-                                blurHash: m.blurHash,
-                                originalFilename: m.originalFilename,
-                              ))
+                                        name: m.storagePath.split('/').last,
+                                        bytes: m.bytes,
+                                        height: m.dimensions?.height,
+                                        width: m.dimensions?.width,
+                                        blurHash: m.blurHash,
+                                        originalFilename: m.originalFilename,
+                                      ))
                                   .toList();
                             } catch (e) {
                               print('❌ Error creating uploaded file: $e');
@@ -581,7 +593,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               setState(() {
                                 _panImage = selectedUploadedFiles.first;
                                 _model.uploadedLocalFile_uploadData4go =
-                                _panImage!;
+                                    _panImage!;
                                 _panImageUrl = null;
                                 _isPanValid = true;
                               });
@@ -592,7 +604,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               // Convert to Base64 for persistence
                               if (_panImage?.bytes != null) {
                                 String base64Image =
-                                base64Encode(_panImage!.bytes!);
+                                    base64Encode(_panImage!.bytes!);
                                 FFAppState().panBase64 = base64Image;
                                 print(
                                     '✅ PAN image saved as Base64 (${base64Image.length} chars)');
@@ -721,19 +733,19 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 ),
                                 suffixIcon: _isPanNumberValid
                                     ? Icon(Icons.check_circle,
-                                    color: Colors.green)
+                                        color: Colors.green)
                                     : null,
                                 filled: true,
                                 fillColor: Color(0xFFF8F9FA),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
-                                  BorderSide(color: Colors.grey[300]!),
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
-                                  BorderSide(color: Colors.grey[300]!),
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -747,7 +759,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
-                                  BorderSide(color: Colors.red, width: 2),
+                                      BorderSide(color: Colors.red, width: 2),
                                 ),
                               ),
                               validator: _validatePan,
@@ -819,14 +831,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               ],
                             ),
                             SizedBox(height: 12),
-                            _buildGuideline(
-                                'Upload clear photo of PAN card'),
+                            _buildGuideline('Upload clear photo of PAN card'),
                             _buildGuideline(
                                 'All four corners should be visible'),
-                            _buildGuideline('Photo and details must be readable'),
-                            _buildGuideline('Avoid glare and shadows'),
                             _buildGuideline(
-                                'PAN number format: ABCDE1234F'),
+                                'Photo and details must be readable'),
+                            _buildGuideline('Avoid glare and shadows'),
+                            _buildGuideline('PAN number format: ABCDE1234F'),
                             _buildGuideline(
                                 '✓ Data persists after app restart'),
                           ],
@@ -932,9 +943,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 class _PanInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final upperCaseText = newValue.text.toUpperCase();
     return TextEditingValue(
       text: upperCaseText,

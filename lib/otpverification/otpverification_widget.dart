@@ -1,7 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -47,6 +46,17 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
     super.dispose();
   }
 
+  // ✅ Helper to safely get FCM Token - PREVENTS CRASH
+  Future<String> _getSafeFcmToken() async {
+    try {
+      String? token = await FirebaseMessaging.instance.getToken();
+      return token ?? "temp_token_${DateTime.now().millisecondsSinceEpoch}";
+    } catch (e) {
+      print("FCM Token Error: $e");
+      return "error_token";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -58,43 +68,20 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
+          backgroundColor: const Color(0xFFFF7B10), // Consistent Orange
           automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            onPressed: () async {
-              context.pop();
-            },
-          ),
           title: Text(
             FFLocalizations.of(context).getText(
               'duko62qy' /* Verification */,
             ),
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   font: GoogleFonts.interTight(
-                    fontWeight:
-                        FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).headlineMedium.fontStyle,
+                    fontWeight: FontWeight.w600,
                   ),
                   color: Colors.white,
                   fontSize: 22.0,
-                  letterSpacing: 0.0,
-                  fontWeight:
-                      FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                  fontStyle:
-                      FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
           centerTitle: true,
           elevation: 2.0,
         ),
@@ -116,17 +103,9 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                     style: FlutterFlowTheme.of(context).headlineMedium.override(
                           font: GoogleFonts.interTight(
                             fontWeight: FontWeight.w600,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .headlineMedium
-                                .fontStyle,
                           ),
                           color: Colors.black,
                           fontSize: 24.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.w600,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .headlineMedium
-                              .fontStyle,
                         ),
                   ),
                   Text(
@@ -135,18 +114,9 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                     ),
                     textAlign: TextAlign.center,
                     style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FontWeight.normal,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
+                          font: GoogleFonts.inter(),
                           color: Colors.black,
                           fontSize: 16.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.normal,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
                   ),
                   PinCodeTextField(
@@ -154,28 +124,16 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                     appContext: context,
                     length: 6,
                     textStyle: FlutterFlowTheme.of(context).bodyLarge.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .fontStyle,
-                          ),
-                          letterSpacing: 0.0,
-                          fontWeight:
-                              FlutterFlowTheme.of(context).bodyLarge.fontWeight,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyLarge.fontStyle,
+                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
                         ),
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     enableActiveFill: false,
                     autoFocus: true,
                     focusNode: _model.pinCodeFocusNode,
-                    enablePinAutofill: false,
+                    enablePinAutofill: true, // Enabled for better UX
                     errorTextSpace: 16.0,
                     showCursor: true,
-                    cursorColor: FlutterFlowTheme.of(context).primary,
+                    cursorColor: const Color(0xFFFF7B10),
                     obscureText: false,
                     hintCharacter: '●',
                     keyboardType: TextInputType.number,
@@ -183,22 +141,24 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       fieldHeight: 44.0,
                       fieldWidth: 44.0,
                       borderWidth: 2.0,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12.0),
-                        bottomRight: Radius.circular(12.0),
-                        topLeft: Radius.circular(12.0),
-                        topRight: Radius.circular(12.0),
-                      ),
+                      borderRadius: BorderRadius.circular(12.0),
                       shape: PinCodeFieldShape.box,
-                      activeColor: FlutterFlowTheme.of(context).primaryText,
+                      activeColor: const Color(0xFFFF7B10),
                       inactiveColor: FlutterFlowTheme.of(context).alternate,
-                      selectedColor: FlutterFlowTheme.of(context).primary,
+                      selectedColor: const Color(0xFFFF7B10),
                     ),
                     controller: _model.pinCodeController,
                     onChanged: (_) {},
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator:
-                        _model.pinCodeControllerValidator.asValidator(context),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter OTP';
+                      }
+                      if (value.length < 6) {
+                        return 'Enter 6 digits';
+                      }
+                      return null;
+                    },
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
@@ -208,7 +168,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                         alignment: AlignmentDirectional(0.0, 0.0),
                         child: FFButtonWidget(
                           onPressed: () {
-                            print('Button pressed ...');
+                            print('Resend OTP pressed ...');
+                            // Implement Resend Logic Here
                           },
                           text: FFLocalizations.of(context).getText(
                             'f9214evl' /* RESEND OTP */,
@@ -217,28 +178,21 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                             height: 40.0,
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 16.0, 0.0, 16.0, 0.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 0.0),
-                            color: FlutterFlowTheme.of(context).alternate,
+                            color: Colors.transparent,
                             textStyle: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
                                   font: GoogleFonts.inter(
-                                    fontWeight: FontWeight.normal,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
+                                  color: const Color(0xFFFF7B10),
                                   fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
                                 ),
                             elevation: 0.0,
+                            borderSide: BorderSide(
+                              color: const Color(0xFFFF7B10),
+                              width: 1.0,
+                            ),
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
@@ -247,57 +201,87 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                   ),
                   FFButtonWidget(
                     onPressed: () async {
-                      GoRouter.of(context).prepareAuthEvent();
                       final smsCodeVal = _model.pinCodeController!.text;
-                      if (smsCodeVal.isEmpty) {
+                      if (smsCodeVal.isEmpty || smsCodeVal.length < 6) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Enter SMS verification code.'),
+                            content: Text('Please enter valid 6-digit OTP.'),
+                            backgroundColor: Colors.red,
                           ),
                         );
                         return;
                       }
-                      final phoneVerifiedUser = await authManager.verifySmsCode(
-                        context: context,
-                        smsCode: smsCodeVal,
-                      );
-                      if (phoneVerifiedUser == null) {
-                        return;
-                      }
-                      FFAppState().fcmToken = (await FirebaseMessaging.instance.getToken())!;
-                      FFAppState().mobileNo = widget.mobile!;
-                      _model.apiResultk3y = await LoginCall.call(
-                        mobile: widget.mobile,
-                      );
-                      FFAppState().isLoggedIn = true;
 
-                      if ((_model.apiResultk3y?.succeeded ?? false)) {
-                         FFAppState().isRegistered = true;
+                      try {
+                        // 1. Firebase Auth Verification
+                        GoRouter.of(context).prepareAuthEvent();
+                        final phoneVerifiedUser =
+                            await authManager.verifySmsCode(
+                          context: context,
+                          smsCode: smsCodeVal,
+                        );
 
-                        FFAppState().driverid = getJsonField(
-                          (_model.apiResultk3y?.jsonBody ?? ''),
-                          r'''$.data.id''',
+                        if (phoneVerifiedUser == null) {
+                          return; // Auth failed (User likely cancelled or error shown)
+                        }
+
+                        // 2. Get Safe FCM Token
+                        final fcmToken = await _getSafeFcmToken();
+                        FFAppState().fcmToken = fcmToken;
+                        FFAppState().mobileNo = widget.mobile!;
+
+                        // 3. Login API Call
+                        _model.apiResultk3y = await LoginCall.call(
+                          mobile: widget.mobile,
                         );
-                        FFAppState().accessToken = getJsonField(
-                          (_model.apiResultk3y?.jsonBody ?? ''),
-                          r'''$.data.accessToken''',
-                        ).toString();
-                       context.goNamedAuth(
-                          HomeWidget.routeName,
-                          context.mounted,
-                        );
-                        safeSetState(() {});
-                      } else {
-                        FFAppState().isRegistered = false;
-                        context.pushNamedAuth(
-                          FirstdetailsWidget.routeName,
-                          context.mounted,
-                          queryParameters: {
-                            'mobile': serializeParam(
-                              widget.mobile,
-                              ParamType.int,
-                            ),
-                          }.withoutNulls,
+
+                        FFAppState().isLoggedIn = true;
+
+                        if ((_model.apiResultk3y?.succeeded ?? false)) {
+                          // ✅ CASE: User Found (Login Success)
+                          FFAppState().isRegistered = true;
+                          FFAppState().driverid = getJsonField(
+                            (_model.apiResultk3y?.jsonBody ?? ''),
+                            r'''$.data.id''',
+                          );
+                          FFAppState().accessToken = getJsonField(
+                            (_model.apiResultk3y?.jsonBody ?? ''),
+                            r'''$.data.accessToken''',
+                          ).toString();
+
+                          if (context.mounted) {
+                            context.goNamedAuth(
+                              HomeWidget.routeName,
+                              context.mounted,
+                            );
+                          }
+                        } else {
+                          // ❌ CASE: User Not Found (Go to Registration)
+                          // Assuming any failure here means "User needs to register"
+                          // Ideally check for specific 404 status code if possible
+
+                          FFAppState().isRegistered = false;
+                          if (context.mounted) {
+                            context.pushNamedAuth(
+                              'firstdetails', // Ensure this route name matches your FirstdetailsWidget
+                              context.mounted,
+                              queryParameters: {
+                                'mobile': serializeParam(
+                                  widget.mobile,
+                                  ParamType.int,
+                                ),
+                              }.withoutNulls,
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        print("Error during OTP processing: $e");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content:
+                                Text('An error occurred. Please try again.'),
+                            backgroundColor: Colors.red,
+                          ),
                         );
                       }
 
@@ -310,28 +294,16 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       width: double.infinity,
                       height: 56.0,
                       padding: EdgeInsets.all(8.0),
-                      iconAlignment: IconAlignment.start,
-                      iconPadding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                       color: Color(0xFFFF7B10),
                       textStyle:
                           FlutterFlowTheme.of(context).titleMedium.override(
                                 font: GoogleFonts.interTight(
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .fontStyle,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                fontSize: 24.0,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.normal,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .fontStyle,
+                                color: Colors.white,
+                                fontSize: 18.0,
                               ),
-                      elevation: 0.0,
+                      elevation: 2.0,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),

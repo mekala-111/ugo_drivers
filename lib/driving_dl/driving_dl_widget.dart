@@ -71,10 +71,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     print('\n═══════════════════════════════════════');
     print('📊 License FFAppState Debug Info:');
     print('═══════════════════════════════════════');
-    print('Front Image (bytes): ${FFAppState().imageLicense?.bytes?.length ?? 0}');
+    print(
+        'Front Image (bytes): ${FFAppState().imageLicense?.bytes?.length ?? 0}');
     print('Front Image URL: ${FFAppState().licenseFrontImageUrl}');
     print('Front Base64: ${FFAppState().licenseFrontBase64.length} chars');
-    print('Back Image (bytes): ${FFAppState().licenseBackImage?.bytes?.length ?? 0}');
+    print(
+        'Back Image (bytes): ${FFAppState().licenseBackImage?.bytes?.length ?? 0}');
     print('Back Image URL: ${FFAppState().licenseBackImageUrl}');
     print('Back Base64: ${FFAppState().licenseBackBase64.length} chars');
     print('License Number: ${FFAppState().licenseNumber}');
@@ -138,8 +140,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     // Load license number
     if (FFAppState().licenseNumber.isNotEmpty) {
       setState(() {
-        _licenseNumberController.text = FFAppState().licenseNumber.toUpperCase();
-        _isLicenseNumberValid = _validateLicenseNumber(_licenseNumberController.text) == null;
+        _licenseNumberController.text =
+            FFAppState().licenseNumber.toUpperCase();
+        _isLicenseNumberValid =
+            _validateLicenseNumber(_licenseNumberController.text) == null;
       });
     }
   }
@@ -170,7 +174,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       // Initialize text recognizer
       final inputImage = InputImage.fromFile(file);
       final textRecognizer = GoogleMlKit.vision.textRecognizer();
-      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+      final RecognizedText recognizedText =
+          await textRecognizer.processImage(inputImage);
 
       print('📝 OCR Text Extracted:');
       print(recognizedText.text);
@@ -191,7 +196,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
         _showSnackBar('✅ DL Number auto-filled: $dlNumber');
         print('✅ DL Number extracted: $dlNumber');
       } else {
-        _showSnackBar('⚠️ Could not detect DL number. Please enter manually.', isError: true);
+        _showSnackBar('⚠️ Could not detect DL number. Please enter manually.',
+            isError: true);
         print('❌ No valid DL number found in text');
       }
 
@@ -200,7 +206,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       await file.delete();
     } catch (e) {
       print('❌ OCR Error: $e');
-      _showSnackBar('OCR failed. Please enter DL number manually.', isError: true);
+      _showSnackBar('OCR failed. Please enter DL number manually.',
+          isError: true);
     } finally {
       setState(() => _isProcessingOCR = false);
     }
@@ -236,7 +243,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     }
 
     // Try to find any 15-character alphanumeric string starting with 2 letters
-    RegExp fallbackPattern = RegExp(r'[A-Z]{2}[0-9A-Z]{13}', caseSensitive: false);
+    RegExp fallbackPattern =
+        RegExp(r'[A-Z]{2}[0-9A-Z]{13}', caseSensitive: false);
     final fallbackMatch = fallbackPattern.firstMatch(cleanedText);
     if (fallbackMatch != null) {
       String dlNumber = fallbackMatch.group(0)!.toUpperCase();
@@ -331,9 +339,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
-                    Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    Text(subtitle,
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -365,50 +376,64 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                     borderRadius: BorderRadius.circular(14.0),
                     child: image?.bytes != null && image!.bytes!.isNotEmpty
                         ? Image.memory(
-                      image.bytes!,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                    )
+                            image.bytes!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.contain,
+                          )
                         : (imageUrl != null && imageUrl.isNotEmpty)
-                        ? Image.network(
-                      imageUrl,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                                : null,
-                            color: Color(0xFFFF8C00),
-                          ),
-                        );
-                      },
-                    )
-                        : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Color(0xFFFF8C00).withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.add_a_photo, size: 40, color: Color(0xFFFF8C00)),
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          'Tap to upload $title',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(height: 4),
-                        Text('Camera or Gallery', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                      ],
-                    ),
+                            ? Image.network(
+                                imageUrl,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.contain,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                      color: Color(0xFFFF8C00),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color(0xFFFF8C00).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.add_a_photo,
+                                          size: 40, color: Color(0xFFFF8C00)),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Tap to upload $title',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text('Camera or Gallery',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600])),
+                                  ],
+                                ),
+                              ),
                   ),
 
                   // OCR Processing Overlay
@@ -426,7 +451,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             SizedBox(height: 16),
                             Text(
                               'Reading DL Number...',
-                              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -459,7 +487,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               ),
                             ],
                           ),
-                          child: Icon(Icons.close, color: Colors.white, size: 18),
+                          child:
+                              Icon(Icons.close, color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -517,7 +546,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 20.0,
             buttonSize: 40.0,
-            icon: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+            icon:
+                Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
             onPressed: () => context.pop(),
           ),
           title: Row(
@@ -562,7 +592,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Color(0xFFFF8C00).withOpacity(0.3)),
+                          border: Border.all(
+                              color: Color(0xFFFF8C00).withOpacity(0.3)),
                         ),
                         child: Row(
                           children: [
@@ -572,7 +603,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 color: Color(0xFFFF8C00).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(Icons.card_membership, color: Color(0xFFFF8C00), size: 32),
+                              child: Icon(Icons.card_membership,
+                                  color: Color(0xFFFF8C00), size: 32),
                             ),
                             SizedBox(width: 16),
                             Expanded(
@@ -581,16 +613,22 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 children: [
                                   Text(
                                     'Upload Driving License',
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.auto_fix_high, size: 14, color: Colors.blue),
+                                      Icon(Icons.auto_fix_high,
+                                          size: 14, color: Colors.blue),
                                       SizedBox(width: 4),
                                       Text(
                                         'Auto-fill with OCR',
-                                        style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.w600),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.w600),
                                       ),
                                     ],
                                   ),
@@ -613,12 +651,14 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.auto_awesome, color: Colors.blue[700], size: 20),
+                            Icon(Icons.auto_awesome,
+                                color: Colors.blue[700], size: 20),
                             SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 'Upload front side to auto-fill DL number',
-                                style: TextStyle(fontSize: 13, color: Colors.blue[900]),
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.blue[900]),
                               ),
                             ),
                           ],
@@ -636,23 +676,25 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         imageUrl: _frontImageUrl,
                         isValid: _isFrontValid,
                         onTap: () async {
-                          final selectedMedia = await selectMediaWithSourceBottomSheet(
+                          final selectedMedia =
+                              await selectMediaWithSourceBottomSheet(
                             context: context,
                             allowPhoto: true,
                           );
                           if (selectedMedia != null &&
-                              selectedMedia.every((m) => validateFileFormat(m.storagePath, context))) {
+                              selectedMedia.every((m) =>
+                                  validateFileFormat(m.storagePath, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
                                   .map((m) => FFUploadedFile(
-                                name: m.storagePath.split('/').last,
-                                bytes: m.bytes,
-                                height: m.dimensions?.height,
-                                width: m.dimensions?.width,
-                                blurHash: m.blurHash,
-                                originalFilename: m.originalFilename,
-                              ))
+                                        name: m.storagePath.split('/').last,
+                                        bytes: m.bytes,
+                                        height: m.dimensions?.height,
+                                        width: m.dimensions?.width,
+                                        blurHash: m.blurHash,
+                                        originalFilename: m.originalFilename,
+                                      ))
                                   .toList();
                             } catch (e) {
                               print('❌ Error: $e');
@@ -660,14 +702,16 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
                                 _frontImage = selectedUploadedFiles.first;
-                                _model.uploadedLocalFile_uploadDataQhu = _frontImage!;
+                                _model.uploadedLocalFile_uploadDataQhu =
+                                    _frontImage!;
                                 _frontImageUrl = null;
                                 _isFrontValid = true;
                               });
 
                               FFAppState().imageLicense = _frontImage;
                               if (_frontImage?.bytes != null) {
-                                FFAppState().licenseFrontBase64 = base64Encode(_frontImage!.bytes!);
+                                FFAppState().licenseFrontBase64 =
+                                    base64Encode(_frontImage!.bytes!);
                               }
                               FFAppState().update(() {});
                               _showSnackBar('Front side uploaded!');
@@ -702,23 +746,25 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         imageUrl: _backImageUrl,
                         isValid: _isBackValid,
                         onTap: () async {
-                          final selectedMedia = await selectMediaWithSourceBottomSheet(
+                          final selectedMedia =
+                              await selectMediaWithSourceBottomSheet(
                             context: context,
                             allowPhoto: true,
                           );
                           if (selectedMedia != null &&
-                              selectedMedia.every((m) => validateFileFormat(m.storagePath, context))) {
+                              selectedMedia.every((m) =>
+                                  validateFileFormat(m.storagePath, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
                                   .map((m) => FFUploadedFile(
-                                name: m.storagePath.split('/').last,
-                                bytes: m.bytes,
-                                height: m.dimensions?.height,
-                                width: m.dimensions?.width,
-                                blurHash: m.blurHash,
-                                originalFilename: m.originalFilename,
-                              ))
+                                        name: m.storagePath.split('/').last,
+                                        bytes: m.bytes,
+                                        height: m.dimensions?.height,
+                                        width: m.dimensions?.width,
+                                        blurHash: m.blurHash,
+                                        originalFilename: m.originalFilename,
+                                      ))
                                   .toList();
                             } catch (e) {
                               print('❌ Error: $e');
@@ -732,7 +778,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
                               FFAppState().licenseBackImage = _backImage;
                               if (_backImage?.bytes != null) {
-                                FFAppState().licenseBackBase64 = base64Encode(_backImage!.bytes!);
+                                FFAppState().licenseBackBase64 =
+                                    base64Encode(_backImage!.bytes!);
                               }
                               FFAppState().update(() {});
                               _showSnackBar('Back side uploaded!');
@@ -774,25 +821,36 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.badge, color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.badge,
+                                    color: Color(0xFFFF8C00), size: 20),
                                 SizedBox(width: 8),
-                                Text('License Number', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                Text('License Number',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600)),
                                 if (_licenseNumberController.text.isNotEmpty)
                                   Padding(
                                     padding: EdgeInsets.only(left: 8),
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: Colors.green.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.green, width: 1),
+                                        border: Border.all(
+                                            color: Colors.green, width: 1),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.check_circle, size: 12, color: Colors.green),
+                                          Icon(Icons.check_circle,
+                                              size: 12, color: Colors.green),
                                           SizedBox(width: 4),
-                                          Text('Auto-filled', style: TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.w600)),
+                                          Text('Auto-filled',
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w600)),
                                         ],
                                       ),
                                     ),
@@ -804,30 +862,36 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               controller: _licenseNumberController,
                               textCapitalization: TextCapitalization.characters,
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\s]')),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[A-Za-z0-9\s]')),
                                 LengthLimitingTextInputFormatter(16),
                                 _LicenseInputFormatter(),
                               ],
                               decoration: InputDecoration(
                                 hintText: 'KA01 20200001234',
                                 hintStyle: TextStyle(color: Colors.grey[400]),
-                                prefixIcon: Icon(Icons.card_membership, color: Color(0xFFFF8C00)),
+                                prefixIcon: Icon(Icons.card_membership,
+                                    color: Color(0xFFFF8C00)),
                                 suffixIcon: _isLicenseNumberValid
-                                    ? Icon(Icons.check_circle, color: Colors.green)
+                                    ? Icon(Icons.check_circle,
+                                        color: Colors.green)
                                     : null,
                                 filled: true,
                                 fillColor: Color(0xFFF8F9FA),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Color(0xFFFF8C00), width: 2),
+                                  borderSide: BorderSide(
+                                      color: Color(0xFFFF8C00), width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -837,10 +901,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               validator: _validateLicenseNumber,
                               onChanged: (value) {
                                 setState(() {
-                                  _isLicenseNumberValid = _validateLicenseNumber(value) == null;
+                                  _isLicenseNumberValid =
+                                      _validateLicenseNumber(value) == null;
                                 });
                                 if (_isLicenseNumberValid) {
-                                  FFAppState().licenseNumber = value.trim().toUpperCase();
+                                  FFAppState().licenseNumber =
+                                      value.trim().toUpperCase();
                                   FFAppState().update(() {});
                                 }
                               },
@@ -848,7 +914,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(Icons.info_outline, size: 14, color: Colors.grey[600]),
+                                Icon(Icons.info_outline,
+                                    size: 14, color: Colors.grey[600]),
                                 SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
@@ -857,9 +924,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                         : 'License number verified ✓',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: _licenseNumberController.text.isEmpty
-                                          ? Colors.grey[600]
-                                          : Colors.green,
+                                      color:
+                                          _licenseNumberController.text.isEmpty
+                                              ? Colors.grey[600]
+                                              : Colors.green,
                                     ),
                                   ),
                                 ),
@@ -877,25 +945,34 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         decoration: BoxDecoration(
                           color: Color(0xFFFFF4E6),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Color(0xFFFF8C00).withOpacity(0.3)),
+                          border: Border.all(
+                              color: Color(0xFFFF8C00).withOpacity(0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.lightbulb_outline, color: Color(0xFFFF8C00), size: 20),
+                                Icon(Icons.lightbulb_outline,
+                                    color: Color(0xFFFF8C00), size: 20),
                                 SizedBox(width: 8),
-                                Text('Important Guidelines', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                Text('Important Guidelines',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600)),
                               ],
                             ),
                             SizedBox(height: 12),
                             _buildGuideline('Upload both front and back sides'),
-                            _buildGuideline('All four corners should be visible'),
-                            _buildGuideline('License number must be clearly readable'),
+                            _buildGuideline(
+                                'All four corners should be visible'),
+                            _buildGuideline(
+                                'License number must be clearly readable'),
                             _buildGuideline('Avoid glare and shadows'),
-                            _buildGuideline('OCR will auto-fill DL number from photo'),
-                            _buildGuideline('✓ Images persist after app restart'),
+                            _buildGuideline(
+                                'OCR will auto-fill DL number from photo'),
+                            _buildGuideline(
+                                '✓ Images persist after app restart'),
                           ],
                         ),
                       ),
@@ -907,29 +984,38 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             bool hasFrontImage = (_frontImage?.bytes != null) ||
-                                (_frontImageUrl != null && _frontImageUrl!.isNotEmpty);
+                                (_frontImageUrl != null &&
+                                    _frontImageUrl!.isNotEmpty);
                             bool hasBackImage = (_backImage?.bytes != null) ||
-                                (_backImageUrl != null && _backImageUrl!.isNotEmpty);
+                                (_backImageUrl != null &&
+                                    _backImageUrl!.isNotEmpty);
 
                             if (!hasFrontImage) {
-                              _showSnackBar('Please upload front side', isError: true);
+                              _showSnackBar('Please upload front side',
+                                  isError: true);
                               return;
                             }
                             if (!hasBackImage) {
-                              _showSnackBar('Please upload back side', isError: true);
+                              _showSnackBar('Please upload back side',
+                                  isError: true);
                               return;
                             }
 
                             // Save all data
                             FFAppState().imageLicense = _frontImage;
                             FFAppState().licenseBackImage = _backImage;
-                            FFAppState().licenseNumber = _licenseNumberController.text.trim().toUpperCase();
+                            FFAppState().licenseNumber =
+                                _licenseNumberController.text
+                                    .trim()
+                                    .toUpperCase();
 
                             if (_frontImage?.bytes != null) {
-                              FFAppState().licenseFrontBase64 = base64Encode(_frontImage!.bytes!);
+                              FFAppState().licenseFrontBase64 =
+                                  base64Encode(_frontImage!.bytes!);
                             }
                             if (_backImage?.bytes != null) {
-                              FFAppState().licenseBackBase64 = base64Encode(_backImage!.bytes!);
+                              FFAppState().licenseBackBase64 =
+                                  base64Encode(_backImage!.bytes!);
                             }
 
                             FFAppState().update(() {});
@@ -975,7 +1061,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
         children: [
           Icon(Icons.arrow_right, size: 18, color: Color(0xFFFF8C00)),
           SizedBox(width: 4),
-          Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: Color(0xFF666666)))),
+          Expanded(
+              child: Text(text,
+                  style: TextStyle(fontSize: 13, color: Color(0xFF666666)))),
         ],
       ),
     );
@@ -985,7 +1073,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 // License Input Formatter (same as before)
 class _LicenseInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text.toUpperCase().replaceAll(' ', '');
     final buffer = StringBuffer();
 
@@ -1056,19 +1145,27 @@ class VerifiedStampPainter extends CustomPainter {
       ..color = Color(0xFF1976D2)
       ..style = PaintingStyle.fill;
     canvas.drawRect(
-      Rect.fromLTWH(bannerLeft, bannerY - bannerHeight / 2, bannerWidth, bannerHeight),
+      Rect.fromLTWH(
+          bannerLeft, bannerY - bannerHeight / 2, bannerWidth, bannerHeight),
       ribbonPaint,
     );
 
     final textPainter = TextPainter(
       text: TextSpan(
         text: 'VERIFIED',
-        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.5),
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2.5),
       ),
       textDirection: ui.TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset(center.dx - textPainter.width / 2, bannerY - textPainter.height / 2));
+    textPainter.paint(
+        canvas,
+        Offset(center.dx - textPainter.width / 2,
+            bannerY - textPainter.height / 2));
   }
 
   @override
