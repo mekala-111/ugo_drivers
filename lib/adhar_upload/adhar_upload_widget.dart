@@ -1025,8 +1025,12 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             }
 
                             // Save all data to FFAppState
-                            FFAppState().aadharImage = _frontImage;
-                            FFAppState().aadharBackImage = _backImage;
+                            FFAppState().aadharImage =
+                                _frontImage; // Keep for backwards compatibility
+                            FFAppState().aadhaarFrontImage =
+                                _frontImage; // New front image property
+                            FFAppState().aadhaarBackImage =
+                                _backImage; // Back image property
                             FFAppState().aadharNumber =
                                 _aadhaarController.text.replaceAll(' ', '');
 

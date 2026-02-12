@@ -574,7 +574,7 @@ class ApiManager {
       result = ApiCallResponse(null, {}, -1, exception: e);
     }
     print(  'API Call [$callName] to $apiUrl completed with status '
-        '${result.statusCode}.response ${result.response!.body}');
+        '${result.statusCode}.response ${result.response!.body} token:${result.getHeader('Authorization')}');
     return result;
   }
 }

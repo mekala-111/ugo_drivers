@@ -1009,7 +1009,6 @@ class VerifiedStampPainter extends CustomPainter {
     final bannerHeight = 28.0;
     final bannerWidth = size.width * 0.85;
     final bannerLeft = center.dx - bannerWidth / 2;
-    final bannerRight = center.dx + bannerWidth / 2;
 
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.2)

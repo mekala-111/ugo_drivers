@@ -19,10 +19,8 @@ export '/history/history_widget.dart' show HistoryWidget;
 export '/profile_setting/profile_setting_widget.dart' show ProfileSettingWidget;
 export '/add_office/add_office_widget.dart' show AddOfficeWidget;
 export '/saved_add/saved_add_widget.dart' show SavedAddWidget;
-export '/accessibility_settings/accessibility_settings_widget.dart'
-    show AccessibilitySettingsWidget;
-export '/hearing/hearing_widget.dart' show HearingWidget;
-export '/vision/vision_widget.dart' show VisionWidget;
+
+
 export '/pushnotifications/pushnotifications_widget.dart'
     show PushnotificationsWidget;
 export '/safetypreferences/safetypreferences_widget.dart'
@@ -67,3 +65,4 @@ export '/panupload_screen/panupload_screen_widget.dart'
 export '/vehicle_image/vehicle_image_widget.dart' show VehicleImageWidget;
 export '/registration_image/registration_image_widget.dart'
     show RegistrationImageWidget;
+export '/inxentive_page/IncentivePageWidget.dart' show IncentivePageWidget;

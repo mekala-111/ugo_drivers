@@ -1,4 +1,3 @@
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'firstdetails_widget.dart' show FirstdetailsWidget;
 import 'package:flutter/material.dart';

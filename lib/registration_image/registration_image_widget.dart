@@ -1,11 +1,9 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
@@ -945,9 +943,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                               return;
                             }
 
-                            // Save all data
-                            FFAppState().registrationImage = _frontImage;
-                            FFAppState().rcBackImage = _backImage;
+                            // Save all data to correct properties
+                            FFAppState().registrationImage =
+                                _frontImage; // Keep for backwards compatibility
+                            FFAppState().rcFrontImage =
+                                _frontImage; // New front image property
+                            FFAppState().rcBackImage =
+                                _backImage; // Back image property
                             FFAppState().registrationNumber =
                                 _registrationNumberController.text
                                     .trim()

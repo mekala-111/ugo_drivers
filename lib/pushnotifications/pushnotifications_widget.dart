@@ -170,15 +170,11 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                     safeSetState(() =>
                                         _model.checkboxValue1 = newValue!);
                                   },
-                                  side: (FlutterFlowTheme.of(context)
-                                              .alternate !=
-                                          null)
-                                      ? BorderSide(
-                                          width: 2,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        )
-                                      : null,
+                                  side: BorderSide(
+                                    width: 2,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
                                   activeColor:
                                       FlutterFlowTheme.of(context).primary,
                                   checkColor: FlutterFlowTheme.of(context).info,
@@ -271,15 +267,11 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                     safeSetState(() =>
                                         _model.checkboxValue2 = newValue!);
                                   },
-                                  side: (FlutterFlowTheme.of(context)
-                                              .alternate !=
-                                          null)
-                                      ? BorderSide(
-                                          width: 2,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        )
-                                      : null,
+                                  side: BorderSide(
+                                    width: 2,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
                                   activeColor:
                                       FlutterFlowTheme.of(context).primary,
                                   checkColor: FlutterFlowTheme.of(context).info,
@@ -372,15 +364,11 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                     safeSetState(() =>
                                         _model.checkboxValue3 = newValue!);
                                   },
-                                  side: (FlutterFlowTheme.of(context)
-                                              .alternate !=
-                                          null)
-                                      ? BorderSide(
-                                          width: 2,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        )
-                                      : null,
+                                  side: BorderSide(
+                                    width: 2,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
                                   activeColor:
                                       FlutterFlowTheme.of(context).primary,
                                   checkColor: FlutterFlowTheme.of(context).info,
@@ -473,15 +461,11 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                     safeSetState(() =>
                                         _model.checkboxValue4 = newValue!);
                                   },
-                                  side: (FlutterFlowTheme.of(context)
-                                              .alternate !=
-                                          null)
-                                      ? BorderSide(
-                                          width: 2,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        )
-                                      : null,
+                                  side: BorderSide(
+                                    width: 2,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
                                   activeColor:
                                       FlutterFlowTheme.of(context).primary,
                                   checkColor: FlutterFlowTheme.of(context).info,
@@ -574,15 +558,11 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                     safeSetState(() =>
                                         _model.checkboxValue5 = newValue!);
                                   },
-                                  side: (FlutterFlowTheme.of(context)
-                                              .alternate !=
-                                          null)
-                                      ? BorderSide(
-                                          width: 2,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        )
-                                      : null,
+                                  side: BorderSide(
+                                    width: 2,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                  ),
                                   activeColor:
                                       FlutterFlowTheme.of(context).primary,
                                   checkColor: FlutterFlowTheme.of(context).info,

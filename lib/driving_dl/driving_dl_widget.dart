@@ -1,11 +1,9 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
@@ -405,34 +403,31 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   );
                                 },
                               )
-                            : Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFFFF8C00).withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(Icons.add_a_photo,
-                                          size: 40, color: Color(0xFFFF8C00)),
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFFF8C00).withOpacity(0.1),
+                                      shape: BoxShape.circle,
                                     ),
-                                    SizedBox(height: 12),
-                                    Text(
-                                      'Tap to upload $title',
+                                    child: Icon(Icons.add_a_photo,
+                                        size: 40, color: Color(0xFFFF8C00)),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'Tap to upload $title',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text('Camera or Gallery',
                                       style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text('Camera or Gallery',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600])),
-                                  ],
-                                ),
+                                          fontSize: 12,
+                                          color: Colors.grey[600])),
+                                ],
                               ),
                   ),
 
@@ -1001,9 +996,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               return;
                             }
 
-                            // Save all data
-                            FFAppState().imageLicense = _frontImage;
-                            FFAppState().licenseBackImage = _backImage;
+                            // Save all data to correct properties
+                            FFAppState().imageLicense =
+                                _frontImage; // Keep for backwards compatibility
+                            FFAppState().licenseFrontImage =
+                                _frontImage; // New front image property
+                            FFAppState().licenseBackImage =
+                                _backImage; // Back image property
                             FFAppState().licenseNumber =
                                 _licenseNumberController.text
                                     .trim()

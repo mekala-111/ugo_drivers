@@ -6,8 +6,6 @@ import 'api_manager.dart';
 
 export 'api_manager.dart' show ApiCallResponse;
 
-const _kPrivateApiFunctionName = 'ffPrivateApiCall';
-
 class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
@@ -125,8 +123,14 @@ class CreateDriverCall {
   static Future<ApiCallResponse> call({
     FFUploadedFile? profileimage,
     FFUploadedFile? licenseimage,
+    FFUploadedFile? licenseFrontImage,
+    FFUploadedFile? licenseBackImage,
     FFUploadedFile? aadhaarimage,
+    FFUploadedFile? aadhaarFrontImage,
+    FFUploadedFile? aadhaarBackImage,
     FFUploadedFile? panimage,
+    FFUploadedFile? rcFrontImage,
+    FFUploadedFile? rcBackImage,
     dynamic driverJson,
     dynamic vehicleJson,
     FFUploadedFile? vehicleImage,
@@ -134,12 +138,6 @@ class CreateDriverCall {
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionCertificateImage,
     String? fcmToken = '',
-    FFUploadedFile? licenseFrontImage,
-    FFUploadedFile? licenseBackImage,
-    FFUploadedFile? aadhaarFrontImage,
-    FFUploadedFile? aadhaarBackImage,
-    FFUploadedFile? rcFrontImage,
-    FFUploadedFile? rcBackImage,
   }) async {
     final driver = _serializeJson(driverJson);
     final vehicle = _serializeJson(vehicleJson);
@@ -163,8 +161,14 @@ class CreateDriverCall {
       params: {
         'profile_image': profileimage,
         'license_image': licenseimage,
+        'license_front_image': licenseFrontImage,
+        'license_back_image': licenseBackImage,
         'aadhaar_image': aadhaarimage,
+        'aadhaar_front_image': aadhaarFrontImage,
+        'aadhaar_back_image': aadhaarBackImage,
         'pan_image': panimage,
+        'rc_front_image': rcFrontImage,
+        'rc_back_image': rcBackImage,
         'driver': driver,
         'vehicle': vehicle,
         'vehicle_image': vehicleImage,
@@ -529,18 +533,6 @@ class ApiPagingParams {
 
 String _toEncodable(dynamic item) {
   return item;
-}
-
-String _serializeList(List? list) {
-  list ??= <String>[];
-  try {
-    return json.encode(list, toEncodable: _toEncodable);
-  } catch (_) {
-    if (kDebugMode) {
-      print("List serialization failed. Returning empty list.");
-    }
-    return '[]';
-  }
 }
 
 String _serializeJson(dynamic jsonVar, [bool isList = false]) {

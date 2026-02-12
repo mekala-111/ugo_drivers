@@ -16,10 +16,8 @@ import './ride_request_overlay.dart';
 // ✅ Import the incentive model
 import './incentive_model.dart';
 import '/components/menu_widget.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for fonts
-import 'dart:math'; // Added for min function
 
-const String BASE_URL = "";
+const String BASE_URL = "https://ugo-api.icacorp.org";
 String DRIVER_TOKEN = FFAppState().accessToken;
 int DRIVER_ID = FFAppState().driverid;
 
@@ -38,7 +36,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-  GlobalKey<RideRequestOverlayState>();
+      GlobalKey<RideRequestOverlayState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -50,13 +48,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   bool _isTrackingLocation = false;
   DateTime? _lastBackPressed;
   bool _isDataLoaded = false;
-
-  bool _isPanelExpanded = true;
   bool _isIncentivePanelExpanded = true;
-
-  bool get _hasActiveRide {
-    return _overlayKey.currentState?.hasActiveRides ?? false;
-  }
 
   // ✅ Incentive Data from API
   int currentRides = 0;
@@ -156,12 +148,12 @@ class _HomeWidgetState extends State<HomeWidget> {
 
         // Extract incentive tiers array
         final tiersData =
-        getJsonField(data, r'''$.data.incentive_tiers''', true);
+            getJsonField(data, r'''$.data.incentive_tiers''', true);
 
         if (tiersData != null && tiersData is List) {
           incentiveTiers = tiersData
               .map((tier) =>
-              IncentiveTier.fromJson(tier as Map<String, dynamic>))
+                  IncentiveTier.fromJson(tier as Map<String, dynamic>))
               .toList();
 
           print('✅ Parsed ${incentiveTiers.length} incentive tiers');
@@ -344,7 +336,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           title: const Text('KYC Not Approved'),
           content: Text(
             'Your KYC status is "${FFAppState().kycStatus}". '
-                'Please complete KYC to go online.',
+            'Please complete KYC to go online.',
           ),
           actions: [
             TextButton(
@@ -427,15 +419,10 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   void _initSocket() {
-    print("🔌 ═══════════════════════════════════════");
-    print("   INITIALIZING SOCKET CONNECTION");
-    print("   Driver ID: $DRIVER_ID");
-    print(
-        "   Driver Token (first 50 chars): ${DRIVER_TOKEN.substring(0, min(50, DRIVER_TOKEN.length))}...");
-    print("═══════════════════════════════════════");
+    print("🔌 Initializing Socket...");
 
     socket = IO.io(
-      'wss://ugo-api.icacorp.org',
+      'https://ugo-api.icacorp.org',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -444,77 +431,27 @@ class _HomeWidgetState extends State<HomeWidget> {
           .build(),
     );
 
-    socket.onConnecting((data) => print("⏳ Socket Connecting..."));
-
-    socket.onConnectError((data) {
-      print("❌ ═══════════════════════════════════════");
-      print("   SOCKET CONNECTION ERROR");
-      print("   Error: $data");
-      print("═══════════════════════════════════════");
-    });
-
-    socket.onError((data) => print("❌ Socket General Error: $data"));
-
-    socket.onDisconnect((data) => print("🔌 Socket Disconnected: $data"));
+    socket.onConnecting((data) => print("⏳ Connecting..."));
+    socket.onConnectError((data) => print("❌ Connection Error: $data"));
+    socket.onError((data) => print("❌ General Error: $data"));
+    socket.onDisconnect((data) => print("🔌 Disconnected: $data"));
 
     socket.onConnect((_) {
-      print('✅ ═══════════════════════════════════════');
-      print('   SOCKET CONNECTED SUCCESSFULLY');
-      print('   Connection Time: ${DateTime.now()}');
-      print('═══════════════════════════════════════');
-      print('📡 Emitting watch_entity:');
-      print('   Type: driver');
-      print('   ID: $DRIVER_ID');
-
+      print('✅ Socket connected');
       socket.emit("watch_entity", {"type": "driver", "id": DRIVER_ID});
-      print('✅ watch_entity emitted successfully');
     });
 
-    // ✅ CRITICAL: Enhanced event listeners with detailed logging
     socket.on('driver_rides', (data) {
-      print('\n🎯 ═══════════════════════════════════════');
-      print('   EVENT RECEIVED: driver_rides');
-      print('   Timestamp: ${DateTime.now()}');
-      print('═══════════════════════════════════════');
-      print('📦 Data Type: ${data.runtimeType}');
-      print('📦 Data Content: $data');
-      print('📦 Is List: ${data is List}');
-      print('📦 Is Map: ${data is Map}');
-      if (data is List) print('📦 List Length: ${data.length}');
-      print('═══════════════════════════════════════\n');
-
-      // ✅ ADD THIS LINE - IT'S MISSING!
+      print('📦 Initial Rides: $data');
       _passDataToOverlay(data);
     });
 
     socket.on('ride_updated', (data) {
-      print('\n🔔 ═══════════════════════════════════════');
-      print('   EVENT RECEIVED: ride_updated');
-      print('   Timestamp: ${DateTime.now()}');
-      print('═══════════════════════════════════════');
-      print('📦 Data Type: ${data.runtimeType}');
-      print('📦 Data Content: $data');
-      print('📦 Is List: ${data is List}');
-      print('📦 Is Map: ${data is Map}');
-      if (data is List) print('📦 List Length: ${data.length}');
-      print('═══════════════════════════════════════\n');
-
-      // ✅ ADD THIS LINE - IT'S MISSING!
+      print('🔔 Ride Update: $data');
       _passDataToOverlay(data);
     });
 
-    // ✅ NEW: Listen to ALL events for debugging
-    socket.onAny((event, data) {
-      if (event != 'driver_rides' && event != 'ride_updated') {
-        print('📻 ═══════════════════════════════════════');
-        print('   UNKNOWN EVENT: $event');
-        print('   Data: $data');
-        print('═══════════════════════════════════════');
-      }
-    });
-
     socket.connect();
-    print("📡 Socket connection initiated...\n");
   }
 
   void _passDataToOverlay(dynamic data) {
@@ -544,84 +481,10 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.dispose();
   }
 
-  // ✅ New method to build the offline view with greeting
-  Widget _buildOfflineView() {
-    final hour = DateTime.now().hour;
-    String greeting;
-    if (hour < 12) {
-      greeting = 'Good morning';
-    } else if (hour < 17) {
-      greeting = 'Good afternoon';
-    } else {
-      greeting = 'Good evening';
-    }
-
-    return Container(
-      width: double.infinity,
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF7B10).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.local_taxi_rounded,
-              size: 60,
-              color: Color(0xFFFF7B10),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Hi Partner,',
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-              font: GoogleFonts.interTight(
-                fontWeight: FontWeight.bold,
-              ),
-              color: Colors.black87,
-              fontSize: 24,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            greeting,
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-              font: GoogleFonts.interTight(
-                fontWeight: FontWeight.bold,
-              ),
-              color: const Color(0xFFFF7B10),
-              fontSize: 28,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'You are currently offline. Switch on to start receiving rides and earning.',
-              textAlign: TextAlign.center,
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                font: GoogleFonts.inter(),
-                color: Colors.grey[600],
-                fontSize: 16,
-                lineHeight: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 360;
-    final isMediumScreen = screenWidth >= 360 && screenWidth < 400;
 
     if (currentUserLocationValue == null) {
       return Container(
@@ -675,17 +538,15 @@ class _HomeWidgetState extends State<HomeWidget> {
             children: [
               SizedBox(height: isSmallScreen ? 20 : 32),
               _buildTopAppBar(screenWidth, isSmallScreen),
-              // ✅ Updated Expanded section to conditionally show Map or Offline View
               Expanded(
-                child: (_model.switchValue ?? false)
-                    ? Stack(
+                child: Stack(
                   children: [
                     FlutterFlowGoogleMap(
                       controller: _model.googleMapsController,
                       onCameraIdle: (latLng) =>
-                      _model.googleMapsCenter = latLng,
+                          _model.googleMapsCenter = latLng,
                       initialLocation: _model.googleMapsCenter ??=
-                      currentUserLocationValue!,
+                          currentUserLocationValue!,
                       markerColor: GoogleMarkerColor.violet,
                       mapType: MapType.normal,
                       style: GoogleMapStyle.standard,
@@ -701,15 +562,12 @@ class _HomeWidgetState extends State<HomeWidget> {
                     ),
                     RideRequestOverlay(key: _overlayKey),
                   ],
-                )
-                    : _buildOfflineView(), // Show greeting when offline
+                ),
               ),
-              if (!_hasActiveRide) ...[
-                _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
-                _buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
-                SizedBox(height: isSmallScreen ? 10 : 15),
-              ],
-              // _buildBottomProgressBar(screenWidth, isSmallScreen),
+              _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
+              //_buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
+              SizedBox(height: isSmallScreen ? 10 : 15),
+              _buildBottomProgressBar(screenWidth, isSmallScreen),
             ],
           ),
         ),
@@ -821,14 +679,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                         value: _model.switchValue ?? false,
                         onChanged: _isDataLoaded
                             ? (newValue) {
-                          safeSetState(
-                                  () => _model.switchValue = newValue);
-                          if (newValue) {
-                            _goOnlineAsync();
-                          } else {
-                            _goOfflineAsync();
-                          }
-                        }
+                                safeSetState(
+                                    () => _model.switchValue = newValue);
+                                if (newValue) {
+                                  _goOnlineAsync();
+                                } else {
+                                  _goOfflineAsync();
+                                }
+                              }
                             : null,
                         activeColor: Colors.black,
                         activeTrackColor: Colors.grey.shade300,
@@ -969,8 +827,8 @@ class _HomeWidgetState extends State<HomeWidget> {
             isLoadingIncentives
                 ? _buildLoadingIndicator(isSmallScreen)
                 : hasIncentives
-                ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
-                : _buildComingSoonMessage(isSmallScreen),
+                    ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
+                    : _buildComingSoonMessage(isSmallScreen),
         ],
       ),
     );
@@ -991,8 +849,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     // Calculate total required rides from highest tier
     int totalRequiredRides = incentiveTiers.isNotEmpty
         ? incentiveTiers
-        .map((t) => t.targetRides)
-        .reduce((a, b) => a > b ? a : b)
+            .map((t) => t.targetRides)
+            .reduce((a, b) => a > b ? a : b)
         : 0;
 
     return Padding(
@@ -1030,10 +888,10 @@ class _HomeWidgetState extends State<HomeWidget> {
           // ✅ DYNAMIC Incentive Tier Progress Bars from API
           ...incentiveTiers
               .map((tier) => _buildIncentiveTierBar(
-            tier: tier,
-            currentRides: currentRides,
-            isSmallScreen: isSmallScreen,
-          ))
+                    tier: tier,
+                    currentRides: currentRides,
+                    isSmallScreen: isSmallScreen,
+                  ))
               .toList(),
         ],
       ),
@@ -1108,8 +966,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                           colors: tier.isLocked
                               ? [Colors.grey.shade400, Colors.grey.shade500]
                               : isCompleted
-                              ? [Colors.green, Colors.green.shade700]
-                              : [Color(0xFFFFB785), Color(0xFFFF7B10)],
+                                  ? [Colors.green, Colors.green.shade700]
+                                  : [Color(0xFFFFB785), Color(0xFFFF7B10)],
                         ),
                       ),
                     ),
@@ -1157,130 +1015,39 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget _buildCollapsibleBottomPanel(double screenWidth, bool isSmallScreen) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, -2),
-          ),
-        ],
+  Widget _buildBottomProgressBar(double screenWidth, bool isSmallScreen) {
+    return Container(
+      height: isSmallScreen ? 20 : 40,
+      color: Colors.grey.shade200,
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16,
+        vertical: isSmallScreen ? 8 : 10,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isPanelExpanded = !_isPanelExpanded;
-              });
-            },
+          Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 12 : 16,
-                vertical: isSmallScreen ? 10 : 12,
+              height: isSmallScreen ? 32 : 40,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Today Total',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        '500.00',
-                        style: TextStyle(
-                          fontSize: isSmallScreen ? 16 : 18,
-                          fontWeight: FontWeight.bold,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+                child: Stack(
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: 0.3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4CAF50),
+                          borderRadius:
+                              BorderRadius.circular(isSmallScreen ? 16 : 20),
                         ),
                       ),
-                      SizedBox(width: isSmallScreen ? 8 : 12),
-                      Icon(
-                        _isPanelExpanded
-                            ? Icons.keyboard_arrow_down
-                            : Icons.keyboard_arrow_up,
-                        size: isSmallScreen ? 20 : 24,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_isPanelExpanded)
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                isSmallScreen ? 12 : 16,
-                0,
-                isSmallScreen ? 12 : 16,
-                isSmallScreen ? 12 : 16,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                      child: _buildOrangeCard(
-                          'Ride Count', '13', screenWidth, isSmallScreen)),
-                  SizedBox(width: isSmallScreen ? 8 : 12),
-                  Expanded(
-                      child: _buildOrangeCard(
-                          'Wallet', '600.00', screenWidth, isSmallScreen)),
-                  SizedBox(width: isSmallScreen ? 8 : 12),
-                  Expanded(
-                      child: _buildOrangeCard(
-                          'Last Ride', '100', screenWidth, isSmallScreen)),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrangeCard(
-      String title, String value, double screenWidth, bool isSmallScreen) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 8 : 12,
-        horizontal: isSmallScreen ? 4 : 8,
-      ),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFB785),
-        borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: isSmallScreen ? 11 : 13,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: isSmallScreen ? 6 : 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: isSmallScreen ? 18 : 20,
-                fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

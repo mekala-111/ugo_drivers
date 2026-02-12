@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/uploaded_file.dart';
-import 'dart:convert';
-import 'dart:typed_data';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -164,8 +162,6 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _vehicleColor = prefs.getString('ff_vehicleColor') ?? '';
     });
-
-
   }
 
   void update(VoidCallback callback) {
@@ -281,6 +277,23 @@ class FFAppState extends ChangeNotifier {
   }
 
   // ==========================================
+  // DRIVING LICENSE FRONT AND BACK IMAGES
+  // ==========================================
+  FFUploadedFile? _licenseFrontImage;
+  FFUploadedFile? get licenseFrontImage => _licenseFrontImage;
+  set licenseFrontImage(FFUploadedFile? value) {
+    _licenseFrontImage = value;
+    notifyListeners();
+  }
+
+  FFUploadedFile? _licenseBackImage;
+  FFUploadedFile? get licenseBackImage => _licenseBackImage;
+  set licenseBackImage(FFUploadedFile? value) {
+    _licenseBackImage = value;
+    notifyListeners();
+  }
+
+  // ==========================================
   // AADHAAR IMAGES (temporary in-memory)
   // ==========================================
   FFUploadedFile? _aadharImage;
@@ -294,6 +307,40 @@ class FFAppState extends ChangeNotifier {
   FFUploadedFile? get aadharBackImage => _aadharBackImage;
   set aadharBackImage(FFUploadedFile? value) {
     _aadharBackImage = value;
+    notifyListeners();
+  }
+
+  // ==========================================
+  // AADHAAR FRONT AND BACK IMAGES
+  // ==========================================
+  FFUploadedFile? _aadhaarFrontImage;
+  FFUploadedFile? get aadhaarFrontImage => _aadhaarFrontImage;
+  set aadhaarFrontImage(FFUploadedFile? value) {
+    _aadhaarFrontImage = value;
+    notifyListeners();
+  }
+
+  FFUploadedFile? _aadhaarBackImage;
+  FFUploadedFile? get aadhaarBackImage => _aadhaarBackImage;
+  set aadhaarBackImage(FFUploadedFile? value) {
+    _aadhaarBackImage = value;
+    notifyListeners();
+  }
+
+  // ==========================================
+  // RC (REGISTRATION CERTIFICATE) FRONT AND BACK IMAGES
+  // ==========================================
+  FFUploadedFile? _rcFrontImage;
+  FFUploadedFile? get rcFrontImage => _rcFrontImage;
+  set rcFrontImage(FFUploadedFile? value) {
+    _rcFrontImage = value;
+    notifyListeners();
+  }
+
+  FFUploadedFile? _rcBackImage;
+  FFUploadedFile? get rcBackImage => _rcBackImage;
+  set rcBackImage(FFUploadedFile? value) {
+    _rcBackImage = value;
     notifyListeners();
   }
 
@@ -422,7 +469,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   // Vehicle Image
   FFUploadedFile? _vehicleImage;
   FFUploadedFile? get vehicleImage => _vehicleImage;
@@ -509,8 +555,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
 // ==========================================
 // PROFILE PHOTO URL (persistent - from server)
 // ==========================================
@@ -525,7 +569,6 @@ class FFAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
-
 
 // License URLs
   String _licenseFrontImageUrl = '';
@@ -589,6 +632,7 @@ class FFAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
 // RC Front URL
   String _rcFrontImageUrl = '';
   String get rcFrontImageUrl => _rcFrontImageUrl;
@@ -682,15 +726,12 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   FFUploadedFile? _profilePhoto;
   FFUploadedFile? get profilePhoto => _profilePhoto;
   set profilePhoto(FFUploadedFile? value) {
     _profilePhoto = value;
     notifyListeners();
   }
-
-
 
   FFUploadedFile? _registrationImage;
   FFUploadedFile? get registrationImage => _registrationImage;
@@ -710,22 +751,6 @@ class FFAppState extends ChangeNotifier {
   FFUploadedFile? get pollutioncertificateImage => _pollutioncertificateImage;
   set pollutioncertificateImage(FFUploadedFile? value) {
     _pollutioncertificateImage = value;
-    notifyListeners();
-  }
-
-
-  FFUploadedFile? _licenseBackImage;
-  FFUploadedFile? get licenseBackImage => _licenseBackImage;
-  set licenseBackImage(FFUploadedFile? value) {
-    _licenseBackImage = value;
-    notifyListeners();
-  }
-
-// RC Back (NEW)
-  FFUploadedFile? _rcBackImage;
-  FFUploadedFile? get rcBackImage => _rcBackImage;
-  set rcBackImage(FFUploadedFile? value) {
-    _rcBackImage = value;
     notifyListeners();
   }
 
@@ -763,8 +788,7 @@ class FFAppState extends ChangeNotifier {
   String get kycStatus => _kycStatus;
 
   set kycStatus(String value) {
-    final cleanValue =
-    value.trim().toLowerCase() == 'null' ? '' : value.trim();
+    final cleanValue = value.trim().toLowerCase() == 'null' ? '' : value.trim();
 
     _kycStatus = cleanValue;
 
@@ -789,11 +813,5 @@ class FFAppState extends ChangeNotifier {
 void _safeInit(Function() initializeField) {
   try {
     initializeField();
-  } catch (_) {}
-}
-
-Future _safeInitAsync(Function() initializeField) async {
-  try {
-    await initializeField();
   } catch (_) {}
 }

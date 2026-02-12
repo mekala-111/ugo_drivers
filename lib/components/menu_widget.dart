@@ -305,7 +305,7 @@
 //                 ),
 //                 _buildDivider(),
 
-//                 // Incentives and More
+//                 //  and More
 //                 _buildMenuItem(
 //                   context: context,
 //                   icon: Icons.remove_red_eye_outlined,
@@ -426,8 +426,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'menu_model.dart';
-export 'menu_model.dart';
 
 class MenuWidget extends StatefulWidget {
   const MenuWidget({super.key});
@@ -437,9 +435,6 @@ class MenuWidget extends StatefulWidget {
 }
 
 class _MenuWidgetState extends State<MenuWidget> {
-  late MenuModel _model;
-
-  bool _loading = true;
   String _name = "Driver";
   String _image = "";
   String _rating = "";
@@ -447,7 +442,6 @@ class _MenuWidgetState extends State<MenuWidget> {
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => MenuModel());
     _loadDriver();
   }
 
@@ -463,7 +457,6 @@ class _MenuWidgetState extends State<MenuWidget> {
             "${DriverIdfetchCall.firstName(res.jsonBody)} ${DriverIdfetchCall.lastName(res.jsonBody)}";
         _image = DriverIdfetchCall.profileImage(res.jsonBody) ?? "";
         _rating = DriverIdfetchCall.driverRating(res.jsonBody) ?? "";
-        _loading = false;
       });
     }
   }
@@ -535,8 +528,8 @@ class _MenuWidgetState extends State<MenuWidget> {
       children: [
         /// HEADER
         Container(
-          padding:
-              EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 20),
+          padding: EdgeInsets.fromLTRB(
+              20, MediaQuery.of(context).padding.top + 16, 20, 20),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
                 colors: [Color(0xFFFF7B10), Color(0xFFFFA15C)]),
@@ -581,8 +574,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                                   fontWeight: FontWeight.bold)),
                         ),
                         if (_rating.isNotEmpty) ...[
-                          const Icon(Icons.star,
-                              color: Colors.white, size: 16),
+                          const Icon(Icons.star, color: Colors.white, size: 16),
                           const SizedBox(width: 4),
                           Text(_rating,
                               style: const TextStyle(color: Colors.white))
@@ -604,28 +596,24 @@ class _MenuWidgetState extends State<MenuWidget> {
                   sub: "Manage your profile",
                   route: AccountManagementWidget.routeName,
                   color: Colors.blue),
-
               tile(
                   icon: Icons.account_balance_wallet_outlined,
                   title: "Earnings",
                   sub: "History & Bank transfer",
                   route: "Earnings",
                   color: Colors.green),
-
               tile(
                   icon: Icons.remove_red_eye_outlined,
                   title: "Incentives",
                   sub: "Know how you get paid",
-                  route: "Incentives",
+                  route: IncentivePageWidget.routeName,
                   color: Colors.purple),
-
               tile(
                   icon: Icons.card_giftcard,
                   title: "Rewards",
                   sub: "Insurance & Discounts",
                   route: "Rewards",
                   color: Colors.orange),
-
               tile(
                   icon: Icons.headset_mic,
                   title: "Help",

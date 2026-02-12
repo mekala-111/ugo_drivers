@@ -207,16 +207,11 @@ class _SafetypreferencesWidgetState extends State<SafetypreferencesWidget> {
                                           safeSetState(() => _model
                                               .checkboxValue1 = newValue!);
                                         },
-                                        side: (FlutterFlowTheme.of(context)
-                                                    .alternate !=
-                                                null)
-                                            ? BorderSide(
-                                                width: 2,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                              )
-                                            : null,
+                                        side: BorderSide(
+                                          width: 2,
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ),
                                         activeColor:
                                             FlutterFlowTheme.of(context)
                                                 .primary,
@@ -349,16 +344,11 @@ class _SafetypreferencesWidgetState extends State<SafetypreferencesWidget> {
                                           safeSetState(() => _model
                                               .checkboxValue2 = newValue!);
                                         },
-                                        side: (FlutterFlowTheme.of(context)
-                                                    .alternate !=
-                                                null)
-                                            ? BorderSide(
-                                                width: 2,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                              )
-                                            : null,
+                                        side: BorderSide(
+                                          width: 2,
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ),
                                         activeColor:
                                             FlutterFlowTheme.of(context)
                                                 .primary,
@@ -491,16 +481,11 @@ class _SafetypreferencesWidgetState extends State<SafetypreferencesWidget> {
                                           safeSetState(() => _model
                                               .checkboxValue3 = newValue!);
                                         },
-                                        side: (FlutterFlowTheme.of(context)
-                                                    .alternate !=
-                                                null)
-                                            ? BorderSide(
-                                                width: 2,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                              )
-                                            : null,
+                                        side: BorderSide(
+                                          width: 2,
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ),
                                         activeColor:
                                             FlutterFlowTheme.of(context)
                                                 .primary,
@@ -691,16 +676,12 @@ class _SafetypreferencesWidgetState extends State<SafetypreferencesWidget> {
                                               safeSetState(() => _model
                                                   .checkboxValue4 = newValue!);
                                             },
-                                            side: (FlutterFlowTheme.of(context)
-                                                        .alternate !=
-                                                    null)
-                                                ? BorderSide(
-                                                    width: 2,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .alternate,
-                                                  )
-                                                : null,
+                                            side: BorderSide(
+                                              width: 2,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
                                             activeColor:
                                                 FlutterFlowTheme.of(context)
                                                     .primary,
@@ -960,16 +941,12 @@ class _SafetypreferencesWidgetState extends State<SafetypreferencesWidget> {
                                               safeSetState(() => _model
                                                   .checkboxValue5 = newValue!);
                                             },
-                                            side: (FlutterFlowTheme.of(context)
-                                                        .alternate !=
-                                                    null)
-                                                ? BorderSide(
-                                                    width: 2,
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .alternate,
-                                                  )
-                                                : null,
+                                            side: BorderSide(
+                                              width: 2,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
                                             activeColor:
                                                 FlutterFlowTheme.of(context)
                                                     .primary,

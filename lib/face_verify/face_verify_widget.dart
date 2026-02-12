@@ -2,7 +2,6 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -557,17 +556,21 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                   },
                                                 )
                                               : Center(
-                                                child: Column(
+                                                  child: Column(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Container(
                                                         padding:
                                                             EdgeInsets.all(20),
-                                                        decoration: BoxDecoration(
-                                                          color: Color(0xFFFF8C00)
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Color(
+                                                                  0xFFFF8C00)
                                                               .withOpacity(0.1),
-                                                          shape: BoxShape.circle,
+                                                          shape:
+                                                              BoxShape.circle,
                                                         ),
                                                         child: Icon(
                                                           Icons.camera_front,
@@ -600,7 +603,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                       ),
                                                     ],
                                                   ),
-                                              ),
+                                                ),
                                     ),
 
                                     // VERIFIED STAMP

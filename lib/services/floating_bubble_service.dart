@@ -39,8 +39,8 @@ class FloatingBubbleService {
     try {
       final String result = await _channel.invokeMethod('hideFloatingBubble');
       return result;
-    } on PlatformException catch (e) {
-      return 'Failed to hide floating bubble: ${e.message}';
+    } on PlatformException catch (_) {
+      return 'Failed to hide floating bubble';
     }
   }
 
@@ -53,8 +53,8 @@ class FloatingBubbleService {
         'subtitle': subtitle,
       });
       return result;
-    } on PlatformException catch (e) {
-      return 'Failed to update bubble content: ${e.message}';
+    } on PlatformException catch (_) {
+      return 'Failed to update bubble content';
     }
   }
 
@@ -63,7 +63,7 @@ class FloatingBubbleService {
     try {
       final bool result = await _channel.invokeMethod('checkOverlayPermission');
       return result;
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       return false;
     }
   }
@@ -72,7 +72,7 @@ class FloatingBubbleService {
   static Future<void> requestOverlayPermission() async {
     try {
       await _channel.invokeMethod('requestOverlayPermission');
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       // Handle error
     }
   }

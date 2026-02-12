@@ -71,7 +71,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
       // Check if response is successful
       bool isSuccess = false;
-      
+
       if (response.succeeded == true) {
         isSuccess = true;
       } else if (response.statusCode == 200 || response.statusCode == 201) {
@@ -93,7 +93,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       if (isSuccess) {
         // Extract referral code from response using helper method
         final referralCode = DriverIdfetchCall.referralCode(response.jsonBody);
-        
+
         print('✅ Referral code fetched: $referralCode');
 
         if (referralCode != null && referralCode.isNotEmpty) {
@@ -154,7 +154,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
     if (_referralCode.isEmpty) return;
 
     await Clipboard.setData(ClipboardData(text: _referralCode));
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -176,14 +176,16 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
   /// Share referral code
   Future<void> _shareReferralCode() async {
     if (_referralCode.isEmpty) return;
-
-    final String message = FFLocalizations.of(context).getVariableText(
-      enText: 'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning!',
-      hiText: 'मेरे रेफरल कोड का उपयोग करके UGO टैक्सी में शामिल हों: $_referralCode\nऐप डाउनलोड करें और कमाई शुरू करें!',
-      teText: 'నా రిఫరల్ కోడ్‌ని ఉపయోగించి UGO టాక్సీలో చేరండి: $_referralCode\nయాప్‌ను డౌన్‌లోడ్ చేయండి మరియు సంపాదించడం ప్రారంభించండి!',
-    );
-
-    // await Share.share(message);
+    // await Share.share(
+    //   FFLocalizations.of(context).getVariableText(
+    //     enText:
+    //         'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning!',
+    //     hiText:
+    //         'मेरे रेफरल कोड का उपयोग करके UGO टैक्सी में शामिल हों: $_referralCode\nऐप डाउनलोड करें और कमाई शुरू करें!',
+    //     teText:
+    //         'నా రిఫరల్ కోడ్‌ని ఉపయోగించి UGO టాక్సీలో చేరండి: $_referralCode\nయాప్‌ను డౌన్‌లోడ్ చేయండి మరియు సంపాదించడం ప్రారంభించండి!',
+    //   ),
+    // );
   }
 
   @override
@@ -254,14 +256,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                           SizedBox(height: 16.0),
                           Text(
                             _errorMessage,
-                            style: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .override(
-                                  font: GoogleFonts.inter(),
-                                  color: FlutterFlowTheme.of(context).error,
-                                  fontSize: 16.0,
-                                  letterSpacing: 0.0,
-                                ),
+                            style:
+                                FlutterFlowTheme.of(context).bodyLarge.override(
+                                      font: GoogleFonts.inter(),
+                                      color: FlutterFlowTheme.of(context).error,
+                                      fontSize: 16.0,
+                                      letterSpacing: 0.0,
+                                    ),
                           ),
                           SizedBox(height: 24.0),
                           FFButtonWidget(
@@ -390,9 +391,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                           .bodyMedium
                                           .override(
                                             font: GoogleFonts.inter(),
-                                            color:
-                                                FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryText,
                                             fontSize: 14.0,
                                             letterSpacing: 0.0,
                                           ),
@@ -417,9 +417,9 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                               font: GoogleFonts.robotoMono(
                                                 fontWeight: FontWeight.bold,
                                               ),
-                                              color: FlutterFlowTheme.of(
-                                                      context)
-                                                  .primary,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
                                               fontSize: 24.0,
                                               letterSpacing: 2.0,
                                             ),
@@ -530,9 +530,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                             font: GoogleFonts.interTight(
                                               fontWeight: FontWeight.bold,
                                             ),
-                                            color:
-                                                FlutterFlowTheme.of(context)
-                                                    .primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 18.0,
                                             letterSpacing: 0.0,
                                           ),
@@ -541,51 +540,60 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                     _buildStep(
                                       context: context,
                                       number: '1',
-                                      title:
-                                          FFLocalizations.of(context).getVariableText(
+                                      title: FFLocalizations.of(context)
+                                          .getVariableText(
                                         enText: 'Share your code',
                                         hiText: 'अपना कोड साझा करें',
                                         teText: 'మీ కోడ్‌ను భాగస్వామ్యం చేయండి',
                                       ),
-                                      description:
-                                          FFLocalizations.of(context).getVariableText(
-                                        enText: 'Send your referral code to friends',
-                                        hiText: 'दोस्तों को अपना रेफरल कोड भेजें',
-                                        teText: 'స్నేహితులకు మీ రిఫరల్ కోడ్‌ను పంపండి',
+                                      description: FFLocalizations.of(context)
+                                          .getVariableText(
+                                        enText:
+                                            'Send your referral code to friends',
+                                        hiText:
+                                            'दोस्तों को अपना रेफरल कोड भेजें',
+                                        teText:
+                                            'స్నేహితులకు మీ రిఫరల్ కోడ్‌ను పంపండి',
                                       ),
                                     ),
                                     SizedBox(height: 12.0),
                                     _buildStep(
                                       context: context,
                                       number: '2',
-                                      title:
-                                          FFLocalizations.of(context).getVariableText(
+                                      title: FFLocalizations.of(context)
+                                          .getVariableText(
                                         enText: 'They sign up',
                                         hiText: 'वे साइन अप करें',
                                         teText: 'వారు సైన్ అప్ చేస్తారు',
                                       ),
-                                      description:
-                                          FFLocalizations.of(context).getVariableText(
-                                        enText: 'Your friend joins using your code',
-                                        hiText: 'आपका दोस्त आपके कोड का उपयोग करके शामिल होता है',
-                                        teText: 'మీ స్నేహితుడు మీ కోడ్‌ను ఉపయోగించి చేరతారు',
+                                      description: FFLocalizations.of(context)
+                                          .getVariableText(
+                                        enText:
+                                            'Your friend joins using your code',
+                                        hiText:
+                                            'आपका दोस्त आपके कोड का उपयोग करके शामिल होता है',
+                                        teText:
+                                            'మీ స్నేహితుడు మీ కోడ్‌ను ఉపయోగించి చేరతారు',
                                       ),
                                     ),
                                     SizedBox(height: 12.0),
                                     _buildStep(
                                       context: context,
                                       number: '3',
-                                      title:
-                                          FFLocalizations.of(context).getVariableText(
+                                      title: FFLocalizations.of(context)
+                                          .getVariableText(
                                         enText: 'You both earn',
                                         hiText: 'आप दोनों कमाते हैं',
                                         teText: 'మీరిద్దరూ సంపాదిస్తారు',
                                       ),
-                                      description:
-                                          FFLocalizations.of(context).getVariableText(
-                                        enText: 'Get rewards when they complete first ride',
-                                        hiText: 'जब वे पहली यात्रा पूरी करें तो पुरस्कार प्राप्त करें',
-                                        teText: 'వారు మొదటి ప్రయాణాన్ని పూర్తి చేసినప్పుడు బహుమతులు పొందండి',
+                                      description: FFLocalizations.of(context)
+                                          .getVariableText(
+                                        enText:
+                                            'Get rewards when they complete first ride',
+                                        hiText:
+                                            'जब वे पहली यात्रा पूरी करें तो पुरस्कार प्राप्त करें',
+                                        teText:
+                                            'వారు మొదటి ప్రయాణాన్ని పూర్తి చేసినప్పుడు బహుమతులు పొందండి',
                                       ),
                                     ),
                                   ],

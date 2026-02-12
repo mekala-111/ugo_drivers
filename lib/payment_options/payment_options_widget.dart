@@ -410,15 +410,11 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
                                       safeSetState(() =>
                                           _model.checkboxValue = newValue!);
                                     },
-                                    side: (FlutterFlowTheme.of(context)
-                                                .alternate !=
-                                            null)
-                                        ? BorderSide(
-                                            width: 2,
-                                            color: FlutterFlowTheme.of(context)
-                                                .alternate,
-                                          )
-                                        : null,
+                                    side: BorderSide(
+                                      width: 2,
+                                      color: FlutterFlowTheme.of(context)
+                                          .alternate,
+                                    ),
                                     activeColor:
                                         FlutterFlowTheme.of(context).primary,
                                     checkColor:
