@@ -421,6 +421,8 @@
 //     );
 //   }
 // }
+import 'package:ugo_driver/account_support/refer_friend.dart';
+
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -543,17 +545,35 @@ class _MenuWidgetState extends State<MenuWidget> {
           child: Row(
             children: [
               Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3)),
-                child: ClipOval(
-                  child: _image.isNotEmpty
-                      ? Image.network(img(_image), fit: BoxFit.cover)
-                      : const Icon(Icons.person, color: Colors.white),
-                ),
+  width: 70,
+  height: 70,
+  decoration: BoxDecoration(
+    shape: BoxShape.circle,
+    border: Border.all(color: Colors.white, width: 3),
+  ),
+  child: ClipOval(
+    child: _image.isNotEmpty
+        ? Image.network(
+            img(_image),
+            fit: BoxFit.cover,
+          )
+        : Container(
+            color: const Color(0xFFFF7B10), // nice fallback background
+            alignment: Alignment.center,
+            child: Text(
+              _name.isNotEmpty
+                  ? _name[0].toUpperCase()
+                  : "?",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+          ),
+  ),
+),
+
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -600,7 +620,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   icon: Icons.account_balance_wallet_outlined,
                   title: "Earnings",
                   sub: "History & Bank transfer",
-                  route: "Earnings",
+                  route: TeamearningWidget.routeName,
                   color: Colors.green),
               tile(
                   icon: Icons.remove_red_eye_outlined,
@@ -608,12 +628,12 @@ class _MenuWidgetState extends State<MenuWidget> {
                   sub: "Know how you get paid",
                   route: IncentivePageWidget.routeName,
                   color: Colors.purple),
-              tile(
-                  icon: Icons.card_giftcard,
-                  title: "Rewards",
-                  sub: "Insurance & Discounts",
-                  route: "Rewards",
-                  color: Colors.orange),
+              // tile(
+              //     icon: Icons.card_giftcard,
+              //     title: "Rewards",
+              //     sub: "Insurance & Discounts",
+              //     route: "Rewards",
+              //     color: Colors.orange),
               tile(
                   icon: Icons.headset_mic,
                   title: "Help",
@@ -636,20 +656,43 @@ class _MenuWidgetState extends State<MenuWidget> {
                 child: Text("Refer friends & earn ₹10 per ride"),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 26, vertical: 12),
-                decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [Color(0xFFFF7B10), Color(0xFFFFA15C)]),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.orange.withOpacity(.4), blurRadius: 12)
-                    ]),
-                child: const Text("Refer Now",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              )
+  decoration: BoxDecoration(
+    gradient: const LinearGradient(
+      colors: [Color(0xFFFF7B10), Color(0xFFFFA15C)],
+    ),
+    borderRadius: BorderRadius.circular(30),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.orange.withOpacity(.4),
+        blurRadius: 12,
+      ),
+    ],
+  ),
+  child: ElevatedButton(
+    onPressed: () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReferFriendWidget()),
+        );
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+    ),
+    child: const Text(
+      "Refer Now",
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+)
+
             ],
           ),
         )

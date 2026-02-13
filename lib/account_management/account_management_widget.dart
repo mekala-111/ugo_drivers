@@ -287,16 +287,16 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         'color': Color(0xFF6366F1),
         'onTap': () => context.pushNamed(InboxPageWidget.routeName),
       },
-      {
-        'icon': Icons.group_add_rounded,
-        'title': FFLocalizations.of(context).getText('mc9wnk6s' /* Refer Friend */),
-        'subtitle': 'Earn rewards',
-        'color': Color(0xFFEC4899),
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ReferFriendWidget()),
-        ),
-      },
+      // {
+      //   'icon': Icons.group_add_rounded,
+      //   'title': FFLocalizations.of(context).getText('mc9wnk6s' /* Refer Friend */),
+      //   'subtitle': 'Earn rewards',
+      //   'color': Color(0xFFEC4899),
+      //   'onTap': () => Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => ReferFriendWidget()),
+      //   ),
+      // },
       {
         'icon': Icons.account_balance_wallet_rounded,
         'title': FFLocalizations.of(context).getText('u3u05cev' /* Wallet */),
@@ -315,20 +315,20 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         'color': Color(0xFFF59E0B),
         'onTap': () => context.pushNamed(AccountSupportWidget.routeName),
       },
-      {
-        'icon': Icons.help_rounded,
-        'title': FFLocalizations.of(context).getText('gw6i4s9e' /* Help */),
-        'subtitle': 'Get support',
-        'color': Color(0xFF8B5CF6),
-        'onTap': () {},
-      },
-      {
-        'icon': Icons.shield_rounded,
-        'title': FFLocalizations.of(context).getText('yvr6aj95' /* Privacy Policy */),
-        'subtitle': 'Your data protection',
-        'color': Color(0xFF06B6D4),
-        'onTap': () => context.pushNamed(PrivacypolicyWidget.routeName),
-      },
+      // {
+      //   'icon': Icons.help_rounded,
+      //   'title': FFLocalizations.of(context).getText('gw6i4s9e' /* Help */),
+      //   'subtitle': 'Get support',
+      //   'color': Color(0xFF8B5CF6),
+      //   'onTap': () {},
+      // },
+      // {
+      //   'icon': Icons.shield_rounded,
+      //   'title': FFLocalizations.of(context).getText('yvr6aj95' /* Privacy Policy */),
+      //   'subtitle': 'Your data protection',
+      //   'color': Color(0xFF06B6D4),
+      //   'onTap': () => context.pushNamed(PrivacypolicyWidget.routeName),
+      // },
       {
         'icon': Icons.description_rounded,
         'title': FFLocalizations.of(context).getText('utfxvwam' /* Terms & Conditions */),

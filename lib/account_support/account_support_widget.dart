@@ -546,12 +546,12 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget>
           MaterialPageRoute(builder: (context) => DocumentsScreen()),
         ),
       },
-      {
-        'icon': Icons.payment_rounded,
-        'title': FFLocalizations.of(context).getText('34o7vjtz' /* Payment */),
-        'color': Color(0xFF10B981),
-        'onTap': () {},
-      },
+      // {
+      //   'icon': Icons.payment_rounded,
+      //   'title': FFLocalizations.of(context).getText('34o7vjtz' /* Payment */),
+      //   'color': Color(0xFF10B981),
+      //   'onTap': () {},
+      // },
       {
         'icon': Icons.edit_location_rounded,
         'title': FFLocalizations.of(context).getText('d1egk9by' /* Edit Address */),
@@ -570,27 +570,27 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget>
           }
         },
       },
-      {
-        'icon': Icons.info_rounded,
-        'title': FFLocalizations.of(context).getText('huk3perd' /* About */),
-        'color': Color(0xFF8B5CF6),
-        'onTap': () {},
-      },
-      {
-        'icon': Icons.security_rounded,
-        'title': FFLocalizations.of(context).getText('1gepgp40' /* Security */),
-        'color': Color(0xFFEC4899),
-        'onTap': () {},
-      },
-      {
-        'icon': Icons.settings_rounded,
-        'title': FFLocalizations.of(context).getText('glh63usn' /* App Settings */),
-        'color': Color(0xFF64748B),
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AppSettingsWidget()),
-        ),
-      },
+      // {
+      //   'icon': Icons.info_rounded,
+      //   'title': FFLocalizations.of(context).getText('huk3perd' /* About */),
+      //   'color': Color(0xFF8B5CF6),
+      //   'onTap': () {},
+      // },
+      // {
+      //   'icon': Icons.security_rounded,
+      //   'title': FFLocalizations.of(context).getText('1gepgp40' /* Security */),
+      //   'color': Color(0xFFEC4899),
+      //   'onTap': () {},
+      // },
+      // {
+      //   'icon': Icons.settings_rounded,
+      //   'title': FFLocalizations.of(context).getText('glh63usn' /* App Settings */),
+      //   'color': Color(0xFF64748B),
+      //   'onTap': () => Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => AppSettingsWidget()),
+      //   ),
+      // },
     ];
 
     return Container(
