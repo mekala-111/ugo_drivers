@@ -136,29 +136,50 @@ class _HomeWidgetState extends State<HomeWidget> {
         print('✅ Incentive data fetched successfully');
         print('📦 Response: ${response.jsonBody}');
 
-        // Parse the response
-        final data = response.jsonBody;
+        // Parse the response - data is an array of incentive progress objects
+        final incentivesArray = getJsonField(
+          response.jsonBody,
+          r'''$.data''',
+          true,
+        );
 
-        // Extract current rides
-        currentRides = getJsonField(data, r'''$.data.current_rides''') ?? 0;
+        if (incentivesArray != null && incentivesArray is List) {
+          // Calculate current rides (highest completed_rides value)
+          currentRides = 0;
+          for (var item in incentivesArray) {
+            int completedRides = item['completed_rides'] ?? 0;
+            if (completedRides > currentRides) {
+              currentRides = completedRides;
+            }
+          }
 
-        // Extract total earned
-        totalIncentiveEarned =
-            (getJsonField(data, r'''$.data.total_earned''') ?? 0.0).toDouble();
+          // Calculate total earned (sum of completed incentives)
+          totalIncentiveEarned = 0.0;
+          for (var item in incentivesArray) {
+            if (item['progress_status'] == 'completed') {
+              String rewardStr = item['reward_amount'] ?? '0';
+              totalIncentiveEarned += double.tryParse(rewardStr) ?? 0.0;
+            }
+          }
 
-        // Extract incentive tiers array
-        final tiersData =
-            getJsonField(data, r'''$.data.incentive_tiers''', true);
-
-        if (tiersData != null && tiersData is List) {
-          incentiveTiers = tiersData
-              .map((tier) =>
-                  IncentiveTier.fromJson(tier as Map<String, dynamic>))
-              .toList();
+          // Map to IncentiveTier objects
+          incentiveTiers = incentivesArray.map<IncentiveTier>((item) {
+            return IncentiveTier(
+              id: item['id'] ?? 0,
+              targetRides: item['target_rides'] ?? 0,
+              rewardAmount:
+                  double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
+              isLocked: item['progress_status'] != 'ongoing' &&
+                  item['progress_status'] != 'completed',
+              description: item['incentive']?['name'],
+            );
+          }).toList();
 
           print('✅ Parsed ${incentiveTiers.length} incentive tiers');
+          print('✅ Current rides: $currentRides');
+          print('✅ Total earned: ₹$totalIncentiveEarned');
         } else {
-          print('⚠️ No incentive tiers found');
+          print('⚠️ No incentive data found');
           incentiveTiers = [];
         }
       } else {
@@ -167,6 +188,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       }
     } catch (e) {
       print('❌ Error fetching incentive data: $e');
+      print('Stack trace: ${StackTrace.current}');
       incentiveTiers = [];
     } finally {
       setState(() {
@@ -567,7 +589,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
               //_buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
               SizedBox(height: isSmallScreen ? 10 : 15),
-              _buildBottomProgressBar(screenWidth, isSmallScreen),
+              //_buildBottomProgressBar(screenWidth, isSmallScreen),
             ],
           ),
         ),
@@ -994,7 +1016,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
           SizedBox(height: isSmallScreen ? 12 : 16),
           Text(
-            'Coming Soon',
+            'Coming Soon or Please Complete first ride to view Incentives',
             style: TextStyle(
               fontSize: isSmallScreen ? 18 : 20,
               fontWeight: FontWeight.bold,

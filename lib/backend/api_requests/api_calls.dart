@@ -140,6 +140,7 @@ class CreateDriverCall {
     String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
+
     final vehicle = _serializeJson(vehicleJson);
 
     print("🚀 CreateDriver API Request}");
@@ -178,6 +179,44 @@ class CreateDriverCall {
         'fcm_token': fcmToken,
       },
       bodyType: BodyType.MULTIPART,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.message''',
+      ));
+}
+
+class CompleteRideCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    required int driverId,
+    required int userId,
+    String? token = '',
+  }) async {
+    final ffApiRequestBody = '''
+{
+  "ride_id": $rideId,
+  "driver_id": $driverId,
+  "user_id": $userId
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'completeRide',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/complete-ride',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
@@ -486,7 +525,7 @@ class GetDriverIncentivesCall {
     return ApiManager.instance.makeApiCall(
       callName: 'getDriverIncentives',
       apiUrl:
-          'https://ugo-api.icacorp.org/api/driver/incentives/$driverId', // Update with your actual endpoint
+          'https://ugo-api.icacorp.org/api/driver-incentives/get-incentives/$driverId',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -513,6 +552,208 @@ class GetDriverIncentivesCall {
         r'''$.data.incentive_tiers''',
         true,
       ) as List?;
+}
+
+class ReferralDashboardCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'referralDashboard',
+      apiUrl:
+          'https://ugo-api.icacorp.org/api/referral-dashboard/$driverId/referral-dashboard',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static dynamic data(dynamic response) => getJsonField(
+        response,
+        r'$.data',
+      );
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+
+  static dynamic totalEarnings(dynamic response) => getJsonField(
+        response,
+        r'$.data.total_earnings',
+      );
+
+  static dynamic totalRides(dynamic response) => getJsonField(
+        response,
+        r'$.data.total_rides',
+      );
+
+  static String? driverName(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.driver_info.name',
+      ));
+
+  static int? totalProRides(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.my_ride_statistics.total_pro_rides',
+      ));
+
+  static int? totalNormalRides(dynamic response) =>
+      castToType<int>(getJsonField(
+        response,
+        r'$.data.my_ride_statistics.total_normal_rides',
+      ));
+
+  static dynamic totalRideEarnings(dynamic response) => getJsonField(
+        response,
+        r'$.data.my_ride_statistics.total_ride_earnings',
+      );
+
+  static int? totalReferredDrivers(dynamic response) =>
+      castToType<int>(getJsonField(
+        response,
+        r'$.data.referral_summary.total_referred_drivers',
+      ));
+
+  static dynamic totalReferralEarnings(dynamic response) => getJsonField(
+        response,
+        r'$.data.referral_summary.total_referral_earnings',
+      );
+
+  static List? referredDriversDetailed(dynamic response) => getJsonField(
+        response,
+        r'$.data.referred_drivers_detailed',
+        true,
+      ) as List?;
+}
+
+class YesterdayStatisticsCall {
+  static Future<ApiCallResponse> call({
+    String? driverId = '',
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'YesterdayStatistics',
+      apiUrl:
+          'https://ugo-api.icacorp.org/api/referral-dashboard/$driverId/yesterday-statistics',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? driverName(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.driver.name',
+      ));
+
+  static String? referredByName(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.driver.referred_by.name',
+      ));
+
+  static int? referredByDriverId(dynamic response) =>
+      castToType<int>(getJsonField(
+        response,
+        r'$.driver.referred_by.driver_id',
+      ));
+
+  static int? proRidesCompleted(dynamic response) =>
+      castToType<int>(getJsonField(
+        response,
+        r'$.yesterday_statistics.my_performance.pro_rides_completed',
+      ));
+
+  static int? normalRidesCompleted(dynamic response) =>
+      castToType<int>(getJsonField(
+        response,
+        r'$.yesterday_statistics.my_performance.normal_rides_completed',
+      ));
+
+  static dynamic rideEarnings(dynamic response) => getJsonField(
+        response,
+        r'$.yesterday_statistics.my_performance.ride_earnings',
+      );
+
+  static List? referrals(dynamic response) => getJsonField(
+        response,
+        r'$.yesterday_statistics.referrals',
+        true,
+      ) as List?;
+
+  static dynamic totalCommissionEarnedYesterday(dynamic response) =>
+      getJsonField(
+        response,
+        r'$.yesterday_statistics.total_commission_earned_yesterday',
+      );
+}
+
+class NotificationHistoryCall {
+  static Future<ApiCallResponse> call({
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'notificationHistory',
+      apiUrl: 'https://ugo-api.icacorp.org/api/notifications/getall',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List? notifications(dynamic response) => getJsonField(
+        response,
+        r'$.data.notifications',
+        true,
+      ) as List?;
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static int? total(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.total',
+      ));
+
+  static int? page(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.page',
+      ));
 }
 
 class ApiPagingParams {

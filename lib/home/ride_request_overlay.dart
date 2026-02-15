@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:async';
 
@@ -22,7 +23,8 @@ class RideRequestOverlay extends StatefulWidget {
   RideRequestOverlayState createState() => RideRequestOverlayState();
 }
 
-class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBindingObserver {
+class RideRequestOverlayState extends State<RideRequestOverlay>
+    with WidgetsBindingObserver {
   // --- State ---
   final List<RideRequest> _activeRequests = [];
   final Map<int, int> _timers = {};
@@ -76,7 +78,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
       if (index != -1) {
         setState(() {
           _activeRequests[index] = updatedRide;
-          if (updatedRide.status.toLowerCase() == 'arrived' && !_waitTimers.containsKey(updatedRide.id)) {
+          if (updatedRide.status.toLowerCase() == 'arrived' &&
+              !_waitTimers.containsKey(updatedRide.id)) {
             _waitTimers[updatedRide.id] = 0;
           }
         });
@@ -112,8 +115,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
       setState(() {
-        _timers.forEach((id, val) { if (val > 0) _timers[id] = val - 1; });
-        _waitTimers.forEach((id, val) { _waitTimers[id] = val + 1; });
+        _timers.forEach((id, val) {
+          if (val > 0) _timers[id] = val - 1;
+        });
+        _waitTimers.forEach((id, val) {
+          _waitTimers[id] = val + 1;
+        });
       });
     });
   }
@@ -140,10 +147,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
     try {
       final response = await Dio().get(
         "https://ugo-api.icacorp.org/api/rides/$rideId",
-        options: Options(headers: {"Authorization": "Bearer ${FFAppState().accessToken}"}),
+        options: Options(
+            headers: {"Authorization": "Bearer ${FFAppState().accessToken}"}),
       );
       if (response.data['data'] != null) handleNewRide(response.data['data']);
-    } catch (e) { print("Fetch Error: $e"); }
+    } catch (e) {
+      print("Fetch Error: $e");
+    }
   }
 
   Future<void> _acceptRide(int rideId) async {
@@ -152,22 +162,27 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
       await Dio().post(
           "https://ugo-api.icacorp.org/api/rides/rides/$rideId/accept",
           data: {"driver_id": FFAppState().driverid},
-          options: Options(headers: {"Authorization": "Bearer ${FFAppState().accessToken}"})
-      );
+          options: Options(headers: {
+            "Authorization": "Bearer ${FFAppState().accessToken}"
+          }));
       _updateLocalRideStatus(rideId, 'accepted');
       FFAppState().activeRideId = rideId;
-    } catch (e) { print("Accept Error: $e"); }
+    } catch (e) {
+      print("Accept Error: $e");
+    }
   }
 
   Future<void> _updateRideStatus(int rideId, String status) async {
     try {
-      await Dio().put(
-          "https://ugo-api.icacorp.org/api/rides/$rideId",
+      await Dio().put("https://ugo-api.icacorp.org/api/rides/$rideId",
           data: {"ride_status": status, "driver_id": FFAppState().driverid},
-          options: Options(headers: {"Authorization": "Bearer ${FFAppState().accessToken}"})
-      );
+          options: Options(headers: {
+            "Authorization": "Bearer ${FFAppState().accessToken}"
+          }));
       _updateLocalRideStatus(rideId, status);
-    } catch (e) { print("Status Update Error: $e"); }
+    } catch (e) {
+      print("Status Update Error: $e");
+    }
   }
 
   Future<void> _verifyOtp(int rideId) async {
@@ -176,7 +191,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
 
     final otp = controllers.map((c) => c.text).join();
     if (otp.length != 4) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Enter complete OTP")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Enter complete OTP")));
       return;
     }
 
@@ -184,8 +200,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
       final res = await Dio().post(
           "https://ugo-api.icacorp.org/api/rides/verify-otp",
           data: {"otp": otp, "ride_id": rideId},
-          options: Options(headers: {"Authorization": "Bearer ${FFAppState().accessToken}"})
-      );
+          options: Options(headers: {
+            "Authorization": "Bearer ${FFAppState().accessToken}"
+          }));
 
       if (res.data['success'] == true) {
         setState(() {
@@ -193,12 +210,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
           _updateLocalRideStatus(rideId, 'started');
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid OTP")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Invalid OTP")));
         for (var c in controllers) c.clear();
       }
     } catch (e) {
       print("OTP Verify Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Verification Failed")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Verification Failed")));
     }
   }
 
@@ -218,6 +237,22 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
     return "${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}";
   }
 
+  Future<void> _completeRide({
+    required int rideId,
+    required int userId,
+  }) async {
+    try {
+      await CompleteRideCall.call(
+        rideId: rideId,
+        driverId: FFAppState().driverid,
+        userId: userId,
+        token: FFAppState().accessToken,
+      );
+      //
+    } catch (e) {
+      print("Complete Ride Error: $e");
+    }
+  }
 
   // --- UI Building ---
   @override
@@ -231,14 +266,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
     // OTP overlay has priority if it's meant to be shown
     if (_showOtpOverlay.contains(ride.id)) {
       if (!_otpControllers.containsKey(ride.id)) {
-        _otpControllers[ride.id] = List.generate(4, (_) => TextEditingController());
+        _otpControllers[ride.id] =
+            List.generate(4, (_) => TextEditingController());
       }
       return Positioned.fill(
           child: OtpVerificationSheet(
-            otpControllers: _otpControllers[ride.id]!,
-            onVerify: () => _verifyOtp(ride.id),
-          )
-      );
+        otpControllers: _otpControllers[ride.id]!,
+        onVerify: () => _verifyOtp(ride.id),
+      ));
     }
 
     // After ride is 'completed', show the review screen
@@ -265,7 +300,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
     switch (status) {
       case 'searching':
         return Positioned(
-          bottom: 0, left: 0, right: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
           child: NewRequestCard(
             ride: ride,
             remainingTime: _timers[ride.id] ?? 0,
@@ -277,7 +314,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
         return Positioned.fill(
           child: RidePickupOverlay(
             ride: ride,
-            onSwipe: () => _updateRideStatus(ride.id, 'arrived'), formattedWaitTime: '',
+            onSwipe: () => _updateRideStatus(ride.id, 'arrived'),
+            formattedWaitTime: '',
           ),
         );
       case 'arrived':
@@ -285,14 +323,19 @@ class RideRequestOverlayState extends State<RideRequestOverlay> with WidgetsBind
           child: RideBottomOverlay(
             ride: ride,
             formattedWaitTime: _formatWaitTime(ride.id),
-            onSwipe: () => setState(() => _showOtpOverlay.add(ride.id)), onCancel: () {  }, onCall: () {  },
+            onSwipe: () => setState(() => _showOtpOverlay.add(ride.id)),
+            onCancel: () {},
+            onCall: () {},
           ),
         );
       case 'started':
         return Positioned.fill(
           child: RideCompleteOverlay(
             ride: ride,
-            onSwipe: () => _updateRideStatus(ride.id, 'completed'),
+            onSwipe: () => _completeRide(
+              rideId: ride.id,
+              userId: ride.userId ?? 0,
+            ),
           ),
         );
       default:

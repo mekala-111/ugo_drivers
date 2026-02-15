@@ -1,7 +1,7 @@
-import '/flutter_flow/flutter_flow_button_tabbar.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'inbox_page_model.dart';
@@ -17,8 +17,7 @@ class InboxPageWidget extends StatefulWidget {
   State<InboxPageWidget> createState() => _InboxPageWidgetState();
 }
 
-class _InboxPageWidgetState extends State<InboxPageWidget>
-    with TickerProviderStateMixin {
+class _InboxPageWidgetState extends State<InboxPageWidget> {
   late InboxPageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -28,11 +27,24 @@ class _InboxPageWidgetState extends State<InboxPageWidget>
     super.initState();
     _model = createModel(context, () => InboxPageModel());
 
-    _model.tabBarController = TabController(
-      vsync: this,
-      length: 2,
-      initialIndex: 0,
-    )..addListener(() => safeSetState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadNotifications());
+  }
+
+  Future<void> _loadNotifications() async {
+    final response = await NotificationHistoryCall.call(
+      token: FFAppState().accessToken,
+    );
+
+    print('=== NOTIFICATION HISTORY API ===');
+    print('Status: ${response.statusCode}');
+    print('Response: ${response.jsonBody}');
+    print('================================');
+
+    if (response.succeeded) {
+      setState(() {
+        _model.notificationData = response.jsonBody;
+      });
+    }
   }
 
   @override
@@ -95,109 +107,218 @@ class _InboxPageWidgetState extends State<InboxPageWidget>
         ),
         body: SafeArea(
           top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:
-                      EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment(0.0, 0),
-                        child: FlutterFlowButtonTabBar(
-                          useToggleButtonStyle: true,
-                          labelStyle:
-                              FlutterFlowTheme.of(context).titleMedium.override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontStyle,
-                                    ),
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
-                                  ),
-                          unselectedLabelStyle:
-                              FlutterFlowTheme.of(context).titleMedium.override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .fontStyle,
-                                    ),
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .fontStyle,
-                                  ),
-                          labelColor: FlutterFlowTheme.of(context).secondary,
-                          unselectedLabelColor:
-                              FlutterFlowTheme.of(context).secondaryText,
-                          backgroundColor: FlutterFlowTheme.of(context).primary,
-                          unselectedBackgroundColor:
-                              FlutterFlowTheme.of(context).alternate,
-                          borderColor: FlutterFlowTheme.of(context).primary,
-                          unselectedBorderColor:
-                              FlutterFlowTheme.of(context).alternate,
-                          borderWidth: 2.0,
-                          borderRadius: 8.0,
-                          elevation: 0.0,
-                          buttonMargin: EdgeInsetsDirectional.fromSTEB(
-                              8.0, 0.0, 8.0, 0.0),
-                          padding: EdgeInsets.all(4.0),
-                          tabs: [
-                            Tab(
-                              text: FFLocalizations.of(context).getText(
-                                'nty55wsd' /* Notifications */,
+          child: _model.notificationData != null &&
+                  NotificationHistoryCall.notifications(
+                          _model.notificationData) !=
+                      null &&
+                  NotificationHistoryCall.notifications(
+                          _model.notificationData)!
+                      .isNotEmpty
+              ? ListView.builder(
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                  itemCount: NotificationHistoryCall.notifications(
+                          _model.notificationData)!
+                      .length,
+                  itemBuilder: (context, index) {
+                    final notification = NotificationHistoryCall.notifications(
+                        _model.notificationData)![index];
+                    final isRead = getJsonField(
+                          notification,
+                          r'$.is_read',
+                        ) ==
+                        true;
+                    final title = getJsonField(
+                          notification,
+                          r'$.notification_title',
+                        )?.toString() ??
+                        getJsonField(
+                          notification,
+                          r'$.title',
+                        )?.toString() ??
+                        'Notification';
+                    final message = getJsonField(
+                          notification,
+                          r'$.notification_body',
+                        )?.toString() ??
+                        getJsonField(
+                          notification,
+                          r'$.message',
+                        )?.toString() ??
+                        '';
+                    final createdAt = getJsonField(
+                          notification,
+                          r'$.created_at',
+                        )?.toString() ??
+                        '';
+
+                    return Container(
+                      margin:
+                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                        border: Border.all(
+                          color: isRead
+                              ? FlutterFlowTheme.of(context).alternate
+                              : FlutterFlowTheme.of(context).primary,
+                          width: isRead ? 1.0 : 2.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4.0,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 48.0,
+                              height: 48.0,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isRead
+                                      ? [
+                                          FlutterFlowTheme.of(context)
+                                              .alternate,
+                                          FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ]
+                                      : [
+                                          FlutterFlowTheme.of(context).primary,
+                                          FlutterFlowTheme.of(context)
+                                              .secondary,
+                                        ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.notifications_active,
+                                color: Colors.white,
+                                size: 24.0,
                               ),
                             ),
-                            Tab(
-                              text: FFLocalizations.of(context).getText(
-                                'd6jqm9ie' /* Support */,
+                            SizedBox(width: 12.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          title,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 16.0,
+                                            fontWeight: isRead
+                                                ? FontWeight.w500
+                                                : FontWeight.w700,
+                                            color: Color(0xFF1A1A1A),
+                                          ),
+                                        ),
+                                      ),
+                                      if (!isRead)
+                                        Container(
+                                          width: 10.0,
+                                          height: 10.0,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6.0),
+                                  Text(
+                                    message,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF4A4A4A),
+                                      height: 1.5,
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (createdAt.isNotEmpty)
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 8.0, 0.0, 0.0),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 14.0,
+                                            color: Color(0xFF757575),
+                                          ),
+                                          SizedBox(width: 4.0),
+                                          Text(
+                                            createdAt,
+                                            style: GoogleFonts.inter(
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.w400,
+                                              color: Color(0xFF757575),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ],
-                          controller: _model.tabBarController,
-                          onTap: (i) async {
-                            [() async {}, () async {}][i]();
-                          },
                         ),
                       ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _model.tabBarController,
-                          children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [],
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [],
-                            ),
-                          ],
+                    );
+                  },
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 100.0,
+                        height: 100.0,
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context).accent1,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.notifications_none,
+                          size: 50.0,
+                          color: FlutterFlowTheme.of(context).primary,
+                        ),
+                      ),
+                      SizedBox(height: 24.0),
+                      Text(
+                        'No notifications yet',
+                        style: GoogleFonts.inter(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        'You\'re all caught up!',
+                        style: GoogleFonts.inter(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF757575),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
