@@ -1,10 +1,10 @@
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ✅ Required for HapticFeedback
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +24,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   bool _isFetchingDocuments = true;
 
   // Track which documents are already uploaded on server
-  Map<String, bool> _serverDocuments = {
+  final Map<String, bool> _serverDocuments = {
     'profilePhoto': false,
     'imageLicense': false,
     'aadharImage': false,
@@ -44,193 +44,100 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     super.dispose();
   }
 
-  /// Fetch existing documents from server
+  /// 1. Fetch existing documents from server using DriverIdfetchCall
   Future<void> _fetchExistingDocuments() async {
-    setState(() {
-      _isFetchingDocuments = true;
-    });
+    setState(() => _isFetchingDocuments = true);
 
     try {
       final driverId = FFAppState().driverid;
       final token = FFAppState().accessToken;
 
       if (driverId == 0 || token.isEmpty) {
-        setState(() {
-          _isFetchingDocuments = false;
-        });
+        setState(() => _isFetchingDocuments = false);
         return;
       }
 
-      // TODO: Replace with your actual API call to fetch driver details
-      // Example: final response = await GetDriverDetailsCall.call(id: driverId, token: token);
-
-      // For now, assuming you have an API that returns driver document URLs
-      // Based on your response format:
-      // {
-      //   "success": true,
-      //   "data": {
-      //     "profile_image": "uploads/profiles/...",
-      //     "license_image": "uploads/licenses/...",
-      //     "aadhaar_image": "uploads/aadhaars/...",
-      //     "pan_image": "uploads/pans/...",
-      //     "vehicle_image": "uploads/vehicles/...",
-      //     "rc_image": "uploads/images/..."
-      //   }
-      // }
-
-      // Uncomment and modify this when you add the API call:
-      /*
-      final response = await GetDriverDetailsCall.call(
+      // ✅ API CALL: Get Driver Details
+      final response = await DriverIdfetchCall.call(
         id: driverId,
         token: token,
       );
 
-      if (response.succeeded ?? false) {
-        try {
-          final profileImage = getJsonField(response.jsonBody, r'''$.data.profile_image''');
-          final licenseImage = getJsonField(response.jsonBody, r'''$.data.license_image''');
-          final aadhaarImage = getJsonField(response.jsonBody, r'''$.data.aadhaar_image''');
-          final panImage = getJsonField(response.jsonBody, r'''$.data.pan_image''');
-          final vehicleImage = getJsonField(response.jsonBody, r'''$.data.vehicle_image''');
-          final rcImage = getJsonField(response.jsonBody, r'''$.data.rc_image''');
+      if (response.succeeded) {
+        final data = getJsonField(response.jsonBody, r'''$.data''');
+
+        if (data != null) {
+          // Helper to check if string is valid
+          bool hasDoc(dynamic path) =>
+              path != null &&
+                  path.toString().isNotEmpty &&
+                  path.toString() != "null";
 
           setState(() {
-            _serverDocuments['profilePhoto'] = profileImage != null && profileImage.toString().isNotEmpty;
-            _serverDocuments['imageLicense'] = licenseImage != null && licenseImage.toString().isNotEmpty;
-            _serverDocuments['aadharImage'] = aadhaarImage != null && aadhaarImage.toString().isNotEmpty;
-            _serverDocuments['panImage'] = panImage != null && panImage.toString().isNotEmpty;
-            _serverDocuments['vehicleImage'] = vehicleImage != null && vehicleImage.toString().isNotEmpty;
-            _serverDocuments['registrationImage'] = rcImage != null && rcImage.toString().isNotEmpty;
+            _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
+            _serverDocuments['imageLicense'] = hasDoc(data['license_image']);
+            _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']);
+            _serverDocuments['panImage'] = hasDoc(data['pan_image']);
+            _serverDocuments['vehicleImage'] = hasDoc(data['vehicle_image']);
+
+            // Check both front/back or just 'rc_image' depending on API response structure
+            _serverDocuments['registrationImage'] =
+                hasDoc(data['rc_image']) || hasDoc(data['rc_front_image']);
           });
 
-          print('📄 Document status:');
-          print('   Profile: ${_serverDocuments['profilePhoto']}');
-          print('   License: ${_serverDocuments['imageLicense']}');
-          print('   Aadhaar: ${_serverDocuments['aadharImage']}');
-          print('   PAN: ${_serverDocuments['panImage']}');
-          print('   Vehicle: ${_serverDocuments['vehicleImage']}');
-          print('   RC: ${_serverDocuments['registrationImage']}');
-        } catch (e) {
-          print('Error parsing document status: $e');
+          print("✅ Documents Status Updated from Server");
         }
+      } else {
+        print("❌ Failed to fetch driver details: ${response.statusCode}");
       }
-      */
-
-      print('📄 Fetched existing documents status');
     } catch (e) {
       print('❌ Error fetching documents: $e');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isFetchingDocuments = false;
-        });
-      }
+      if (mounted) setState(() => _isFetchingDocuments = false);
     }
   }
 
-  /// Show error message
-  void _showErrorMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.error_outline, color: Colors.white, size: 20),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        duration: Duration(milliseconds: 4000),
-        backgroundColor: Colors.red[400],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: EdgeInsets.all(16),
-      ),
-    );
+  /// Helper to get local state doc (Newly picked files)
+  dynamic _getLocalDoc(String key) {
+    switch (key) {
+      case 'profilePhoto':
+        return FFAppState().profilePhoto;
+      case 'imageLicense':
+        return FFAppState().imageLicense;
+      case 'aadharImage':
+        return FFAppState().aadharImage;
+      case 'panImage':
+        return FFAppState().panImage;
+      case 'vehicleImage':
+        return FFAppState().vehicleImage;
+      case 'registrationImage':
+        return FFAppState().registrationImage;
+      default:
+        return null;
+    }
   }
 
-  /// Show success message
-  void _showSuccessMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white, size: 20),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        duration: Duration(milliseconds: 3000),
-        backgroundColor: Colors.green[500],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: EdgeInsets.all(16),
-      ),
-    );
-  }
-
-  /// Check if any new document has been uploaded
   bool _hasNewDocuments() {
-    return FFAppState().profilePhoto != null ||
-        FFAppState().imageLicense != null ||
-        FFAppState().aadharImage != null ||
-        FFAppState().panImage != null ||
-        FFAppState().vehicleImage != null ||
-        FFAppState().registrationImage != null;
+    return _serverDocuments.keys.any((key) => _getLocalDoc(key) != null);
   }
 
-  /// Handle document update submission
+  /// 2. Handle Update (Upload new files)
   Future<void> _handleUpdateDocuments() async {
+    HapticFeedback.mediumImpact(); // ✅ Vibrate on tap
+
     if (_isLoading) return;
 
     if (!_hasNewDocuments()) {
-      _showErrorMessage('Please upload at least one document to update');
+      _showSnack('Please upload at least one new document to update.',
+          isError: true);
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final driverId = FFAppState().driverid;
       final token = FFAppState().accessToken;
-
-      if (driverId == 0) {
-        _showErrorMessage('Please login first');
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      if (token.isEmpty) {
-        _showErrorMessage('Authentication token missing. Please login again.');
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      print('🚀 Starting document update...');
-      print('   Driver ID: $driverId');
-      print('   Token: ${token.substring(0, 20)}...');
-      print('   Documents to update:');
-      print('     Profile: ${FFAppState().profilePhoto != null}');
-      print('     License: ${FFAppState().imageLicense != null}');
-      print('     Aadhaar: ${FFAppState().aadharImage != null}');
-      print('     PAN: ${FFAppState().panImage != null}');
-      print('     Vehicle: ${FFAppState().vehicleImage != null}');
-      print('     Registration: ${FFAppState().registrationImage != null}');
 
       final apiResult = await UpdateDriverCall.call(
         id: driverId,
@@ -243,57 +150,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         registrationImage: FFAppState().registrationImage,
       );
 
-      print('📥 UpdateDriver API Response:');
-      print('   Status: ${apiResult.statusCode}');
-      print('   Success: ${apiResult.succeeded}');
-      print('   Body: ${apiResult.jsonBody}');
-
-      bool isSuccess = false;
-
-      if (apiResult.succeeded == true) {
-        isSuccess = true;
-      } else if (apiResult.statusCode == 200 || apiResult.statusCode == 201) {
-        isSuccess = true;
-      } else {
-        try {
-          final successField = getJsonField(
-            (apiResult.jsonBody ?? ''),
-            r'''$.success''',
-          );
-          if (successField == true) {
-            isSuccess = true;
-          }
-        } catch (e) {
-          print('Error checking success field: $e');
-        }
-      }
-
-      print('   Final Success Status: $isSuccess');
-
-      if (isSuccess) {
-        // 🔥 Update server document status for uploaded documents
+      if ((apiResult.succeeded ?? false) || apiResult.statusCode == 200) {
+        // Success Logic
         setState(() {
-          if (FFAppState().profilePhoto != null) {
-            _serverDocuments['profilePhoto'] = true;
-          }
-          if (FFAppState().imageLicense != null) {
-            _serverDocuments['imageLicense'] = true;
-          }
-          if (FFAppState().aadharImage != null) {
-            _serverDocuments['aadharImage'] = true;
-          }
-          if (FFAppState().panImage != null) {
-            _serverDocuments['panImage'] = true;
-          }
-          if (FFAppState().vehicleImage != null) {
-            _serverDocuments['vehicleImage'] = true;
-          }
-          if (FFAppState().registrationImage != null) {
-            _serverDocuments['registrationImage'] = true;
-          }
+          // Mark locally uploaded docs as "On Server" now
+          _serverDocuments.keys.forEach((key) {
+            if (_getLocalDoc(key) != null) _serverDocuments[key] = true;
+          });
         });
 
-        // Clear the uploaded images from app state after successful upload
+        // Clear local state
         FFAppState().update(() {
           FFAppState().profilePhoto = null;
           FFAppState().imageLicense = null;
@@ -301,566 +167,346 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           FFAppState().panImage = null;
           FFAppState().vehicleImage = null;
           FFAppState().registrationImage = null;
-          FFAppState().isLoggedIn = true;
         });
 
-        _showSuccessMessage('✓ Documents updated successfully!');
-
-        await Future.delayed(Duration(milliseconds: 800));
-
-        if (mounted) {
-          context.pushReplacementNamed(HomeWidget.routeName);
-        }
+        _showSnack('✓ Documents updated successfully!', isError: false);
+        await Future.delayed(const Duration(milliseconds: 1000));
+        if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
       } else {
-        String errorMessage = 'Failed to update documents';
-
-        try {
-          final message = getJsonField(
-            (apiResult.jsonBody ?? ''),
-            r'''$.message''',
-          );
-          if (message != null && message.toString().isNotEmpty) {
-            errorMessage = message.toString();
-          }
-
-          if (errorMessage == 'Failed to update documents') {
-            final error = getJsonField(
-              (apiResult.jsonBody ?? ''),
-              r'''$.error''',
-            );
-            if (error != null && error.toString().isNotEmpty) {
-              errorMessage = error.toString();
-            }
-          }
-
-          print('   Error Message: $errorMessage');
-        } catch (e) {
-          print('Error parsing error message: $e');
-        }
-
-        _showErrorMessage(errorMessage);
+        // Error Logic
+        String msg =
+            getJsonField(apiResult.jsonBody, r'''$.message''')?.toString() ??
+                'Update failed';
+        _showSnack(msg, isError: true);
       }
-    } catch (e, stackTrace) {
-      print('❌ Error updating documents: $e');
-      print('Stack trace: $stackTrace');
-      _showErrorMessage('An error occurred. Please try again.');
+    } catch (e) {
+      _showSnack('An error occurred. Please try again.', isError: true);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showSnack(String msg, {bool isError = false}) {
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg, style: const TextStyle(color: Colors.white)),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
+    // 🎨 APP COLORS
+    const Color brandPrimary = Color(0xFFFF7B10);
+    const Color brandGradientStart = Color(0xFFFF8E32);
+    const Color bgOffWhite = Color(0xFFF5F7FA);
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            onPressed: () async {
-              context.pop();
-            },
-          ),
-          title: Text(
-            FFLocalizations.of(context).getText(
-              '1zwx91lm' /* UGO */,
-            ),
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-              font: GoogleFonts.interTight(
-                fontWeight:
-                FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                fontStyle:
-                FlutterFlowTheme.of(context).headlineMedium.fontStyle,
-              ),
-              color: Colors.white,
-              fontSize: 22.0,
-              letterSpacing: 0.0,
-            ),
-          ),
-          actions: [],
-          centerTitle: true,
-          elevation: 2.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: Stack(
-            children: [
-              if (_isFetchingDocuments)
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          FlutterFlowTheme.of(context).primary,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Loading documents...',
-                        style: TextStyle(
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      // Header Section
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color:
-                          FlutterFlowTheme.of(context).secondaryBackground,
-                        ),
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              24.0, 24.0, 24.0, 16.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getVariableText(
-                                  enText: 'Update Documents',
-                                  hiText: 'दस्तावेज़ अपडेट करें',
-                                  teText: 'పత్రాలను నవీకరించండి',
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .headlineLarge
-                                    .override(
-                                  font: GoogleFonts.interTight(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryText,
-                                  fontSize: 28.0,
-                                  letterSpacing: 0.0,
-                                ),
-                              ),
-                              SizedBox(height: 8.0),
-                              Text(
-                                FFLocalizations.of(context).getVariableText(
-                                  enText:
-                                  'Upload or update your documents below',
-                                  hiText:
-                                  'नीचे अपने दस्तावेज़ अपलोड या अपडेट करें',
-                                  teText:
-                                  'దిగువ మీ పత్రాలను అప్‌లోడ్ లేదా నవీకరించండి',
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                  font: GoogleFonts.inter(),
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  fontSize: 15.0,
-                                  letterSpacing: 0.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Steps List Section
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color:
-                          FlutterFlowTheme.of(context).secondaryBackground,
-                        ),
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              16.0, 8.0, 16.0, 24.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'k8fnkaky' /* Profile Picture */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().profilePhoto,
-                                  _serverDocuments['profilePhoto'] ?? false,
-                                ),
-                                onTap: () {
-                                  context.pushNamed(FaceVerifyWidget.routeName);
-                                },
-                                hasDocument: FFAppState().profilePhoto != null,
-                                isOnServer:
-                                _serverDocuments['profilePhoto'] ?? false,
-                              ),
-
-                              SizedBox(height: 4.0),
-                              Divider(
-                                thickness: 1.0,
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                              SizedBox(height: 4.0),
-
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'qg68530z' /* Driving License */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().imageLicense,
-                                  _serverDocuments['imageLicense'] ?? false,
-                                ),
-                                onTap: () {
-                                  context.pushNamed(DrivingDlWidget.routeName);
-                                },
-                                hasDocument: FFAppState().imageLicense != null,
-                                isOnServer:
-                                _serverDocuments['imageLicense'] ?? false,
-                              ),
-
-                              SizedBox(height: 4.0),
-                              Divider(
-                                thickness: 1.0,
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                              SizedBox(height: 4.0),
-
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'c0kv9v5c' /* Aadhaar Card */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().aadharImage,
-                                  _serverDocuments['aadharImage'] ?? false,
-                                ),
-                                onTap: () {
-                                  context
-                                      .pushNamed(AdharUploadWidget.routeName);
-                                },
-                                hasDocument: FFAppState().aadharImage != null,
-                                isOnServer:
-                                _serverDocuments['aadharImage'] ?? false,
-                              ),
-
-                              SizedBox(height: 4.0),
-                              Divider(
-                                thickness: 1.0,
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                              SizedBox(height: 4.0),
-
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'ymy7qbgz' /* Pan Card */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().panImage,
-                                  _serverDocuments['panImage'] ?? false,
-                                ),
-                                onTap: () {
-                                  context.pushNamed(
-                                      PanuploadScreenWidget.routeName);
-                                },
-                                hasDocument: FFAppState().panImage != null,
-                                isOnServer:
-                                _serverDocuments['panImage'] ?? false,
-                              ),
-
-                              SizedBox(height: 4.0),
-                              Divider(
-                                thickness: 1.0,
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                              SizedBox(height: 4.0),
-
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'jqs0l5w3' /* Vehicle photo verification */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().vehicleImage,
-                                  _serverDocuments['vehicleImage'] ?? false,
-                                ),
-                                onTap: () {
-                                  context
-                                      .pushNamed(VehicleImageWidget.routeName);
-                                },
-                                hasDocument: FFAppState().vehicleImage != null,
-                                isOnServer:
-                                _serverDocuments['vehicleImage'] ?? false,
-                              ),
-
-                              SizedBox(height: 4.0),
-                              Divider(
-                                thickness: 1.0,
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                              SizedBox(height: 4.0),
-
-                              _buildStepItem(
-                                context: context,
-                                title: FFLocalizations.of(context).getText(
-                                  'ipks4vgn' /* Registration Certificate (RC) */,
-                                ),
-                                subtitle: _getDocumentStatus(
-                                  FFAppState().registrationImage,
-                                  _serverDocuments['registrationImage'] ??
-                                      false,
-                                ),
-                                onTap: () {
-                                  context.pushNamed(
-                                      RegistrationImageWidget.routeName);
-                                },
-                                hasDocument:
-                                FFAppState().registrationImage != null,
-                                isOnServer:
-                                _serverDocuments['registrationImage'] ??
-                                    false,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Update Button
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            24.0, 16.0, 24.0, 24.0),
-                        child: FFButtonWidget(
-                          onPressed: _isLoading ? null : _handleUpdateDocuments,
-                          text: _isLoading
-                              ? FFLocalizations.of(context).getVariableText(
-                            enText: 'Updating...',
-                            hiText: 'अपडेट हो रहा है...',
-                            teText: 'అప్‌డేట్ అవుతోంది...',
-                          )
-                              : FFLocalizations.of(context).getVariableText(
-                            enText: 'Update Documents',
-                            hiText: 'दस्तावेज़ अपडेट करें',
-                            teText: 'పత్రాలను నవీకరించండి',
-                          ),
-                          options: FFButtonOptions(
-                            width: double.infinity,
-                            height: 56.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                16.0, 0.0, 16.0, 0.0),
-                            iconAlignment: IconAlignment.start,
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 0.0),
-                            color: _isLoading
-                                ? FlutterFlowTheme.of(context).secondaryText
-                                : Color(0xFFFF7B10),
-                            textStyle: FlutterFlowTheme.of(context)
-                                .titleMedium
-                                .override(
-                              font: GoogleFonts.interTight(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              letterSpacing: 0.0,
-                            ),
-                            elevation: 2.0,
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Loading Overlay
-              if (_isLoading)
+        backgroundColor: bgOffWhite,
+        body: Stack(
+          children: [
+            // 1️⃣ Header Background
+            Column(
+              children: [
                 Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                  height: 240,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [brandGradientStart, brandPrimary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Back Button Row
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              const Text(
+                                "Manage Documents",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Uploading documents...',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+
+                          const SizedBox(height: 40),
+                          Center(
+                            child: const Text(
+                              "Update your Proofs here.",
+                              style: TextStyle(
+                                fontSize: 28,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                          const Spacer(),
+
+                        ],
+                      ),
                     ),
                   ),
                 ),
-            ],
-          ),
+                Expanded(child: Container()),
+              ],
+            ),
+
+            // 2️⃣ Floating List
+            Positioned.fill(
+              top: 180,
+              child: _isFetchingDocuments
+                  ? Center(
+                  child: CircularProgressIndicator(color: brandPrimary))
+                  : SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionHeader("Personal Documents"),
+                      const SizedBox(height: 16),
+
+                      _buildStepItem(
+                        "Profile Photo",
+                        "profilePhoto",
+                            () => context
+                            .pushNamed(FaceVerifyWidget.routeName),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStepItem(
+                        "Driving License",
+                        "imageLicense",
+                            () => context
+                            .pushNamed(DrivingDlWidget.routeName),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStepItem(
+                        "Aadhaar Card",
+                        "aadharImage",
+                            () => context
+                            .pushNamed(AdharUploadWidget.routeName),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStepItem(
+                        "PAN Card",
+                        "panImage",
+                            () => context
+                            .pushNamed(PanuploadScreenWidget.routeName),
+                      ),
+
+                      const SizedBox(height: 24),
+                      Divider(color: Colors.grey.shade100, thickness: 2),
+                      const SizedBox(height: 24),
+
+                      _buildSectionHeader("Vehicle Documents"),
+                      const SizedBox(height: 16),
+
+                      _buildStepItem(
+                        "Vehicle Photo",
+                        "vehicleImage",
+                            () => context
+                            .pushNamed(VehicleImageWidget.routeName),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStepItem(
+                        "RC Book",
+                        "registrationImage",
+                            () => context
+                            .pushNamed(RegistrationImageWidget.routeName),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed:
+                          _isLoading ? null : _handleUpdateDocuments,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: brandPrimary,
+                            foregroundColor: Colors.white,
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            disabledBackgroundColor:
+                            brandPrimary.withOpacity(0.6),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5),
+                          )
+                              : const Text(
+                            "Update Documents",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// Get document upload status text
-  String _getDocumentStatus(dynamic document, bool isOnServer) {
-    if (document != null) {
-      return FFLocalizations.of(context).getVariableText(
-        enText: 'Ready to upload ⬆️',
-        hiText: 'अपलोड के लिए तैयार ⬆️',
-        teText: 'అప్‌లోడ్ చేయడానికి సిద్ధంగా ⬆️',
-      );
-    } else if (isOnServer) {
-      return FFLocalizations.of(context).getVariableText(
-        enText: 'Uploaded ✓',
-        hiText: 'अपलोड किया गया ✓',
-        teText: 'అప్‌లోడ్ చేయబడింది ✓',
-      );
-    } else {
-      return FFLocalizations.of(context).getVariableText(
-        enText: 'Not uploaded',
-        hiText: 'अपलोड नहीं किया गया',
-        teText: 'అప్‌లోడ్ చేయబడలేదు',
-      );
-    }
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey[500],
+        letterSpacing: 1.0,
+      ),
+    );
   }
 
-  /// Helper method to build consistent step items
-  Widget _buildStepItem({
-    required BuildContext context,
-    required String title,
-    String? subtitle,
-    required VoidCallback onTap,
-    bool hasDocument = false,
-    bool isOnServer = false,
-  }) {
-    bool showGreen = isOnServer;
-    bool showOrange = hasDocument && !isOnServer;
+  Widget _buildStepItem(String title, String key, VoidCallback onTap) {
+    // 1. Is New Local File?
+    bool isLocal = _getLocalDoc(key) != null;
+    // 2. Is On Server?
+    bool isServer = _serverDocuments[key] ?? false;
+
+    // Define Visuals
+    Color bgColor = const Color(0xFFF9F9F9);
+    Color borderColor = const Color(0xFFEEEEEE);
+    Color iconColor = Colors.grey.shade400;
+    IconData icon = Icons.upload_file_rounded;
+    String statusText = "Tap to upload";
+    Color textColor = Colors.grey.shade500;
+
+    if (isLocal) {
+      bgColor = const Color(0xFFFFF7ED); // Light Orange
+      borderColor = const Color(0xFFFF7B10).withOpacity(0.5);
+      iconColor = const Color(0xFFFF7B10);
+      icon = Icons.cloud_upload_rounded;
+      statusText = "Ready to Update";
+      textColor = const Color(0xFFFF7B10);
+    } else if (isServer) {
+      bgColor = const Color(0xFFF0FDF4); // Light Green
+      borderColor = const Color(0xFF10B981).withOpacity(0.5);
+      iconColor = const Color(0xFF10B981);
+      icon = Icons.check_circle_rounded;
+      statusText = "Uploaded";
+      textColor = const Color(0xFF10B981);
+    }
 
     return InkWell(
-      splashColor: Colors.transparent,
-      focusColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick(); // ✅ Vibrate on item tap
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        width: double.infinity,
-        padding: EdgeInsetsDirectional.fromSTEB(12.0, 16.0, 12.0, 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: FlutterFlowTheme.of(context).secondaryBackground,
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(
-            color: showOrange
-                ? Colors.orange.withOpacity(0.5)
-                : showGreen
-                ? Colors.green.withOpacity(0.5)
-                : FlutterFlowTheme.of(context).alternate,
-            width: 2.0,
-          ),
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 44.0,
-              height: 44.0,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: showOrange
-                    ? Colors.orange.withOpacity(0.15)
-                    : showGreen
-                    ? Colors.green.withOpacity(0.15)
-                    : FlutterFlowTheme.of(context).alternate.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                showOrange
-                    ? Icons.cloud_upload_rounded
-                    : showGreen
-                    ? Icons.check_circle_rounded
-                    : Icons.upload_file_rounded,
-                color: showOrange
-                    ? Colors.orange
-                    : showGreen
-                    ? Colors.green
-                    : FlutterFlowTheme.of(context).secondaryText,
-                size: 24.0,
-              ),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
-            SizedBox(width: 12.0),
-
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: FlutterFlowTheme.of(context).bodyLarge.override(
-                      font: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      color: FlutterFlowTheme.of(context).primaryText,
-                      fontSize: 16.0,
-                      letterSpacing: 0.0,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
                     ),
                   ),
-                  if (subtitle != null) ...[
-                    SizedBox(height: 4.0),
-                    Text(
-                      subtitle,
-                      style: FlutterFlowTheme.of(context).labelSmall.override(
-                        font: GoogleFonts.inter(),
-                        color: showOrange
-                            ? Colors.orange
-                            : showGreen
-                            ? Colors.green
-                            : FlutterFlowTheme.of(context)
-                            .secondaryText,
-                        fontSize: 13.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
-
-            Icon(
-              Icons.chevron_right_rounded,
-              color: FlutterFlowTheme.of(context).secondaryText,
-              size: 24.0,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
           ],
         ),
       ),

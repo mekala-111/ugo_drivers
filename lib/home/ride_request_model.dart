@@ -1,66 +1,18 @@
-// // lib/models/ride_request_model.dart
+import 'package:flutter/foundation.dart';
 
-// class RideRequest {
-//   final int id;
-//   final int userId;
-//   final int? driverId;
-//   final String status;
-//   final String pickupAddress;
-//   final String dropAddress;
-//   final double? distance;
-//   final double? estimatedFare;
-//   final DateTime? createdAt;
-
-//   RideRequest({
-//     required this.id,
-//     required this.userId,
-//     this.driverId,
-//     required this.status,
-//     required this.pickupAddress,
-//     required this.dropAddress,
-//     this.distance,
-//     this.estimatedFare,
-//     this.createdAt,
-//   });
-
-//   factory RideRequest.fromJson(Map<String, dynamic> json) {
-//     return RideRequest(
-//       id: json['id'],
-//       userId: json['user_id'] ?? 0,
-//       driverId: json['driver_id'],
-//       status: json['ride_status'] ?? 'SEARCHING',
-//       pickupAddress: json['pickup_location_address'] ?? 'Unknown Pickup',
-//       dropAddress: json['drop_location_address'] ?? 'Unknown Dropoff',
-
-//       // 🛡️ SAFELY PARSE NUMBERS (Fixes your crash)
-//       distance: _parseToDouble(json['ride_distance_km']),
-//       estimatedFare: _parseToDouble(json['estimated_fare']),
-
-//       createdAt:
-//           DateTime.tryParse(json['created_at'] ?? json['createdAt'] ?? ''),
-//     );
-//   }
-
-//   // 🔧 HELPER: Handles both "80.00" (String) and 80.00 (Double)
-//   static double? _parseToDouble(dynamic value) {
-//     if (value == null) return null;
-//     if (value is num) return value.toDouble();
-//     if (value is String) return double.tryParse(value);
-//     return null;
-//   }
-// }
-
-// lib/models/ride_request_model.dart
 class RideRequest {
   final int id;
   final int userId;
   final int? driverId;
   final String status;
-
   final String pickupAddress;
   final String dropAddress;
 
-  // 📍 LOCATION
+  // ✅ Added these back so the UI doesn't crash
+  final String? firstName;
+  final String? mobileNumber;
+
+  // 📍 LOCATION (Coordinates)
   final double pickupLat;
   final double pickupLng;
   final double dropLat;
@@ -69,19 +21,6 @@ class RideRequest {
   // 💰 RIDE INFO
   final double? distance;
   final double? estimatedFare;
-
-  // ⏱ TIME
-  final DateTime? createdAt;
-
-  // 🔐 OTP (if already added)
-  final String? otp;
-  final String? otpHash;
-  final DateTime? otpExpiresAt;
-  final int otpAttempts;
-  final DateTime? otpVerifiedAt;
-
-  // ✅ UI-ONLY STATE (NEW)
-  final bool isAtPickup;
 
   RideRequest({
     required this.id,
@@ -96,83 +35,95 @@ class RideRequest {
     required this.dropLng,
     this.distance,
     this.estimatedFare,
-    this.createdAt,
-
-    // OTP
-    this.otp,
-    this.otpHash,
-    this.otpExpiresAt,
-    this.otpAttempts = 0,
-    this.otpVerifiedAt,
-
-    // UI-only
-    this.isAtPickup = false, // ✅ DEFAULT
+    this.firstName,
+    this.mobileNumber,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
     return RideRequest(
-      id: json['id'],
+      id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       driverId: json['driver_id'],
       status: json['ride_status'] ?? 'SEARCHING',
 
-      pickupAddress: json['pickup_location_address'] ?? 'Unknown Pickup',
-      dropAddress: json['drop_location_address'] ?? 'Unknown Dropoff',
+      // ✅ Name Handling: Checks 'user' object OR root level
+      firstName: json['user'] != null
+          ? json['user']['first_name']
+          : (json['first_name'] ?? 'Passenger'),
 
-      pickupLat: _parseToDouble(json['pickup_latitude']) ?? 0.0,
-      pickupLng: _parseToDouble(json['pickup_longitude']) ?? 0.0,
-      dropLat: _parseToDouble(json['drop_latitude']) ?? 0.0,
-      dropLng: _parseToDouble(json['drop_longitude']) ?? 0.0,
+      mobileNumber: json['user'] != null
+          ? json['user']['mobile_number']
+          : json['mobile_number'],
+
+      pickupAddress: json['pickup_location_address'] ?? json['pickup_address'] ?? 'Unknown Pickup',
+      dropAddress: json['drop_location_address'] ?? json['drop_address'] ?? 'Unknown Dropoff',
+
+      // 🛡️ ROBUST COORDINATE PARSING (Checks ALL possible keys)
+      // This ensures we never get 0.0 if the backend sends data
+      pickupLat: _parseToDouble(json['pickup_location_latitude']) ??
+          _parseToDouble(json['pickup_latitude']) ??
+          0.0,
+
+      pickupLng: _parseToDouble(json['pickup_location_longitude']) ??
+          _parseToDouble(json['pickup_longitude']) ??
+          0.0,
+
+      dropLat: _parseToDouble(json['drop_location_latitude']) ??
+          _parseToDouble(json['drop_latitude']) ??
+          0.0,
+
+      dropLng: _parseToDouble(json['drop_location_longitude']) ??
+          _parseToDouble(json['drop_longitude']) ??
+          0.0,
 
       distance: _parseToDouble(json['ride_distance_km']),
       estimatedFare: _parseToDouble(json['estimated_fare']),
-      createdAt: DateTime.tryParse(json['created_at'] ?? ''),
-
-      // OTP
-      otp: json['otp']?.toString(),
-      otpHash: json['otp_hash']?.toString(),
-      otpExpiresAt: DateTime.tryParse(json['otp_expires_at'] ?? ''),
-      otpAttempts: json['otp_attempts'] ?? 0,
-      otpVerifiedAt: DateTime.tryParse(json['otp_verified_at'] ?? ''),
-
-      // ⚠️ NOT from backend
-      isAtPickup: false,
     );
   }
 
-  // 🛡 SAFE PARSER
+  // ✅ The CopyWith Method (Required for Status Updates)
+  RideRequest copyWith({
+    int? id,
+    int? userId,
+    int? driverId,
+    String? status,
+    String? pickupAddress,
+    String? dropAddress,
+    String? firstName,
+    String? mobileNumber,
+    double? pickupLat,
+    double? pickupLng,
+    double? dropLat,
+    double? dropLng,
+    double? distance,
+    double? estimatedFare,
+  }) {
+    return RideRequest(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      driverId: driverId ?? this.driverId,
+      status: status ?? this.status,
+      pickupAddress: pickupAddress ?? this.pickupAddress,
+      dropAddress: dropAddress ?? this.dropAddress,
+      firstName: firstName ?? this.firstName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      pickupLat: pickupLat ?? this.pickupLat,
+      pickupLng: pickupLng ?? this.pickupLng,
+      dropLat: dropLat ?? this.dropLat,
+      dropLng: dropLng ?? this.dropLng,
+      distance: distance ?? this.distance,
+      estimatedFare: estimatedFare ?? this.estimatedFare,
+    );
+  }
+
+  // 🔧 Helper to handle String ("17.44") or Double (17.44) safely
   static double? _parseToDouble(dynamic value) {
     if (value == null) return null;
     if (value is num) return value.toDouble();
-    if (value is String) return double.tryParse(value);
+    if (value is String) {
+      if (value.isEmpty || value == "null") return null;
+      return double.tryParse(value);
+    }
     return null;
-  }
-
-  // ✅ STRONGLY RECOMMENDED (for updates)
-  RideRequest copyWith({
-    String? status,
-    bool? isAtPickup,
-  }) {
-    return RideRequest(
-      id: id,
-      userId: userId,
-      driverId: driverId,
-      status: status ?? this.status,
-      pickupAddress: pickupAddress,
-      dropAddress: dropAddress,
-      pickupLat: pickupLat,
-      pickupLng: pickupLng,
-      dropLat: dropLat,
-      dropLng: dropLng,
-      distance: distance,
-      estimatedFare: estimatedFare,
-      createdAt: createdAt,
-      otp: otp,
-      otpHash: otpHash,
-      otpExpiresAt: otpExpiresAt,
-      otpAttempts: otpAttempts,
-      otpVerifiedAt: otpVerifiedAt,
-      isAtPickup: isAtPickup ?? this.isAtPickup,
-    );
   }
 }

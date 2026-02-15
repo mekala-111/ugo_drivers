@@ -2,7 +2,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'vehicle_image_model.dart';
 export 'vehicle_image_model.dart';
 

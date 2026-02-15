@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
+import 'package:ugo_driver/home/ride_request_model.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:async';
 
@@ -14,7 +15,6 @@ import '../components/complete_ride_overlay.dart';
 import '../components/review_screen.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
-import 'home_model.dart';
 
 class RideRequestOverlay extends StatefulWidget {
   const RideRequestOverlay({Key? key}) : super(key: key);
@@ -334,7 +334,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             ride: ride,
             onSwipe: () => _completeRide(
               rideId: ride.id,
-              userId: ride.userId ?? 0,
+              userId: ride.userId,
             ),
           ),
         );

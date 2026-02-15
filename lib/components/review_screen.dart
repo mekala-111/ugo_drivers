@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home/home_model.dart';
+import '../home/ride_request_model.dart';
 
 class ReviewScreen extends StatefulWidget {
   final RideRequest ride;

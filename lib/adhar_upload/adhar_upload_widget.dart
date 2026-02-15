@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'dart:convert';
-import 'dart:typed_data';
 import 'adhar_upload_model.dart';
 export 'adhar_upload_model.dart';
 

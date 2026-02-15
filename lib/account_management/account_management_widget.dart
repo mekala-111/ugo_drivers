@@ -1,8 +1,8 @@
-import 'package:ugo_driver/account_support/refer_friend.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Added for consistent fonts
 import 'account_management_model.dart';
 export 'account_management_model.dart';
 
@@ -42,7 +42,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.1),
+      begin: const Offset(0, 0.1),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
@@ -68,15 +68,15 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
           title: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.red[50],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.logout_rounded, color: Colors.red[700], size: 24),
               ),
-              SizedBox(width: 12),
-              Text(
+              const SizedBox(width: 12),
+              const Text(
                 'Logout',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
@@ -99,9 +99,9 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[500],
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: Text(
+              child: const Text(
                 'Logout',
                 style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
               ),
@@ -121,7 +121,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         LoginWidget.routeName,
         context.mounted,
         extra: <String, dynamic>{
-          kTransitionInfoKey: TransitionInfo(
+          kTransitionInfoKey: const TransitionInfo(
             hasTransition: true,
             transitionType: PageTransitionType.fade,
           ),
@@ -132,6 +132,11 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 APP COLORS
+    const Color brandPrimary = Color(0xFFFF7B10);
+    const Color brandGradientStart = Color(0xFFFF8E32);
+    const Color bgOffWhite = Color(0xFFF5F7FA);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -139,169 +144,128 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF5F7FA),
-        appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFFF6B00), Color(0xFFFF8C00), Color(0xFFFFA726)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-          ),
-          automaticallyImplyLeading: false,
-          leading: Container(
-            margin: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: FlutterFlowIconButton(
-              borderColor: Colors.transparent,
-              borderRadius: 12.0,
-              buttonSize: 50.0,
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: Colors.white,
-                size: 24.0,
-              ),
-              onPressed: () => context.pop(),
-            ),
-          ),
-          title: Text(
-            FFLocalizations.of(context).getText('87zx8uve' /* Account */),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-          centerTitle: true,
-          elevation: 0,
-        ),
-        body: FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  SizedBox(height: 24),
-
-                  // Header Section
-                  _buildHeaderSection(),
-
-                  SizedBox(height: 24),
-
-                  // Menu Items
-                  _buildMenuItems(),
-
-                  SizedBox(height: 32),
-
-                  // Logout Button
-                  _buildLogoutButton(),
-
-                  SizedBox(height: 40),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderSection() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFF6B00), Color(0xFFFF8C00)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFFFF8C00).withOpacity(0.3),
-            blurRadius: 15,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.manage_accounts_rounded,
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: bgOffWhite,
+        body: Stack(
+          children: [
+            // 1️⃣ Header Background
+            Column(
               children: [
-                Text(
-                  'Account Management',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                Container(
+                  height: 260,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [brandGradientStart, brandPrimary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () => context.pop(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                FFLocalizations.of(context).getText('87zx8uve' /* Account */),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          const SizedBox(height: 4),
+                          Center(
+                            child: const Text(
+                              "Manage your Preferences.",
+                              style: TextStyle(
+                                fontSize: 28,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          const SizedBox(height: 60), // Space for card overlap
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  'Manage your profile & settings',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Expanded(child: Container()),
               ],
             ),
-          ),
-        ],
+
+            // 2️⃣ Content Layer
+            Positioned.fill(
+              top: 200, // Overlap the header
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        // Menu Card
+                        _buildMenuCard(),
+
+                        const SizedBox(height: 24),
+
+                        // Logout Button
+                        _buildLogoutButton(),
+
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMenuItems() {
+  Widget _buildMenuCard() {
     final menuItems = [
       {
         'icon': Icons.message_rounded,
         'title': FFLocalizations.of(context).getText('uwwd4cw4' /* Inbox */),
         'subtitle': 'View messages',
-        'color': Color(0xFF6366F1),
+        'color': const Color(0xFF6366F1),
         'onTap': () => context.pushNamed(InboxPageWidget.routeName),
       },
-      // {
-      //   'icon': Icons.group_add_rounded,
-      //   'title': FFLocalizations.of(context).getText('mc9wnk6s' /* Refer Friend */),
-      //   'subtitle': 'Earn rewards',
-      //   'color': Color(0xFFEC4899),
-      //   'onTap': () => Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => ReferFriendWidget()),
-      //   ),
-      // },
       {
         'icon': Icons.account_balance_wallet_rounded,
         'title': FFLocalizations.of(context).getText('u3u05cev' /* Wallet */),
         'subtitle': 'Check balance',
-        'color': Color(0xFF10B981),
+        'color': const Color(0xFF10B981),
         'onTap': () => context.pushNamed(WalletWidget.routeName),
       },
       {
@@ -312,42 +276,27 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
           teText: 'ప్రొఫైల్',
         ),
         'subtitle': 'Edit your info',
-        'color': Color(0xFFF59E0B),
+        'color': const Color(0xFFF59E0B),
         'onTap': () => context.pushNamed(AccountSupportWidget.routeName),
       },
-      // {
-      //   'icon': Icons.help_rounded,
-      //   'title': FFLocalizations.of(context).getText('gw6i4s9e' /* Help */),
-      //   'subtitle': 'Get support',
-      //   'color': Color(0xFF8B5CF6),
-      //   'onTap': () {},
-      // },
-      // {
-      //   'icon': Icons.shield_rounded,
-      //   'title': FFLocalizations.of(context).getText('yvr6aj95' /* Privacy Policy */),
-      //   'subtitle': 'Your data protection',
-      //   'color': Color(0xFF06B6D4),
-      //   'onTap': () => context.pushNamed(PrivacypolicyWidget.routeName),
-      // },
       {
         'icon': Icons.description_rounded,
         'title': FFLocalizations.of(context).getText('utfxvwam' /* Terms & Conditions */),
         'subtitle': 'Legal information',
-        'color': Color(0xFF64748B),
+        'color': const Color(0xFF64748B),
         'onTap': () {},
       },
     ];
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -361,17 +310,17 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
               InkWell(
                 onTap: item['onTap'] as VoidCallback,
                 borderRadius: BorderRadius.vertical(
-                  top: index == 0 ? Radius.circular(20) : Radius.zero,
-                  bottom: isLast ? Radius.circular(20) : Radius.zero,
+                  top: index == 0 ? const Radius.circular(24) : Radius.zero,
+                  bottom: isLast ? const Radius.circular(24) : Radius.zero,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: (item['color'] as Color).withOpacity(0.15),
+                          color: (item['color'] as Color).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
@@ -380,25 +329,25 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                           size: 24,
                         ),
                       ),
-                      SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               item['title'] as String,
-                              style: TextStyle(
-                                fontSize: 15,
+                              style: const TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1E293B),
                               ),
                             ),
-                            SizedBox(height: 3),
+                            const SizedBox(height: 4),
                             Text(
                               item['subtitle'] as String,
                               style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
+                                fontSize: 13,
+                                color: Colors.grey[500],
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -418,8 +367,8 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                 Divider(
                   height: 1,
                   thickness: 1,
-                  indent: 70,
-                  color: Colors.grey[200],
+                  indent: 76,
+                  color: Colors.grey[100],
                 ),
             ],
           );
@@ -430,57 +379,30 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
 
   Widget _buildLogoutButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      height: 56,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: const Color(0xFFFEF2F2), // Light Red Background
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFFEF4444).withOpacity(0.4),
-            blurRadius: 15,
-            offset: Offset(0, 8),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFFEE2E2)),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: _handleLogout,
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 18),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.logout_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  FFLocalizations.of(context).getText('p0413re4' /* Logout */),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: _handleLogout,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
+            const SizedBox(width: 12),
+            Text(
+              FFLocalizations.of(context).getText('p0413re4' /* Logout */),
+              style: const TextStyle(
+                color: Color(0xFFEF4444),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

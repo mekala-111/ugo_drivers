@@ -49,6 +49,8 @@ class LoginCall {
       );
 }
 
+
+
 class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
@@ -192,6 +194,29 @@ class CreateDriverCall {
         response,
         r'''$.message''',
       ));
+}
+
+class DeleteDriverCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int id,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'deleteDriver',
+      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/$id',
+      callType: ApiCallType.DELETE,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
 }
 
 class CompleteRideCall {

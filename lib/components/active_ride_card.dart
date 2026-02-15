@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // ✅ Required for maps
-import '../home/home_model.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../home/ride_request_model.dart'; // Ensure this points to the file with the CORRECT RideRequest model
 
-// --- Wrapper Widget (Copy this to use in your screen) ---
+// --- Wrapper Widget ---
 class RidePickupOverlay extends StatelessWidget {
   final RideRequest ride;
   final String formattedWaitTime;
@@ -15,25 +15,29 @@ class RidePickupOverlay extends StatelessWidget {
     required this.onSwipe,
   }) : super(key: key);
 
-  // ✅ Helper to launch Google Maps
+  // ✅ FIXED: Robust Map Launcher
   Future<void> _launchMap(double? lat, double? lng) async {
-    if (lat == null || lng == null) {
-      debugPrint("❌ Coordinates are null");
+    // 1. Check for Null OR Zero coordinates
+    if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
+      debugPrint("❌ Error: Invalid Coordinates ($lat, $lng)");
       return;
     }
 
-    // Google Navigation Intent
-    final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
-    final Uri fallbackUrl = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$lat,$lng");
+    // 2. Universal Google Maps URL (Works on Android & iOS)
+    // api=1 ensures it triggers the navigation intent correctly
+    final Uri googleMapsUrl = Uri.parse(
+        "https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving"
+    );
 
     try {
+      // 3. Try launching external application (Maps App)
       if (await canLaunchUrl(googleMapsUrl)) {
-        await launchUrl(googleMapsUrl);
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       } else {
-        await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
+        debugPrint("❌ Could not launch maps url");
       }
     } catch (e) {
-      debugPrint("❌ Could not launch map: $e");
+      debugPrint("❌ Map Launch Error: $e");
     }
   }
 
@@ -49,9 +53,10 @@ class RidePickupOverlay extends StatelessWidget {
             // Floating "Pickup" Navigation Button
             Padding(
               padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
-              child: InkWell( // ✅ Added Click Handler
+              child: InkWell(
                 onTap: () {
-                  print("📍 Navigating to Pickup: ${ride.pickupLat}, ${ride.pickupLng}");
+                  // ✅ Uses the FIXED map launcher
+                  print("📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}");
                   _launchMap(ride.pickupLat, ride.pickupLng);
                 },
                 child: Container(
@@ -67,12 +72,12 @@ class RidePickupOverlay extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(Icons.navigation, color: Colors.black, size: 20),
+                      Icon(Icons.navigation, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        "Pickup",
+                        "PICK UP",
                         style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -108,26 +113,22 @@ class ActiveRideCard extends StatelessWidget {
     required this.onSwipe,
   }) : super(key: key);
 
-  // --- Colors ---
   static const Color ugoOrange = Color(0xFFFF7B10);
   static const Color ugoGreen = Color(0xFF4CAF50);
   static const Color ugoRed = Color(0xFFE53935);
 
   @override
   Widget build(BuildContext context) {
-    // Status Logic
     String status = ride.status.toLowerCase();
     bool isArrived = status == 'arrived';
     bool isStarted = status == 'started';
 
-    // Default to "Going to Pickup" state (as per screenshot)
     String headerText = "GO TO PICKUP";
     Color headerColor = ugoGreen;
     String btnText = "ARRIVED";
     Color btnColor = ugoGreen;
-    bool showPickupBox = true; // Shows Pickup box vs Drop box
+    bool showPickupBox = true;
 
-    // Adjust if status changes
     if (isArrived) {
       headerText = "Waiting Time : $formattedWaitTime";
       btnText = "START RIDE";
@@ -153,7 +154,7 @@ class ActiveRideCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Green Header Bar
+          // Header Bar
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -179,7 +180,6 @@ class ActiveRideCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Column(
               children: [
-                // Top Row: Name & Action Buttons
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -188,7 +188,8 @@ class ActiveRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${ride.first_name ?? 'Passenger'}", // ✅ Uses correct field
+                            // ✅ Fix: use firstName property from the FIXED model
+                            "${ride.firstName ?? 'Passenger'}",
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class ActiveRideCard extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Location Type Box (Pickup/Drop)
+                              // Icon Box
                               Container(
                                 width: 50,
                                 height: 50,
@@ -242,18 +243,18 @@ class ActiveRideCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // Side Buttons (Call / Close)
                     Column(
                       children: [
-                        _buildSquareIconBtn(Icons.call, Colors.green),
+                        _buildSquareIconBtn(Icons.call, Colors.green, () {
+                          // Add call logic here if needed
+                        }),
                         const SizedBox(height: 16),
-                        _buildSquareIconBtn(Icons.close, ugoRed),
+                        _buildSquareIconBtn(Icons.close, ugoRed, () {}),
                       ],
                     )
                   ],
                 ),
                 const SizedBox(height: 24),
-
                 // Swipe Button
                 SlideToAction(
                     text: btnText,
@@ -268,18 +269,23 @@ class ActiveRideCard extends StatelessWidget {
     );
   }
 
+  // ✅ FIXED: Better Pincode Regex & String Parsing
   Widget _buildRichAddress(String rawAddress) {
     String pincode = "";
     String locality = "";
     String rest = rawAddress;
 
-    final pinMatch = RegExp(r'\b\d{6}\b').firstMatch(rawAddress);
+    // 1. Matches 6 digits (e.g. 500081) OR 6 digits with space (e.g. 500 081)
+    final pinMatch = RegExp(r'\b\d{3}\s?\d{3}\b').firstMatch(rawAddress);
+
     if (pinMatch != null) {
       pincode = pinMatch.group(0)!;
+      // Remove pincode from address
       rest = rawAddress.replaceAll(pincode, '').trim();
-      if (rest.startsWith(',')) rest = rest.substring(1).trim();
-      if (rest.endsWith(',')) rest = rest.substring(0, rest.length - 1).trim();
     }
+
+    // 2. Clean up dangling commas
+    rest = rest.replaceAll(RegExp(r'^,+|,+$'), '').trim();
 
     List<String> parts = rest.split(',');
     if (parts.isNotEmpty) {
@@ -291,11 +297,20 @@ class ActiveRideCard extends StatelessWidget {
       }
     }
 
+    // 3. Fallback: If locality is empty, use raw text
+    if (locality.isEmpty && rest.isEmpty) {
+      rest = rawAddress;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Only show Pincode row if we found one
         if (pincode.isNotEmpty)
-          Text(pincode, style: const TextStyle(color: ugoOrange, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(
+              pincode,
+              style: const TextStyle(color: ugoOrange, fontWeight: FontWeight.bold, fontSize: 15)
+          ),
         const SizedBox(height: 2),
         RichText(
           maxLines: 2,
@@ -303,7 +318,7 @@ class ActiveRideCard extends StatelessWidget {
           text: TextSpan(
             style: const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
             children: [
-              TextSpan(text: "$locality, ", style: const TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: "$locality${locality.isNotEmpty ? ', ' : ''}", style: const TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: rest, style: TextStyle(color: Colors.grey[600])),
             ],
           ),
@@ -312,20 +327,23 @@ class ActiveRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(IconData icon, Color color) {
-    return Container(
-      width: 45,
-      height: 45,
-      decoration: BoxDecoration(
-          color: Colors.grey[200], // Match screenshot grey bg
-          borderRadius: BorderRadius.circular(8)
+  Widget _buildSquareIconBtn(IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 45,
+        height: 45,
+        decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8)
+        ),
+        child: Icon(icon, color: color, size: 28),
       ),
-      child: Icon(icon, color: color, size: 28),
     );
   }
 }
 
-// --- Custom Swipe Button ---
+// --- Custom Swipe Button (Unchanged) ---
 class SlideToAction extends StatefulWidget {
   final String text;
   final Color outerColor;

@@ -8,7 +8,6 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'registration_image_model.dart';

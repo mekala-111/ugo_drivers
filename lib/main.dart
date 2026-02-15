@@ -12,6 +12,10 @@ import 'flutter_flow/internationalization.dart';
 import 'flutter_flow/firebase_app_check_util.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+// ✅ IMPORT API MANAGER & LOGIN
+import '/backend/api_requests/api_manager.dart';
+import '/login/login_widget.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoRouter.optionURLReflectsImperativeAPIs = true;
@@ -21,9 +25,7 @@ void main() async {
 
   await FlutterFlowTheme.initialize();
 
-
-  final appState = FFAppState(); // Initialize FFAppState
-  // ✅ PRINT HERE (AFTER restore)
+  final appState = FFAppState();
   print('MAIN → driverId: ${appState.driverid}');
   print('MAIN → accessToken: ${appState.accessToken}');
   await appState.initializePersistedState();
@@ -31,15 +33,12 @@ void main() async {
   await initializeFirebaseAppCheck();
 
   runApp(ChangeNotifierProvider.value(
-    // create: (context) => appState,
-     value: appState,
+    value: appState,
     child: MyApp(),
-    
   ));
 }
 
 class MyApp extends StatefulWidget {
-  // This widget is the root of your application.
   @override
   State<MyApp> createState() => _MyAppState();
 
@@ -49,11 +48,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
-
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
+
+  // ✅ GLOBAL MESSENGER KEY FOR SNACKBARS
+  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
         routeMatch ?? _router.routerDelegate.currentConfiguration.last;
@@ -82,8 +84,37 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     jwtTokenStream.listen((_) {});
     Future.delayed(
       Duration(milliseconds: 1000),
-      () => _appStateNotifier.stopShowingSplashImage(),
+          () => _appStateNotifier.stopShowingSplashImage(),
     );
+
+    // ✅ REGISTER GLOBAL LOGOUT LISTENER
+    ApiManager.onUnauthenticated = () {
+      if (FFAppState().isLoggedIn) {
+        print("⚠️ Session Expired - Logging out user...");
+
+        // 1. Clear Local State
+        FFAppState().update(() {
+          FFAppState().accessToken = '';
+          FFAppState().isLoggedIn = false;
+          // You might keep isRegistered true to avoid full re-registration flow if they login again
+        });
+
+        // 2. Redirect to Login
+        _router.goNamed(LoginWidget.routeName);
+
+        // 3. Show Alert
+        rootScaffoldMessengerKey.currentState?.showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Session expired. You have been logged in on another device.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    };
   }
 
   void setLocale(String language) {
@@ -91,29 +122,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
-        _themeMode = mode;
-        FlutterFlowTheme.saveThemeMode(mode);
-      });
+    _themeMode = mode;
+    FlutterFlowTheme.saveThemeMode(mode);
+  });
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // 🔒 App in foreground
       WakelockPlus.enable();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
-      // 🔓 App in background
       WakelockPlus.disable();
     }
   }
-@override
+
+  @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey, // ✅ Attach Global Key
       debugShowCheckedModeBanner: false,
       title: 'UGO-DRIVER',
       localizationsDelegates: [
@@ -134,10 +167,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         brightness: Brightness.light,
         useMaterial3: false,
       ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: false,
-      ),
+      // darkTheme: ThemeData(
+      //   brightness: Brightness.dark,
+      //   useMaterial3: false,
+      // ),
       themeMode: _themeMode,
       routerConfig: _router,
     );

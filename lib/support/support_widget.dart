@@ -4,10 +4,11 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // ✅ Added for WhatsApp Icon
 import 'support_model.dart';
 export 'support_model.dart';
 
-/// Support Topics List
 class SupportWidget extends StatefulWidget {
   const SupportWidget({super.key});
 
@@ -20,7 +21,6 @@ class SupportWidget extends StatefulWidget {
 
 class _SupportWidgetState extends State<SupportWidget> {
   late SupportModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -32,615 +32,240 @@ class _SupportWidgetState extends State<SupportWidget> {
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  Future<void> _launchUrl(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      print("Could not launch $url");
+    }
+  }
+
+  Future<void> _launchWhatsApp(String phone) async {
+    // Remove '+' and spaces for WhatsApp URL
+    final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+    final url = "https://wa.me/$cleanPhone";
+    _launchUrl(url);
   }
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 App Colors
+    const Color brandPrimary = Color(0xFFFF7B10); // UGO Orange
+    const Color bgWhite = Colors.white;
+    const Color textDark = Color(0xFF1E293B);
+    const Color textGrey = Color(0xFF64748B);
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        backgroundColor: bgWhite,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
+          backgroundColor: brandPrimary,
           automaticallyImplyLeading: false,
           leading: FlutterFlowIconButton(
             borderColor: Colors.transparent,
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
-              size: 30.0,
+              size: 28.0,
             ),
-            onPressed: () async {
-              context.pop();
-            },
+            onPressed: () => context.pop(),
           ),
           title: Text(
-            FFLocalizations.of(context).getText(
-              '0bntvzxa' /* Support */,
+            "Support Center",
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20.0,
             ),
-            style: FlutterFlowTheme.of(context).titleMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.w500,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                  ),
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                  fontSize: 16.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                ),
           ),
-          actions: [],
           centerTitle: true,
-          elevation: 2.0,
+          elevation: 0.0,
         ),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
           child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 0.0),
-                child: Text(
-                  FFLocalizations.of(context).getText(
-                    'ilu9a857' /* All topics */,
+
+              // 🎧 Hero Icon
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: brandPrimary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.headset_mic_rounded,
+                    size: 50,
+                    color: brandPrimary,
                   ),
-                  style: FlutterFlowTheme.of(context).titleLarge.override(
-                        font: GoogleFonts.interTight(
-                          fontWeight: FontWeight.w500,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                        ),
-                        color: Colors.black,
-                        fontSize: 16.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w500,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                      ),
                 ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(SupportRideWidget.routeName);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            24.0, 16.0, 24.0, 16.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(SupportRideWidget.routeName);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Icon(
-                                    Icons.menu,
-                                    color: Colors.black,
-                                    size: 25.0,
-                                  ),
-                                  Text(
-                                    FFLocalizations.of(context).getText(
-                                      'l5axm4k6' /* Help with a trip */,
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight: FontWeight.normal,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          color: Colors.black,
-                                          fontSize: 14.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.normal,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                  ),
-                                ].divide(SizedBox(width: 12.0)),
-                              ),
-                              Icon(
-                                Icons.chevron_right,
-                                size: 20.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      context.pushNamed(AccountSupportWidget.routeName);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            24.0, 16.0, 24.0, 16.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(AccountSupportWidget.routeName);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Icon(
-                                    Icons.menu,
-                                    color: Colors.black,
-                                    size: 25.0,
-                                  ),
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      context.pushNamed(
-                                          AccountSupportWidget.routeName);
-                                    },
-                                    child: Text(
-                                      FFLocalizations.of(context).getText(
-                                        '1x4bvc77' /* Account */,
-                                      ),
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight: FontWeight.normal,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: Colors.black,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.normal,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 12.0)),
-                              ),
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(
-                                      AccountSupportWidget.routeName);
-                                },
-                                child: Icon(
-                                  Icons.chevron_right,
-                                  size: 20.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                color: Colors.black,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'eg87aj55' /* Membership */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: Colors.black,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                color: Colors.black,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'mltafgrv' /* Accessibility */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: Colors.black,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                color: Colors.black,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'ai29673v' /* grievance redressal */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: Colors.black,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'wugnnj8h' /* Guides */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'sftkxprc' /* Cancellation policy */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                          24.0, 16.0, 24.0, 16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.menu,
-                                size: 25.0,
-                              ),
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  '1khvfk0r' /* Map issue */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.normal,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 20.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1.0,
-                    thickness: 1.0,
-                    color: Color(0xFFCCCCCC),
-                  ),
-                ],
+
+              const SizedBox(height: 24),
+
+              // 📢 Hero Text
+              Text(
+                "We are here to help!",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.interTight(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: textDark,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Text(
+                "24/7 Customer support will be available soon.\nPlease contact the company directly for any queries or details.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: textGrey,
+                  height: 1.5,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // 📞 Contact Cards
+              _buildContactCard(
+                icon: Icons.call_rounded,
+                iconColor: Colors.blue,
+                bgColor: Colors.blue.shade50,
+                title: "Call Us",
+                subtitle: "+91 9100088718",
+                onTap: () => _launchUrl("tel:+919100088718"),
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildContactCard(
+                icon: FontAwesomeIcons.whatsapp,
+                iconColor: Colors.green,
+                bgColor: Colors.green.shade50,
+                title: "WhatsApp Us",
+                subtitle: "Chat with support",
+                onTap: () => _launchWhatsApp("919100088718"),
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildContactCard(
+                icon: Icons.email_rounded,
+                iconColor: Colors.red,
+                bgColor: Colors.red.shade50,
+                title: "Email Us",
+                subtitle: "ugocabservice@gmail.com",
+                onTap: () => _launchUrl("mailto:ugocabservice@gmail.com"),
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildContactCard(
+                icon: Icons.language_rounded,
+                iconColor: Colors.purple,
+                bgColor: Colors.purple.shade50,
+                title: "Visit Website",
+                subtitle: "ugotaxi.com",
+                onTap: () => _launchUrl("https://ugotaxi.com"),
+              ),
+
+              const SizedBox(height: 50),
+
+              // Footer
+              Text(
+                "UGO Taxi Services",
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: Colors.grey.shade400,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactCard({
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: bgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: const Color(0xFF64748B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+          ],
         ),
       ),
     );

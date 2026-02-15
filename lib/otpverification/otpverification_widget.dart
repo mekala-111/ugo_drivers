@@ -1,3 +1,4 @@
+import 'dart:async'; // ✅ Required for Timer
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
@@ -28,25 +29,56 @@ class OtpverificationWidget extends StatefulWidget {
 
 class _OtpverificationWidgetState extends State<OtpverificationWidget> {
   late OtpverificationModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // ✅ Loading State
+  bool _isLoading = false;
+
+  // ✅ Timer State
+  Timer? _resendTimer;
+  int _timerSeconds = 30; // 30 Second Cool-down
+  bool _canResend = false;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => OtpverificationModel());
-
     _model.pinCodeFocusNode ??= FocusNode();
+
+    // Start the timer immediately when screen loads
+    _startResendTimer();
   }
 
   @override
   void dispose() {
     _model.dispose();
-
+    _resendTimer?.cancel(); // ✅ Cancel timer on exit
     super.dispose();
   }
 
-  // ✅ Helper to safely get FCM Token - PREVENTS CRASH
+  // ✅ Start Countdown Timer
+  void _startResendTimer() {
+    setState(() {
+      _timerSeconds = 30;
+      _canResend = false;
+    });
+
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timerSeconds > 0) {
+        setState(() {
+          _timerSeconds--;
+        });
+      } else {
+        setState(() {
+          _canResend = true;
+        });
+        timer.cancel();
+      }
+    });
+  }
+
+  // ✅ Helper to safely get FCM Token
   Future<String> _getSafeFcmToken() async {
     try {
       String? token = await FirebaseMessaging.instance.getToken();
@@ -59,6 +91,11 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 DRIVER APP COLORS
+    const Color brandPrimary = Color(0xFFFF7B10);
+    const Color brandGradientStart = Color(0xFFFF8E32);
+    const Color bgOffWhite = Color(0xFFF5F7FA);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -66,255 +103,342 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFFF7B10), // Consistent Orange
-          automaticallyImplyLeading: false,
-          title: Text(
-            FFLocalizations.of(context).getText(
-              'duko62qy' /* Verification */,
-            ),
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.w600,
+        backgroundColor: bgOffWhite,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // ==========================================
+              // 1️⃣ VIBRANT HEADER
+              // ==========================================
+              Container(
+                height: 280,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [brandGradientStart, brandPrimary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  color: Colors.white,
-                  fontSize: 22.0,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    )
+                  ],
                 ),
-          ),
-          centerTitle: true,
-          elevation: 2.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    FFLocalizations.of(context).getText(
-                      'ujhimmtb' /* Enter the OTP to continue. */,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: FlutterFlowTheme.of(context).headlineMedium.override(
-                          font: GoogleFonts.interTight(
-                            fontWeight: FontWeight.w600,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        const Spacer(),
+                        Center(
+                          child: const Text(
+                            "Verification",
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          color: Colors.black,
-                          fontSize: 24.0,
                         ),
-                  ),
-                  Text(
-                    FFLocalizations.of(context).getText(
-                      'xupvugn4' /* We've sent you a 6-digit code ... */,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(),
-                          color: Colors.black,
-                          fontSize: 16.0,
-                        ),
-                  ),
-                  PinCodeTextField(
-                    autoDisposeControllers: false,
-                    appContext: context,
-                    length: 6,
-                    textStyle: FlutterFlowTheme.of(context).bodyLarge.override(
-                          font: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                        ),
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    enableActiveFill: false,
-                    autoFocus: true,
-                    focusNode: _model.pinCodeFocusNode,
-                    enablePinAutofill: true, // Enabled for better UX
-                    errorTextSpace: 16.0,
-                    showCursor: true,
-                    cursorColor: const Color(0xFFFF7B10),
-                    obscureText: false,
-                    hintCharacter: '●',
-                    keyboardType: TextInputType.number,
-                    pinTheme: PinTheme(
-                      fieldHeight: 44.0,
-                      fieldWidth: 44.0,
-                      borderWidth: 2.0,
-                      borderRadius: BorderRadius.circular(12.0),
-                      shape: PinCodeFieldShape.box,
-                      activeColor: const Color(0xFFFF7B10),
-                      inactiveColor: FlutterFlowTheme.of(context).alternate,
-                      selectedColor: const Color(0xFFFF7B10),
-                    ),
-                    controller: _model.pinCodeController,
-                    onChanged: (_) {},
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter OTP';
-                      }
-                      if (value.length < 6) {
-                        return 'Enter 6 digits';
-                      }
-                      return null;
-                    },
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Align(
-                        alignment: AlignmentDirectional(0.0, 0.0),
-                        child: FFButtonWidget(
-                          onPressed: () {
-                            print('Resend OTP pressed ...');
-                            // Implement Resend Logic Here
-                          },
-                          text: FFLocalizations.of(context).getText(
-                            'f9214evl' /* RESEND OTP */,
+                        const SizedBox(height: 8),
+                        Center(
+                          child: const Text(
+                            "Enter the code we sent you.",
+                            style: TextStyle(
+                              fontSize: 26,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 1.1,
+                            ),
                           ),
-                          options: FFButtonOptions(
-                            height: 40.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                16.0, 0.0, 16.0, 0.0),
-                            color: Colors.transparent,
-                            textStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
+                        ),
+                        const SizedBox(height: 60),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // ==========================================
+              // 2️⃣ FLOATING CARD
+              // ==========================================
+              Transform.translate(
+                offset: const Offset(0, -40),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Enter the 6-digit OTP sent to\n+91 ${widget.mobile}",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+
+                          // 🔢 PIN CODE FIELD
+                          PinCodeTextField(
+                            appContext: context,
+                            length: 6,
+                            textStyle: GoogleFonts.inter(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            enableActiveFill: true,
+                            autoFocus: true,
+                            enablePinAutofill: true,
+                            errorTextSpace: 16,
+                            showCursor: true,
+                            cursorColor: brandPrimary,
+                            obscureText: false,
+                            keyboardType: TextInputType.number,
+                            pinTheme: PinTheme(
+                              shape: PinCodeFieldShape.box,
+                              borderRadius: BorderRadius.circular(12),
+                              fieldHeight: 50,
+                              fieldWidth: 45,
+                              borderWidth: 1.5,
+                              activeColor: brandPrimary,
+                              inactiveColor: Colors.grey[200]!,
+                              selectedColor: brandPrimary,
+                              activeFillColor: Colors.white,
+                              selectedFillColor: const Color(0xFFFFF3E0),
+                              inactiveFillColor: const Color(0xFFFAFAFA),
+                            ),
+                            controller: _model.pinCodeController,
+                            onChanged: (_) {},
+                            onCompleted: (_) => _handleVerify(),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // 🚀 VERIFY BUTTON
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleVerify,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: brandPrimary,
+                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                disabledBackgroundColor: brandPrimary.withOpacity(0.6),
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                                  : Text(
+                                "Verify & Continue",
+                                style: GoogleFonts.interTight(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // 🔄 RESEND OTP WITH TIMER
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Didn't receive code? ",
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              GestureDetector(
+                                onTap: _canResend ? _handleResendOtp : null,
+                                child: Text(
+                                  _canResend
+                                      ? "Resend"
+                                      : "Resend in $_timerSeconds s",
+                                  style: TextStyle(
+                                    color: _canResend ? brandPrimary : Colors.grey,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  color: const Color(0xFFFF7B10),
-                                  fontSize: 14.0,
                                 ),
-                            elevation: 0.0,
-                            borderSide: BorderSide(
-                              color: const Color(0xFFFF7B10),
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  FFButtonWidget(
-                    onPressed: () async {
-                      final smsCodeVal = _model.pinCodeController!.text;
-                      if (smsCodeVal.isEmpty || smsCodeVal.length < 6) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Please enter valid 6-digit OTP.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
-
-                      try {
-                        // 1. Firebase Auth Verification
-                        GoRouter.of(context).prepareAuthEvent();
-                        final phoneVerifiedUser =
-                            await authManager.verifySmsCode(
-                          context: context,
-                          smsCode: smsCodeVal,
-                        );
-
-                        if (phoneVerifiedUser == null) {
-                          return; // Auth failed (User likely cancelled or error shown)
-                        }
-
-                        // 2. Get Safe FCM Token
-                        final fcmToken = await _getSafeFcmToken();
-                        FFAppState().fcmToken = fcmToken;
-                        FFAppState().mobileNo = widget.mobile!;
-
-                        // 3. Login API Call
-                        _model.apiResultk3y = await LoginCall.call(
-                          mobile: widget.mobile,
-                        );
-
-                        FFAppState().isLoggedIn = true;
-
-                        if ((_model.apiResultk3y?.succeeded ?? false)) {
-                          // ✅ CASE: User Found (Login Success)
-                          FFAppState().isRegistered = true;
-                          FFAppState().driverid = getJsonField(
-                            (_model.apiResultk3y?.jsonBody ?? ''),
-                            r'''$.data.id''',
-                          );
-                          FFAppState().accessToken = getJsonField(
-                            (_model.apiResultk3y?.jsonBody ?? ''),
-                            r'''$.data.accessToken''',
-                          ).toString();
-
-                          if (context.mounted) {
-                            context.goNamedAuth(
-                              HomeWidget.routeName,
-                              context.mounted,
-                            );
-                          }
-                        } else {
-                          // ❌ CASE: User Not Found (Go to Registration)
-                          // Assuming any failure here means "User needs to register"
-                          // Ideally check for specific 404 status code if possible
-
-                          FFAppState().isRegistered = false;
-                          if (context.mounted) {
-                            context.pushNamedAuth(
-                              'firstdetails', // Ensure this route name matches your FirstdetailsWidget
-                              context.mounted,
-                              queryParameters: {
-                                'mobile': serializeParam(
-                                  widget.mobile,
-                                  ParamType.int,
-                                ),
-                              }.withoutNulls,
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        print("Error during OTP processing: $e");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text('An error occurred. Please try again.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-
-                      safeSetState(() {});
-                    },
-                    text: FFLocalizations.of(context).getText(
-                      'k9o36d8i' /* VERIFY */,
-                    ),
-                    options: FFButtonOptions(
-                      width: double.infinity,
-                      height: 56.0,
-                      padding: EdgeInsets.all(8.0),
-                      color: Color(0xFFFF7B10),
-                      textStyle:
-                          FlutterFlowTheme.of(context).titleMedium.override(
-                                font: GoogleFonts.interTight(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                color: Colors.white,
-                                fontSize: 18.0,
                               ),
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.circular(12.0),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ]
-                    .divide(SizedBox(height: 32.0))
-                    .addToStart(SizedBox(height: 60.0)),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  // 🔹 LOGIC: Resend OTP
+  Future<void> _handleResendOtp() async {
+    if (!_canResend) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Trigger Firebase Phone Auth again
+      await authManager.beginPhoneAuth(
+        context: context,
+        phoneNumber: '+91${widget.mobile}',
+        onCodeSent: (context) async {
+          // This callback fires when Firebase successfully sends the SMS
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('OTP Resent Successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            _startResendTimer(); // Restart the 30s timer
+            setState(() => _isLoading = false);
+          }
+        },
+      );
+    } catch (e) {
+      print("Resend Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to resend OTP'), backgroundColor: Colors.red),
+        );
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  // 🔹 LOGIC: Verify OTP & Navigate
+  Future<void> _handleVerify() async {
+    final smsCodeVal = _model.pinCodeController!.text;
+
+    if (smsCodeVal.isEmpty || smsCodeVal.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid 6-digit OTP.'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // 1. Verify with Firebase Auth
+      final phoneVerifiedUser = await authManager.verifySmsCode(
+        context: context,
+        smsCode: smsCodeVal,
+      );
+
+      if (phoneVerifiedUser == null) {
+        setState(() => _isLoading = false);
+        return; // Auth failed (User likely cancelled or error shown by authManager)
+      }
+
+      // 2. Get FCM Token
+      final fcmToken = await _getSafeFcmToken();
+      FFAppState().fcmToken = fcmToken;
+      FFAppState().mobileNo = widget.mobile!;
+
+      // 3. Call Backend to Check User Existence
+      _model.apiResultk3y = await LoginCall.call(
+        mobile: widget.mobile,
+      );
+
+      // 4. Navigate Based on Response
+      if (_model.apiResultk3y?.succeeded ?? false) {
+        // ✅ EXISTING USER -> Go to Home
+        FFAppState().isLoggedIn = true;
+        FFAppState().isRegistered = true;
+
+        // Extract Data safely
+        FFAppState().driverid = getJsonField(
+          (_model.apiResultk3y?.jsonBody ?? ''),
+          r'''$.data.id''',
+        );
+        FFAppState().accessToken = getJsonField(
+          (_model.apiResultk3y?.jsonBody ?? ''),
+          r'''$.data.accessToken''',
+        ).toString();
+
+        if (mounted) {
+          context.goNamedAuth(
+            HomeWidget.routeName,
+            context.mounted,
+          );
+        }
+      } else {
+        // ❌ NEW USER -> Go to Registration (First Details)
+        FFAppState().isRegistered = false;
+
+        if (mounted) {
+          context.pushNamedAuth(
+            'firstdetails',
+            context.mounted,
+            queryParameters: {
+              'mobile': serializeParam(
+                widget.mobile,
+                ParamType.int,
+              ),
+            }.withoutNulls,
+          );
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Verification Failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }

@@ -1,13 +1,13 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/index.dart'; // Ensure this exports ChooseVehicleWidget
+import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firstdetails_model.dart';
 export 'firstdetails_model.dart';
 
-// ✅ Ensure ChooseVehicleWidget is imported to access .routeName
+// ✅ Ensure ChooseVehicleWidget is imported
 import '/choose_vehicle/choose_vehicle_widget.dart';
 
 class FirstdetailsWidget extends StatefulWidget {
@@ -56,6 +56,11 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 APP COLORS
+    const Color brandPrimary = Color(0xFFFF7B10);
+    const Color brandGradientStart = Color(0xFFFF8E32);
+    const Color bgOffWhite = Color(0xFFF5F7FA);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -63,133 +68,229 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: SafeArea(
-          top: true,
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      FFLocalizations.of(context).getText('nh50n2jd' /* We need your sign-in details... */),
-                      style: FlutterFlowTheme.of(context).headlineMedium.override(
-                        font: GoogleFonts.interTight(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const SizedBox(height: 24.0),
-
-                    // First Name
-                    _buildTextField(
-                      context,
-                      label: 'First Name',
-                      controller: _model.textController1,
-                      focusNode: _model.textFieldFocusNode1,
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'First Name is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-
-                    // Last Name
-                    _buildTextField(
-                      context,
-                      label: 'Last Name',
-                      controller: _model.textController2,
-                      focusNode: _model.textFieldFocusNode2,
-                    ),
-                    const SizedBox(height: 16.0),
-
-                    // Email
-                    _buildTextField(
-                      context,
-                      label: 'Email Address',
-                      controller: _model.textController3,
-                      focusNode: _model.textFieldFocusNode3,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!val.contains('@')) {
-                          return 'Enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-
-                    // Referral Code
-                    _buildTextField(
-                      context,
-                      label: 'Referral code (Optional)',
-                      controller: _model.textController4,
-                      focusNode: _model.textFieldFocusNode4,
-                    ),
-                    const SizedBox(height: 32.0),
-
-                    // Continue Button
-                    FFButtonWidget(
-                      onPressed: () async {
-                        // 1. Validate Form
-                        if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
-                          return;
-                        }
-
-                        // 2. Save Data to Global State
-                        FFAppState().firstName = _model.textController1.text;
-                        FFAppState().lastName = _model.textController2.text;
-                        FFAppState().email = _model.textController3.text;
-                        FFAppState().referralCode = _model.textController4.text;
-
-                        // 3. Navigate (Using Static Route Name for Safety)
-                        context.pushNamed(
-                          ChooseVehicleWidget.routeName, // ✅ FIXED: Safe Navigation
-                          queryParameters: {
-                            'mobile': serializeParam(widget.mobile, ParamType.int),
-                            'firstname': serializeParam(_model.textController1.text, ParamType.String),
-                            'lastname': serializeParam(_model.textController2.text, ParamType.String),
-                            'email': serializeParam(_model.textController3.text, ParamType.String),
-                            'referalcode': serializeParam(_model.textController4.text, ParamType.String),
-                          }.withoutNulls,
-                        );
-                      },
-                      text: FFLocalizations.of(context).getText('krnpfx67' /* Continue */),
-                      options: FFButtonOptions(
-                        width: double.infinity,
-                        height: 50.0,
-                        color: const Color(0xFFFF7B10),
-                        textStyle: FlutterFlowTheme.of(context).titleMedium.override(
-                          font: GoogleFonts.interTight(fontWeight: FontWeight.w600),
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                        elevation: 0.0,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
+        backgroundColor: bgOffWhite,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // ==========================================
+              // 1️⃣ VIBRANT HEADER
+              // ==========================================
+              Container(
+                height: 260,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [brandGradientStart, brandPrimary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    )
                   ],
                 ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        const Spacer(),
+                        Center(
+                          child: Text(
+                            "Partner Profile",
+                            style: GoogleFonts.inter(
+                              fontSize: 30,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Center(
+                          child: Text(
+                            "Let's get to know you better.",
+                            style: GoogleFonts.interTight(
+                              fontSize: 24,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 50), // Spacer for card overlap
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+
+              // ==========================================
+              // 2️⃣ FLOATING FORM CARD
+              // ==========================================
+              Transform.translate(
+                offset: const Offset(0, -40),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                "Basic Details",
+                                style: GoogleFonts.inter(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // FIRST NAME
+                            _buildTextField(
+                              context,
+                              label: 'First Name',
+                              controller: _model.textController1,
+                              focusNode: _model.textFieldFocusNode1,
+                              icon: Icons.person_outline,
+                              validator: (val) {
+                                if (val == null || val.isEmpty) return 'Required';
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // LAST NAME
+                            _buildTextField(
+                              context,
+                              label: 'Last Name',
+                              controller: _model.textController2,
+                              focusNode: _model.textFieldFocusNode2,
+                              icon: Icons.person,
+                            ),
+                            const SizedBox(height: 20),
+
+                            // EMAIL
+                            _buildTextField(
+                              context,
+                              label: 'Email Address',
+                              controller: _model.textController3,
+                              focusNode: _model.textFieldFocusNode3,
+                              icon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (val) {
+                                if (val == null || val.isEmpty) return 'Required';
+                                if (!val.contains('@')) return 'Invalid Email';
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // REFERRAL CODE
+                            _buildTextField(
+                              context,
+                              label: 'Referral Code',
+                              controller: _model.textController4,
+                              focusNode: _model.textFieldFocusNode4,
+                              icon: Icons.confirmation_number_outlined,
+                            ),
+                            const SizedBox(height: 32),
+
+                            // CONTINUE BUTTON
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  // 1. Validate Form
+                                  if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+
+                                  // 2. Save Data to Global State
+                                  FFAppState().firstName = _model.textController1.text;
+                                  FFAppState().lastName = _model.textController2.text;
+                                  FFAppState().email = _model.textController3.text;
+                                  FFAppState().referralCode = _model.textController4.text;
+
+                                  // 3. Navigate
+                                  context.pushNamed(
+                                    ChooseVehicleWidget.routeName,
+                                    queryParameters: {
+                                      'mobile': serializeParam(widget.mobile, ParamType.int),
+                                      'firstname': serializeParam(_model.textController1.text, ParamType.String),
+                                      'lastname': serializeParam(_model.textController2.text, ParamType.String),
+                                      'email': serializeParam(_model.textController3.text, ParamType.String),
+                                      'referalcode': serializeParam(_model.textController4.text, ParamType.String),
+                                    }.withoutNulls,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: brandPrimary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Continue",
+                                  style: GoogleFonts.interTight(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
     );
   }
 
+  // 🔹 Custom Text Field Builder
   Widget _buildTextField(
       BuildContext context, {
         required String label,
         required TextEditingController? controller,
         required FocusNode? focusNode,
+        required IconData icon,
         TextInputType? keyboardType,
         String? Function(String?)? validator,
       }) {
@@ -198,39 +299,43 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
       children: [
         Text(
           label,
-          style: FlutterFlowTheme.of(context).bodyMedium.override(
-            font: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
           ),
         ),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           focusNode: focusNode,
-          autofocus: false,
           keyboardType: keyboardType,
+          style: GoogleFonts.inter(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
           decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: Colors.grey[400], size: 22),
+            filled: true,
+            fillColor: const Color(0xFFF9F9F9),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: FlutterFlowTheme.of(context).alternate, width: 1.0),
-              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Color(0xFFEEEEEE), width: 1.5),
+              borderRadius: BorderRadius.circular(12),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Color(0xFFFF7B10), width: 1.0),
-              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Color(0xFFFF7B10), width: 1.5),
+              borderRadius: BorderRadius.circular(12),
             ),
             errorBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.red, width: 1.0),
-              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.red, width: 1.0),
-              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
             ),
-            filled: true,
-            fillColor: FlutterFlowTheme.of(context).secondaryBackground,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-          ),
-          style: FlutterFlowTheme.of(context).bodyLarge.override(
-            font: GoogleFonts.inter(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
           validator: validator,
         ),

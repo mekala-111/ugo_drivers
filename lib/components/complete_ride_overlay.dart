@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../home/home_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../home/ride_request_model.dart';
 
 // --- Wrapper Widget ---
 class RideCompleteOverlay extends StatelessWidget {
@@ -108,7 +109,7 @@ class CompleteRideCard extends StatelessWidget {
   // --- Actions ---
   void _makePhoneCall(BuildContext context) async {
     // Prefer mobile_number, fallback to passengerPhone if available
-    final phoneNumber = ride.userIdName ?? ''; // Check your model for the correct phone field
+    final phoneNumber = ride.mobileNumber ?? ''; // Check your model for the correct phone field
 
     if (phoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,7 +181,7 @@ class CompleteRideCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        ride.first_name ?? 'Passenger', // ✅ Dynamic Name
+                        ride.firstName ?? 'Passenger', // ✅ Dynamic Name
                         style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,

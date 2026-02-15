@@ -13,37 +13,48 @@ class SplashWidget extends StatefulWidget {
 }
 
 class _SplashWidgetState extends State<SplashWidget> {
-
-
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Not logged in → Login
-      if (!FFAppState().isLoggedIn) {
-        context.goNamed(LoginWidget.routeName);
-        return;
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 1. Check if user is Logged In (OTP Verified)
+      if (FFAppState().isLoggedIn) {
 
-      // Logged in but NOT registered → Login
-      if (FFAppState().isLoggedIn && !FFAppState().isRegistered) {
-        context.goNamed(LoginWidget.routeName);
-        return;
-      }
+        // 2. Check if Registration is Complete
+        if (FFAppState().isRegistered) {
+          // ✅ Logged In & Registered -> Go Home
+          context.goNamed(HomeWidget.routeName);
+        } else {
+          // ⚠️ Logged In BUT Not Registered -> Go to First Details
+          // We pass the mobile number stored in AppState so they don't lose context
+          context.goNamed(
+            FirstdetailsWidget.routeName,
+            queryParameters: {
+              'mobile': serializeParam(
+                FFAppState().mobileNo,
+                ParamType.int,
+              ),
+            }.withoutNulls,
+          );
+        }
 
-      // Logged in AND registered → Home
-      context.goNamed(HomeWidget.routeName);
+      } else {
+        // ❌ Not Logged In -> Go to Login
+        context.goNamed(LoginWidget.routeName);
+      }
     });
   }
-    @override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Ensure background isn't black during load
       body: Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: Color(0xFFFF7B10), // Match your brand color
+        ),
       ),
     );
   }
 }
-
-

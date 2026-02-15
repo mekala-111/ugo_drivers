@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'dart:convert';
-import 'dart:typed_data';
 import 'face_verify_model.dart';
 export 'face_verify_model.dart';
 
