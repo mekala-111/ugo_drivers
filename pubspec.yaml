@@ -57,8 +57,9 @@ dependencies:
   # FIXED: Specific version to match places
   google_maps_webservice: ^0.0.20-nullsafety.5
 
+
   google_api_headers: 4.5.3
-  google_fonts: 6.1.0
+
   google_maps_flutter: 2.12.2
   google_sign_in: 6.3.0
 
@@ -82,6 +83,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.15.1
   google_ml_kit: ^0.21.0
   geocoding: ^4.0.0
+  google_fonts: ^8.0.1
 
 # --- Overrides to force compatibility ---
 dependency_overrides:

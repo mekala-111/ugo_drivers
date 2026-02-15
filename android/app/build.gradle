@@ -35,7 +35,7 @@ configurations.all {
 
 android {
     namespace "com.ugocabs.drivers"
-    compileSdkVersion 35
+    compileSdkVersion 36
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -54,13 +54,8 @@ android {
 
     defaultConfig {
         applicationId "com.ugocabs.drivers"
-
-        /*
-         * FIX 2: MLKit GenAI Image Description requires minSdk 26+
-         */
         minSdkVersion 26
-
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -82,7 +77,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 flutter { source '../..' }
@@ -98,4 +92,3 @@ dependencies {
     implementation "com.google.mlkit:text-recognition-japanese:16.0.1"
     implementation "com.google.mlkit:text-recognition-korean:16.0.1"
 }
-
