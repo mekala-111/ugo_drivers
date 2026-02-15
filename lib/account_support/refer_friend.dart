@@ -6,7 +6,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReferFriendWidget extends StatefulWidget {
   const ReferFriendWidget({super.key});
@@ -173,19 +173,201 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
     }
   }
 
-  /// Share referral code
+  /// Share referral code via WhatsApp or show share options
   Future<void> _shareReferralCode() async {
     if (_referralCode.isEmpty) return;
-    // await Share.share(
-    //   FFLocalizations.of(context).getVariableText(
-    //     enText:
-    //         'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning!',
-    //     hiText:
-    //         'मेरे रेफरल कोड का उपयोग करके UGO टैक्सी में शामिल हों: $_referralCode\nऐप डाउनलोड करें और कमाई शुरू करें!',
-    //     teText:
-    //         'నా రిఫరల్ కోడ్‌ని ఉపయోగించి UGO టాక్సీలో చేరండి: $_referralCode\nయాప్‌ను డౌన్‌లోడ్ చేయండి మరియు సంపాదించడం ప్రారంభించండి!',
-    //   ),
-    // );
+
+    final shareText = FFLocalizations.of(context).getVariableText(
+      enText:
+          'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning! 🚗💰',
+      hiText:
+          'मेरे रेफरल कोड का उपयोग करके UGO टैक्सी में शामिल हों: $_referralCode\nऐप डाउनलोड करें और कमाई शुरू करें! 🚗💰',
+      teText:
+          'నా రిఫరల్ కోడ్‌ని ఉపయోగించి UGO టాక్సీలో చేరండి: $_referralCode\nయాప్‌ను డౌన్‌లోడ్ చేయండి మరియు సంపాదించడం ప్రారంభించండి! 🚗💰',
+    );
+
+    // Show share dialog directly
+    if (mounted) {
+      showShareDialog(shareText);
+    }
+  }
+
+  /// Show share options dialog
+  void showShareDialog(String shareText) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                FFLocalizations.of(context).getVariableText(
+                  enText: 'Share Referral Code',
+                  hiText: 'रेफरल कोड साझा करें',
+                  teText: 'రిఫరల్ కోడ్‌ను భాగస్వామ్యం చేయండి',
+                ),
+                style: FlutterFlowTheme.of(context).titleLarge,
+              ),
+              SizedBox(height: 16.0),
+              // Copy to Clipboard Option
+              ListTile(
+                leading: Icon(
+                  Icons.copy,
+                  color: FlutterFlowTheme.of(context).primary,
+                ),
+                title: Text(
+                  FFLocalizations.of(context).getVariableText(
+                    enText: 'Copy to Clipboard',
+                    hiText: 'क्लिपबोर्ड में कॉपी करें',
+                    teText: 'క్లిప్‌బోర్డ్‌కు కాపీ చేయండి',
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _copyToClipboard();
+                },
+              ),
+              // WhatsApp Option
+              ListTile(
+                leading: Icon(
+                  Icons.chat,
+                  color: Color(0xFF25D366),
+                ),
+                title: Text(
+                  FFLocalizations.of(context).getVariableText(
+                    enText: 'Share via WhatsApp',
+                    hiText: 'WhatsApp के माध्यम से साझा करें',
+                    teText: 'WhatsApp ద్వారా భాగస్వామ్యం చేయండి',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareViaWhatsApp(shareText);
+                },
+              ),
+              // SMS Option
+              ListTile(
+                leading: Icon(
+                  Icons.sms,
+                  color: FlutterFlowTheme.of(context).primary,
+                ),
+                title: Text(
+                  FFLocalizations.of(context).getVariableText(
+                    enText: 'Share via SMS',
+                    hiText: 'SMS के माध्यम से साझा करें',
+                    teText: 'SMS ద్వారా భాగస్వామ్యం చేయండి',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareViaSMS(shareText);
+                },
+              ),
+              // Email Option
+              ListTile(
+                leading: Icon(
+                  Icons.email,
+                  color: FlutterFlowTheme.of(context).primary,
+                ),
+                title: Text(
+                  FFLocalizations.of(context).getVariableText(
+                    enText: 'Share via Email',
+                    hiText: 'ईमेल के माध्यम से साझा करें',
+                    teText: 'ఇమెయిల్ ద్వారా భాగస్వామ్యం చేయండి',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareViaEmail(shareText);
+                },
+              ),
+              SizedBox(height: 12.0),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Share via WhatsApp
+  Future<void> _shareViaWhatsApp(String text) async {
+    final uri = Uri.parse(
+      'whatsapp://send?text=${Uri.encodeComponent(text)}',
+    );
+
+    try {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      print("WhatsApp error: $e");
+    }
+  }
+
+
+  /// Share via SMS
+  Future<void> _shareViaSMS(String text) async {
+    try {
+      final smsUrl = Uri.parse(
+        'sms:?body=${Uri.encodeComponent(text)}',
+      );
+
+      if (await canLaunchUrl(smsUrl)) {
+        await launchUrl(smsUrl);
+      } else {
+        throw 'SMS not available';
+      }
+    } catch (e) {
+      print('SMS share error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              FFLocalizations.of(context).getVariableText(
+                enText: 'SMS is not available',
+                hiText: 'SMS उपलब्ध नहीं है',
+                teText: 'SMS అందుబాటులో లేదు',
+              ),
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Share via Email
+  Future<void> _shareViaEmail(String text) async {
+    try {
+      final emailUrl = Uri.parse(
+        'mailto:?subject=${Uri.encodeComponent('Join UGO Taxi')}&body=${Uri.encodeComponent(text)}',
+      );
+
+      if (await canLaunchUrl(emailUrl)) {
+        await launchUrl(emailUrl);
+      } else {
+        throw 'Email not available';
+      }
+    } catch (e) {
+      print('Email share error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              FFLocalizations.of(context).getVariableText(
+                enText: 'Email app is not available',
+                hiText: 'ईमेल ऐप उपलब्ध नहीं है',
+                teText: 'ఇమెయిల్ యాప్ అందుబాటులో లేదు',
+              ),
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   @override

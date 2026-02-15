@@ -3,6 +3,8 @@ import 'team1_widget.dart' show Team1Widget;
 import 'package:flutter/material.dart';
 
 class Team1Model extends FlutterFlowModel<Team1Widget> {
+  dynamic yesterdayData;
+
   @override
   void initState(BuildContext context) {}
 

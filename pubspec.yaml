@@ -1,7 +1,7 @@
 name: ugo_driver
 description: A new Flutter project.
 
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -104,13 +104,13 @@ dev_dependencies:
     sdk: flutter
 
 flutter_launcher_icons:
-  android: 'launcher_icon'
+  android: "launcher_icon"
   ios: true
   web:
     generate: true
-  image_path: 'assets/images/app_launcher_icon.png'
-  adaptive_icon_background: '#ff7b10'
-  adaptive_icon_foreground: 'assets/images/adaptive_foreground_icon.png'
+  image_path: "assets/images/app_launcher_icon.png"
+  adaptive_icon_background: "#ff7b10"
+  adaptive_icon_foreground: "assets/images/adaptive_foreground_icon.png"
 
 flutter:
   uses-material-design: true

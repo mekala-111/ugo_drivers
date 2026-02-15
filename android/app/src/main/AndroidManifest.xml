@@ -77,7 +77,34 @@
             android:value="2" />
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDO0iVw0vItsg45hIDHV3oAu8RB-zcra2Y"/>
 
-
-
     </application>
+
+    <!-- Query for apps used in url_launcher -->
+    <queries>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="sms" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
+        <!-- WhatsApp scheme for direct app intent -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:scheme="whatsapp" />
+        </intent>
+        <!-- Browser intent for wa.me URLs -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="wa.me" />
+        </intent>
+    </queries>
+
 </manifest>
