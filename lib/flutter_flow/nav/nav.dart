@@ -136,21 +136,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: WalletWidget.routePath,
           builder: (context, params) => WalletWidget(),
         ),
-        FFRoute(
-          name: AutoBookWidget.routeName,
-          path: AutoBookWidget.routePath,
-          builder: (context, params) => AutoBookWidget(),
-        ),
-        FFRoute(
-          name: AvaliableOptionsWidget.routeName,
-          path: AvaliableOptionsWidget.routePath,
-          builder: (context, params) => AvaliableOptionsWidget(),
-        ),
-        FFRoute(
-          name: ConformLocationWidget.routeName,
-          path: ConformLocationWidget.routePath,
-          builder: (context, params) => ConformLocationWidget(),
-        ),
+       
+      
+        
         FFRoute(
           name: ScanToBookWidget.routeName,
           path: ScanToBookWidget.routePath,
@@ -166,11 +154,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ProfileSettingWidget.routePath,
           builder: (context, params) => ProfileSettingWidget(),
         ),
-        FFRoute(
-          name: AddOfficeWidget.routeName,
-          path: AddOfficeWidget.routePath,
-          builder: (context, params) => AddOfficeWidget(),
-        ),
+       
         FFRoute(
           name: SavedAddWidget.routeName,
           path: SavedAddWidget.routePath,
@@ -187,11 +171,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: PushnotificationsWidget.routePath,
           builder: (context, params) => PushnotificationsWidget(),
         ),
-        FFRoute(
-          name: SafetypreferencesWidget.routeName,
-          path: SafetypreferencesWidget.routePath,
-          builder: (context, params) => SafetypreferencesWidget(),
-        ),
+       
         FFRoute(
           name: TrustedcontactsWidget.routeName,
           path: TrustedcontactsWidget.routePath,
@@ -212,26 +192,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ReservematchingWidget.routePath,
           builder: (context, params) => ReservematchingWidget(),
         ),
-        FFRoute(
-          name: ChooserideWidget.routeName,
-          path: ChooserideWidget.routePath,
-          builder: (context, params) => ChooserideWidget(),
-        ),
-        FFRoute(
-          name: CommuteAlertsWidget.routeName,
-          path: CommuteAlertsWidget.routePath,
-          builder: (context, params) => CommuteAlertsWidget(),
-        ),
-        FFRoute(
-          name: PaymentOptionsWidget.routeName,
-          path: PaymentOptionsWidget.routePath,
-          builder: (context, params) => PaymentOptionsWidget(),
-        ),
-        FFRoute(
-          name: AddPaymentWidget.routeName,
-          path: AddPaymentWidget.routePath,
-          builder: (context, params) => AddPaymentWidget(),
-        ),
+       
+        
+       
         FFRoute(
           name: VoucherWidget.routeName,
           path: VoucherWidget.routePath,
@@ -273,21 +236,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: CustomerSuportWidget.routePath,
           builder: (context, params) => CustomerSuportWidget(),
         ),
-        FFRoute(
-          name: BookSucessfullWidget.routeName,
-          path: BookSucessfullWidget.routePath,
-          builder: (context, params) => BookSucessfullWidget(),
-        ),
-        FFRoute(
-          name: CancelRideWidget.routeName,
-          path: CancelRideWidget.routePath,
-          builder: (context, params) => CancelRideWidget(),
-        ),
-        FFRoute(
-          name: AddStopWidget.routeName,
-          path: AddStopWidget.routePath,
-          builder: (context, params) => AddStopWidget(),
-        ),
+       
+       
+        
         FFRoute(
           name: ChooseVehicleWidget.routeName,
           path: ChooseVehicleWidget.routePath,
