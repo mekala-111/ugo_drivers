@@ -182,7 +182,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha:0.08),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
@@ -254,7 +254,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                disabledBackgroundColor: brandPrimary.withOpacity(0.6),
+                                disabledBackgroundColor: brandPrimary.withValues(alpha:0.6),
                               ),
                               child: _isLoading
                                   ? const SizedBox(

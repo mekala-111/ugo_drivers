@@ -2,7 +2,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for consistent fonts
+import 'package:google_fonts/google_fonts.dart';
 import 'account_management_model.dart';
 export 'account_management_model.dart';
 
@@ -178,7 +178,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha:0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -294,7 +294,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -320,7 +320,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: (item['color'] as Color).withOpacity(0.1),
+                          color: (item['color'] as Color).withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(

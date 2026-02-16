@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../home/ride_request_model.dart'; // Ensure this points to the file with the CORRECT RideRequest model
+import '../home/ride_request_model.dart';
 
 // --- Wrapper Widget ---
 class RidePickupOverlay extends StatelessWidget {
@@ -15,24 +15,20 @@ class RidePickupOverlay extends StatelessWidget {
     required this.onSwipe,
   }) : super(key: key);
 
-  // ✅ FIXED: Robust Map Launcher
   Future<void> _launchMap(double? lat, double? lng) async {
-    // 1. Check for Null OR Zero coordinates
     if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
       debugPrint("❌ Error: Invalid Coordinates ($lat, $lng)");
       return;
     }
-
-    // 2. Universal Google Maps URL (Works on Android & iOS)
-    // api=1 ensures it triggers the navigation intent correctly
-    final Uri googleMapsUrl = Uri.parse(
-        "https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving"
-    );
+    final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    final Uri browserUrl =
+        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
 
     try {
-      // 3. Try launching external application (Maps App)
       if (await canLaunchUrl(googleMapsUrl)) {
-        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+        await launchUrl(googleMapsUrl);
+      } else if (await canLaunchUrl(browserUrl)) {
+        await launchUrl(browserUrl, mode: LaunchMode.externalApplication);
       } else {
         debugPrint("❌ Could not launch maps url");
       }
@@ -55,8 +51,8 @@ class RidePickupOverlay extends StatelessWidget {
               padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
               child: InkWell(
                 onTap: () {
-                  // ✅ Uses the FIXED map launcher
-                  print("📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}");
+                  print(
+                      "📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}");
                   _launchMap(ride.pickupLat, ride.pickupLng);
                 },
                 child: Container(
@@ -66,7 +62,10 @@ class RidePickupOverlay extends StatelessWidget {
                     color: const Color(0xFFFF7B10), // ugoOrange
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
+                      BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8,
+                          offset: Offset(0, 4))
                     ],
                   ),
                   child: Row(
@@ -75,7 +74,7 @@ class RidePickupOverlay extends StatelessWidget {
                       Icon(Icons.navigation, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        "PICK UP",
+                        "NAVIGATE",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -136,6 +135,7 @@ class ActiveRideCard extends StatelessWidget {
       headerText = "GO TO DROP";
       btnText = "COMPLETE RIDE";
       btnColor = ugoRed;
+      headerColor = ugoRed; // Change header color for Drop
       showPickupBox = false;
     }
 
@@ -144,11 +144,10 @@ class ActiveRideCard extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16)
-        ),
+            topLeft: Radius.circular(16), topRight: Radius.circular(16)),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
+          BoxShadow(
+              color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
       ),
       child: Column(
@@ -161,9 +160,7 @@ class ActiveRideCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: headerColor,
               borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16)
-              ),
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Text(
               headerText,
@@ -171,8 +168,8 @@ class ActiveRideCard extends StatelessWidget {
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15
-              ),
+                  fontSize: 16,
+                  letterSpacing: 1.0),
             ),
           ),
 
@@ -188,13 +185,11 @@ class ActiveRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            // ✅ Fix: use firstName property from the FIXED model
                             "${ride.firstName ?? 'Passenger'}",
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black
-                            ),
+                                color: Colors.black87),
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -205,37 +200,36 @@ class ActiveRideCard extends StatelessWidget {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
+                                  color: (showPickupBox ? ugoGreen : ugoRed)
+                                      .withOpacity(0.1),
                                   border: Border.all(
                                       color: showPickupBox ? ugoGreen : ugoRed,
-                                      width: 1
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
+                                      width: 1),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                        Icons.location_on,
-                                        color: showPickupBox ? ugoGreen : ugoRed,
-                                        size: 24
-                                    ),
+                                    Icon(Icons.location_on,
+                                        color:
+                                            showPickupBox ? ugoGreen : ugoRed,
+                                        size: 24),
                                     Text(
                                       showPickupBox ? "Pickup" : "Drop",
                                       style: TextStyle(
                                           fontSize: 10,
-                                          color: Colors.grey[700],
-                                          fontWeight: FontWeight.w500
-                                      ),
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w600),
                                     )
                                   ],
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // Address
+                              // Rich Address Display
                               Expanded(
-                                child: _buildRichAddress(
-                                    showPickupBox ? ride.pickupAddress : ride.dropAddress
-                                ),
+                                child: _buildRichAddress(showPickupBox
+                                    ? ride.pickupAddress
+                                    : ride.dropAddress),
                               ),
                             ],
                           ),
@@ -246,7 +240,8 @@ class ActiveRideCard extends StatelessWidget {
                     Column(
                       children: [
                         _buildSquareIconBtn(Icons.call, Colors.green, () {
-                          // Add call logic here if needed
+                          launchUrl(
+                              Uri.parse("tel:${ride.mobileNumber ?? ''}"));
                         }),
                         const SizedBox(height: 16),
                         _buildSquareIconBtn(Icons.close, ugoRed, () {}),
@@ -257,10 +252,7 @@ class ActiveRideCard extends StatelessWidget {
                 const SizedBox(height: 24),
                 // Swipe Button
                 SlideToAction(
-                    text: btnText,
-                    outerColor: btnColor,
-                    onSubmitted: onSwipe
-                ),
+                    text: btnText, outerColor: btnColor, onSubmitted: onSwipe),
               ],
             ),
           ),
@@ -269,59 +261,68 @@ class ActiveRideCard extends StatelessWidget {
     );
   }
 
-  // ✅ FIXED: Better Pincode Regex & String Parsing
+  // ✅ RAPIDO-STYLE ADDRESS HIGHLIGHTING
   Widget _buildRichAddress(String rawAddress) {
     String pincode = "";
     String locality = "";
-    String rest = rawAddress;
+    String fullAddressWithoutPin = rawAddress;
 
-    // 1. Matches 6 digits (e.g. 500081) OR 6 digits with space (e.g. 500 081)
+    // 1. Extract Pincode (Matches 6 digits like 500081 or 500 081)
     final pinMatch = RegExp(r'\b\d{3}\s?\d{3}\b').firstMatch(rawAddress);
 
     if (pinMatch != null) {
       pincode = pinMatch.group(0)!;
-      // Remove pincode from address
-      rest = rawAddress.replaceAll(pincode, '').trim();
+      // Remove pincode from address string to avoid duplication
+      fullAddressWithoutPin = rawAddress
+          .replaceAll(pincode, '')
+          .replaceAll(RegExp(r',+\s*$'), '')
+          .trim();
     }
 
-    // 2. Clean up dangling commas
-    rest = rest.replaceAll(RegExp(r'^,+|,+$'), '').trim();
-
-    List<String> parts = rest.split(',');
+    // 2. Extract Locality (First part of the address)
+    List<String> parts = fullAddressWithoutPin.split(',');
     if (parts.isNotEmpty) {
       locality = parts[0].trim();
-      if (parts.length > 1) {
-        rest = parts.sublist(1).join(', ').trim();
-      } else {
-        rest = "";
+      // If the first part is just a house number, maybe take the second part too
+      if (locality.length < 5 && parts.length > 1) {
+        locality = "$locality, ${parts[1].trim()}";
       }
-    }
-
-    // 3. Fallback: If locality is empty, use raw text
-    if (locality.isEmpty && rest.isEmpty) {
-      rest = rawAddress;
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Only show Pincode row if we found one
+        // 🔹 1. Pincode Badge (Top)
         if (pincode.isNotEmpty)
           Text(
-              pincode,
-              style: const TextStyle(color: ugoOrange, fontWeight: FontWeight.bold, fontSize: 15)
+            "$pincode",
+            style: const TextStyle(
+                color: ugoOrange,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 0.5),
           ),
-        const SizedBox(height: 2),
-        RichText(
+
+        // 🔹 2. Area Name (Large & Bold)
+        Text(
+          locality.isNotEmpty ? locality : "Unknown Location",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+              fontSize: 16, // Large size like Rapido
+              fontWeight: FontWeight.w800, // Extra Bold
+              color: Colors.black87,
+              height: 1.2),
+        ),
+
+        const SizedBox(height: 4),
+
+        // 🔹 3. Full Address (Small & Grey)
+        Text(
+          fullAddressWithoutPin,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          text: TextSpan(
-            style: const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
-            children: [
-              TextSpan(text: "$locality${locality.isNotEmpty ? ', ' : ''}", style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: rest, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
+          style: TextStyle(fontSize: 13, color: Colors.grey[600], height: 1.3),
         ),
       ],
     );
@@ -334,16 +335,16 @@ class ActiveRideCard extends StatelessWidget {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8)
-        ),
-        child: Icon(icon, color: color, size: 28),
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.black12)),
+        child: Icon(icon, color: color, size: 26),
       ),
     );
   }
 }
 
-// --- Custom Swipe Button (Unchanged) ---
+// --- Custom Swipe Button ---
 class SlideToAction extends StatefulWidget {
   final String text;
   final Color outerColor;
@@ -390,8 +391,7 @@ class _SlideToActionState extends State<SlideToAction> {
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      letterSpacing: 1.0
-                  ),
+                      letterSpacing: 1.0),
                 ),
               ),
               Positioned(
@@ -430,10 +430,13 @@ class _SlideToActionState extends State<SlideToAction> {
                         color: Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(1,1))
-                        ]
-                    ),
-                    child: Icon(Icons.arrow_forward, color: widget.outerColor, size: 24),
+                          BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 3,
+                              offset: Offset(1, 1))
+                        ]),
+                    child: Icon(Icons.arrow_forward,
+                        color: widget.outerColor, size: 24),
                   ),
                 ),
               ),

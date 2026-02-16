@@ -297,7 +297,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -389,7 +389,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                       padding: EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color:
-                                            Color(0xFFFF8C00).withOpacity(0.1),
+                                            Color(0xFFFF8C00).withValues(alpha:0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(Icons.add_a_photo,
@@ -416,7 +416,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                   if (_isProcessingOCR && showOCROverlay)
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha:0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
                       child: Center(
@@ -457,7 +457,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha:0.2),
                                 blurRadius: 4,
                                 offset: Offset(0, 2),
                               ),
@@ -561,20 +561,20 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFFF8C00).withOpacity(0.1),
-                              Color(0xFFFF6B00).withOpacity(0.05)
+                              Color(0xFFFF8C00).withValues(alpha:0.1),
+                              Color(0xFFFF6B00).withValues(alpha:0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withOpacity(0.3)),
+                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Color(0xFFFF8C00).withOpacity(0.2),
+                                color: Color(0xFFFF8C00).withValues(alpha:0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(Icons.description,
@@ -750,7 +750,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 10,
                               offset: Offset(0, 4),
                             ),
@@ -777,7 +777,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
+                                        color: Colors.green.withValues(alpha:0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: Colors.green, width: 1),
@@ -888,7 +888,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           color: Color(0xFFFFF4E6),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withOpacity(0.3)),
+                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,7 +1023,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = Color(0xFF2E7D32).withOpacity(0.9)
+      ..color = Color(0xFF2E7D32).withValues(alpha:0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1047,7 +1047,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withOpacity(0.95)
+      ..color = Colors.white.withValues(alpha:0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);

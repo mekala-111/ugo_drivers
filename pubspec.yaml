@@ -84,6 +84,7 @@ dependencies:
   google_ml_kit: ^0.21.0
   geocoding: ^4.0.0
   google_fonts: ^8.0.1
+  share_plus: ^12.0.1
 
 # --- Overrides to force compatibility ---
 dependency_overrides:

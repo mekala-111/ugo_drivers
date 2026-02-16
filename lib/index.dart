@@ -55,7 +55,6 @@ export '/adhar_upload/adhar_upload_widget.dart' show AdharUploadWidget;
 export 'insurenceimage/insurence_widget.dart' show UploadRcWidget;
 export 'polutioimage/polutionimage_widget.dart' show RCUploadWidget;
 export '/inbox_page/inbox_page_widget.dart' show InboxPageWidget;
-export '/invite_page/invite_page_widget.dart' show InvitePageWidget;
 export '/teampage/teampage_widget.dart' show TeampageWidget;
 export '/teamrides/teamrides_widget.dart' show TeamridesWidget;
 export '/teamearning/teamearning_widget.dart' show TeamearningWidget;

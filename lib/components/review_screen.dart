@@ -76,7 +76,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 .map((tag) => ChoiceChip(
                       label: Text(tag),
                       selected: _selectedTags.contains(tag),
-                      selectedColor: ugoOrange.withOpacity(0.2),
+                      selectedColor: ugoOrange.withValues(alpha:0.2),
                       backgroundColor: Colors.grey[200],
                       onSelected: (sel) => setState(() => sel
                           ? _selectedTags.add(tag)

@@ -76,7 +76,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(.15),
+                  color: color.withValues(alpha:.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color),
@@ -122,7 +122,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   colors: [Color(0xFFFF7B10), Color(0xFFFFA15C)]),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.orange.withOpacity(.4),
+                    color: Colors.orange.withValues(alpha:.4),
                     blurRadius: 20,
                     offset: const Offset(0, 6))
               ],
@@ -245,7 +245,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orange.withOpacity(.4),
+                      color: Colors.orange.withValues(alpha:.4),
                       blurRadius: 12,
                     ),
                   ],

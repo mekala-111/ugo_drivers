@@ -296,7 +296,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               boxShadow: [
                 if (isSelected)
                   BoxShadow(
-                    color: type['color'].withOpacity(0.3),
+                    color: type['color'].withValues(alpha:0.3),
                     blurRadius: 8,
                     offset: Offset(0, 4),
                   ),
@@ -408,7 +408,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             duration: Duration(milliseconds: 200),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF6366F1).withOpacity(0.1) : Colors.white,
+              color: isSelected ? Color(0xFF6366F1).withValues(alpha:0.1) : Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? Color(0xFF6366F1) : Color(0xFFE2E8F0),
@@ -521,7 +521,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Color(0xFF6366F1).withOpacity(0.1),
+                        color: Color(0xFF6366F1).withValues(alpha:0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -649,7 +649,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         boxShadow: isFormValid
             ? [
           BoxShadow(
-            color: Color(0xFF6366F1).withOpacity(0.4),
+            color: Color(0xFF6366F1).withValues(alpha:0.4),
             blurRadius: 12,
             offset: Offset(0, 6),
           ),

@@ -379,11 +379,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: IncentivePageWidget.routePath,
           builder: (context, params) => IncentivePageWidget(),
         ),
-        FFRoute(
-          name: InvitePageWidget.routeName,
-          path: InvitePageWidget.routePath,
-          builder: (context, params) => InvitePageWidget(),
-        ),
+
         FFRoute(
           name: TeampageWidget.routeName,
           path: TeampageWidget.routePath,

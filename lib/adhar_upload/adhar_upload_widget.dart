@@ -293,7 +293,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -405,7 +405,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                       padding: EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color:
-                                            Color(0xFFFF8C00).withOpacity(0.1),
+                                            Color(0xFFFF8C00).withValues(alpha:0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
@@ -461,7 +461,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha:0.2),
                                   blurRadius: 4,
                                   offset: Offset(0, 2),
                                 ),
@@ -580,15 +580,15 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFFF8C00).withOpacity(0.1),
-                              Color(0xFFFF6B00).withOpacity(0.05)
+                              Color(0xFFFF8C00).withValues(alpha:0.1),
+                              Color(0xFFFF6B00).withValues(alpha:0.05)
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Color(0xFFFF8C00).withOpacity(0.3),
+                            color: Color(0xFFFF8C00).withValues(alpha:0.3),
                           ),
                         ),
                         child: Row(
@@ -596,7 +596,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Color(0xFFFF8C00).withOpacity(0.2),
+                                color: Color(0xFFFF8C00).withValues(alpha:0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -804,7 +804,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 10,
                               offset: Offset(0, 4),
                             ),
@@ -839,7 +839,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
+                                        color: Colors.green.withValues(alpha:0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: Colors.green,
@@ -966,7 +966,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           color: Color(0xFFFFF4E6),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withOpacity(0.3)),
+                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1154,7 +1154,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Draw outer serrated circle (stamp edges)
     final outerPaint = Paint()
-      ..color = Color(0xFF2E7D32).withOpacity(0.9)
+      ..color = Color(0xFF2E7D32).withValues(alpha:0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1184,7 +1184,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Fill background
     final fillPaint = Paint()
-      ..color = Colors.white.withOpacity(0.95)
+      ..color = Colors.white.withValues(alpha:0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 
@@ -1241,7 +1241,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Draw ribbon shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.2)
+      ..color = Colors.black.withValues(alpha:0.2)
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(

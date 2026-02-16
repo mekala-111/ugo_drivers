@@ -1,7 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,6 +43,30 @@ class _LoginWidgetState extends State<LoginWidget> {
     super.dispose();
   }
 
+  // 🔹 LOGIC: Handle Social Login Results
+  void _handleSocialLoginSuccess(BaseAuthUser user) {
+    // Uber-like Flow: Phone number is the primary identity for drivers.
+    // If the social account doesn't provide a phone number, we force the user to enter it.
+    if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Verification Required: Please enter your mobile number to complete registration.',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      // Auto-focus the phone field to guide the user
+      _model.textFieldFocusNode?.requestFocus();
+    } else {
+      // If phone is verified, proceed to Home (or Location Preference screen)
+      context.goNamed(HomeWidget.routeName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // 🎨 DRIVER APP COLORS
@@ -67,7 +89,7 @@ class _LoginWidgetState extends State<LoginWidget> {
               // 1️⃣ VIBRANT HEADER (Curved Bottom)
               // ==========================================
               Container(
-                height: 340, // Taller header for impact
+                height: 340,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -94,18 +116,16 @@ class _LoginWidgetState extends State<LoginWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Spacer(),
-
                         // App Icon / Logo Placeholder
                         Center(
-                          child: ClipRRect( // Ensures image stays inside rounded corners
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.asset(
-                              'assets/images/app_launcher_icon.png', // Your uploaded logo
+                              'assets/images/app_launcher_icon.png',
                               width: 100,
                               height: 100,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
-                                // Fallback icon if image fails to load
                                 return const Icon(
                                   Icons.local_taxi_rounded,
                                   color: Colors.white,
@@ -121,7 +141,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                             "Welcome Partner,",
                             style: GoogleFonts.inter(
                               fontSize: 36,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha:0.9),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -149,7 +169,7 @@ class _LoginWidgetState extends State<LoginWidget> {
               // 2️⃣ FLOATING LOGIN CARD
               // ==========================================
               Transform.translate(
-                offset: const Offset(0, -40), // Pull up effect
+                offset: const Offset(0, -40),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Container(
@@ -159,7 +179,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha:0.08),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
@@ -194,10 +214,12 @@ class _LoginWidgetState extends State<LoginWidget> {
                             child: Row(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.flag, color: Colors.orange, size: 20),
+                                      const Icon(Icons.flag,
+                                          color: Colors.orange, size: 20),
                                       const SizedBox(width: 8),
                                       Text(
                                         "+91",
@@ -225,7 +247,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     keyboardType: TextInputType.phone,
                                     cursorColor: brandPrimary,
                                     style: GoogleFonts.inter(
-                                      fontSize: 20, // Large text for readability
+                                      fontSize: 20,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black,
                                       letterSpacing: 1.2,
@@ -235,14 +257,15 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       LengthLimitingTextInputFormatter(10),
                                     ],
                                     decoration: InputDecoration(
-                                      hintText: '00000 00000',
+                                      hintText: "Mobile Number",
                                       hintStyle: GoogleFonts.inter(
                                         color: Colors.grey[400],
                                         fontSize: 20,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                      const EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 18,
                                       ),
@@ -268,7 +291,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                disabledBackgroundColor: brandPrimary.withOpacity(0.6),
+                                disabledBackgroundColor:
+                                brandPrimary.withValues(alpha:0.6),
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -303,7 +327,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   height: 1.5,
                                 ),
                                 children: const [
-                                  TextSpan(text: "By continuing, you agree to our\n"),
+                                  TextSpan(
+                                      text:
+                                      "By continuing, you agree to our\n"),
                                   TextSpan(
                                     text: "Terms of Service",
                                     style: TextStyle(
@@ -336,6 +362,7 @@ class _LoginWidgetState extends State<LoginWidget> {
               // 3️⃣ SOCIAL LOGIN (Subtle Footer)
               // ==========================================
               const SizedBox(height: 10),
+
               Row(
                 children: [
                   const Expanded(child: Divider(indent: 40, endIndent: 10)),
@@ -351,22 +378,45 @@ class _LoginWidgetState extends State<LoginWidget> {
                 ],
               ),
               const SizedBox(height: 20),
+
+              // 🔹 SOCIAL BUTTONS
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _socialButton(
                     icon: FontAwesomeIcons.google,
                     color: const Color(0xFFDB4437),
-                    onTap: () => _showDriverWarning(),
+                    onTap: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final user = await authManager.signInWithGoogle(context);
+                        if (user != null) {
+                          _handleSocialLoginSuccess(user);
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isLoading = false);
+                      }
+                    },
                   ),
                   const SizedBox(width: 20),
                   _socialButton(
                     icon: Icons.apple,
                     color: Colors.black,
-                    onTap: () => _showDriverWarning(),
+                    onTap: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final user = await authManager.signInWithApple(context);
+                        if (user != null) {
+                          _handleSocialLoginSuccess(user);
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isLoading = false);
+                      }
+                    },
                   ),
                 ],
               ),
+
               const SizedBox(height: 40),
             ],
           ),
@@ -388,7 +438,8 @@ class _LoginWidgetState extends State<LoginWidget> {
           ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(16),
         ),
       );
@@ -396,7 +447,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     }
 
     setState(() => _isLoading = true);
-    HapticFeedback.mediumImpact(); // Added Touch Feedback
+    HapticFeedback.mediumImpact(); // Touch Feedback
 
     final phoneNumberVal = '+91$phoneText';
 
@@ -429,9 +480,15 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   // 🔹 HELPER: Social Button
-  Widget _socialButton({required IconData icon, required Color color, required VoidCallback onTap}) {
+  Widget _socialButton(
+      {required IconData icon,
+        required Color color,
+        required VoidCallback onTap}) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact(); // Add Feedback
+        onTap();
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 55,
@@ -442,7 +499,7 @@ class _LoginWidgetState extends State<LoginWidget> {
           border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha:0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -451,22 +508,6 @@ class _LoginWidgetState extends State<LoginWidget> {
         child: Center(
           child: FaIcon(icon, color: color, size: 24),
         ),
-      ),
-    );
-  }
-
-  // 🔹 HELPER: Warning Toast
-  void _showDriverWarning() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Partner App requires Phone Number login for verification.',
-          style: GoogleFonts.inter(),
-        ),
-        backgroundColor: Colors.black87,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

@@ -152,7 +152,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha:0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -169,7 +169,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                                 "Setup Profile",
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha:0.9),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -232,7 +232,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       )
@@ -303,7 +303,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha:0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   )

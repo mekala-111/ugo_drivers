@@ -6,6 +6,9 @@ import 'package:ugo_driver/home/ride_request_model.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:async';
 
+// ✅ Import LatLng
+import '/flutter_flow/lat_lng.dart';
+
 // Import the refactored components
 import '../components/active_ride_card.dart';
 import '../components/new_request_card.dart';
@@ -17,7 +20,13 @@ import '../components/review_screen.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class RideRequestOverlay extends StatefulWidget {
-  const RideRequestOverlay({Key? key}) : super(key: key);
+  // ✅ 1. Add driverLocation variable
+  final LatLng? driverLocation;
+
+  const RideRequestOverlay({
+    Key? key,
+    this.driverLocation, // ✅ 2. Initialize in constructor
+  }) : super(key: key);
 
   @override
   RideRequestOverlayState createState() => RideRequestOverlayState();
@@ -75,6 +84,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
 
       final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
+
+      // ✅ LOGIC: If another driver accepted it, status won't be SEARCHING
+      // So we remove it from the list to make it "disappear" like Rapido
+      if (updatedRide.status.toLowerCase() != 'searching' &&
+          updatedRide.status.toLowerCase() !=
+              'accepted' && // Keep if WE accepted
+          updatedRide.status.toLowerCase() != 'arrived' &&
+          updatedRide.status.toLowerCase() != 'started') {
+        // If it's just a general update and not one of our active states, remove it.
+        if (index != -1 && _activeRequests[index].status == 'SEARCHING') {
+          removeRideById(updatedRide.id);
+          return;
+        }
+      }
+
       if (index != -1) {
         setState(() {
           _activeRequests[index] = updatedRide;
@@ -85,8 +109,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         });
       } else {
         setState(() {
-          _activeRequests.add(updatedRide);
+          // Only add if it is actually searching
           if (updatedRide.status.toLowerCase() == 'searching') {
+            _activeRequests.add(updatedRide);
             _timers[updatedRide.id] = 30;
             _startAlert();
           }
@@ -308,6 +333,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             remainingTime: _timers[ride.id] ?? 0,
             onAccept: () => _acceptRide(ride.id),
             onDecline: () => removeRideById(ride.id),
+            driverLocation: widget.driverLocation, // ✅ 3. Pass Location to Card
           ),
         );
       case 'accepted':

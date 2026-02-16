@@ -109,7 +109,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             "Partner Profile",
                             style: GoogleFonts.inter(
                               fontSize: 30,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha:0.9),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -147,7 +147,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha:0.08),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),

@@ -280,7 +280,7 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
       onTap: onTap,
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle),
+        decoration: BoxDecoration(color: Colors.blue.withValues(alpha:0.1), shape: BoxShape.circle),
         child: Icon(icon, color: Colors.blue.shade700, size: 20),
       ),
       title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),

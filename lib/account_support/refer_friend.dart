@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ReferFriendWidget extends StatefulWidget {
   const ReferFriendWidget({super.key});
@@ -23,6 +24,10 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
   bool _isLoading = true;
   String _referralCode = '';
   String _errorMessage = '';
+
+  // Ugo Brand Colors
+  final Color ugoOrange = const Color(0xFFFF7B10);
+  final Color ugoOrangeLight = const Color(0xFFFF9E4D);
 
   @override
   void initState() {
@@ -41,61 +46,23 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       final driverId = FFAppState().driverid;
       final token = FFAppState().accessToken;
 
-      // Validate authentication
       if (driverId == 0 || token.isEmpty) {
         setState(() {
-          _errorMessage = FFLocalizations.of(context).getVariableText(
-            enText: 'Please login first',
-            hiText: 'कृपया पहले लॉगिन करें',
-            teText: 'దయచేసి ముందుగా లాగిన్ అవండి',
-          );
+          _errorMessage = 'Please login first';
           _isLoading = false;
         });
         return;
       }
 
-      print('🔄 Fetching referral code...');
-      print('   Driver ID: $driverId');
-      print('   Token: ${token.substring(0, 20)}...');
-
-      // Call the DriverIdfetchCall API
       final response = await DriverIdfetchCall.call(
         id: driverId,
         token: token,
       );
 
-      print('📥 API Response:');
-      print('   Status: ${response.statusCode}');
-      print('   Success: ${response.succeeded}');
-      print('   Body: ${response.jsonBody}');
-
-      // Check if response is successful
-      bool isSuccess = false;
-
-      if (response.succeeded == true) {
-        isSuccess = true;
-      } else if (response.statusCode == 200 || response.statusCode == 201) {
-        isSuccess = true;
-      } else {
-        try {
-          final successField = getJsonField(
-            (response.jsonBody ?? ''),
-            r'''$.success''',
-          );
-          if (successField == true) {
-            isSuccess = true;
-          }
-        } catch (e) {
-          print('Error checking success field: $e');
-        }
-      }
+      bool isSuccess = response.succeeded ?? (response.statusCode == 200 || response.statusCode == 201);
 
       if (isSuccess) {
-        // Extract referral code from response using helper method
         final referralCode = DriverIdfetchCall.referralCode(response.jsonBody);
-
-        print('✅ Referral code fetched: $referralCode');
-
         if (referralCode != null && referralCode.isNotEmpty) {
           setState(() {
             _referralCode = referralCode;
@@ -103,47 +70,19 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           });
         } else {
           setState(() {
-            _errorMessage = FFLocalizations.of(context).getVariableText(
-              enText: 'No referral code found',
-              hiText: 'कोई रेफरल कोड नहीं मिला',
-              teText: 'రిఫరల్ కోడ్ కనుగొనబడలేదు',
-            );
+            _errorMessage = 'No referral code found';
             _isLoading = false;
           });
         }
       } else {
-        // Extract error message from response
-        String errorMessage = FFLocalizations.of(context).getVariableText(
-          enText: 'Failed to fetch referral code',
-          hiText: 'रेफरल कोड प्राप्त करने में विफल',
-          teText: 'రిఫరల్ కోడ్‌ను పొందడం విఫలమైంది',
-        );
-
-        try {
-          final message = getJsonField(
-            (response.jsonBody ?? ''),
-            r'''$.message''',
-          );
-          if (message != null && message.toString().isNotEmpty) {
-            errorMessage = message.toString();
-          }
-        } catch (e) {
-          print('Error parsing error message: $e');
-        }
-
         setState(() {
-          _errorMessage = errorMessage;
+          _errorMessage = 'Failed to fetch referral code';
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('❌ Error fetching referral code: $e');
       setState(() {
-        _errorMessage = FFLocalizations.of(context).getVariableText(
-          enText: 'An error occurred. Please try again.',
-          hiText: 'एक त्रुटि हुई। कृपया पुन: प्रयास करें।',
-          teText: 'ఒక లోపం సంభవించింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
-        );
+        _errorMessage = 'An error occurred. Please try again.';
         _isLoading = false;
       });
     }
@@ -152,221 +91,62 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
   /// Copy referral code to clipboard
   Future<void> _copyToClipboard() async {
     if (_referralCode.isEmpty) return;
-
     await Clipboard.setData(ClipboardData(text: _referralCode));
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            FFLocalizations.of(context).getVariableText(
-              enText: 'Referral code copied to clipboard!',
-              hiText: 'रेफरल कोड क्लिपबोर्ड पर कॉपी किया गया!',
-              teText: 'రిఫరల్ కోడ్ క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది!',
-            ),
-            style: TextStyle(color: Colors.white),
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                FFLocalizations.of(context).getVariableText(
+                  enText: 'Copied to clipboard!',
+                  hiText: 'क्लिपबोर्ड पर कॉपी किया गया!',
+                  teText: 'క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది!',
+                ),
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: ugoOrange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
         ),
       );
     }
   }
 
-  /// Share referral code via WhatsApp or show share options
+  /// 🚀 Helper to generate the optimized share text
+  String _getShareText() {
+    // ✅ Updated share text as per your request (No Play Store link)
+    return 'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning! 🚗💰';
+  }
+
+  /// Share Logic
   Future<void> _shareReferralCode() async {
     if (_referralCode.isEmpty) return;
 
-    final shareText = FFLocalizations.of(context).getVariableText(
-      enText:
-          'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning! 🚗💰',
-      hiText:
-          'मेरे रेफरल कोड का उपयोग करके UGO टैक्सी में शामिल हों: $_referralCode\nऐप डाउनलोड करें और कमाई शुरू करें! 🚗💰',
-      teText:
-          'నా రిఫరల్ కోడ్‌ని ఉపయోగించి UGO టాక్సీలో చేరండి: $_referralCode\nయాప్‌ను డౌన్‌లోడ్ చేయండి మరియు సంపాదించడం ప్రారంభించండి! 🚗💰',
-    );
+    final shareText = _getShareText();
 
-    // Show share dialog directly
-    if (mounted) {
-      showShareDialog(shareText);
+    // Use generic share sheet as default fallback
+    final Uri smsUrl = Uri.parse('sms:?body=${Uri.encodeComponent(shareText)}');
+    if (await canLaunchUrl(smsUrl)) {
+      await launchUrl(smsUrl);
     }
   }
 
-  /// Show share options dialog
-  void showShareDialog(String shareText) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                FFLocalizations.of(context).getVariableText(
-                  enText: 'Share Referral Code',
-                  hiText: 'रेफरल कोड साझा करें',
-                  teText: 'రిఫరల్ కోడ్‌ను భాగస్వామ్యం చేయండి',
-                ),
-                style: FlutterFlowTheme.of(context).titleLarge,
-              ),
-              SizedBox(height: 16.0),
-              // Copy to Clipboard Option
-              ListTile(
-                leading: Icon(
-                  Icons.copy,
-                  color: FlutterFlowTheme.of(context).primary,
-                ),
-                title: Text(
-                  FFLocalizations.of(context).getVariableText(
-                    enText: 'Copy to Clipboard',
-                    hiText: 'क्लिपबोर्ड में कॉपी करें',
-                    teText: 'క్లిప్‌బోర్డ్‌కు కాపీ చేయండి',
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _copyToClipboard();
-                },
-              ),
-              // WhatsApp Option
-              ListTile(
-                leading: Icon(
-                  Icons.chat,
-                  color: Color(0xFF25D366),
-                ),
-                title: Text(
-                  FFLocalizations.of(context).getVariableText(
-                    enText: 'Share via WhatsApp',
-                    hiText: 'WhatsApp के माध्यम से साझा करें',
-                    teText: 'WhatsApp ద్వారా భాగస్వామ్యం చేయండి',
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _shareViaWhatsApp(shareText);
-                },
-              ),
-              // SMS Option
-              ListTile(
-                leading: Icon(
-                  Icons.sms,
-                  color: FlutterFlowTheme.of(context).primary,
-                ),
-                title: Text(
-                  FFLocalizations.of(context).getVariableText(
-                    enText: 'Share via SMS',
-                    hiText: 'SMS के माध्यम से साझा करें',
-                    teText: 'SMS ద్వారా భాగస్వామ్యం చేయండి',
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _shareViaSMS(shareText);
-                },
-              ),
-              // Email Option
-              ListTile(
-                leading: Icon(
-                  Icons.email,
-                  color: FlutterFlowTheme.of(context).primary,
-                ),
-                title: Text(
-                  FFLocalizations.of(context).getVariableText(
-                    enText: 'Share via Email',
-                    hiText: 'ईमेल के माध्यम से साझा करें',
-                    teText: 'ఇమెయిల్ ద్వారా భాగస్వామ్యం చేయండి',
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _shareViaEmail(shareText);
-                },
-              ),
-              SizedBox(height: 12.0),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  Future<void> _shareViaWhatsApp() async {
+    if (_referralCode.isEmpty) return;
 
-  /// Share via WhatsApp
-  Future<void> _shareViaWhatsApp(String text) async {
-    final uri = Uri.parse(
-      'whatsapp://send?text=${Uri.encodeComponent(text)}',
-    );
+    final shareText = _getShareText();
+    final uri = Uri.parse('whatsapp://send?text=${Uri.encodeComponent(shareText)}');
 
     try {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
-      print("WhatsApp error: $e");
-    }
-  }
-
-
-  /// Share via SMS
-  Future<void> _shareViaSMS(String text) async {
-    try {
-      final smsUrl = Uri.parse(
-        'sms:?body=${Uri.encodeComponent(text)}',
-      );
-
-      if (await canLaunchUrl(smsUrl)) {
-        await launchUrl(smsUrl);
-      } else {
-        throw 'SMS not available';
-      }
-    } catch (e) {
-      print('SMS share error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              FFLocalizations.of(context).getVariableText(
-                enText: 'SMS is not available',
-                hiText: 'SMS उपलब्ध नहीं है',
-                teText: 'SMS అందుబాటులో లేదు',
-              ),
-            ),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    }
-  }
-
-  /// Share via Email
-  Future<void> _shareViaEmail(String text) async {
-    try {
-      final emailUrl = Uri.parse(
-        'mailto:?subject=${Uri.encodeComponent('Join UGO Taxi')}&body=${Uri.encodeComponent(text)}',
-      );
-
-      if (await canLaunchUrl(emailUrl)) {
-        await launchUrl(emailUrl);
-      } else {
-        throw 'Email not available';
-      }
-    } catch (e) {
-      print('Email share error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              FFLocalizations.of(context).getVariableText(
-                enText: 'Email app is not available',
-                hiText: 'ईमेल ऐप उपलब्ध नहीं है',
-                teText: 'ఇమెయిల్ యాప్ అందుబాటులో లేదు',
-              ),
-            ),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp not installed')));
     }
   }
 
@@ -379,479 +159,432 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            onPressed: () async {
-              context.pop();
-            },
-          ),
-          title: Text(
-            FFLocalizations.of(context).getVariableText(
-              enText: 'Refer a Friend',
-              hiText: 'दोस्त को रेफर करें',
-              teText: 'స్నేహితుడిని రిఫర్ చేయండి',
-            ),
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.w500,
-                  ),
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  letterSpacing: 0.0,
+        backgroundColor: const Color(0xFFF5F7FA), // Light grey background
+        body: Stack(
+          children: [
+            // 1️⃣ VIBRANT HEADER BACKGROUND
+            Container(
+              height: 320,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [ugoOrange, ugoOrangeLight],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-          ),
-          centerTitle: true,
-          elevation: 2.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: _isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      FlutterFlowTheme.of(context).primary,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+              ),
+            ),
+            // Decorative Circles
+            Positioned(
+              top: -50,
+              right: -50,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+
+            // 2️⃣ MAIN CONTENT
+            SafeArea(
+              child: Column(
+                children: [
+                  // Custom App Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Row(
+                      children: [
+                        FlutterFlowIconButton(
+                          borderColor: Colors.white.withValues(alpha: 0.3),
+                          borderRadius: 30.0,
+                          borderWidth: 1.0,
+                          buttonSize: 45.0,
+                          fillColor: Colors.white.withValues(alpha: 0.2),
+                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+                          onPressed: () => context.pop(),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            "Refer & Earn",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 45), // Balance the back button
+                      ],
                     ),
                   ),
-                )
-              : _errorMessage.isNotEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 60.0,
-                            color: FlutterFlowTheme.of(context).error,
-                          ),
-                          SizedBox(height: 16.0),
-                          Text(
-                            _errorMessage,
-                            style:
-                                FlutterFlowTheme.of(context).bodyLarge.override(
-                                      font: GoogleFonts.inter(),
-                                      color: FlutterFlowTheme.of(context).error,
-                                      fontSize: 16.0,
-                                      letterSpacing: 0.0,
-                                    ),
-                          ),
-                          SizedBox(height: 24.0),
-                          FFButtonWidget(
-                            onPressed: _fetchReferralCode,
-                            text: FFLocalizations.of(context).getVariableText(
-                              enText: 'Retry',
-                              hiText: 'पुनः प्रयास करें',
-                              teText: 'మళ్లీ ప్రయత్నించండి',
-                            ),
-                            options: FFButtonOptions(
-                              width: 120.0,
-                              height: 44.0,
-                              padding: EdgeInsets.all(0.0),
-                              color: FlutterFlowTheme.of(context).primary,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleSmall
-                                  .override(
-                                    font: GoogleFonts.interTight(),
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    letterSpacing: 0.0,
-                                  ),
-                              elevation: 2.0,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
+
+                  // Header Text
+                  const SizedBox(height: 10),
+                  Text(
+                    "Invite Friends,\nGet Rewards!",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.interTight(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Earn when your friend completes their first ride.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // 3️⃣ SCROLLABLE CARD AREA
+                  Expanded(
+                    child: _isLoading
+                        ? Center(child: CircularProgressIndicator(color: Colors.white))
+                        : _errorMessage.isNotEmpty
+                        ? _buildErrorView()
+                        : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            24.0, 24.0, 24.0, 24.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Header Icon
-                            Container(
-                              width: 120.0,
-                              height: 120.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .primary
-                                    .withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.card_giftcard,
-                                size: 60.0,
-                                color: FlutterFlowTheme.of(context).primary,
-                              ),
-                            ),
-                            SizedBox(height: 24.0),
+                            // 🎟️ COUPON CARD
+                            _buildReferralCard(),
 
-                            // Title
+                            const SizedBox(height: 24),
+
+                            // 📢 SOCIAL SHARE BUTTONS
                             Text(
-                              FFLocalizations.of(context).getVariableText(
-                                enText: 'Share & Earn',
-                                hiText: 'साझा करें और कमाएं',
-                                teText: 'భాగస్వామ్యం చేయండి & సంపాదించండి',
+                              "Share via",
+                              style: GoogleFonts.inter(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
-                              style: FlutterFlowTheme.of(context)
-                                  .headlineLarge
-                                  .override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    fontSize: 28.0,
-                                    letterSpacing: 0.0,
-                                  ),
                             ),
-                            SizedBox(height: 12.0),
-
-                            // Description
-                            Text(
-                              FFLocalizations.of(context).getVariableText(
-                                enText:
-                                    'Invite your friends to join UGO and earn rewards when they complete their first ride!',
-                                hiText:
-                                    'अपने दोस्तों को UGO में शामिल होने के लिए आमंत्रित करें और जब वे अपनी पहली यात्रा पूरी करें तो पुरस्कार अर्जित करें!',
-                                teText:
-                                    'మీ స్నేహితులను UGOలో చేరమని ఆహ్వానించండి మరియు వారు తమ మొదటి ప్రయాణాన్ని పూర్తి చేసినప్పుడు బహుమతులు పొందండి!',
-                              ),
-                              textAlign: TextAlign.center,
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(),
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                    fontSize: 15.0,
-                                    letterSpacing: 0.0,
-                                  ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _socialButton(
+                                  icon: FontAwesomeIcons.whatsapp,
+                                  color: const Color(0xFF25D366),
+                                  label: "WhatsApp",
+                                  onTap: _shareViaWhatsApp,
+                                ),
+                                const SizedBox(width: 20),
+                                _socialButton(
+                                  icon: FontAwesomeIcons.solidMessage,
+                                  color: const Color(0xFF3B5998),
+                                  label: "Message",
+                                  onTap: _shareReferralCode,
+                                ),
+                                const SizedBox(width: 20),
+                                _socialButton(
+                                  icon: Icons.share_rounded,
+                                  color: ugoOrange,
+                                  label: "More",
+                                  onTap: _shareReferralCode,
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 32.0),
 
-                            // Referral Code Card
+                            const SizedBox(height: 30),
+
+                            // ℹ️ HOW IT WORKS
                             Container(
                               width: double.infinity,
+                              padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .primaryBackground,
-                                borderRadius: BorderRadius.circular(16.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    20.0, 24.0, 20.0, 24.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText: 'Your Referral Code',
-                                        hiText: 'आपका रेफरल कोड',
-                                        teText: 'మీ రిఫరల్ కోడ్',
-                                      ),
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.inter(),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                          ),
-                                    ),
-                                    SizedBox(height: 12.0),
-                                    // Referral Code Display
-                                    Container(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          16.0, 12.0, 16.0, 12.0),
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary
-                                            .withOpacity(0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                      child: Text(
-                                        _referralCode,
-                                        style: FlutterFlowTheme.of(context)
-                                            .headlineMedium
-                                            .override(
-                                              font: GoogleFonts.robotoMono(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              fontSize: 24.0,
-                                              letterSpacing: 2.0,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 24.0),
-
-                            // Copy Button
-                            FFButtonWidget(
-                              onPressed: _copyToClipboard,
-                              text: FFLocalizations.of(context).getVariableText(
-                                enText: 'Copy Code',
-                                hiText: 'कोड कॉपी करें',
-                                teText: 'కోడ్‌ను కాపీ చేయండి',
-                              ),
-                              icon: Icon(
-                                Icons.copy,
-                                size: 20.0,
-                              ),
-                              options: FFButtonOptions(
-                                width: double.infinity,
-                                height: 56.0,
-                                padding: EdgeInsets.all(0.0),
-                                color: FlutterFlowTheme.of(context).primary,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      color: Colors.white,
-                                      fontSize: 18.0,
-                                      letterSpacing: 0.0,
-                                    ),
-                                elevation: 2.0,
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                            ),
-                            SizedBox(height: 12.0),
-
-                            // Share Button
-                            FFButtonWidget(
-                              onPressed: _shareReferralCode,
-                              text: FFLocalizations.of(context).getVariableText(
-                                enText: 'Share with Friends',
-                                hiText: 'दोस्तों के साथ साझा करें',
-                                teText: 'స్నేహితులతో భాగస్వామ్యం చేయండి',
-                              ),
-                              icon: Icon(
-                                Icons.share,
-                                size: 20.0,
-                              ),
-                              options: FFButtonOptions(
-                                width: double.infinity,
-                                height: 56.0,
-                                padding: EdgeInsets.all(0.0),
                                 color: Colors.white,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      fontSize: 18.0,
-                                      letterSpacing: 0.0,
-                                    ),
-                                elevation: 0.0,
-                                borderSide: BorderSide(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  width: 2.0,
-                                ),
-                                borderRadius: BorderRadius.circular(12.0),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  )
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 32.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "How it works",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  _buildStepRow("1", "Invite your friends", "Share your code via WhatsApp or SMS."),
+                                  _buildConnectorLine(),
+                                  _buildStepRow("2", "They register", "They sign up using your referral code."),
+                                  _buildConnectorLine(),
 
-                            // How it Works Section
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 20.0, 16.0, 20.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText: 'How it Works',
-                                        hiText: 'यह कैसे काम करता है',
-                                        teText: 'ఇది ఎలా పనిచేస్తుంది',
-                                      ),
-                                      style: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .override(
-                                            font: GoogleFonts.interTight(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 18.0,
-                                            letterSpacing: 0.0,
-                                          ),
-                                    ),
-                                    SizedBox(height: 16.0),
-                                    _buildStep(
-                                      context: context,
-                                      number: '1',
-                                      title: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText: 'Share your code',
-                                        hiText: 'अपना कोड साझा करें',
-                                        teText: 'మీ కోడ్‌ను భాగస్వామ్యం చేయండి',
-                                      ),
-                                      description: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText:
-                                            'Send your referral code to friends',
-                                        hiText:
-                                            'दोस्तों को अपना रेफरल कोड भेजें',
-                                        teText:
-                                            'స్నేహితులకు మీ రిఫరల్ కోడ్‌ను పంపండి',
-                                      ),
-                                    ),
-                                    SizedBox(height: 12.0),
-                                    _buildStep(
-                                      context: context,
-                                      number: '2',
-                                      title: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText: 'They sign up',
-                                        hiText: 'वे साइन अप करें',
-                                        teText: 'వారు సైన్ అప్ చేస్తారు',
-                                      ),
-                                      description: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText:
-                                            'Your friend joins using your code',
-                                        hiText:
-                                            'आपका दोस्त आपके कोड का उपयोग करके शामिल होता है',
-                                        teText:
-                                            'మీ స్నేహితుడు మీ కోడ్‌ను ఉపయోగించి చేరతారు',
-                                      ),
-                                    ),
-                                    SizedBox(height: 12.0),
-                                    _buildStep(
-                                      context: context,
-                                      number: '3',
-                                      title: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText: 'You both earn',
-                                        hiText: 'आप दोनों कमाते हैं',
-                                        teText: 'మీరిద్దరూ సంపాదిస్తారు',
-                                      ),
-                                      description: FFLocalizations.of(context)
-                                          .getVariableText(
-                                        enText:
-                                            'Get rewards when they complete first ride',
-                                        hiText:
-                                            'जब वे पहली यात्रा पूरी करें तो पुरस्कार प्राप्त करें',
-                                        teText:
-                                            'వారు మొదటి ప్రయాణాన్ని పూర్తి చేసినప్పుడు బహుమతులు పొందండి',
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  // ✅ UPDATED STEP 3: Specific amount
+                                  _buildStepRow(
+                                      "3",
+                                      "You earn rewards",
+                                      "Get paid ₹10 for every Pro ride completed by the friends."
+                                  ),
+                                ],
                               ),
                             ),
+                            const SizedBox(height: 40),
                           ],
                         ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// Build step widget for "How it Works" section
-  Widget _buildStep({
-    required BuildContext context,
-    required String number,
-    required String title,
-    required String description,
-  }) {
+  // 🔹 WIDGET: Coupon Card
+  Widget _buildReferralCard() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          // Top Section
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Text(
+                  "YOUR REFERRAL CODE",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                    color: Colors.grey[500],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: _copyToClipboard,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E6), // Light Orange bg
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: ugoOrange.withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _referralCode,
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                            color: ugoOrange,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Container(width: 1, height: 24, color: ugoOrange.withValues(alpha: 0.3)),
+                            const SizedBox(width: 16),
+                            Icon(Icons.copy_rounded, color: ugoOrange, size: 22),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Dotted Divider
+          Row(
+            children: [
+              const SizedBox(width: 10), // Notch left
+              Expanded(
+                child: Container(
+                  height: 1,
+                  color: Colors.grey[200],
+                ),
+              ),
+              const SizedBox(width: 10), // Notch right
+            ],
+          ),
+
+          // Bottom Section
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              "Share this code with your friends",
+              style: GoogleFonts.inter(
+                color: Colors.grey[500],
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔹 WIDGET: Social Button
+  Widget _socialButton({required IconData icon, required Color color, required String label, required VoidCallback onTap}) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(50),
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: Center(
+              child: FaIcon(icon, color: color, size: 28),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🔹 WIDGET: Step Row
+  Widget _buildStepRow(String number, String title, String subtitle) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 32.0,
-          height: 32.0,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).primary,
+            color: const Color(0xFFFFF4E6),
             shape: BoxShape.circle,
+            border: Border.all(color: ugoOrange.withValues(alpha: 0.2)),
           ),
           child: Center(
             child: Text(
               number,
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    font: GoogleFonts.interTight(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    letterSpacing: 0.0,
-                  ),
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: ugoOrange),
             ),
           ),
         ),
-        SizedBox(width: 12.0),
+        const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: FlutterFlowTheme.of(context).bodyLarge.override(
-                      font: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      color: FlutterFlowTheme.of(context).primaryText,
-                      fontSize: 16.0,
-                      letterSpacing: 0.0,
-                    ),
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87),
               ),
-              SizedBox(height: 4.0),
               Text(
-                description,
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                      font: GoogleFonts.inter(),
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      fontSize: 13.0,
-                      letterSpacing: 0.0,
-                    ),
+                subtitle,
+                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
-        ),
+        )
       ],
+    );
+  }
+
+  // 🔹 WIDGET: Connector Line
+  Widget _buildConnectorLine() {
+    return Container(
+      margin: const EdgeInsets.only(left: 17, top: 4, bottom: 4),
+      width: 2,
+      height: 20,
+      color: Colors.grey[200],
+    );
+  }
+
+  // 🔹 WIDGET: Error View
+  Widget _buildErrorView() {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, color: Colors.red[400], size: 40),
+            const SizedBox(height: 10),
+            Text(
+              _errorMessage,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(color: Colors.black87),
+            ),
+            const SizedBox(height: 16),
+            FFButtonWidget(
+              onPressed: _fetchReferralCode,
+              text: "Retry",
+              options: FFButtonOptions(
+                width: 100,
+                height: 40,
+                padding: EdgeInsets.zero,
+                color: ugoOrange,
+                textStyle: const TextStyle(color: Colors.white),
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

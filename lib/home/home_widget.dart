@@ -573,7 +573,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFFFF7B10).withOpacity(0.4),
+                                      color: Color(0xFFFF7B10).withValues(alpha:0.4),
                                       blurRadius: 10,
                                       offset: Offset(0, 5),
                                     )
@@ -648,7 +648,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha:0.25),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(

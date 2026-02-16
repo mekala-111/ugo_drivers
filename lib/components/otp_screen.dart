@@ -20,11 +20,31 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   // Colors from screenshot
   static const Color ugoGreen = Color(0xFF4CAF50);
 
+  // Focus nodes for Rapido-style navigation
+  late List<FocusNode> _focusNodes;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize 4 focus nodes
+    _focusNodes = List.generate(4, (index) => FocusNode());
+  }
+
+  @override
+  void dispose() {
+    // Dispose focus nodes to prevent memory leaks
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // This Padding adjusts the view when the keyboard is open, pushing the sheet up.
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -38,7 +58,10 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                   topRight: Radius.circular(20),
                 ),
                 boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5))
+                  BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, -5))
                 ],
               ),
               child: Column(
@@ -83,11 +106,11 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
 
                         const SizedBox(height: 24),
 
-                        // 4 OTP Boxes
+                        // 4 OTP Boxes with Enhanced Logic
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: List.generate(4, (index) {
-                            return _buildOtpBox(widget.otpControllers[index], context, index == 0);
+                            return _buildOtpBox(index);
                           }),
                         ),
 
@@ -121,22 +144,6 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                                     ),
                                   ),
                                 ),
-                                Positioned(
-                                  left: 6,
-                                  child: Container(
-                                    width: 43,
-                                    height: 43,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.arrow_forward,
-                                      color: ugoGreen,
-                                      size: 24,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
@@ -153,47 +160,82 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
     );
   }
 
-  Widget _buildOtpBox(TextEditingController controller, BuildContext context, bool isFirst) {
-    return SizedBox(
-      width: 50,
-      height: 50,
-      child: TextField(
-        controller: controller,
-        autofocus: isFirst,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          LengthLimitingTextInputFormatter(1),
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black
-        ),
-        decoration: InputDecoration(
-          counterText: "",
-          contentPadding: EdgeInsets.zero,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: ugoGreen, width: 1.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: ugoGreen, width: 1.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: ugoGreen, width: 1.5),
-          ),
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            FocusScope.of(context).nextFocus();
-          } else if (value.isEmpty) {
-            FocusScope.of(context).previousFocus();
+  // Built with Rapido-like Focus Logic
+  Widget _buildOtpBox(int index) {
+    return RawKeyboardListener(
+      focusNode: FocusNode(), // Consumes raw events
+      onKey: (event) {
+        // Detect Backspace on Empty Field -> Move Previous
+        if (event is RawKeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.backspace) {
+            if (widget.otpControllers[index].text.isEmpty && index > 0) {
+              _focusNodes[index - 1].requestFocus();
+            }
           }
-        },
+        }
+      },
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: TextField(
+          controller: widget.otpControllers[index],
+          focusNode: _focusNodes[index],
+          autofocus: index == 0, // Auto-focus first box
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            // Removed LengthLimiting(1) to allow Paste logic below
+          ],
+          style: const TextStyle(
+              fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+          decoration: InputDecoration(
+            counterText: "",
+            contentPadding: EdgeInsets.zero,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: ugoGreen, width: 1.0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: ugoGreen, width: 1.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: ugoGreen, width: 1.5),
+            ),
+          ),
+          onChanged: (value) {
+            if (value.length == 1) {
+              // Standard Typing: Move Next
+              if (index < 3) {
+                _focusNodes[index + 1].requestFocus();
+              } else {
+                // Last digit entered: Unfocus
+                _focusNodes[index].unfocus();
+                // Optional: Auto-Submit
+                // widget.onVerify();
+              }
+            } else if (value.length > 1) {
+              // Paste Logic: If user pastes "1234"
+              if (value.length == 4 && index == 0) {
+                for (int i = 0; i < 4; i++) {
+                  widget.otpControllers[i].text = value[i];
+                }
+                _focusNodes[3].unfocus();
+                widget.onVerify(); // Trigger verify on paste
+              } else {
+                // Fallback: just take the last digit typed
+                widget.otpControllers[index].text =
+                    value.substring(value.length - 1);
+                if (index < 3) _focusNodes[index + 1].requestFocus();
+              }
+            } else if (value.isEmpty && index > 0) {
+              // Backspace cleared the field: Move Previous
+              _focusNodes[index - 1].requestFocus();
+            }
+          },
+        ),
       ),
     );
   }

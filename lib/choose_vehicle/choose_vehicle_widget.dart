@@ -142,7 +142,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       )
@@ -226,7 +226,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha:0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   )
@@ -295,7 +295,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? brandColor.withOpacity(0.08) : Colors.white,
+          color: isSelected ? brandColor.withValues(alpha:0.08) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? brandColor : Colors.grey.shade200,
@@ -309,7 +309,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: isSelected ? brandColor.withOpacity(0.2) : Colors.grey.shade100,
+                color: isSelected ? brandColor.withValues(alpha:0.2) : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(

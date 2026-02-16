@@ -257,7 +257,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         color: Color(0xFFF0F8FF),
                         borderRadius: BorderRadius.circular(12.0),
                         border: Border.all(
-                          color: FlutterFlowTheme.of(context).primary.withOpacity(0.3),
+                          color: FlutterFlowTheme.of(context).primary.withValues(alpha:0.3),
                           width: 1.5,
                         ),
                       ),
@@ -379,7 +379,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                           color: Color(0xFFE8F5E9),
                           borderRadius: BorderRadius.circular(12.0),
                           border: Border.all(
-                            color: Colors.green.withOpacity(0.3),
+                            color: Colors.green.withValues(alpha:0.3),
                             width: 1.5,
                           ),
                         ),

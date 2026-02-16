@@ -4,35 +4,42 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="BOOKING FLOW LATEST UPADET and upadte gradel">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UI ENHANCEMENT">
       <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_01_26,_2_09 pm_[Changes]/shelved.patch" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_01_26,_2_09 pm_[Changes]/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/google-services.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/account_support/editg_address.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/editg_address.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/adhar_upload/adhar_upload_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/adhar_upload/adhar_upload_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_manager.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/active_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/active_ride_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/invite_model.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/invite_widget.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/menu_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/menu_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/new_request_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/new_request_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/otp_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/otp_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/review_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/review_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/components/start_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/start_ride_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/ugo_swipe_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/ugo_swipe_button.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/face_verify/face_verify_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/face_verify/face_verify_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/firebase_options.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/firebase_options.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/ride_request_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/inbox_page/inbox_page_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inbox_page/inbox_page_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/index.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/invite_page/invite_page_model.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/invite_page/invite_page_widget.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/login/login_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/login/login_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/panupload_screen/panupload_screen_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/panupload_screen/panupload_screen_widget.dart" afterDir="false" />
@@ -41,6 +48,8 @@
       <change beforePath="$PROJECT_DIR$/lib/support/support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/support/support_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/teamearning/teamearning_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamearning/teamearning_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/vehicle_image/vehicle_image_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/vehicle_image/vehicle_image_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,7 +171,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771149492710</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="UI ENHANCEMENT">
+      <option name="closed" value="true" />
+      <created>1771191092736</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1771191092736</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -182,7 +199,8 @@
     <MESSAGE value="push update 032026" />
     <MESSAGE value="push update adhar_upload_widget.dart" />
     <MESSAGE value="BOOKING FLOW LATEST UPADET and upadte gradel" />
-    <option name="LAST_COMMIT_MESSAGE" value="BOOKING FLOW LATEST UPADET and upadte gradel" />
+    <MESSAGE value="UI ENHANCEMENT" />
+    <option name="LAST_COMMIT_MESSAGE" value="UI ENHANCEMENT" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">

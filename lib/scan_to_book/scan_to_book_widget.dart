@@ -122,7 +122,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                       "Show this code to the passenger",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha:0.9),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -142,7 +142,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                           borderRadius: BorderRadius.circular(24.0),
                           boxShadow: [
                             BoxShadow(
-                              color: brandPrimary.withOpacity(0.3),
+                              color: brandPrimary.withValues(alpha:0.3),
                               blurRadius: 30.0,
                               offset: const Offset(0, 10),
                               spreadRadius: 5,
@@ -195,7 +195,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha:0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           )

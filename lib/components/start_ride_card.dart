@@ -28,7 +28,8 @@ class RideBottomOverlay extends StatelessWidget {
     }
 
     final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
-    final Uri fallbackUrl = Uri.parse("http://googleusercontent.com/maps.google.com/?q=$lat,$lng");
+    final Uri fallbackUrl =
+        Uri.parse("http://googleusercontent.com/maps.google.com/?q=$lat,$lng");
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -55,7 +56,7 @@ class RideBottomOverlay extends StatelessWidget {
           child: InkWell(
             onTap: () {
               // Navigate to DROP location when ride is started
-              _launchMap(ride.dropLat, ride.dropLng);
+              _launchMap(ride.pickupLat, ride.pickupLng);
             },
             borderRadius: BorderRadius.circular(30),
             child: Container(
@@ -65,7 +66,10 @@ class RideBottomOverlay extends StatelessWidget {
                 color: const Color(0xFFFF7B10), // ugoOrange
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: const [
-                  BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
+                  BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(0, 4))
                 ],
               ),
               child: Row(
@@ -74,7 +78,7 @@ class RideBottomOverlay extends StatelessWidget {
                   Icon(Icons.navigation, color: Colors.black, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    "Drop",
+                    "PICK UP",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -139,11 +143,10 @@ class StartRideCard extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16)
-        ),
+            topLeft: Radius.circular(16), topRight: Radius.circular(16)),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
+          BoxShadow(
+              color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
       ),
       child: Column(
@@ -156,9 +159,7 @@ class StartRideCard extends StatelessWidget {
             decoration: const BoxDecoration(
               color: ugoGreen,
               borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16)
-              ),
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Text(
               'Waiting Time : $formattedWaitTime',
@@ -166,8 +167,7 @@ class StartRideCard extends StatelessWidget {
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15
-              ),
+                  fontSize: 15),
             ),
           ),
 
@@ -185,8 +185,7 @@ class StartRideCard extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black
-                        ),
+                            color: Colors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -194,9 +193,11 @@ class StartRideCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     Row(
                       children: [
-                        _buildSquareIconBtn(Icons.call, Colors.black, Colors.grey[200]!, onCall),
+                        _buildSquareIconBtn(Icons.call, Colors.black,
+                            Colors.grey[200]!, onCall),
                         const SizedBox(width: 12),
-                        _buildSquareIconBtn(Icons.close, Colors.white, ugoRed, onCancel),
+                        _buildSquareIconBtn(
+                            Icons.close, Colors.white, ugoRed, onCancel),
                       ],
                     )
                   ],
@@ -213,24 +214,21 @@ class StartRideCard extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        border: Border.all(color: isStarted ? ugoRed : ugoGreen, width: 1.5),
+                        border: Border.all(
+                            color: isStarted ? ugoRed : ugoGreen, width: 1.5),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                              Icons.location_on,
-                              color: isStarted ? ugoRed : ugoGreen,
-                              size: 20
-                          ),
+                          Icon(Icons.location_on,
+                              color: isStarted ? ugoRed : ugoGreen, size: 20),
                           Text(
                             isStarted ? "Drop" : "Pickup",
                             style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey[700],
-                                fontWeight: FontWeight.w500
-                            ),
+                                fontWeight: FontWeight.w500),
                           )
                         ],
                       ),
@@ -240,8 +238,7 @@ class StartRideCard extends StatelessWidget {
                     // Rich Address
                     Expanded(
                       child: _buildRichAddress(
-                          isStarted ? ride.dropAddress : ride.pickupAddress
-                      ),
+                          isStarted ? ride.dropAddress : ride.pickupAddress),
                     ),
                   ],
                 ),
@@ -289,29 +286,21 @@ class StartRideCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (pincode.isNotEmpty)
-          Text(
-              pincode,
+          Text(pincode,
               style: const TextStyle(
-                  color: ugoOrange,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15
-              )
-          ),
+                  color: ugoOrange, fontWeight: FontWeight.bold, fontSize: 15)),
         const SizedBox(height: 4),
         RichText(
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           text: TextSpan(
-            style: const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
+            style:
+                const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
             children: [
               TextSpan(
                   text: "$locality, ",
-                  style: const TextStyle(fontWeight: FontWeight.bold)
-              ),
-              TextSpan(
-                  text: rest,
-                  style: TextStyle(color: Colors.grey[600])
-              ),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: rest, style: TextStyle(color: Colors.grey[600])),
             ],
           ),
         ),
@@ -319,7 +308,8 @@ class StartRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(IconData icon, Color iconColor, Color bgColor, VoidCallback onPressed) {
+  Widget _buildSquareIconBtn(
+      IconData icon, Color iconColor, Color bgColor, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(8),
@@ -327,14 +317,8 @@ class StartRideCard extends StatelessWidget {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(8)
-        ),
-        child: Icon(
-            icon,
-            color: iconColor,
-            size: 24
-        ),
+            color: bgColor, borderRadius: BorderRadius.circular(8)),
+        child: Icon(icon, color: iconColor, size: 24),
       ),
     );
   }
@@ -387,8 +371,7 @@ class _SlideToActionState extends State<SlideToAction> {
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      letterSpacing: 1.0
-                  ),
+                      letterSpacing: 1.0),
                 ),
               ),
               Positioned(
@@ -430,10 +413,8 @@ class _SlideToActionState extends State<SlideToAction> {
                           BoxShadow(
                               color: Colors.black26,
                               blurRadius: 3,
-                              offset: Offset(1,1)
-                          )
-                        ]
-                    ),
+                              offset: Offset(1, 1))
+                        ]),
                     child: Icon(
                       Icons.arrow_forward,
                       color: widget.outerColor,

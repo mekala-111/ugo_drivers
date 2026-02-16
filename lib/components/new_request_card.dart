@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/flutter_flow/lat_lng.dart';
 import '../home/ride_request_model.dart';
 
 class NewRequestCard extends StatelessWidget {
@@ -12,7 +13,7 @@ class NewRequestCard extends StatelessWidget {
     required this.ride,
     required this.remainingTime,
     required this.onAccept,
-    required this.onDecline,
+    required this.onDecline, LatLng? driverLocation,
   }) : super(key: key);
 
   // --- Colors ---
@@ -152,7 +153,7 @@ class NewRequestCard extends StatelessWidget {
           height: 45,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.withOpacity(0.5))),
+              border: Border.all(color: color.withValues(alpha:0.5))),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.location_on, color: color, size: 20),
             Text(label,

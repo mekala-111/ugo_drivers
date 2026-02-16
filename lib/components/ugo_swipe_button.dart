@@ -67,8 +67,8 @@
 //               colors: _isFinished
 //                   ? [widget.color, widget.color]
 //                   : [
-//                       widget.color.withOpacity(0.8),
-//                       widget.color.withOpacity(0.95),
+//                       widget.color.withValues(alpha:0.8),
+//                       widget.color.withValues(alpha:0.95),
 //                     ],
 //               begin: Alignment.centerLeft,
 //               end: Alignment.centerRight,
@@ -76,7 +76,7 @@
 //             borderRadius: BorderRadius.circular(30),
 //             boxShadow: [
 //               BoxShadow(
-//                 color: widget.color.withOpacity(0.3),
+//                 color: widget.color.withValues(alpha:0.3),
 //                 blurRadius: 8,
 //                 offset: const Offset(0, 4),
 //               ),
@@ -93,8 +93,8 @@
 //                 decoration: BoxDecoration(
 //                   gradient: LinearGradient(
 //                     colors: [
-//                       Colors.white.withOpacity(0.1),
-//                       Colors.white.withOpacity(0.05),
+//                       Colors.white.withValues(alpha:0.1),
+//                       Colors.white.withValues(alpha:0.05),
 //                     ],
 //                   ),
 //                   borderRadius: BorderRadius.circular(30),
@@ -115,7 +115,7 @@
 //                           opacity: _dragValue > (index * 0.15) ? 0.3 : 0.6,
 //                           child: Icon(
 //                             Icons.chevron_right,
-//                             color: Colors.white.withOpacity(0.4),
+//                             color: Colors.white.withValues(alpha:0.4),
 //                             size: 20,
 //                           ),
 //                         ),
@@ -232,7 +232,7 @@
 //                             shape: BoxShape.circle,
 //                             boxShadow: [
 //                               BoxShadow(
-//                                 color: Colors.black.withOpacity(0.2),
+//                                 color: Colors.black.withValues(alpha:0.2),
 //                                 blurRadius: 8,
 //                                 offset: const Offset(0, 2),
 //                               ),
@@ -263,7 +263,7 @@
 //                                                 shape: BoxShape.circle,
 //                                                 border: Border.all(
 //                                                   color: widget.color
-//                                                       .withOpacity(0.3),
+//                                                       .withValues(alpha:0.3),
 //                                                   width: 2,
 //                                                 ),
 //                                               ),

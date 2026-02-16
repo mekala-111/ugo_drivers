@@ -250,7 +250,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha:0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(Icons.arrow_back,
@@ -307,7 +307,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       )
@@ -385,7 +385,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             disabledBackgroundColor:
-                            brandPrimary.withOpacity(0.6),
+                            brandPrimary.withValues(alpha:0.6),
                           ),
                           child: _isLoading
                               ? const SizedBox(
@@ -444,14 +444,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     if (isLocal) {
       bgColor = const Color(0xFFFFF7ED); // Light Orange
-      borderColor = const Color(0xFFFF7B10).withOpacity(0.5);
+      borderColor = const Color(0xFFFF7B10).withValues(alpha:0.5);
       iconColor = const Color(0xFFFF7B10);
       icon = Icons.cloud_upload_rounded;
       statusText = "Ready to Update";
       textColor = const Color(0xFFFF7B10);
     } else if (isServer) {
       bgColor = const Color(0xFFF0FDF4); // Light Green
-      borderColor = const Color(0xFF10B981).withOpacity(0.5);
+      borderColor = const Color(0xFF10B981).withValues(alpha:0.5);
       iconColor = const Color(0xFF10B981);
       icon = Icons.check_circle_rounded;
       statusText = "Uploaded";

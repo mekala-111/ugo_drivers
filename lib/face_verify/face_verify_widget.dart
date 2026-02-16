@@ -268,15 +268,15 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Color(0xFFFF8C00).withOpacity(0.1),
-                            Color(0xFFFF6B00).withOpacity(0.05)
+                            Color(0xFFFF8C00).withValues(alpha:0.1),
+                            Color(0xFFFF6B00).withValues(alpha:0.05)
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Color(0xFFFF8C00).withOpacity(0.3),
+                          color: Color(0xFFFF8C00).withValues(alpha:0.3),
                         ),
                       ),
                       child: Column(
@@ -287,7 +287,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                               Container(
                                 padding: EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFFF8C00).withOpacity(0.2),
+                                  color: Color(0xFFFF8C00).withValues(alpha:0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -402,7 +402,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha:0.05),
                             blurRadius: 10,
                             offset: Offset(0, 4),
                           ),
@@ -452,7 +452,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha:0.1),
                               blurRadius: 20,
                               offset: Offset(0, 8),
                             ),
@@ -489,7 +489,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                       color: (_isProfilePhotoValid
                                               ? Colors.green
                                               : Color(0xFFFF8C00))
-                                          .withOpacity(0.2),
+                                          .withValues(alpha:0.2),
                                       blurRadius: 20,
                                       offset: Offset(0, 8),
                                     ),
@@ -567,7 +567,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                             BoxDecoration(
                                                           color: Color(
                                                                   0xFFFF8C00)
-                                                              .withOpacity(0.1),
+                                                              .withValues(alpha:0.1),
                                                           shape:
                                                               BoxShape.circle,
                                                         ),
@@ -653,7 +653,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha:0.3),
                                                   blurRadius: 8,
                                                   offset: Offset(0, 4),
                                                 ),
@@ -846,7 +846,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = Color(0xFF2E7D32).withOpacity(0.9)
+      ..color = Color(0xFF2E7D32).withValues(alpha:0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -870,7 +870,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withOpacity(0.95)
+      ..color = Colors.white.withValues(alpha:0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);

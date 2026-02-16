@@ -100,7 +100,7 @@ class _SupportWidgetState extends State<SupportWidget> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: brandPrimary.withOpacity(0.1),
+                  color: brandPrimary.withValues(alpha:0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
@@ -219,7 +219,7 @@ class _SupportWidgetState extends State<SupportWidget> {
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
