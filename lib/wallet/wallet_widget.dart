@@ -1,7 +1,10 @@
+import 'package:ugo_driver/index.dart';
+
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'wallet_model.dart';
 export 'wallet_model.dart';
@@ -26,10 +29,63 @@ class _WalletWidgetState extends State<WalletWidget> {
   final Color ugoGreen = const Color(0xFF4CAF50);
   final Color ugoRed = const Color(0xFFE53935);
 
+  // Bank Account Data
+  String? bankAccountNumber;
+  String? ifscCode;
+  String? bankName;
+  String? accountHolderName;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => WalletModel());
+    _fetchBankAccount();
+  }
+
+  // 🏦 Fetch bank account details from API
+  Future<void> _fetchBankAccount() async {
+    try {
+      // Get driver ID from app state - handle both int and String types
+      final driverIdValue = FFAppState().driverid;
+
+      // Convert to String (handles both int and String types)
+      final driverId = driverIdValue.toString();
+
+      if (driverId.isEmpty) {
+        if (kDebugMode) print('Driver ID is empty');
+        return;
+      }
+
+      final response = await BankAccountCall.call(driverId: driverId);
+
+      if (response.succeeded) {
+        setState(() {
+          bankAccountNumber =
+              BankAccountCall.bankAccountNumber(response.jsonBody);
+          ifscCode = BankAccountCall.ifscCode(response.jsonBody);
+          bankName = BankAccountCall.bankName(response.jsonBody);
+          accountHolderName =
+              BankAccountCall.accountHolderName(response.jsonBody);
+        });
+
+        if (kDebugMode) {
+          print('✅ Bank Account Loaded Successfully');
+          print('   Account: $bankAccountNumber');
+          print('   IFSC: $ifscCode');
+          print('   Bank: $bankName');
+        }
+      } else {
+        if (kDebugMode) {
+          print('❌ Failed to fetch bank account');
+          print('   Status: ${response.statusCode}');
+          if (response.exception != null) {
+            print('   Error: ${response.exceptionMessage}');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print('❌ Error fetching bank account: $e');
+    }
   }
 
   @override
@@ -131,7 +187,8 @@ class _WalletWidgetState extends State<WalletWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildHeaderAction(Icons.add, "Add Money", () {}),
-                        _buildHeaderAction(Icons.qr_code_scanner, "Scan", () {}),
+                        _buildHeaderAction(
+                            Icons.qr_code_scanner, "Scan", () {}),
                         _buildHeaderAction(Icons.history, "History", () {}),
                       ],
                     ),
@@ -188,9 +245,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                         child: Text(
                           "View All Transactions",
                           style: TextStyle(
-                              color: ugoOrange,
-                              fontWeight: FontWeight.w600
-                          ),
+                              color: ugoOrange, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -217,12 +272,21 @@ class _WalletWidgetState extends State<WalletWidget> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     _buildMenuCard(
                       icon: Icons.account_balance,
                       title: "Bank Account",
                       subtitle: "Manage withdrawal account",
-                      onTap: () {},
+                      onTap: () {
+                        // Navigate based on whether bank account exists
+                        if (bankAccountNumber != null &&
+                            bankAccountNumber!.isNotEmpty) {
+                          // Bank account exists - navigate to withdraw page
+                          context.pushNamed(WithdrawWidget.routeName);
+                        } else {
+                          // No bank account - navigate to add bank account page
+                          context.pushNamed(AddBankAccountWidget.routeName);
+                        }
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildMenuCard(
@@ -307,7 +371,9 @@ class _WalletWidgetState extends State<WalletWidget> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isCredit ? ugoGreen.withOpacity(0.1) : ugoRed.withOpacity(0.1),
+              color: isCredit
+                  ? ugoGreen.withOpacity(0.1)
+                  : ugoRed.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

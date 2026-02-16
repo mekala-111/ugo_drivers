@@ -11,7 +11,9 @@ export '/support/support_widget.dart' show SupportWidget;
 export '/wallet/wallet_widget.dart' show WalletWidget;
 
 
-
+export '/add_bankAccount/add_bank_account_widget.dart' show AddBankAccountWidget;
+export '/payments/payments_page_widget.dart' show PaymentsPageWidget;
+export '/withdraw/withdraw_widget.dart' show WithdrawWidget;
 export '/scan_to_book/scan_to_book_widget.dart' show ScanToBookWidget;
 export '/history/history_widget.dart' show HistoryWidget;
 export '/profile_setting/profile_setting_widget.dart' show ProfileSettingWidget;

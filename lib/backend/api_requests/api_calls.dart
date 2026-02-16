@@ -6,6 +6,9 @@ import 'api_manager.dart';
 
 export 'api_manager.dart' show ApiCallResponse;
 
+// 🌐 API Base URL Configuration
+const String _baseUrl = 'https://ugo-api.icacorp.org';
+
 class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
@@ -16,7 +19,7 @@ class LoginCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'login',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/login',
+      apiUrl: '$_baseUrl/api/drivers/login',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -49,13 +52,11 @@ class LoginCall {
       );
 }
 
-
-
 class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
-      apiUrl: 'https://ugo-api.icacorp.org/api/vehicle-types/getall-vehicle',
+      apiUrl: '$_baseUrl/api/vehicle-types/getall-vehicle',
       callType: ApiCallType.GET,
       headers: {}, // ✅ Clear that no auth needed
       params: {},
@@ -148,8 +149,7 @@ class CreateDriverCall {
     print("🚀 CreateDriver API Request}");
     print("🚀 CreateDriver API Request");
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    print(
-        "📍 URL: https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle");
+    print("📍 URL: $_baseUrl/api/drivers/signup-with-vehicle");
     print("📦 Body Type: ${BodyType.MULTIPART}");
     print("\n📄 FORM FIELDS:");
     print("  • driver: $driver");
@@ -158,7 +158,7 @@ class CreateDriverCall {
 
     return ApiManager.instance.makeApiCall(
       callName: 'createDriver',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/signup-with-vehicle',
+      apiUrl: '$_baseUrl/api/drivers/signup-with-vehicle',
       callType: ApiCallType.POST,
       headers: {},
       params: {
@@ -203,7 +203,7 @@ class DeleteDriverCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'deleteDriver',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/$id',
+      apiUrl: '$_baseUrl/api/drivers/$id',
       callType: ApiCallType.DELETE,
       headers: {
         'Authorization': 'Bearer $token',
@@ -234,7 +234,7 @@ class CompleteRideCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'completeRide',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/complete-ride',
+      apiUrl: '$_baseUrl/api/drivers/complete-ride',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': 'Bearer $token',
@@ -321,13 +321,13 @@ class UpdateDriverCall {
     }
 
     print("🚀 UpdateDriver API Request:");
-    print("   URL: https://ugo-api.icacorp.org/api/drivers/$id");
+    print("   URL: $_baseUrl/api/drivers/$id");
     print("   Token: ${token?.substring(0, 20)}...");
     print("   Params: $params");
 
     final response = await ApiManager.instance.makeApiCall(
       callName: 'updateDriver',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/$id',
+      apiUrl: '$_baseUrl/api/drivers/$id',
       callType: ApiCallType.PUT,
       headers: {
         'Authorization': 'Bearer $token',
@@ -368,7 +368,7 @@ class DriverIdfetchCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'driverIdfetch',
-      apiUrl: 'https://ugo-api.icacorp.org/api/drivers/${id}',
+      apiUrl: '$_baseUrl/api/drivers/${id}',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer ${token}',
@@ -519,7 +519,7 @@ class PostQRcodeCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'postQRcode',
-      apiUrl: 'https://ugo-api.icacorp.org/api/qr-codes/generate',
+      apiUrl: '$_baseUrl/api/qr-codes/generate',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': 'Bearer ${token}',
@@ -549,8 +549,7 @@ class GetDriverIncentivesCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getDriverIncentives',
-      apiUrl:
-          'https://ugo-api.icacorp.org/api/driver-incentives/get-incentives/$driverId',
+      apiUrl: '$_baseUrl/api/driver-incentives/get-incentives/$driverId',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -586,8 +585,7 @@ class ReferralDashboardCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'referralDashboard',
-      apiUrl:
-          'https://ugo-api.icacorp.org/api/referral-dashboard/$driverId/referral-dashboard',
+      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -674,8 +672,7 @@ class YesterdayStatisticsCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'YesterdayStatistics',
-      apiUrl:
-          'https://ugo-api.icacorp.org/api/referral-dashboard/$driverId/yesterday-statistics',
+      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/yesterday-statistics',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -744,7 +741,7 @@ class NotificationHistoryCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'notificationHistory',
-      apiUrl: 'https://ugo-api.icacorp.org/api/notifications/getall',
+      apiUrl: '$_baseUrl/api/notifications/getall',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -811,6 +808,124 @@ String _serializeJson(dynamic jsonVar, [bool isList = false]) {
     }
     return isList ? '[]' : '{}';
   }
+}
+
+// 🏦 Bank Account API Call
+class BankAccountCall {
+  static Future<ApiCallResponse> call({
+    required String driverId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getBankAccount',
+      apiUrl: '$_baseUrl/api/drivers/bank-account/$driverId',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  // Response parsers
+  static dynamic bankAccountNumber(dynamic response) => getJsonField(
+        response,
+        r'$.data.account_number',
+      );
+
+  static dynamic ifscCode(dynamic response) => getJsonField(
+        response,
+        r'$.data.ifsc_code',
+      );
+
+  static dynamic bankName(dynamic response) => getJsonField(
+        response,
+        r'$.data.bank_name',
+      );
+
+  static dynamic accountHolderName(dynamic response) => getJsonField(
+        response,
+        r'$.data.account_holder_name',
+      );
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+}
+
+// 🏦 Add Bank Account API Call (POST)
+class AddBankAccountCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String bankAccountNumber,
+    required String bankIfscCode,
+    required String bankHolderName,
+  }) async {
+    final ffApiRequestBody = '''
+{
+  "driver_id": ${driverId},
+  "bank_account_number": "${bankAccountNumber}",
+  "bank_ifsc_code": "${bankIfscCode}",
+  "bank_holder_name": "${bankHolderName}"
+}''';
+
+    print("🚀 AddBankAccount API Request:");
+    print("📍 URL: $_baseUrl/api/drivers/bank-account");
+    print("📦 Body: $ffApiRequestBody");
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'addBankAccount',
+      apiUrl: '$_baseUrl/api/drivers/bank-account',
+      callType: ApiCallType.POST,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  // Response parsers
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+
+  static dynamic bankAccountNumber(dynamic response) => getJsonField(
+        response,
+        r'$.data.bank_account_number',
+      );
+
+  static dynamic ifscCode(dynamic response) => getJsonField(
+        response,
+        r'$.data.bank_ifsc_code',
+      );
+
+  static dynamic bankHolderName(dynamic response) => getJsonField(
+        response,
+        r'$.data.bank_holder_name',
+      );
 }
 
 String? escapeStringForJson(String? input) {

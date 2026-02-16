@@ -136,9 +136,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: WalletWidget.routePath,
           builder: (context, params) => WalletWidget(),
         ),
-       
-      
-        
+        FFRoute(
+          name: AddBankAccountWidget.routeName,
+          path: AddBankAccountWidget.routePath,
+          builder: (context, params) => AddBankAccountWidget(),
+        ),
+        FFRoute(
+          name: PaymentsPageWidget.routeName,
+          path: PaymentsPageWidget.routePath,
+          builder: (context, params) => PaymentsPageWidget(),
+        ),
         FFRoute(
           name: ScanToBookWidget.routeName,
           path: ScanToBookWidget.routePath,

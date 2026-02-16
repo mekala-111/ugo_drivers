@@ -1,17 +1,41 @@
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
 import 'add_bank_account_widget.dart' show AddBankAccountWidget;
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class AddBankAccountModel extends FlutterFlowModel<AddBankAccountWidget> {
-  @override
-  void initState(BuildContext context) {}
+  late TextEditingController bankHolderNameController;
+  late TextEditingController bankAccountNumberController;
+  late TextEditingController confirmBankAccountNumberController;
+  late TextEditingController bankIfscCodeController;
+
+  FocusNode? bankHolderNameFocusNode;
+  FocusNode? bankAccountNumberFocusNode;
+  FocusNode? confirmBankAccountNumberFocusNode;
+  FocusNode? bankIfscCodeFocusNode;
 
   @override
-  void dispose() {}
+  void initState(BuildContext context) {
+    bankHolderNameController = TextEditingController();
+    bankAccountNumberController = TextEditingController();
+    confirmBankAccountNumberController = TextEditingController();
+    bankIfscCodeController = TextEditingController();
+
+    bankHolderNameFocusNode = FocusNode();
+    bankAccountNumberFocusNode = FocusNode();
+    confirmBankAccountNumberFocusNode = FocusNode();
+    bankIfscCodeFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    bankHolderNameController.dispose();
+    bankAccountNumberController.dispose();
+    confirmBankAccountNumberController.dispose();
+    bankIfscCodeController.dispose();
+
+    bankHolderNameFocusNode?.dispose();
+    bankAccountNumberFocusNode?.dispose();
+    confirmBankAccountNumberFocusNode?.dispose();
+    bankIfscCodeFocusNode?.dispose();
+  }
 }
