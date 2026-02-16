@@ -1,5 +1,4 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/backend/api_requests/api_calls.dart';
@@ -18,16 +17,25 @@ class TeampageWidget extends StatefulWidget {
   State<TeampageWidget> createState() => _TeampageWidgetState();
 }
 
-class _TeampageWidgetState extends State<TeampageWidget> {
+class _TeampageWidgetState extends State<TeampageWidget>
+    with TickerProviderStateMixin {
   late TeampageModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // Ugo Brand Colors
+  final Color ugoOrange = const Color(0xFFFF7B10);
+  final Color ugoOrangeLight = const Color(0xFFFF9E4D);
+  final Color ugoGreen = const Color(0xFF4CAF50);
+  final Color ugoBlue = const Color(0xFF2196F3);
+
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TeampageModel());
 
+    // Load data with a slight delay for animation effect
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadReferralData());
   }
 
@@ -37,25 +45,19 @@ class _TeampageWidgetState extends State<TeampageWidget> {
       token: FFAppState().accessToken,
     );
 
-    print('=== REFERRAL DASHBOARD API ===');
-    print('Status: ${response.statusCode}');
-    print('Response: ${response.jsonBody}');
-    print('Driver Name: ${getJsonField(response.jsonBody, r'$.driver.name')}');
-    print(
-        'Referred By: ${getJsonField(response.jsonBody, r'$.driver.referred_by.name')}');
-    print('==============================');
-
     if (response.succeeded) {
       setState(() {
         _model.referralData = response.jsonBody;
+        _isLoading = false;
       });
+    } else {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
@@ -68,681 +70,421 @@ class _TeampageWidgetState extends State<TeampageWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            onPressed: () async {
-              context.pop();
-            },
-          ),
-          title: Text(
-            FFLocalizations.of(context).getText(
-              'clvgl9ed' /* My Team */,
-            ),
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight:
-                        FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).headlineMedium.fontStyle,
-                  ),
-                  color: Colors.white,
-                  fontSize: 22.0,
-                  letterSpacing: 0.0,
-                  fontWeight:
-                      FlutterFlowTheme.of(context).headlineMedium.fontWeight,
-                  fontStyle:
-                      FlutterFlowTheme.of(context).headlineMedium.fontStyle,
+        backgroundColor: const Color(0xFFF5F7FA), // Light Grey Background
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator(color: ugoOrange))
+            : Stack(
+          children: [
+            // 1️⃣ HEADER BACKGROUND
+            Container(
+              height: 280,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [ugoOrange, ugoOrangeLight],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-          ),
-          actions: [],
-          centerTitle: false,
-          elevation: 2.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                decoration: BoxDecoration(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(
-                                Icons.handshake,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 32.0,
-                              ),
-                              Text(
-                                _model.referralData != null
-                                    ? (getJsonField(_model.referralData,
-                                                r'$.driver.referred_by.name')
-                                            ?.toString() ??
-                                        'UGO')
-                                    : 'UGO',
-                                style: FlutterFlowTheme.of(context)
-                                    .headlineSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .fontStyle,
-                                      ),
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Container(
-                                width: 32.0,
-                                height: 32.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).accent1,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 20.0,
-                                ),
-                              ),
-                              Text(
-                                _model.referralData != null
-                                    ? (getJsonField(_model.referralData,
-                                                r'$.driver.name')
-                                            ?.toString() ??
-                                        'UGO')
-                                    : 'UGO',
-                                style: FlutterFlowTheme.of(context)
-                                    .headlineSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .fontStyle,
-                                      ),
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(TeamridesWidget.routeName);
-                                },
-                                child: Container(
-                                  width: 150.0,
-                                  height: 80.0,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    border: Border.all(
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      width: 2.0,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 12.0, 12.0, 12.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          FFLocalizations.of(context).getText(
-                                            '5s5fdfzw' /* Total rides */,
-                                          ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                        Text(
-                                          _model.referralData != null
-                                              ? '${(getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.pro_rides_completed') ?? 0) + (getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.normal_rides_completed') ?? 0)}'
-                                              : FFLocalizations.of(context)
-                                                  .getText(
-                                                  'ucta21pk' /* 240 */,
-                                                ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .headlineMedium
-                                              .override(
-                                                font: GoogleFonts.interTight(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context
-                                      .pushNamed(TeamearningWidget.routeName);
-                                },
-                                child: Container(
-                                  width: 150.0,
-                                  height: 80.0,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        FlutterFlowTheme.of(context).alternate,
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 12.0, 12.0, 12.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          FFLocalizations.of(context).getText(
-                                            'rd40uyls' /* Total earnings */,
-                                          ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                        Text(
-                                          _model.referralData != null
-                                              ? '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}'
-                                              : FFLocalizations.of(context)
-                                                  .getText(
-                                                  '2uavdr8q' /* 240 */,
-                                                ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .headlineMedium
-                                              .override(
-                                                font: GoogleFonts.interTight(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ].divide(SizedBox(width: 12.0)),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              border: Border.all(
-                                color: FlutterFlowTheme.of(context).alternate,
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        8.0, 8.0, 8.0, 8.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            FFLocalizations.of(context).getText(
-                                              '1g48gy8t' /* s/no */,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            FFLocalizations.of(context).getText(
-                                              '5mrz4d7g' /* Names */,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            'Pro Rides',
-                                            textAlign: TextAlign.center,
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            'Yesterday earnings',
-                                            textAlign: TextAlign.center,
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        8.0, 0.0, 8.0, 0.0),
-                                    child: _model.referralData != null &&
-                                            getJsonField(_model.referralData,
-                                                    r'$.yesterday_statistics.referrals') !=
-                                                null
-                                        ? Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: List.generate(
-                                              (getJsonField(_model.referralData,
-                                                          r'$.yesterday_statistics.referrals')
-                                                      as List)
-                                                  .length,
-                                              (index) {
-                                                final driver = (getJsonField(
-                                                        _model.referralData,
-                                                        r'$.yesterday_statistics.referrals')
-                                                    as List)[index];
-                                                final driverName = getJsonField(
-                                                            driver, r'$.name')
-                                                        ?.toString() ??
-                                                    'N/A';
-                                                final proRides = getJsonField(
-                                                        driver,
-                                                        r'$.pro_rides_completed') ??
-                                                    0;
-                                                final commission = getJsonField(
-                                                        driver,
-                                                        '\$.commission_earned_by_${FFAppState().driverid}') ??
-                                                    0;
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: ugoOrange.withValues(alpha:0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ],
+              ),
+            ),
 
-                                                return Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          8.0, 8.0, 8.0, 8.0),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          '${index + 1}',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          children: [
-                                                            Container(
-                                                              width: 24.0,
-                                                              height: 24.0,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .accent1,
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                              ),
-                                                              child: Icon(
-                                                                Icons.person,
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primary,
-                                                                size: 16.0,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                width: 8.0),
-                                                            Flexible(
-                                                              child: Text(
-                                                                driverName,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
-                                                                          .inter(
-                                                                        fontWeight: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontWeight,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                    ),
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          '$proRides',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          '₹$commission',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .inter(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                                letterSpacing:
-                                                                    0.0,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          )
-                                        : Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        8.0, 8.0, 8.0, 8.0),
-                                                child: Text(
-                                                  'No referred drivers yet',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font:
-                                                            GoogleFonts.inter(),
-                                                        letterSpacing: 0.0,
-                                                      ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                  ),
-                                ],
+            // 2️⃣ CONTENT
+            SafeArea(
+              child: Column(
+                children: [
+                  // Custom App Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
+                    child: Row(
+                      children: [
+                        FlutterFlowIconButton(
+                          borderColor: Colors.white.withValues(alpha:0.3),
+                          borderRadius: 30.0,
+                          borderWidth: 1.0,
+                          buttonSize: 45.0,
+                          fillColor: Colors.white.withValues(alpha:0.2),
+                          icon: const Icon(Icons.arrow_back_rounded,
+                              color: Colors.white, size: 24.0),
+                          onPressed: () => context.pop(),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          "My Team",
+                          style: GoogleFonts.interTight(
+                            color: Colors.white,
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Header Info (Referrer)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Referred By",
+                              style: GoogleFonts.inter(
+                                color: Colors.white70,
+                                fontSize: 12,
                               ),
                             ),
+                            Text(
+                              _model.referralData != null
+                                  ? (getJsonField(_model.referralData,
+                                  r'$.driver.referred_by.name')
+                                  ?.toString() ??
+                                  'UGO Admin')
+                                  : 'Loading...',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha:0.2),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ].divide(SizedBox(height: 16.0)),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.star,
+                                  color: Colors.amber, size: 16),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Team Leader",
+                                style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // 3️⃣ STATS CARDS (Floating)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Center(
+                      child: Row(
+                        children: [
+                          // Total Rides Card
+                          Expanded(
+                            child: _buildStatCard(
+                              title: "Total Rides",
+                              value: _model.referralData != null
+                                  ? '${(getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.pro_rides_completed') ?? 0) + (getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.normal_rides_completed') ?? 0)}'
+                                  : '0',
+                              icon: Icons.directions_car_filled,
+                              color: ugoBlue,
+                              delay: 100,
+                              onTap: () => context
+                                  .pushNamed(TeamridesWidget.routeName),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // Earnings Card
+                          Expanded(
+                            child: _buildStatCard(
+                              title: "Earnings",
+                              value: _model.referralData != null
+                                  ? '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}'
+                                  : '₹0',
+                              icon: Icons.account_balance_wallet,
+                              color: ugoGreen,
+                              delay: 200,
+                              onTap: () => context
+                                  .pushNamed(TeamearningWidget.routeName),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
-                ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 4️⃣ TEAM LIST SECTION
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 24, left: 20, right: 20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Team Performance",
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Yesterday's activity",
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // LIST BUILDER
+                          Expanded(
+                            child: _buildTeamList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  // 🔹 WIDGET: Animated Stat Card
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required int delay,
+    required VoidCallback onTap,
+  }) {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 600 + delay),
+      curve: Curves.easeOutBack,
+      builder: (context, double val, child) {
+        return Transform.scale(
+          scale: val,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha:0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha:0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: color, size: 24),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    value,
+                    style: GoogleFonts.inter(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // 🔹 WIDGET: Team List
+  Widget _buildTeamList() {
+    final referrals = getJsonField(
+        _model.referralData, r'$.yesterday_statistics.referrals') as List?;
+
+    if (referrals == null || referrals.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
+            const SizedBox(height: 12),
+            Text("No team members active yesterday",
+                style: GoogleFonts.inter(color: Colors.grey[400])),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 20),
+      itemCount: referrals.length,
+      physics: const BouncingScrollPhysics(),
+      itemBuilder: (context, index) {
+        final driver = referrals[index];
+        final name = getJsonField(driver, r'$.name')?.toString() ?? 'Unknown';
+        final proRides = getJsonField(driver, r'$.pro_rides_completed') ?? 0;
+        final commission =
+            getJsonField(driver, '\$.commission_earned_by_${FFAppState().driverid}') ??
+                0;
+
+        // Staggered Animation
+        return TweenAnimationBuilder(
+          tween: Tween<double>(begin: 0, end: 1),
+          duration: Duration(milliseconds: 400 + (index * 100)),
+          curve: Curves.easeOut,
+          builder: (context, double val, child) {
+            return Transform.translate(
+              offset: Offset(0, 50 * (1 - val)),
+              child: Opacity(
+                opacity: val,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      // Avatar
+                      Container(
+                        width: 45,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: ugoOrange.withValues(alpha:0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : '?',
+                            style: GoogleFonts.inter(
+                              color: ugoOrange,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.verified,
+                                    size: 14, color: ugoBlue),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "$proRides Pro Rides",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Earning
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "EARNED",
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          Text(
+                            "+₹$commission",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: ugoGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

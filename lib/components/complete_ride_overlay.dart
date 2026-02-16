@@ -200,7 +200,7 @@ class CompleteRideCard extends StatelessWidget {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                  color: ugoRed.withOpacity(0.1),
+                                  color: ugoRed.withValues(alpha:0.1),
                                   border: Border.all(color: ugoRed, width: 1.5),
                                   borderRadius: BorderRadius.circular(12),
                                 ),

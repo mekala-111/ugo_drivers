@@ -201,7 +201,7 @@ class ActiveRideCard extends StatelessWidget {
                                 height: 50,
                                 decoration: BoxDecoration(
                                   color: (showPickupBox ? ugoGreen : ugoRed)
-                                      .withOpacity(0.1),
+                                      .withValues(alpha:0.1),
                                   border: Border.all(
                                       color: showPickupBox ? ugoGreen : ugoRed,
                                       width: 1),
