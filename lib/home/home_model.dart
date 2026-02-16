@@ -6,7 +6,6 @@ import 'home_widget.dart' show HomeWidget;
 import 'package:flutter/material.dart';
 
 // ✅ IMPORT THE SEPARATE, ROBUST MODEL
-import 'ride_request_model.dart';
 
 class HomeModel extends FlutterFlowModel<HomeWidget> {
   ///  State fields for stateful widgets in this page.

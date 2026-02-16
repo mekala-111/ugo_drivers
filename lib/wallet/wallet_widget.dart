@@ -153,7 +153,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: ugoOrange.withOpacity(0.3),
+                      color: ugoOrange.withValues(alpha:0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     )
@@ -165,7 +165,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                     Text(
                       'Total Balance',
                       style: GoogleFonts.inter(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha:0.9),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -324,9 +324,9 @@ class _WalletWidgetState extends State<WalletWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha:0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.3)),
+              border: Border.all(color: Colors.white.withValues(alpha:0.3)),
             ),
             child: Icon(icon, color: Colors.white, size: 24),
           ),
@@ -359,7 +359,7 @@ class _WalletWidgetState extends State<WalletWidget> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -372,8 +372,8 @@ class _WalletWidgetState extends State<WalletWidget> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: isCredit
-                  ? ugoGreen.withOpacity(0.1)
-                  : ugoRed.withOpacity(0.1),
+                  ? ugoGreen.withValues(alpha:0.1)
+                  : ugoRed.withValues(alpha:0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

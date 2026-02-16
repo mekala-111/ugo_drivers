@@ -172,8 +172,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
       await file.writeAsBytes(image.bytes!);
 
       final inputImage = InputImage.fromFile(file);
-      final textRecognizer = GoogleMlKit.vision.textRecognizer();
+      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
       final RecognizedText recognizedText =
+
           await textRecognizer.processImage(inputImage);
 
       print('📝 OCR Text Extracted:');

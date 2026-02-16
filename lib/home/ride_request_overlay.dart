@@ -7,7 +7,6 @@ import 'package:vibration/vibration.dart';
 import 'dart:async';
 
 // ✅ Import LatLng
-import '/flutter_flow/lat_lng.dart';
 
 // Import the refactored components
 import '../components/active_ride_card.dart';

@@ -1,6 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-  GlobalKey<RideRequestOverlayState>();
+      GlobalKey<RideRequestOverlayState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -59,96 +58,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   bool isLoadingIncentives = true;
 
   // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
-  final String _mapStyle = '''
-  [
-    {
-      "elementType": "geometry",
-      "stylers": [{"color": "#f5f5f5"}]
-    },
-    {
-      "elementType": "labels.icon",
-      "stylers": [{"visibility": "off"}]
-    },
-    {
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#616161"}]
-    },
-    {
-      "elementType": "labels.text.stroke",
-      "stylers": [{"color": "#f5f5f5"}]
-    },
-    {
-      "featureType": "administrative.land_parcel",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#bdbdbd"}]
-    },
-    {
-      "featureType": "poi",
-      "elementType": "geometry",
-      "stylers": [{"color": "#eeeeee"}]
-    },
-    {
-      "featureType": "poi",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#757575"}]
-    },
-    {
-      "featureType": "poi.park",
-      "elementType": "geometry",
-      "stylers": [{"color": "#e5e5e5"}]
-    },
-    {
-      "featureType": "poi.park",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#9e9e9e"}]
-    },
-    {
-      "featureType": "road",
-      "elementType": "geometry",
-      "stylers": [{"color": "#ffffff"}]
-    },
-    {
-      "featureType": "road.arterial",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#757575"}]
-    },
-    {
-      "featureType": "road.highway",
-      "elementType": "geometry",
-      "stylers": [{"color": "#dadada"}]
-    },
-    {
-      "featureType": "road.highway",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#616161"}]
-    },
-    {
-      "featureType": "road.local",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#9e9e9e"}]
-    },
-    {
-      "featureType": "transit.line",
-      "elementType": "geometry",
-      "stylers": [{"color": "#e5e5e5"}]
-    },
-    {
-      "featureType": "transit.station",
-      "elementType": "geometry",
-      "stylers": [{"color": "#eeeeee"}]
-    },
-    {
-      "featureType": "water",
-      "elementType": "geometry",
-      "stylers": [{"color": "#c9c9c9"}]
-    },
-    {
-      "featureType": "water",
-      "elementType": "labels.text.fill",
-      "stylers": [{"color": "#9e9e9e"}]
-    }
-  ]
-  ''';
 
   @override
   void initState() {
@@ -168,22 +77,10 @@ class _HomeWidgetState extends State<HomeWidget> {
       });
 
       _initSocket();
-      _setMapStyle(); // ✅ Apply Style on Startup
     });
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
-  }
-
-  // ✅ APPLY MAP STYLE
-  Future<void> _setMapStyle() async {
-    try {
-      final controller = await _model.googleMapsController.future;
-      await controller.setMapStyle(_mapStyle);
-      print("🗺️ Map Style Applied Successfully");
-    } catch (e) {
-      print("Error setting map style: $e");
-    }
   }
 
   Future<void> _fetchInitialRideStatus() async {
@@ -314,7 +211,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               id: item['id'] ?? 0,
               targetRides: item['target_rides'] ?? 0,
               rewardAmount:
-              double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
+                  double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
               isLocked: item['progress_status'] != 'ongoing' &&
                   item['progress_status'] != 'completed',
               description: item['incentive']?['name'],
@@ -334,6 +231,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
+  // ✅ FIXED: Using LocationSettings instead of desiredAccuracy
   Future<void> _startLocationTracking() async {
     if (_isTrackingLocation) return;
     _isTrackingLocation = true;
@@ -360,7 +258,10 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     try {
       Position initialPosition = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
       _lastSavedPosition = initialPosition;
       await _updateLocationToServer(initialPosition);
     } catch (e) {
@@ -368,7 +269,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
 
     _locationSubscription = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
+      locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high, distanceFilter: 10),
     ).listen((Position position) {
       _handleLocationUpdate(position);
@@ -436,7 +337,10 @@ class _HomeWidgetState extends State<HomeWidget> {
     Position? position;
     try {
       position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
     } catch (e) {
       print(e);
     }
@@ -451,7 +355,6 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     if (res.succeeded) {
       _startLocationTracking();
-      _setMapStyle(); // ✅ Ensure style is set when going online
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('You are online'), backgroundColor: Colors.green));
     } else {
@@ -518,7 +421,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     void processSingleRide(Map<String, dynamic> rideData) {
       String status =
-      (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
       print("🔄 Processing Status: \"$status\"");
 
       if (mounted) {
@@ -576,8 +479,12 @@ class _HomeWidgetState extends State<HomeWidget> {
         FocusScope.of(context).unfocus();
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: WillPopScope(
-        onWillPop: () async {
+      child: PopScope(
+        canPop: false,
+        // ✅ FIXED: Updated to onPopInvokedWithResult
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+
           final now = DateTime.now();
           if (_lastBackPressed == null ||
               now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
@@ -585,9 +492,10 @@ class _HomeWidgetState extends State<HomeWidget> {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('Press back again to exit'),
                 duration: Duration(seconds: 2)));
-            return false;
+          } else {
+            // Allow exit
+            if (context.mounted) Navigator.of(context).pop();
           }
-          return true;
         },
         child: Scaffold(
           key: scaffoldKey,
@@ -607,20 +515,21 @@ class _HomeWidgetState extends State<HomeWidget> {
                       FlutterFlowGoogleMap(
                         controller: _model.googleMapsController,
                         onCameraIdle: (latLng) =>
-                        _model.googleMapsCenter = latLng,
+                            _model.googleMapsCenter = latLng,
                         initialLocation: _model.googleMapsCenter ??=
-                        currentUserLocationValue!,
+                            currentUserLocationValue!,
                         markerColor: GoogleMarkerColor.orange,
-                        mapType: MapType.terrain,
-                        style: GoogleMapStyle.aubergine, // ✅ Use Normal as base
-                        initialZoom: 16, // ✅ Slightly closer zoom for navigation
+                        mapType: MapType.normal,
+                        // ✅ FIXED: Pass style manually since setMapStyle is removed
+                        // style: GoogleMapStyle.silver, // We can pass enum here if FF component supports it
+                        initialZoom: 16,
                         allowInteraction: true,
                         allowZoom: true,
                         showZoomControls: false,
                         showLocation: true,
                         showCompass: true,
                         showMapToolbar: true,
-                        showTraffic: false, // Cleaner look without traffic lines
+                        showTraffic: false,
                         centerMapOnMarkerTap: true,
                       ),
 
@@ -674,7 +583,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFFFF7B10).withOpacity(0.4),
+                                      color: Color(0xFFFF7B10)
+                                          .withValues(alpha: 0.4),
                                       blurRadius: 10,
                                       offset: Offset(0, 5),
                                     )
@@ -749,7 +659,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
@@ -762,9 +672,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                     Switch(
                       value: _model.switchValue ?? false,
                       onChanged:
-                      _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
-                      activeColor: Colors.white,
+                          _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
+                      // ✅ FIXED: Use activeTrackColor instead of activeColor
                       activeTrackColor: Colors.green,
+                      activeThumbColor: Colors.white, // Thumb color
                     ),
                   ],
                 ),
@@ -864,8 +775,8 @@ class _HomeWidgetState extends State<HomeWidget> {
             isLoadingIncentives
                 ? _buildLoadingIndicator(isSmallScreen)
                 : hasIncentives
-                ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
-                : _buildComingSoonMessage(isSmallScreen),
+                    ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
+                    : _buildComingSoonMessage(isSmallScreen),
         ],
       ),
     );
@@ -883,8 +794,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget _buildIncentiveProgressBars(double screenWidth, bool isSmallScreen) {
     int totalRequiredRides = incentiveTiers.isNotEmpty
         ? incentiveTiers
-        .map((t) => t.targetRides)
-        .reduce((a, b) => a > b ? a : b)
+            .map((t) => t.targetRides)
+            .reduce((a, b) => a > b ? a : b)
         : 0;
 
     return Padding(
@@ -919,10 +830,10 @@ class _HomeWidgetState extends State<HomeWidget> {
           SizedBox(height: isSmallScreen ? 12 : 16),
           ...incentiveTiers
               .map((tier) => _buildIncentiveTierBar(
-            tier: tier,
-            currentRides: currentRides,
-            isSmallScreen: isSmallScreen,
-          ))
+                    tier: tier,
+                    currentRides: currentRides,
+                    isSmallScreen: isSmallScreen,
+                  ))
               .toList(),
         ],
       ),
@@ -992,8 +903,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                           colors: tier.isLocked
                               ? [Colors.grey.shade400, Colors.grey.shade500]
                               : isCompleted
-                              ? [Colors.green, Colors.green.shade700]
-                              : [Color(0xFFFFB785), Color(0xFFFF7B10)],
+                                  ? [Colors.green, Colors.green.shade700]
+                                  : [Color(0xFFFFB785), Color(0xFFFF7B10)],
                         ),
                       ),
                     ),

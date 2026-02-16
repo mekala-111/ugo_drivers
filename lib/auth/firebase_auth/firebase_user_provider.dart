@@ -23,12 +23,10 @@ class UgoDriverFirebaseUser extends BaseAuthUser {
   Future? delete() => user?.delete();
 
   @override
-  Future? updateEmail(String email) async {
-    try {
-      await user?.updateEmail(email);
-    } catch (_) {
-      await user?.verifyBeforeUpdateEmail(email);
-    }
+  Future<void> updateEmail(String email) async {
+    // updateEmail() is deprecated. We now use verifyBeforeUpdateEmail()
+    // which sends a verification email to the new address.
+    await user?.verifyBeforeUpdateEmail(email);
   }
 
   @override

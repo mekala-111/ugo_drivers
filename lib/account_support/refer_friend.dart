@@ -1,6 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +58,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
         token: token,
       );
 
-      bool isSuccess = response.succeeded ?? (response.statusCode == 200 || response.statusCode == 201);
+      bool isSuccess = response.succeeded;
 
       if (isSuccess) {
         final referralCode = DriverIdfetchCall.referralCode(response.jsonBody);

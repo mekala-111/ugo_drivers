@@ -162,11 +162,11 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
 
   // Built with Rapido-like Focus Logic
   Widget _buildOtpBox(int index) {
-    return RawKeyboardListener(
-      focusNode: FocusNode(), // Consumes raw events
-      onKey: (event) {
+    return KeyboardListener(
+      focusNode: FocusNode(), // Consumes hardware events
+      onKeyEvent: (event) {
         // Detect Backspace on Empty Field -> Move Previous
-        if (event is RawKeyDownEvent) {
+        if (event is KeyDownEvent) { // Updated from RawKeyDownEvent
           if (event.logicalKey == LogicalKeyboardKey.backspace) {
             if (widget.otpControllers[index].text.isEmpty && index > 0) {
               _focusNodes[index - 1].requestFocus();
@@ -180,12 +180,11 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         child: TextField(
           controller: widget.otpControllers[index],
           focusNode: _focusNodes[index],
-          autofocus: index == 0, // Auto-focus first box
+          autofocus: index == 0,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            // Removed LengthLimiting(1) to allow Paste logic below
           ],
           style: const TextStyle(
               fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
@@ -213,19 +212,17 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
               } else {
                 // Last digit entered: Unfocus
                 _focusNodes[index].unfocus();
-                // Optional: Auto-Submit
                 // widget.onVerify();
               }
             } else if (value.length > 1) {
-              // Paste Logic: If user pastes "1234"
+              // Paste Logic
               if (value.length == 4 && index == 0) {
                 for (int i = 0; i < 4; i++) {
                   widget.otpControllers[i].text = value[i];
                 }
                 _focusNodes[3].unfocus();
-                widget.onVerify(); // Trigger verify on paste
+                widget.onVerify();
               } else {
-                // Fallback: just take the last digit typed
                 widget.otpControllers[index].text =
                     value.substring(value.length - 1);
                 if (index < 3) _focusNodes[index + 1].requestFocus();

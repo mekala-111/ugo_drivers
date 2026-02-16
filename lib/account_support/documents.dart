@@ -1,7 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // ✅ Required for HapticFeedback
@@ -150,7 +148,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         registrationImage: FFAppState().registrationImage,
       );
 
-      if ((apiResult.succeeded ?? false) || apiResult.statusCode == 200) {
+      if ((apiResult.succeeded) || apiResult.statusCode == 200) {
         // Success Logic
         setState(() {
           // Mark locally uploaded docs as "On Server" now
