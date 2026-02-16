@@ -49,7 +49,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   // Driver Data
   String driverName = "${FFAppState().firstName} ${FFAppState().lastName}";
 
-  // ✅ TRACK STATUS (Default to IDLE, but updated fast)
+  // ✅ TRACK STATUS
   String _currentRideStatus = 'IDLE';
 
   // Incentive Data
@@ -57,6 +57,98 @@ class _HomeWidgetState extends State<HomeWidget> {
   double totalIncentiveEarned = 0.0;
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
+
+  // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
+  final String _mapStyle = '''
+  [
+    {
+      "elementType": "geometry",
+      "stylers": [{"color": "#f5f5f5"}]
+    },
+    {
+      "elementType": "labels.icon",
+      "stylers": [{"visibility": "off"}]
+    },
+    {
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#616161"}]
+    },
+    {
+      "elementType": "labels.text.stroke",
+      "stylers": [{"color": "#f5f5f5"}]
+    },
+    {
+      "featureType": "administrative.land_parcel",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#bdbdbd"}]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "geometry",
+      "stylers": [{"color": "#eeeeee"}]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#757575"}]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "geometry",
+      "stylers": [{"color": "#e5e5e5"}]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#9e9e9e"}]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry",
+      "stylers": [{"color": "#ffffff"}]
+    },
+    {
+      "featureType": "road.arterial",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#757575"}]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "geometry",
+      "stylers": [{"color": "#dadada"}]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#616161"}]
+    },
+    {
+      "featureType": "road.local",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#9e9e9e"}]
+    },
+    {
+      "featureType": "transit.line",
+      "elementType": "geometry",
+      "stylers": [{"color": "#e5e5e5"}]
+    },
+    {
+      "featureType": "transit.station",
+      "elementType": "geometry",
+      "stylers": [{"color": "#eeeeee"}]
+    },
+    {
+      "featureType": "water",
+      "elementType": "geometry",
+      "stylers": [{"color": "#c9c9c9"}]
+    },
+    {
+      "featureType": "water",
+      "elementType": "labels.text.fill",
+      "stylers": [{"color": "#9e9e9e"}]
+    }
+  ]
+  ''';
 
   @override
   void initState() {
@@ -76,17 +168,28 @@ class _HomeWidgetState extends State<HomeWidget> {
       });
 
       _initSocket();
+      _setMapStyle(); // ✅ Apply Style on Startup
     });
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
   }
 
-  // ✅ NEW: Check API for active ride on startup
+  // ✅ APPLY MAP STYLE
+  Future<void> _setMapStyle() async {
+    try {
+      final controller = await _model.googleMapsController.future;
+      await controller.setMapStyle(_mapStyle);
+      print("🗺️ Map Style Applied Successfully");
+    } catch (e) {
+      print("Error setting map style: $e");
+    }
+  }
+
   Future<void> _fetchInitialRideStatus() async {
     if (FFAppState().activeRideId != 0) {
       setState(() {
-        _currentRideStatus = 'FETCHING'; // Temporary state to hide panels
+        _currentRideStatus = 'FETCHING';
       });
     }
   }
@@ -148,15 +251,11 @@ class _HomeWidgetState extends State<HomeWidget> {
     return 'Good Evening';
   }
 
-  // ✅ FIXED: Prevent Offline if Ride Active
   Future<void> _toggleOnlineStatus() async {
     bool intendedValue = !(_model.switchValue ?? false);
 
-    // 🛑 LOGIC CHECK: If trying to turn OFF
     if (intendedValue == false) {
       String status = _currentRideStatus.toUpperCase();
-
-      // If any of these statuses are active, BLOCK the action
       if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'].contains(status)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -165,11 +264,10 @@ class _HomeWidgetState extends State<HomeWidget> {
             duration: Duration(seconds: 2),
           ),
         );
-        return; // ❌ Stop execution, do not change switch
+        return;
       }
     }
 
-    // ✅ Proceed if allowed
     safeSetState(() => _model.switchValue = intendedValue);
     if (intendedValue) {
       await _goOnlineAsync();
@@ -353,6 +451,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     if (res.succeeded) {
       _startLocationTracking();
+      _setMapStyle(); // ✅ Ensure style is set when going online
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('You are online'), backgroundColor: Colors.green));
     } else {
@@ -418,7 +517,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     if (_overlayKey.currentState == null) return;
 
     void processSingleRide(Map<String, dynamic> rideData) {
-      String status = (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+      String status =
+      (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
       print("🔄 Processing Status: \"$status\"");
 
       if (mounted) {
@@ -453,10 +553,11 @@ class _HomeWidgetState extends State<HomeWidget> {
     // Check if Online
     bool isOnline = _model.switchValue ?? false;
 
-    // ✅ FIXED LOGIC for Bottom Panels
+    // FIXED LOGIC for Bottom Panels
     bool shouldShowPanels = true;
     String status = _currentRideStatus.toUpperCase();
-    if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING'].contains(status)) {
+    if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
+        .contains(status)) {
       shouldShowPanels = false;
     }
 
@@ -509,17 +610,17 @@ class _HomeWidgetState extends State<HomeWidget> {
                         _model.googleMapsCenter = latLng,
                         initialLocation: _model.googleMapsCenter ??=
                         currentUserLocationValue!,
-                        markerColor: GoogleMarkerColor.violet,
-                        mapType: MapType.normal,
-                        style: GoogleMapStyle.standard,
-                        initialZoom: 14,
+                        markerColor: GoogleMarkerColor.orange,
+                        mapType: MapType.terrain,
+                        style: GoogleMapStyle.aubergine, // ✅ Use Normal as base
+                        initialZoom: 16, // ✅ Slightly closer zoom for navigation
                         allowInteraction: true,
                         allowZoom: true,
                         showZoomControls: false,
                         showLocation: true,
-                        showCompass: false,
-                        showMapToolbar: false,
-                        showTraffic: false,
+                        showCompass: true,
+                        showMapToolbar: true,
+                        showTraffic: false, // Cleaner look without traffic lines
                         centerMapOnMarkerTap: true,
                       ),
 
@@ -573,7 +674,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFFFF7B10).withValues(alpha:0.4),
+                                      color: Color(0xFFFF7B10).withOpacity(0.4),
                                       blurRadius: 10,
                                       offset: Offset(0, 5),
                                     )
@@ -608,7 +709,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 ),
               ),
 
-              // ✅ CONDITIONALLY SHOW PANELS
+              // CONDITIONALLY SHOW PANELS
               if (shouldShowPanels)
                 _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
               if (shouldShowPanels)
@@ -648,7 +749,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha:0.25),
+                  color: Colors.white.withOpacity(0.25),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
@@ -660,9 +761,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                     ),
                     Switch(
                       value: _model.switchValue ?? false,
-                      onChanged: _isDataLoaded
-                          ? (val) => _toggleOnlineStatus()
-                          : null,
+                      onChanged:
+                      _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
                       activeColor: Colors.white,
                       activeTrackColor: Colors.green,
                     ),
@@ -933,47 +1033,6 @@ class _HomeWidgetState extends State<HomeWidget> {
             style: TextStyle(
               fontSize: isSmallScreen ? 13 : 14,
               color: Colors.grey.shade500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomProgressBar(double screenWidth, bool isSmallScreen) {
-    return Container(
-      height: isSmallScreen ? 20 : 40,
-      color: Colors.grey.shade200,
-      padding: EdgeInsets.symmetric(
-        horizontal: isSmallScreen ? 12 : 16,
-        vertical: isSmallScreen ? 8 : 10,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: isSmallScreen ? 32 : 40,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-                child: Stack(
-                  children: [
-                    FractionallySizedBox(
-                      widthFactor: 0.3,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF4CAF50),
-                          borderRadius:
-                          BorderRadius.circular(isSmallScreen ? 16 : 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ],

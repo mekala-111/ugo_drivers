@@ -1,3 +1,4 @@
+import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -25,11 +26,16 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  // Driver Data State
+  String _driverName = "Loading...";
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => ScanToBookModel());
 
+    // 1️⃣ Pulse Animation
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -38,8 +44,57 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // 2️⃣ Fetch Driver Data
+    _fetchDriverData();
   }
 
+  /// 🚀 Fetch Driver Data from API
+  /// 🚀 Fetch Driver Data from API
+  Future<void> _fetchDriverData() async {
+    try {
+      final driverId = FFAppState().driverid;
+      final token = FFAppState().accessToken;
+
+      if (driverId == 0 || token.isEmpty) {
+        setState(() {
+          _driverName = "Guest Driver";
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final response = await DriverIdfetchCall.call(
+        id: driverId,
+        token: token,
+      );
+
+      if (response.succeeded == true || response.statusCode == 200) {
+        // ✅ Correctly extract First & Last Name
+        final firstName = getJsonField(response.jsonBody, r'$.data.first_name')?.toString() ?? "";
+        final lastName = getJsonField(response.jsonBody, r'$.data.last_name')?.toString() ?? "";
+
+        // Combine them
+        final fullName = "$firstName $lastName".trim();
+
+        setState(() {
+          _driverName = fullName.isNotEmpty ? fullName : "Driver";
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _driverName = "Driver"; // Fallback
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching driver data: $e");
+      setState(() {
+        _driverName = "Driver";
+        _isLoading = false;
+      });
+    }
+  }
   @override
   void dispose() {
     _model.dispose();
@@ -64,9 +119,9 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
         backgroundColor: Colors.white,
         body: Stack(
           children: [
-            // 1️⃣ Orange Background Gradient (Increased Height)
+            // 1️⃣ Orange Background Gradient
             Container(
-              height: 320, // ✅ Increased height for "more space"
+              height: 320,
               width: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -81,20 +136,16 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
               ),
             ),
 
-            // 2️⃣ Back Button (Positioned manually since AppBar is gone)
-
-
             // 3️⃣ Main Content
             Align(
               alignment: Alignment.topCenter,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 100), // ✅ Pushed down content
+                padding: const EdgeInsets.only(top: 100),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Title
                     const SizedBox(height: 20),
 
                     // Instruction Text
@@ -122,13 +173,13 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                       "Show this code to the passenger",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
-                        color: Colors.white.withValues(alpha:0.9),
+                        color: Colors.white.withOpacity(0.9),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
-                    const SizedBox(height: 60.0), // Spacing before card
+                    const SizedBox(height: 60.0),
 
                     // Animated QR Card
                     ScaleTransition(
@@ -142,7 +193,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                           borderRadius: BorderRadius.circular(24.0),
                           boxShadow: [
                             BoxShadow(
-                              color: brandPrimary.withValues(alpha:0.3),
+                              color: brandPrimary.withOpacity(0.3),
                               blurRadius: 30.0,
                               offset: const Offset(0, 10),
                               spreadRadius: 5,
@@ -176,7 +227,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                               ),
                             ),
 
-                            // Corner Accents (The "Scanner" look)
+                            // Corner Accents
                             _buildCornerCorners(brandPrimary),
                           ],
                         ),
@@ -185,7 +236,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
 
                     const SizedBox(height: 40.0),
 
-                    // User Info / Footer
+                    // ✅ User Info / Footer (Dynamic Name)
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
@@ -195,23 +246,30 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           )
                         ],
                       ),
-                      child: Row(
+                      child: _isLoading
+                          ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: brandPrimary)
+                      )
+                          : Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.person_outline_rounded,
                               color: brandPrimary),
                           const SizedBox(width: 8),
                           Text(
-                            "Driver: ${FFAppState().firstName} ${FFAppState().lastName}",
+                            "NAME : $_driverName", // ✅ Dynamic Name
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
+                              fontSize: 16,
                             ),
                           ),
                         ],
@@ -233,7 +291,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   Widget _buildCornerCorners(Color color) {
     double length = 30.0;
     double thickness = 4.0;
-    double offset = -5.0; // Pushes corners slightly outside the image
+    double offset = -5.0;
 
     return Stack(
       children: [

@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UI ENHANCEMENT">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UI ENHANCEMENT with wallets">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/active_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/active_ride_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +145,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771225136042</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="UI ENHANCEMENT with wallets">
+      <option name="closed" value="true" />
+      <created>1771227446202</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1771227446202</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -168,7 +174,8 @@
     <MESSAGE value="push update adhar_upload_widget.dart" />
     <MESSAGE value="BOOKING FLOW LATEST UPADET and upadte gradel" />
     <MESSAGE value="UI ENHANCEMENT" />
-    <option name="LAST_COMMIT_MESSAGE" value="UI ENHANCEMENT" />
+    <MESSAGE value="UI ENHANCEMENT with wallets" />
+    <option name="LAST_COMMIT_MESSAGE" value="UI ENHANCEMENT with wallets" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
