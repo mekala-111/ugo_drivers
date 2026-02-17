@@ -111,10 +111,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ServiceoptionsWidget(),
         ),
         FFRoute(
-        name: SplashWidget.routeName,
-        path: SplashWidget.routePath,
-        builder: (context, params) => const SplashWidget(),
-      ),
+          name: SplashWidget.routeName,
+          path: SplashWidget.routePath,
+          builder: (context, params) => const SplashWidget(),
+        ),
 
         FFRoute(
           name: HomeWidget.routeName,
@@ -166,7 +166,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ProfileSettingWidget.routePath,
           builder: (context, params) => ProfileSettingWidget(),
         ),
-       
+
         FFRoute(
           name: SavedAddWidget.routeName,
           path: SavedAddWidget.routePath,
@@ -177,13 +177,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         //   path: AccessibilitySettingsWidget.routePath,
         //   builder: (context, params) => AccessibilitySettingsWidget(),
         // ),
-       
+
         FFRoute(
           name: PushnotificationsWidget.routeName,
           path: PushnotificationsWidget.routePath,
           builder: (context, params) => PushnotificationsWidget(),
         ),
-       
+
         FFRoute(
           name: TrustedcontactsWidget.routeName,
           path: TrustedcontactsWidget.routePath,
@@ -204,9 +204,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ReservematchingWidget.routePath,
           builder: (context, params) => ReservematchingWidget(),
         ),
-       
-        
-       
+
         FFRoute(
           name: VoucherWidget.routeName,
           path: VoucherWidget.routePath,
@@ -248,9 +246,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: CustomerSuportWidget.routePath,
           builder: (context, params) => CustomerSuportWidget(),
         ),
-       
-       
-        
+
         FFRoute(
           name: ChooseVehicleWidget.routeName,
           path: ChooseVehicleWidget.routePath,
