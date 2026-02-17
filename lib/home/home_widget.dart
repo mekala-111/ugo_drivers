@@ -57,13 +57,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
-  double todayTotal = 0.0;
-int todayRideCount = 0;
-double todayWallet = 0.0;
-double lastRideAmount = 0.0;
-bool isLoadingEarnings = true;
-
-
   // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
 
   @override
@@ -77,7 +70,6 @@ bool isLoadingEarnings = true;
         _fetchDriverProfile(),
         _fetchInitialRideStatus(),
         _fetchIncentiveData(),
-        _fetchTodayEarnings(),
       ]);
 
       setState(() {
@@ -459,7 +451,35 @@ bool isLoadingEarnings = true;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 360;
+    final isMediumScreen = screenWidth >= 360 && screenWidth < 600;
+    final isTablet = screenWidth >= 600;
+    final isLargeTablet = screenWidth >= 900;
+    final isLandscape = screenHeight < screenWidth;
+
+    // Scale calculation for responsive sizing
+    final scale = isLargeTablet
+        ? 1.2
+        : isTablet
+            ? 1.1
+            : isMediumScreen
+                ? 1.0
+                : 0.9;
+
+    // Responsive spacing values
+    final topPaddingSmall = isSmallScreen ? 16.0 : 20.0;
+    final topPaddingLarge = isSmallScreen ? 20.0 : 32.0;
+    final horizontalPadding =
+        isSmallScreen ? 12.0 : (isMediumScreen ? 16.0 : 20.0);
+    final cardPadding = isSmallScreen ? 8.0 : 12.0;
+    final appBarHeight = isSmallScreen
+        ? 45.0
+        : isMediumScreen
+            ? 55.0
+            : isTablet
+                ? 65.0
+                : 60.0;
 
     // Check if Online
     bool isOnline = _model.switchValue ?? false;
@@ -512,8 +532,9 @@ bool isLoadingEarnings = true;
           body: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SizedBox(height: isSmallScreen ? 20 : 32),
-              _buildTopAppBar(screenWidth, isSmallScreen),
+              SizedBox(height: isLandscape ? topPaddingSmall : topPaddingLarge),
+              _buildTopAppBar(screenWidth, screenHeight, isSmallScreen,
+                  isMediumScreen, isTablet, appBarHeight, scale),
 
               Expanded(
                 child: Stack(
@@ -553,39 +574,57 @@ bool isLoadingEarnings = true;
                             Text(
                               "${_getGreeting()},",
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: isSmallScreen
+                                    ? 18
+                                    : isMediumScreen
+                                        ? 22
+                                        : 24,
                                 color: Colors.grey[600],
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
+                            SizedBox(height: isSmallScreen ? 8 : 12),
                             Text(
                               driverName,
                               style: TextStyle(
-                                fontSize: 28,
+                                fontSize: isSmallScreen
+                                    ? 24
+                                    : isMediumScreen
+                                        ? 28
+                                        : 32,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 30),
+                            SizedBox(height: isSmallScreen ? 20 : 30),
                             Icon(
                               Icons.location_off_rounded,
-                              size: 80,
+                              size: isSmallScreen
+                                  ? 60
+                                  : isMediumScreen
+                                      ? 70
+                                      : 80,
                               color: Colors.grey[300],
                             ),
-                            SizedBox(height: 20),
+                            SizedBox(height: isSmallScreen ? 16 : 20),
                             Text(
                               "You are currently Offline",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: isSmallScreen
+                                    ? 14
+                                    : isMediumScreen
+                                        ? 16
+                                        : 18,
                                 color: Colors.grey[500],
                               ),
                             ),
-                            SizedBox(height: 40),
+                            SizedBox(height: isSmallScreen ? 30 : 40),
                             GestureDetector(
                               onTap: _isDataLoaded ? _toggleOnlineStatus : null,
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 15),
+                                    horizontal: isSmallScreen ? 30 : 40,
+                                    vertical: isSmallScreen ? 12 : 15),
                                 decoration: BoxDecoration(
                                   color: Color(0xFFFF7B10),
                                   borderRadius: BorderRadius.circular(30),
@@ -602,13 +641,18 @@ bool isLoadingEarnings = true;
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.power_settings_new,
-                                        color: Colors.white),
-                                    SizedBox(width: 10),
+                                        color: Colors.white,
+                                        size: isSmallScreen ? 20 : 22),
+                                    SizedBox(width: isSmallScreen ? 8 : 10),
                                     Text(
                                       "GO ONLINE",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: isSmallScreen
+                                            ? 16
+                                            : isMediumScreen
+                                                ? 18
+                                                : 20,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 1,
                                       ),
@@ -629,11 +673,29 @@ bool isLoadingEarnings = true;
 
               // CONDITIONALLY SHOW PANELS
               if (shouldShowPanels)
-                _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
+                _buildCollapsibleBottomIncentive(
+                    screenWidth,
+                    screenHeight,
+                    isSmallScreen,
+                    isMediumScreen,
+                    isTablet,
+                    isLandscape,
+                    scale,
+                    cardPadding,
+                    horizontalPadding),
               if (shouldShowPanels)
-                _buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
+                _buildCollapsibleBottomPanel(
+                    screenWidth,
+                    screenHeight,
+                    isSmallScreen,
+                    isMediumScreen,
+                    isTablet,
+                    isLandscape,
+                    scale,
+                    cardPadding,
+                    horizontalPadding),
 
-              SizedBox(height: isSmallScreen ? 10 : 15),
+              SizedBox(height: isSmallScreen ? 8 : (isLandscape ? 10 : 15)),
             ],
           ),
         ),
@@ -643,47 +705,73 @@ bool isLoadingEarnings = true;
 
   // --- WIDGET BUILDERS ---
 
-  Widget _buildTopAppBar(double screenWidth, bool isSmallScreen) {
+  Widget _buildTopAppBar(
+      double screenWidth,
+      double screenHeight,
+      bool isSmallScreen,
+      bool isMediumScreen,
+      bool isTablet,
+      double appBarHeight,
+      double scale) {
     return Container(
       width: double.infinity,
-      height: isSmallScreen ? 45 : 60,
+      height: appBarHeight,
       decoration: BoxDecoration(color: Color(0xFFFF7B10)),
       child: SafeArea(
         top: false,
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? 12 : 16, vertical: 8),
+              horizontal: isSmallScreen ? 10 : (isMediumScreen ? 12 : 16),
+              vertical: isSmallScreen ? 6 : 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
                 onTap: () => scaffoldKey.currentState?.openDrawer(),
-                child: Icon(Icons.menu, color: Colors.white, size: 28),
+                child: Icon(Icons.menu,
+                    color: Colors.white,
+                    size: isSmallScreen ? 24 : (isMediumScreen ? 26 : 28)),
               ),
               InkWell(
                 onTap: () => context.pushNamed(ScanToBookWidget.routeName),
-                child: Icon(Icons.qr_code, color: Colors.black, size: 24),
+                child: Icon(Icons.qr_code,
+                    color: Colors.black,
+                    size: isSmallScreen
+                        ? 20
+                        : isMediumScreen
+                            ? 22
+                            : 24),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 10 : 12,
+                    vertical: isSmallScreen ? 3 : 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       (_model.switchValue ?? false) ? 'ON' : 'OFF',
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isSmallScreen ? 11 : 12),
                     ),
-                    Switch(
-                      value: _model.switchValue ?? false,
-                      onChanged:
-                          _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
-                      // ✅ FIXED: Use activeTrackColor instead of activeColor
-                      activeTrackColor: Colors.green,
-                      activeThumbColor: Colors.white, // Thumb color
+                    SizedBox(
+                      width: isSmallScreen ? 30 : 40,
+                      height: isSmallScreen ? 24 : 32,
+                      child: Switch(
+                        value: _model.switchValue ?? false,
+                        onChanged: _isDataLoaded
+                            ? (val) => _toggleOnlineStatus()
+                            : null,
+                        // ✅ FIXED: Use activeTrackColor instead of activeColor
+                        activeTrackColor: Colors.green,
+                        activeThumbColor: Colors.white, // Thumb color
+                      ),
                     ),
                   ],
                 ),
@@ -692,7 +780,9 @@ bool isLoadingEarnings = true;
                 onTap: () async {
                   context.pushNamed(TeampageWidget.routeName);
                 },
-                child: Icon(Icons.people, color: Colors.white),
+                child: Icon(Icons.people,
+                    color: Colors.white,
+                    size: isSmallScreen ? 24 : (isMediumScreen ? 26 : 28)),
               ),
             ],
           ),
@@ -702,8 +792,27 @@ bool isLoadingEarnings = true;
   }
 
   Widget _buildCollapsibleBottomIncentive(
-      double screenWidth, bool isSmallScreen) {
+      double screenWidth,
+      double screenHeight,
+      bool isSmallScreen,
+      bool isMediumScreen,
+      bool isTablet,
+      bool isLandscape,
+      double scale,
+      double cardPadding,
+      double horizontalPadding) {
     bool hasIncentives = incentiveTiers.isNotEmpty;
+    final panelPadding = isSmallScreen ? 12.0 : (isMediumScreen ? 14.0 : 16.0);
+    final titleFontSize = isSmallScreen
+        ? 13.0
+        : isMediumScreen
+            ? 14.0
+            : 16.0;
+    final valueFontSize = isSmallScreen
+        ? 15.0
+        : isMediumScreen
+            ? 16.0
+            : 18.0;
 
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
@@ -729,8 +838,8 @@ bool isLoadingEarnings = true;
             },
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 12 : 16,
-                vertical: isSmallScreen ? 10 : 12,
+                horizontal: panelPadding,
+                vertical: isSmallScreen ? 9 : 11,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -738,7 +847,7 @@ bool isLoadingEarnings = true;
                   Text(
                     'Incentives',
                     style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -761,7 +870,7 @@ bool isLoadingEarnings = true;
                               ? '₹${totalIncentiveEarned.toStringAsFixed(0)}'
                               : 'Coming Soon',
                           style: TextStyle(
-                            fontSize: isSmallScreen ? 16 : 18,
+                            fontSize: valueFontSize,
                             fontWeight: FontWeight.bold,
                             color: hasIncentives ? Colors.black : Colors.grey,
                           ),
@@ -771,7 +880,11 @@ bool isLoadingEarnings = true;
                         _isIncentivePanelExpanded
                             ? Icons.keyboard_arrow_down
                             : Icons.keyboard_arrow_up,
-                        size: isSmallScreen ? 20 : 24,
+                        size: isSmallScreen
+                            ? 18.0
+                            : isMediumScreen
+                                ? 20.0
+                                : 24.0,
                       ),
                     ],
                   ),
@@ -781,37 +894,70 @@ bool isLoadingEarnings = true;
           ),
           if (_isIncentivePanelExpanded)
             isLoadingIncentives
-                ? _buildLoadingIndicator(isSmallScreen)
+                ? _buildLoadingIndicator(isSmallScreen, isMediumScreen)
                 : hasIncentives
-                    ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
-                    : _buildComingSoonMessage(isSmallScreen),
+                    ? _buildIncentiveProgressBars(
+                        screenWidth,
+                        screenHeight,
+                        isSmallScreen,
+                        isMediumScreen,
+                        isTablet,
+                        isLandscape,
+                        scale,
+                        cardPadding,
+                        horizontalPadding)
+                    : _buildComingSoonMessage(isSmallScreen, isMediumScreen),
         ],
       ),
     );
   }
 
-  Widget _buildLoadingIndicator(bool isSmallScreen) {
+  Widget _buildLoadingIndicator(bool isSmallScreen, bool isMediumScreen) {
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      padding: EdgeInsets.all(isSmallScreen
+          ? 20.0
+          : isMediumScreen
+              ? 24.0
+              : 32.0),
       child: CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7B10)),
       ),
     );
   }
 
-  Widget _buildIncentiveProgressBars(double screenWidth, bool isSmallScreen) {
+  Widget _buildIncentiveProgressBars(
+      double screenWidth,
+      double screenHeight,
+      bool isSmallScreen,
+      bool isMediumScreen,
+      bool isTablet,
+      bool isLandscape,
+      double scale,
+      double cardPadding,
+      double horizontalPadding) {
     int totalRequiredRides = incentiveTiers.isNotEmpty
         ? incentiveTiers
             .map((t) => t.targetRides)
             .reduce((a, b) => a > b ? a : b)
         : 0;
 
+    final contentPadding = isSmallScreen
+        ? 12.0
+        : isMediumScreen
+            ? 14.0
+            : 16.0;
+    final titleFontSize = isSmallScreen
+        ? 15.0
+        : isMediumScreen
+            ? 16.0
+            : 18.0;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        isSmallScreen ? 12 : 16,
+        contentPadding,
         0,
-        isSmallScreen ? 12 : 16,
-        isSmallScreen ? 12 : 16,
+        contentPadding,
+        contentPadding,
       ),
       child: Column(
         children: [
@@ -821,26 +967,28 @@ bool isLoadingEarnings = true;
               Text(
                 '$currentRides/$totalRequiredRides',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
+                  fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 '₹${totalIncentiveEarned.toStringAsFixed(0)}',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
+                  fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFFF7B10),
                 ),
               ),
             ],
           ),
-          SizedBox(height: isSmallScreen ? 12 : 16),
+          SizedBox(height: isSmallScreen ? 10 : 14),
           ...incentiveTiers
               .map((tier) => _buildIncentiveTierBar(
                     tier: tier,
                     currentRides: currentRides,
                     isSmallScreen: isSmallScreen,
+                    isMediumScreen: isMediumScreen,
+                    isTablet: isTablet,
                   ))
               .toList(),
         ],
@@ -852,12 +1000,30 @@ bool isLoadingEarnings = true;
     required IncentiveTier tier,
     required int currentRides,
     required bool isSmallScreen,
+    required bool isMediumScreen,
+    required bool isTablet,
   }) {
     double progress = (currentRides / tier.targetRides).clamp(0.0, 1.0);
     bool isCompleted = currentRides >= tier.targetRides;
 
+    final barHeight = isSmallScreen
+        ? 24.0
+        : isMediumScreen
+            ? 28.0
+            : 32.0;
+    final iconSize = isSmallScreen
+        ? 14.0
+        : isMediumScreen
+            ? 16.0
+            : 18.0;
+    final borderRadius = isSmallScreen
+        ? 12.0
+        : isMediumScreen
+            ? 14.0
+            : 16.0;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.only(bottom: isSmallScreen ? 10 : 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -868,14 +1034,18 @@ bool isLoadingEarnings = true;
                 children: [
                   Icon(
                     tier.isLocked ? Icons.lock : Icons.lock_open,
-                    size: isSmallScreen ? 16 : 18,
+                    size: iconSize,
                     color: tier.isLocked ? Colors.grey : Color(0xFFFF7B10),
                   ),
                   SizedBox(width: 6),
                   Text(
                     '${tier.targetRides} rides',
                     style: TextStyle(
-                      fontSize: isSmallScreen ? 13 : 14,
+                      fontSize: isSmallScreen
+                          ? 12.0
+                          : isMediumScreen
+                              ? 13.0
+                              : 14.0,
                       fontWeight: FontWeight.w600,
                       color: tier.isLocked ? Colors.grey : Colors.black87,
                     ),
@@ -885,7 +1055,11 @@ bool isLoadingEarnings = true;
               Text(
                 '+₹${tier.rewardAmount.toStringAsFixed(0)}',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 16,
+                  fontSize: isSmallScreen
+                      ? 13.0
+                      : isMediumScreen
+                          ? 14.0
+                          : 16.0,
                   fontWeight: FontWeight.bold,
                   color: isCompleted ? Colors.green : Color(0xFFFF7B10),
                 ),
@@ -894,13 +1068,13 @@ bool isLoadingEarnings = true;
           ),
           SizedBox(height: 8),
           Container(
-            height: isSmallScreen ? 28 : 32,
+            height: barHeight,
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
+              borderRadius: BorderRadius.circular(borderRadius),
               child: Stack(
                 children: [
                   FractionallySizedBox(
@@ -926,31 +1100,52 @@ bool isLoadingEarnings = true;
     );
   }
 
-  Widget _buildComingSoonMessage(bool isSmallScreen) {
+  Widget _buildComingSoonMessage(bool isSmallScreen, bool isMediumScreen) {
+    final iconSize = isSmallScreen
+        ? 44.0
+        : isMediumScreen
+            ? 56.0
+            : 64.0;
+    final titleFontSize = isSmallScreen
+        ? 16.0
+        : isMediumScreen
+            ? 18.0
+            : 20.0;
+    final descFontSize = isSmallScreen
+        ? 12.0
+        : isMediumScreen
+            ? 13.0
+            : 14.0;
+
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      padding: EdgeInsets.all(isSmallScreen
+          ? 20.0
+          : isMediumScreen
+              ? 24.0
+              : 32.0),
       child: Column(
         children: [
           Icon(
             Icons.star_border_rounded,
-            size: isSmallScreen ? 48 : 64,
+            size: iconSize,
             color: Colors.grey.shade400,
           ),
-          SizedBox(height: isSmallScreen ? 12 : 16),
+          SizedBox(height: isSmallScreen ? 10 : 14),
           Text(
             'Coming Soon or Please Complete first ride to view Incentives',
             style: TextStyle(
-              fontSize: isSmallScreen ? 18 : 20,
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
               color: Colors.grey.shade600,
             ),
+            textAlign: TextAlign.center,
           ),
           SizedBox(height: 8),
           Text(
             'Exciting incentive programs will be available soon!',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: isSmallScreen ? 13 : 14,
+              fontSize: descFontSize,
               color: Colors.grey.shade500,
             ),
           ),
@@ -959,7 +1154,28 @@ bool isLoadingEarnings = true;
     );
   }
 
-  Widget _buildCollapsibleBottomPanel(double screenWidth, bool isSmallScreen) {
+  Widget _buildCollapsibleBottomPanel(
+      double screenWidth,
+      double screenHeight,
+      bool isSmallScreen,
+      bool isMediumScreen,
+      bool isTablet,
+      bool isLandscape,
+      double scale,
+      double cardPadding,
+      double horizontalPadding) {
+    final panelPadding = isSmallScreen ? 12.0 : (isMediumScreen ? 14.0 : 16.0);
+    final titleFontSize = isSmallScreen
+        ? 13.0
+        : isMediumScreen
+            ? 14.0
+            : 16.0;
+    final valueFontSize = isSmallScreen
+        ? 15.0
+        : isMediumScreen
+            ? 16.0
+            : 18.0;
+
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -984,8 +1200,8 @@ bool isLoadingEarnings = true;
             },
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 12 : 16,
-                vertical: isSmallScreen ? 10 : 12,
+                horizontal: panelPadding,
+                vertical: isSmallScreen ? 9 : 11,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -993,16 +1209,16 @@ bool isLoadingEarnings = true;
                   Text(
                     'Today Total',
                     style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        isLoadingEarnings ? '...' : todayTotal.toStringAsFixed(0),
+                        '500.00',
                         style: TextStyle(
-                          fontSize: isSmallScreen ? 16 : 18,
+                          fontSize: valueFontSize,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1011,7 +1227,11 @@ bool isLoadingEarnings = true;
                         _isPanelExpanded
                             ? Icons.keyboard_arrow_down
                             : Icons.keyboard_arrow_up,
-                        size: isSmallScreen ? 20 : 24,
+                        size: isSmallScreen
+                            ? 18.0
+                            : isMediumScreen
+                                ? 20.0
+                                : 24.0,
                       ),
                     ],
                   ),
@@ -1022,93 +1242,103 @@ bool isLoadingEarnings = true;
           if (_isPanelExpanded)
             Padding(
               padding: EdgeInsets.fromLTRB(
-                isSmallScreen ? 12 : 16,
+                panelPadding,
                 0,
-                isSmallScreen ? 12 : 16,
-                isSmallScreen ? 12 : 16,
+                panelPadding,
+                panelPadding,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                      child: 
-                     _buildOrangeCard(
-                      'Ride Count',
-                      isLoadingEarnings ? '...' : todayRideCount.toString(),
-                      screenWidth,
-                      isSmallScreen,
+              child: isSmallScreen
+                  ? Column(
+                      children: [
+                        _buildOrangeCard(
+                            'Ride Count',
+                            '13',
+                            screenWidth,
+                            screenHeight,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isTablet),
+                        SizedBox(height: isSmallScreen ? 8 : 10),
+                        _buildOrangeCard(
+                            'Wallet',
+                            '600.00',
+                            screenWidth,
+                            screenHeight,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isTablet),
+                        SizedBox(height: isSmallScreen ? 8 : 10),
+                        _buildOrangeCard(
+                            'Last Ride',
+                            '100',
+                            screenWidth,
+                            screenHeight,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isTablet),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                            child: _buildOrangeCard(
+                                'Ride Count',
+                                '13',
+                                screenWidth,
+                                screenHeight,
+                                isSmallScreen,
+                                isMediumScreen,
+                                isTablet)),
+                        SizedBox(width: isSmallScreen ? 8 : 12),
+                        Expanded(
+                            child: _buildOrangeCard(
+                                'Wallet',
+                                '600.00',
+                                screenWidth,
+                                screenHeight,
+                                isSmallScreen,
+                                isMediumScreen,
+                                isTablet)),
+                        SizedBox(width: isSmallScreen ? 8 : 12),
+                        Expanded(
+                            child: _buildOrangeCard(
+                                'Last Ride',
+                                '100',
+                                screenWidth,
+                                screenHeight,
+                                isSmallScreen,
+                                isMediumScreen,
+                                isTablet)),
+                      ],
                     ),
-                    ),
-                  SizedBox(width: isSmallScreen ? 8 : 12),
-                  Expanded(
-                      child: 
-                     _buildOrangeCard(
-                      'Wallet',
-                      isLoadingEarnings ? '...' : todayWallet.toStringAsFixed(0),
-                      screenWidth,
-                      isSmallScreen,
-                    ),
-
-                          ),
-                  SizedBox(width: isSmallScreen ? 8 : 12),
-                  Expanded(
-                      child: 
-                     _buildOrangeCard(
-                    'Last Ride',
-                    isLoadingEarnings ? '...' : lastRideAmount.toStringAsFixed(0),
-                    screenWidth,
-                    isSmallScreen,
-                  ),
-
-                          ),
-                ],
-              ),
             ),
         ],
       ),
     );
   }
-  Future<void> _fetchTodayEarnings() async {
-  try {
-    setState(() => isLoadingEarnings = true);
-
-    final response = await DriverEarningsCall.call(
-      driverId: FFAppState().driverid,
-      token: FFAppState().accessToken,
-      period: "daily",
-    );
-
-    if (response.succeeded) {
-      final data = response.jsonBody['data'];
-
-      todayTotal = (data['totalEarnings'] ?? 0).toDouble();
-      todayRideCount = data['totalRides'] ?? 0;
-      todayWallet = (data['walletEarnings'] ?? 0).toDouble();
-
-      List rides = data['rides'] ?? [];
-      if (rides.isNotEmpty) {
-        lastRideAmount =
-            (rides.first['amount'] ?? 0).toDouble(); // latest ride
-      }
-    }
-  } catch (e) {
-    print("❌ Earnings error: $e");
-  } finally {
-    setState(() => isLoadingEarnings = false);
-  }
-}
-
 
   Widget _buildOrangeCard(
-      String title, String value, double screenWidth, bool isSmallScreen) {
+      String title,
+      String value,
+      double screenWidth,
+      double screenHeight,
+      bool isSmallScreen,
+      bool isMediumScreen,
+      bool isTablet) {
+    final cardPadding = isSmallScreen ? 6.0 : (isMediumScreen ? 8.0 : 10.0);
+    final titleFontSize = isSmallScreen ? 10.0 : (isMediumScreen ? 11.0 : 12.0);
+    final valueFontSize = isSmallScreen ? 16.0 : (isMediumScreen ? 18.0 : 20.0);
+    final borderRadius = isSmallScreen ? 8.0 : (isMediumScreen ? 10.0 : 12.0);
+
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 8 : 12,
-        horizontal: isSmallScreen ? 4 : 8,
+        vertical: cardPadding,
+        horizontal: cardPadding * 0.75,
       ),
       decoration: BoxDecoration(
         color: Color(0xFFFFB785),
-        borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
+        borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1118,20 +1348,20 @@ bool isLoadingEarnings = true;
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black87,
-              fontSize: isSmallScreen ? 11 : 13,
+              fontSize: titleFontSize,
               fontWeight: FontWeight.w600,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: isSmallScreen ? 6 : 8),
+          SizedBox(height: isSmallScreen ? 4 : 6),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               value,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: isSmallScreen ? 18 : 20,
+                fontSize: valueFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),

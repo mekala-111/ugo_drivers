@@ -169,26 +169,51 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 360;
+    final isMediumScreen = size.width >= 360 && size.width < 600;
     final isTablet = size.width >= 600;
-    final scale = isTablet
-        ? 1.1
-        : isSmallScreen
-            ? 0.9
-            : 1.0;
-    final horizontalPadding = isTablet
-        ? 32.0
-        : isSmallScreen
-            ? 16.0
-            : 20.0;
-    final fieldHorizontalPadding = isTablet
+    final isLargeTablet = size.width >= 900;
+    final isLandscape = size.height < size.width;
+
+    // Enhanced scale calculation
+    final scale = isLargeTablet
+        ? 1.2
+        : isTablet
+            ? 1.1
+            : isMediumScreen
+                ? 1.0
+                : 0.9;
+
+    // Responsive spacing
+    final horizontalPadding = isLargeTablet
         ? 48.0
-        : isSmallScreen
-            ? 20.0
-            : 32.0;
-    final contentMaxWidth = isTablet ? 640.0 : double.infinity;
-    final buttonHeight = 50.0 * scale;
-    final cancelButtonWidth = isSmallScreen ? double.infinity : 120.0;
-    final submitButtonWidth = isSmallScreen ? double.infinity : 200.0;
+        : isTablet
+            ? 32.0
+            : isMediumScreen
+                ? 20.0
+                : 16.0;
+    final fieldHorizontalPadding = isLargeTablet
+        ? 64.0
+        : isTablet
+            ? 48.0
+            : isMediumScreen
+                ? 32.0
+                : 20.0;
+    final verticalSpacing = isLandscape ? 12.0 * scale : 16.0 * scale;
+
+    // Responsive content width
+    final contentMaxWidth = isLargeTablet
+        ? 800.0
+        : isTablet
+            ? 640.0
+            : double.infinity;
+
+    // Responsive button dimensions
+    final buttonHeight = isLandscape ? 45.0 * scale : 50.0 * scale;
+    final cancelButtonWidth =
+        isSmallScreen ? double.infinity : (isTablet ? 140.0 : 120.0);
+    final submitButtonWidth =
+        isSmallScreen ? double.infinity : (isTablet ? 220.0 : 200.0);
+    final fieldHeight = isLandscape ? 45.0 * scale : 50.0 * scale;
 
     return GestureDetector(
       onTap: () {
@@ -306,7 +331,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 ),
                                           ),
                                           SizedBox(
-                                            height: 50.0 * scale,
+                                            height: fieldHeight,
                                             child: TextFormField(
                                               controller: _model
                                                   .bankHolderNameController,
@@ -364,7 +389,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 16.0 * scale),
+                                    SizedBox(height: verticalSpacing),
                                     Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                         fieldHorizontalPadding,
@@ -405,7 +430,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 ),
                                           ),
                                           SizedBox(
-                                            height: 50.0 * scale,
+                                            height: fieldHeight,
                                             child: TextFormField(
                                               controller: _model
                                                   .bankAccountNumberController,
@@ -474,7 +499,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 16.0 * scale),
+                                    SizedBox(height: verticalSpacing),
                                     Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                         fieldHorizontalPadding,
@@ -515,7 +540,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 ),
                                           ),
                                           SizedBox(
-                                            height: 50.0 * scale,
+                                            height: fieldHeight,
                                             child: TextFormField(
                                               controller: _model
                                                   .confirmBankAccountNumberController,
@@ -586,7 +611,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 16.0 * scale),
+                                    SizedBox(height: verticalSpacing),
                                     Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                         fieldHorizontalPadding,
@@ -627,7 +652,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 ),
                                           ),
                                           SizedBox(
-                                            height: 50.0 * scale,
+                                            height: fieldHeight,
                                             child: TextFormField(
                                               controller:
                                                   _model.bankIfscCodeController,
@@ -689,7 +714,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 16.0 * scale),
+                                    SizedBox(height: verticalSpacing),
                                     Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                         fieldHorizontalPadding,
@@ -759,7 +784,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                             8),
                                                   ),
                                                 ),
-                                                SizedBox(height: 12.0 * scale),
+                                                SizedBox(
+                                                    height:
+                                                        verticalSpacing * 0.75),
                                                 FFButtonWidget(
                                                   onPressed: _model.isValidating
                                                       ? null
@@ -954,7 +981,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 16.0 * scale),
+                              SizedBox(height: verticalSpacing * 0.5),
                             ],
                           ),
                         ),
