@@ -57,8 +57,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
-  // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
-
   @override
   void initState() {
     super.initState();
@@ -102,7 +100,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       driverId: FFAppState().driverid,
     );
 
-    // Extract Name
     if (_model.userDetails?.jsonBody != null) {
       String fetchedName = getJsonField(
         _model.userDetails?.jsonBody,
@@ -134,8 +131,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       safeSetState(() {});
     }
   }
-
-  // --- HELPER METHODS ---
 
   String _getGreeting() {
     var hour = DateTime.now().hour;
@@ -231,7 +226,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
-  // ✅ FIXED: Using LocationSettings instead of desiredAccuracy
   Future<void> _startLocationTracking() async {
     if (_isTrackingLocation) return;
     _isTrackingLocation = true;
@@ -418,10 +412,10 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   void _passDataToOverlay(dynamic data) {
     if (_overlayKey.currentState == null) return;
-
+print("✅ DATA: $data");
     void processSingleRide(Map<String, dynamic> rideData) {
       String status =
-          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+          (rideData['ride_status'] ?? 'IDLE').toString().toUpperCase();
       print("🔄 Processing Status: \"$status\"");
 
       if (mounted) {
@@ -456,13 +450,21 @@ class _HomeWidgetState extends State<HomeWidget> {
     // Check if Online
     bool isOnline = _model.switchValue ?? false;
 
-    // FIXED LOGIC for Bottom Panels
-    bool shouldShowPanels = true;
-    String status = _currentRideStatus.toUpperCase();
-    if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
-        .contains(status)) {
+    // -----------------------------------------------------------
+    // ✅ PANEL VISIBILITY LOGIC
+    // -----------------------------------------------------------
+    bool shouldShowPanels = false;
+
+    // 1. Show panels if ID is 0
+    if (FFAppState().activeRideId == 0) {
+      shouldShowPanels = true;
+    }
+
+    // 2. Hide if we are specifically fetching
+    if (_currentRideStatus.toUpperCase() == 'FETCHING') {
       shouldShowPanels = false;
     }
+    // -----------------------------------------------------------
 
     if (currentUserLocationValue == null) {
       return Container(
@@ -481,7 +483,6 @@ class _HomeWidgetState extends State<HomeWidget> {
       },
       child: PopScope(
         canPop: false,
-        // ✅ FIXED: Updated to onPopInvokedWithResult
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
 
@@ -493,7 +494,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                 content: Text('Press back again to exit'),
                 duration: Duration(seconds: 2)));
           } else {
-            // Allow exit
             if (context.mounted) Navigator.of(context).pop();
           }
         },
@@ -510,7 +510,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               Expanded(
                 child: Stack(
                   children: [
-                    // 1. MAP (ONLY VISIBLE IF ONLINE)
+                    // 1. MAP
                     if (isOnline)
                       FlutterFlowGoogleMap(
                         controller: _model.googleMapsController,
@@ -520,8 +520,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                             currentUserLocationValue!,
                         markerColor: GoogleMarkerColor.orange,
                         mapType: MapType.normal,
-                        // ✅ FIXED: Pass style manually since setMapStyle is removed
-                        // style: GoogleMapStyle.silver, // We can pass enum here if FF component supports it
                         initialZoom: 16,
                         allowInteraction: true,
                         allowZoom: true,
@@ -614,7 +612,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                       ),
 
                     // 3. RIDE REQUEST OVERLAY (Always active)
-                    RideRequestOverlay(key: _overlayKey),
+                    RideRequestOverlay(
+                      key: _overlayKey,
+                      // ✅ PASSING CALLBACK TO FORCE REFRESH
+                      onRideComplete: () {
+                        setState(() {
+                          // This empty setstate forces HomeWidget to rebuild,
+                          // checking activeRideId again, which will now be 0.
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -673,9 +680,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                       value: _model.switchValue ?? false,
                       onChanged:
                           _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
-                      // ✅ FIXED: Use activeTrackColor instead of activeColor
                       activeTrackColor: Colors.green,
-                      activeThumbColor: Colors.white, // Thumb color
+                      activeThumbColor: Colors.white,
                     ),
                   ],
                 ),

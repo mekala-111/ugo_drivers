@@ -52,26 +52,32 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
 
   // 1. Fetch General Earnings
   Future<void> _fetchEarningsData() async {
-    setState(() => isLoading = true);
-    try {
-      final response = await DriverIdfetchCall.call(
-        token: FFAppState().accessToken,
-        id: FFAppState().driverid,
-      );
+  setState(() => isLoading = true);
 
-      if (response.succeeded) {
-        final data = DriverIdfetchCall.driverData(response.jsonBody);
-        setState(() {
-          todaysEarnings = "₹${data['total_earnings'] ?? '0'}";
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-      }
-    } catch (e) {
+  try {
+    final response = await DriverEarningsCall.call(
+      driverId: FFAppState().driverid,
+      token: FFAppState().accessToken,
+      period: "all",   // ✅ IMPORTANT
+    );
+
+    if (response.succeeded) {
+      final data = response.jsonBody['data'];
+
+      setState(() {
+        todaysEarnings =
+            "₹${(data['totalEarnings'] ?? 0).toString()}";
+        isLoading = false;
+      });
+    } else {
       setState(() => isLoading = false);
     }
+  } catch (e) {
+    print("Error fetching total earnings: $e");
+    setState(() => isLoading = false);
   }
+}
+
 
   // 2. Fetch Team/Referral Data
   Future<void> _fetchTeamData() async {
@@ -156,7 +162,7 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
             child: Column(
               children: [
                 const SizedBox(height: 30),
-                Text("Today's Earnings", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 14)),
+                Text("Total Earnings", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 14)),
                 const SizedBox(height: 8),
                 Text(todaysEarnings, style: GoogleFonts.inter(color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
