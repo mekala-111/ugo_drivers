@@ -1,8 +1,7 @@
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_util.dart'; // Ensure you have this or standard Intl
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class AllOrdersScreen extends StatefulWidget {
   const AllOrdersScreen({super.key});
@@ -27,16 +26,15 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
   double totalEarnings = 0.0;
 
   // --- BRAND COLORS (Extracted from Screenshots) ---
-  final Color ugoYellow = const Color(0xFFFFC107); // Active Tab
-  final Color ugoGreen = const Color(0xFF004D40);  // Active Date (Dark Green)
-  final Color ugoTextGreen = const Color(0xFF00897B); // Earnings Text
-  final Color lightGreyBg = const Color(0xFFF5F5F5);
-  final Color activeTabBg = const Color(0xFFFFF176); // Light Yellow for 'Completed' tab
+  final Color ugoYellow = const Color(0xFFFFC107); // Active Tab Yellow
+  final Color ugoGreen = const Color(0xFF004D40);  // Active Date Green
+  final Color ugoTextGreen = const Color(0xFF00897B); // Earnings Text Green
+  final Color lightGreyBg = const Color(0xFFF5F5F5); // Inactive Tab Grey
+  final Color activeTabBg = const Color(0xFFFFF176); // Light Yellow for 'Completed' filter
 
   @override
   void initState() {
     super.initState();
-    // Initialize with current date
     fetchOrders();
   }
 
@@ -64,16 +62,14 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
 
   // --- Filter Logic ---
   void _applyFilters() {
-    // 1. Filter by Status
-    // Note: Assuming your API returns a 'status' field. If not, map logic here.
+    // 1. Filter logic (Mocking status matching since API fields vary)
     var temp = allRides.where((r) {
-      // Mocking status logic for demo if API doesn't provide it
-      // String rStatus = r['status'] ?? 'Completed';
-      // return rStatus == statusFilter;
-      return true; // Allowing all for now so you can see data
+      // In a real app, you'd check: return r['status'] == statusFilter;
+      // For demo purposes, we allow all so you can see the UI
+      return true;
     }).toList();
 
-    // 2. Calculate Stats based on current view
+    // 2. Calculate Stats
     double earnings = 0;
     for (var r in temp) {
       earnings += double.tryParse(r['amount']?.toString() ?? '0') ?? 0;
@@ -107,6 +103,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           ),
         ),
         actions: [
+          // "Help" Button styled like the screenshot
           Container(
             margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -116,14 +113,14 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.headset_mic_outlined, size: 16, color: Colors.black),
+                const Icon(Icons.headset_mic_outlined, size: 18, color: Colors.black),
                 const SizedBox(width: 6),
                 Text(
                   "Help",
                   style: GoogleFonts.inter(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
               ],
@@ -134,29 +131,30 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       body: Column(
         children: [
           const SizedBox(height: 10),
+
           // 1. Day / Week / Month Switcher
           _buildTimeFilterTabs(),
 
           const SizedBox(height: 20),
 
-          // 2. Date Picker Strip
+          // 2. Horizontal Date Picker
           _buildDatePickerStrip(),
 
           const SizedBox(height: 20),
 
-          // 3. Stats Dashboard
+          // 3. Stats Dashboard Card
           _buildStatsCard(),
 
           const SizedBox(height: 24),
 
-          // 4. Order History Header & Filters
+          // 4. "Order History" Title & Filters
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                  "Order History",
-                  style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.w500)
+                "Order History",
+                style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -174,25 +172,24 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 child: Text(
                   DateFormat('dd MMMM, yyyy').format(selectedDate),
                   style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF0D47A1) // Dark Blue from screenshot
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0D47A1), // Dark Blue text
                   ),
                 ),
               ),
             ),
 
-          // 6. List View
+          // 6. Orders List
           Expanded(
             child: loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFC107)))
                 : filteredRides.isEmpty
                 ? _buildEmptyState()
                 : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: filteredRides.length,
               itemBuilder: (context, i) {
-                // Pass status filter to decide card style
                 return _buildOrderCard(filteredRides[i], statusFilter);
               },
             ),
@@ -202,7 +199,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- 1. Time Filter Tabs ---
+  // --- WIDGETS ---
+
+  // 1. Time Filters (Day/Week/Month)
   Widget _buildTimeFilterTabs() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -239,9 +238,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- 2. Date Picker Strip ---
+  // 2. Date Picker Strip
   Widget _buildDatePickerStrip() {
-    // Generate dates based on TimeFilter (Logic simplified for demo)
+    // Generate simple list of past 5 days
     List<DateTime> dates = List.generate(5, (index) => DateTime.now().subtract(Duration(days: 2 - index)));
 
     return SizedBox(
@@ -298,8 +297,10 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- 3. Stats Card ---
+  // 3. Stats Dashboard Card
   Widget _buildStatsCard() {
+    bool isCancelledView = statusFilter == "Cancelled";
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -324,7 +325,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    statusFilter == "Cancelled" ? "Cancelled Orders" : "Completed Orders",
+                    isCancelledView ? "Cancelled Orders" : "Completed Orders",
                     style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -344,7 +345,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    statusFilter == "Cancelled" ? "Cancellation Fare" : "Order Earnings",
+                    isCancelledView ? "Cancellation Fare" : "Order Earnings",
                     style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -356,7 +357,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- 4. Status Filter Tabs ---
+  // 4. Status Filter Tabs (Completed / Cancelled)
   Widget _buildStatusFilterTabs() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -364,11 +365,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       child: Row(
         children: ['Completed', 'Cancelled', 'Missed'].map((status) {
           bool isActive = statusFilter == status;
-          // Determine background color based on active state
           Color bgColor = lightGreyBg;
-          if (isActive) {
-            bgColor = activeTabBg; // Yellowish for active
-          }
+          if (isActive) bgColor = activeTabBg; // Light Yellow for active
 
           return Padding(
             padding: const EdgeInsets.only(right: 12.0),
@@ -401,19 +399,20 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- 5. Order Card (Dynamic based on Status) ---
+  // 5. Order Card (Changes based on Status)
   Widget _buildOrderCard(dynamic r, String status) {
     bool isCancelled = status == "Cancelled";
 
-    // Extract Data
-    String type = "Bike Boost"; // Default or r['type']
+    // Extract Data safely
+    String type = "Bike Boost";
     String time = DateFormat('h:mm a').format(DateTime.tryParse(r['date'] ?? '') ?? DateTime.now());
-    String amount = "₹${r['amount']}";
+    String amount = "₹${r['amount'] ?? '0'}";
     String from = r['from'] ?? "Unknown Pickup";
     String to = r['to'] ?? "Unknown Drop";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -422,16 +421,15 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 6, offset: const Offset(0, 2))
         ],
       ),
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Bike Boost • Time ... Price
+          // Header Row
           Row(
             children: [
               Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(width: 6),
-              const Icon(Icons.wb_sunny_outlined, size: 14, color: Colors.orange), // Sun icon
+              const Icon(Icons.wb_sunny_outlined, size: 14, color: Colors.orange),
               const SizedBox(width: 4),
               Text(time, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13)),
               const Spacer(),
@@ -440,20 +438,20 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
-                  color: isCancelled ? ugoTextGreen : ugoTextGreen, // Both green in screenshot
+                  color: ugoTextGreen,
                 ),
               ),
               if (!isCancelled) ...[
                 const SizedBox(width: 4),
-                const Icon(Icons.check_circle, size: 16, color: Color(0xFF00C853)),
+                const Icon(Icons.check_circle, size: 16, color: Color(0xFF00C853)), // Green Check
               ]
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
           const SizedBox(height: 12),
 
-          // Content based on Status
+          // Different Body Content based on Status
           if (isCancelled)
             _buildCancelledContent(from)
           else
@@ -463,7 +461,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // Content for COMPLETED Ride
+  // Body for COMPLETED Card
   Widget _buildCompletedContent(String from, String to) {
     return Column(
       children: [
@@ -472,9 +470,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           children: [
             Column(
               children: [
-                const Icon(Icons.circle, size: 10, color: Colors.green), // Green Dot
-                Container(width: 1, height: 25, color: Colors.grey[300]), // Dotted Line
-                const Icon(Icons.circle, size: 10, color: Colors.red),   // Red Dot
+                const Icon(Icons.circle, size: 10, color: Color(0xFF00C853)), // Green Dot
+                Container(width: 1, height: 25, color: Colors.grey[300]),     // Line
+                const Icon(Icons.circle, size: 10, color: Colors.red),        // Red Dot
               ],
             ),
             const SizedBox(width: 12),
@@ -482,9 +480,11 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
                   const SizedBox(height: 14),
-                  Text(to, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+                  Text(to, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
                 ],
               ),
             )
@@ -494,7 +494,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // Content for CANCELLED Ride
+  // Body for CANCELLED Card
   Widget _buildCancelledContent(String from) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,8 +505,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           children: [
             Column(
               children: [
-                const Icon(Icons.check_circle_outline, size: 14, color: Colors.blue), // Blue Check
-                Container(width: 1, height: 20, color: Colors.grey[300]), // Dotted Line
+                const Icon(Icons.check_circle_outline, size: 14, color: Colors.blue),
+                Container(width: 1, height: 20, color: Colors.grey[300]),
               ],
             ),
             const SizedBox(width: 10),
@@ -516,7 +516,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 children: [
                   Text("Accepted", style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
                   const SizedBox(height: 2),
-                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
                 ],
               ),
             ),
@@ -526,40 +527,43 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
         const SizedBox(height: 4),
         Row(
           children: [
-            const Icon(Icons.cancel_outlined, size: 14, color: Colors.red), // Red Cross
+            const Icon(Icons.cancel_outlined, size: 14, color: Colors.red),
             const SizedBox(width: 10),
-            Text("Cancelled by Captain", style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
+            Text("Cancelled by Captain",
+                style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
           ],
         ),
       ],
     );
   }
 
-  // --- 6. Empty State ---
+  // --- 6. Empty State Illustration ---
   Widget _buildEmptyState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Placeholder Illustration (Use your asset or icon)
-        Container(
-          height: 150,
-          width: 150,
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.05),
-            shape: BoxShape.circle,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Use an asset image here if you have one, otherwise a placeholder icon
+          Container(
+            height: 120,
+            width: 120,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.receipt_long, size: 60, color: Colors.grey),
           ),
-          child: const Icon(Icons.receipt_long_rounded, size: 60, color: Colors.blueGrey),
-        ),
-        Text(
-          "You have not completed any orders",
-          style: GoogleFonts.inter(
+          const SizedBox(height: 20),
+          Text(
+            "You have not completed any orders",
+            style: GoogleFonts.inter(
               fontSize: 16,
               color: Colors.grey[600],
-              fontWeight: FontWeight.w500
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
