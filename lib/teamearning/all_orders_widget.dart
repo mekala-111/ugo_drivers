@@ -1,7 +1,8 @@
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_util.dart'; // Ensure you have this or standard Intl
+import '/flutter_flow/flutter_flow_util.dart'; // Required for FFAppState
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class AllOrdersScreen extends StatefulWidget {
   const AllOrdersScreen({super.key});
@@ -13,24 +14,24 @@ class AllOrdersScreen extends StatefulWidget {
 class _AllOrdersScreenState extends State<AllOrdersScreen> {
   // --- State Variables ---
   bool loading = true;
-  List<dynamic> allRides = [];
-  List<dynamic> filteredRides = [];
+  List<dynamic> allRides = [];      // Raw data from API
+  List<dynamic> filteredRides = []; // Data displayed in list
 
   // Filters
-  String timeFilter = 'Day'; // Day, Week, Month
-  String statusFilter = 'Completed'; // Completed, Cancelled, Missed
+  String timeFilter = 'Day'; // 'Day', 'Week', 'Month'
+  String statusFilter = 'Completed'; // 'Completed', 'Cancelled', 'Missed'
   DateTime selectedDate = DateTime.now();
 
-  // Stats
+  // Dashboard Stats
   int totalCount = 0;
   double totalEarnings = 0.0;
 
-  // --- BRAND COLORS (Extracted from Screenshots) ---
-  final Color ugoYellow = const Color(0xFFFFC107); // Active Tab Yellow
-  final Color ugoGreen = const Color(0xFF004D40);  // Active Date Green
-  final Color ugoTextGreen = const Color(0xFF00897B); // Earnings Text Green
-  final Color lightGreyBg = const Color(0xFFF5F5F5); // Inactive Tab Grey
-  final Color activeTabBg = const Color(0xFFFFF176); // Light Yellow for 'Completed' filter
+  // --- BRAND COLORS (From Screenshots) ---
+  final Color ugoYellow = const Color(0xFFFFC107);
+  final Color ugoGreen = const Color(0xFF004D40);
+  final Color ugoTextGreen = const Color(0xFF00897B);
+  final Color lightGreyBg = const Color(0xFFF5F5F5);
+  final Color activeTabBg = const Color(0xFFFFF176);
 
   @override
   void initState() {
@@ -38,40 +39,79 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     fetchOrders();
   }
 
-  // --- API Logic ---
+  // ---------------------------------------------------
+  // 1️⃣ API INTEGRATION
+  // ---------------------------------------------------
   Future<void> fetchOrders() async {
     setState(() => loading = true);
 
-    // Replace with your actual API Call
+    // Calling your specific Backend Function
     final res = await DriverRideHistoryCall.call(
       token: FFAppState().accessToken,
       id: FFAppState().driverid,
     );
 
     if (res.succeeded) {
+      // Parse using your provided helper
       final data = DriverRideHistoryCall.rides(res.jsonBody);
-      setState(() {
-        allRides = data.toList();
-        _applyFilters();
-        loading = false;
-      });
+
+      if (mounted) {
+        setState(() {
+          allRides = data.toList();
+          _applyFilters(); // Filter data immediately
+          loading = false;
+        });
+      }
     } else {
-      setState(() => loading = false);
+      if (mounted) setState(() => loading = false);
     }
   }
 
-  // --- Filter Logic ---
+  // ---------------------------------------------------
+  // 2️⃣ FILTER LOGIC
+  // ---------------------------------------------------
   void _applyFilters() {
-    // 1. Filter logic (Mocking status matching since API fields vary)
     var temp = allRides.where((r) {
-      // In a real app, you'd check: return r['status'] == statusFilter;
-      // For demo purposes, we allow all so you can see the UI
-      return true;
+      // A. Status Check
+      // Backend might return "completed", "cancelled", etc.
+      String rStatus = (r['status'] ?? 'completed').toString().toLowerCase();
+
+      // Map UI tabs to backend status values
+      bool statusMatch = false;
+      if (statusFilter == 'Completed') {
+        statusMatch = rStatus == 'completed';
+      } else if (statusFilter == 'Cancelled') {
+        statusMatch = rStatus == 'cancelled' || rStatus.contains('cancel');
+      } else {
+        statusMatch = rStatus == 'missed';
+      }
+
+      // B. Date Check
+      // Parsing 'date' or 'created_at'
+      String dateStr = r['date'] ?? r['created_at'] ?? DateTime.now().toString();
+      DateTime rDate = DateTime.tryParse(dateStr) ?? DateTime.now();
+
+      bool dateMatch = false;
+      if (timeFilter == 'Day') {
+        // Match exact day
+        dateMatch = isSameDay(rDate, selectedDate);
+      } else if (timeFilter == 'Week') {
+        // Match week range (simplified: within 7 days of selected)
+        // In a real app, you'd calculate week start/end
+        dateMatch = rDate.isAfter(selectedDate.subtract(const Duration(days: 7))) &&
+            rDate.isBefore(selectedDate.add(const Duration(days: 1)));
+      } else {
+        // Match Month
+        dateMatch = rDate.month == selectedDate.month && rDate.year == selectedDate.year;
+      }
+
+      return statusMatch && dateMatch;
     }).toList();
 
-    // 2. Calculate Stats
+    // C. Calculate Stats from Filtered Data
     double earnings = 0;
     for (var r in temp) {
+      // Parse amount safely (handles string or int)
       earnings += double.tryParse(r['amount']?.toString() ?? '0') ?? 0;
     }
 
@@ -82,6 +122,10 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     });
   }
 
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +133,6 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        titleSpacing: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -97,73 +140,58 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
         title: Text(
           "All Orders",
           style: GoogleFonts.inter(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20
           ),
         ),
         actions: [
-          // "Help" Button styled like the screenshot
           Container(
             margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
+              border: Border.all(color: Colors.black),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
                 const Icon(Icons.headset_mic_outlined, size: 18, color: Colors.black),
                 const SizedBox(width: 6),
-                Text(
-                  "Help",
-                  style: GoogleFonts.inter(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
+                Text("Help", style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black)),
               ],
             ),
           )
         ],
       ),
+
       body: Column(
         children: [
           const SizedBox(height: 10),
 
-          // 1. Day / Week / Month Switcher
+          // 1. Tabs
           _buildTimeFilterTabs(),
-
           const SizedBox(height: 20),
 
-          // 2. Horizontal Date Picker
+          // 2. Date Picker
           _buildDatePickerStrip(),
-
           const SizedBox(height: 20),
 
-          // 3. Stats Dashboard Card
+          // 3. Stats
           _buildStatsCard(),
-
           const SizedBox(height: 24),
 
-          // 4. "Order History" Title & Filters
+          // 4. Filters & Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                "Order History",
-                style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.w500),
-              ),
+              child: Text("Order History",
+                  style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.w500)),
             ),
           ),
           const SizedBox(height: 12),
           _buildStatusFilterTabs(),
-
           const SizedBox(height: 16),
 
-          // 5. Date Header (e.g. "30 November, 2025")
+          // 5. Date Header
           if (filteredRides.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -171,11 +199,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   DateFormat('dd MMMM, yyyy').format(selectedDate),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0D47A1), // Dark Blue text
-                  ),
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF0D47A1)),
                 ),
               ),
             ),
@@ -199,23 +223,21 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // --- WIDGETS ---
+  // ---------------------------------------------------
+  // WIDGET HELPERS
+  // ---------------------------------------------------
 
-  // 1. Time Filters (Day/Week/Month)
   Widget _buildTimeFilterTabs() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: lightGreyBg,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: lightGreyBg, borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: ['Day', 'Week', 'Month'].map((filter) {
           bool isActive = timeFilter == filter;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => timeFilter = filter),
+              onTap: () => setState(() { timeFilter = filter; _applyFilters(); }),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 alignment: Alignment.center,
@@ -223,13 +245,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                   color: isActive ? ugoYellow : Colors.transparent,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(
-                  filter,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
+                child: Text(filter, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black)),
               ),
             ),
           );
@@ -238,9 +254,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // 2. Date Picker Strip
   Widget _buildDatePickerStrip() {
-    // Generate simple list of past 5 days
+    // Logic to show different UI for Day vs Month could go here
+    // For now, standard Day picker similar to screenshots
     List<DateTime> dates = List.generate(5, (index) => DateTime.now().subtract(Duration(days: 2 - index)));
 
     return SizedBox(
@@ -248,14 +264,11 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.blue),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.arrow_back, color: Colors.blue), onPressed: () {}),
           ...dates.map((date) {
-            bool isSelected = date.day == selectedDate.day;
+            bool isSelected = isSameDay(date, selectedDate);
             return GestureDetector(
-              onTap: () => setState(() => selectedDate = date),
+              onTap: () => setState(() { selectedDate = date; _applyFilters(); }),
               child: Container(
                 width: 50,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -266,41 +279,23 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      DateFormat('EEE').format(date),
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? Colors.white : Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      DateFormat('d').format(date),
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : Colors.black,
-                      ),
-                    ),
+                    Text(DateFormat('EEE').format(date),
+                        style: GoogleFonts.inter(fontSize: 12, color: isSelected ? Colors.white : Colors.grey[600])),
+                    Text(DateFormat('d').format(date),
+                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.black)),
                   ],
                 ),
               ),
             );
           }),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward, color: Colors.blue),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.blue), onPressed: () {}),
         ],
       ),
     );
   }
 
-  // 3. Stats Dashboard Card
   Widget _buildStatsCard() {
-    bool isCancelledView = statusFilter == "Cancelled";
-
+    bool isCancelled = statusFilter == "Cancelled";
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -315,39 +310,22 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
             Expanded(
               child: Column(
                 children: [
-                  Text(
-                    "$totalCount",
-                    style: GoogleFonts.inter(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
-                    ),
-                  ),
+                  Text("$totalCount", style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
                   const SizedBox(height: 4),
-                  Text(
-                    isCancelledView ? "Cancelled Orders" : "Completed Orders",
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
-                  ),
+                  Text(isCancelled ? "Cancelled Orders" : "Completed Orders",
+                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
                 ],
               ),
             ),
-            VerticalDivider(thickness: 1, color: Colors.grey.shade300, width: 1),
+            VerticalDivider(color: Colors.grey.shade300, width: 1),
             Expanded(
               child: Column(
                 children: [
-                  Text(
-                    "₹${totalEarnings.toStringAsFixed(0)}",
-                    style: GoogleFonts.inter(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: ugoTextGreen,
-                    ),
-                  ),
+                  Text("₹${totalEarnings.toStringAsFixed(0)}",
+                      style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: ugoTextGreen)),
                   const SizedBox(height: 4),
-                  Text(
-                    isCancelledView ? "Cancellation Fare" : "Order Earnings",
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
-                  ),
+                  Text(isCancelled ? "Cancellation Fare" : "Order Earnings",
+                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -357,7 +335,6 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // 4. Status Filter Tabs (Completed / Cancelled)
   Widget _buildStatusFilterTabs() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -371,26 +348,14 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  statusFilter = status;
-                  _applyFilters();
-                });
-              },
+              onTap: () => setState(() { statusFilter = status; _applyFilters(); }),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  status,
-                  style: GoogleFonts.inter(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
+                child: Text(status, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
               ),
             ),
           );
@@ -399,16 +364,21 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // 5. Order Card (Changes based on Status)
   Widget _buildOrderCard(dynamic r, String status) {
     bool isCancelled = status == "Cancelled";
 
-    // Extract Data safely
-    String type = "Bike Boost";
-    String time = DateFormat('h:mm a').format(DateTime.tryParse(r['date'] ?? '') ?? DateTime.now());
+    // Extract Data with null safety
+    String type = r['vehicle_type'] ?? "Bike Boost";
+    String time = "N/A";
+    if (r['date'] != null) {
+      try {
+        time = DateFormat('h:mm a').format(DateTime.parse(r['date']));
+      } catch (e) { time = "00:00"; }
+    }
     String amount = "₹${r['amount'] ?? '0'}";
-    String from = r['from'] ?? "Unknown Pickup";
-    String to = r['to'] ?? "Unknown Drop";
+    // Check your API keys here. Usually it's 'pickup_address' or 'from'
+    String from = r['pickup_address'] ?? r['from'] ?? "Unknown Pickup";
+    String to = r['drop_address'] ?? r['to'] ?? "Unknown Drop";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -417,41 +387,28 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 6, offset: const Offset(0, 2))
-        ],
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row
           Row(
             children: [
-              Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black)),
               const SizedBox(width: 6),
               const Icon(Icons.wb_sunny_outlined, size: 14, color: Colors.orange),
               const SizedBox(width: 4),
               Text(time, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13)),
               const Spacer(),
-              Text(
-                amount,
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: ugoTextGreen,
-                ),
-              ),
+              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoTextGreen)),
               if (!isCancelled) ...[
                 const SizedBox(width: 4),
-                const Icon(Icons.check_circle, size: 16, color: Color(0xFF00C853)), // Green Check
+                const Icon(Icons.check_circle, size: 16, color: Color(0xFF00C853)),
               ]
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-          const SizedBox(height: 12),
+          const Divider(height: 24, color: Color(0xFFEEEEEE)),
 
-          // Different Body Content based on Status
           if (isCancelled)
             _buildCancelledContent(from)
           else
@@ -461,52 +418,43 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
-  // Body for COMPLETED Card
   Widget _buildCompletedContent(String from, String to) {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Column(
           children: [
-            Column(
-              children: [
-                const Icon(Icons.circle, size: 10, color: Color(0xFF00C853)), // Green Dot
-                Container(width: 1, height: 25, color: Colors.grey[300]),     // Line
-                const Icon(Icons.circle, size: 10, color: Colors.red),        // Red Dot
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
-                  const SizedBox(height: 14),
-                  Text(to, maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
-                ],
-              ),
-            )
+            const Icon(Icons.circle, size: 10, color: Color(0xFF00C853)),
+            Container(width: 1, height: 25, color: Colors.grey[300]),
+            const Icon(Icons.circle, size: 10, color: Colors.red),
           ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+              const SizedBox(height: 14),
+              Text(to, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+            ],
+          ),
         )
       ],
     );
   }
 
-  // Body for CANCELLED Card
   Widget _buildCancelledContent(String from) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. Accepted Row
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
               children: [
                 const Icon(Icons.check_circle_outline, size: 14, color: Colors.blue),
-                Container(width: 1, height: 20, color: Colors.grey[300]),
+                Container(width: 1, height: 16, color: Colors.grey[300]), // Short Line
               ],
             ),
             const SizedBox(width: 10),
@@ -515,53 +463,37 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Accepted", style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
-                  const SizedBox(height: 2),
-                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
                 ],
               ),
             ),
           ],
         ),
-        // 2. Cancelled Row
         const SizedBox(height: 4),
         Row(
           children: [
             const Icon(Icons.cancel_outlined, size: 14, color: Colors.red),
             const SizedBox(width: 10),
-            Text("Cancelled by Captain",
-                style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
+            Text("Cancelled by Captain", style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
           ],
         ),
       ],
     );
   }
 
-  // --- 6. Empty State Illustration ---
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Use an asset image here if you have one, otherwise a placeholder icon
           Container(
-            height: 120,
-            width: 120,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              shape: BoxShape.circle,
-            ),
+            height: 120, width: 120,
+            decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
             child: const Icon(Icons.receipt_long, size: 60, color: Colors.grey),
           ),
           const SizedBox(height: 20),
-          Text(
-            "You have not completed any orders",
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text("You have not completed any orders",
+              style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[600], fontWeight: FontWeight.w500)),
         ],
       ),
     );
