@@ -48,13 +48,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
-  ThemeMode _themeMode = FlutterFlowTheme.themeMode;
+  ThemeMode _themeMode = ThemeMode.light;
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
 
   // ✅ GLOBAL MESSENGER KEY FOR SNACKBARS
-  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
@@ -84,7 +85,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     jwtTokenStream.listen((_) {});
     Future.delayed(
       Duration(milliseconds: 1000),
-          () => _appStateNotifier.stopShowingSplashImage(),
+      () => _appStateNotifier.stopShowingSplashImage(),
     );
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
@@ -122,9 +123,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
-    _themeMode = mode;
-    FlutterFlowTheme.saveThemeMode(mode);
-  });
+        _themeMode = ThemeMode.light;
+        FlutterFlowTheme.saveThemeMode(ThemeMode.light);
+      });
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -171,7 +172,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       //   brightness: Brightness.dark,
       //   useMaterial3: false,
       // ),
-      themeMode: _themeMode,
+      themeMode: ThemeMode.light,
       routerConfig: _router,
     );
   }

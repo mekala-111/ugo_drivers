@@ -147,6 +147,7 @@ bool _isSupportedLocale(Locale locale) {
 final kTranslationsMap = <Map<String, Map<String, String>>>[
   // login
   {
+      
     '0wqdgogt': {
       'en': 'Start your journey – enter your phone number',
       'hi': 'अपनी यात्रा शुरू करें - अपना फ़ोन नंबर दर्ज करें',
@@ -4068,6 +4069,92 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': '+₹1300',
       'hi': '+₹1300',
       'te': '+₹1300',
+    },
+  },
+  // addBankAccount
+  {
+    'wlxvqket': {
+      'en': 'Add Bank Account',
+      'hi': 'बैंक खाता जोड़ें',
+      'te': 'బ్యాంక్ ఖాతాను జోడించండి',
+    },
+    'z3yviii2': {
+      'en': 'Full Name',
+      'hi': 'पूरा नाम',
+      'te': 'పూర్తి పేరు',
+    },
+    'vwehe0jg': {
+      'en': 'Bank Account Number',
+      'hi': 'बैंक खाता संख्या',
+      'te': 'బ్యాంక్ ఖాతా సంఖ్య',
+    },
+    '6kj7r3jn': {
+      'en': 'Confirm Bank Account Number',
+      'hi': 'बैंक खाता संख्या की पुष्टि करें',
+      'te': 'బ్యాంక్ ఖాతా సంఖ్యను నిర్ధారించండి',
+    },
+    'l1eb56jt': {
+      'en': 'Bank IFSC Code',
+      'hi': 'बैंक IFSC कोड',
+      'te': 'బ్యాంక్ IFSC కోడ్',
+    },
+    'wv7qy5fs': {
+      'en': 'Cancel',
+      'hi': 'रद्द करें',
+      'te': 'రద్దు చేయండి',
+    },
+    '67uqdtth': {
+      'en': 'Submit',
+      'hi': 'जमा करें',
+      'te': 'సమర్పించండి',
+    },
+  },
+  // withdraw
+  {
+    'u0xnthuk': {
+      'en': 'Withdraw',
+      'hi': 'निकासी',
+      'te': 'విత్‌డ్రా',
+    },
+    '9ltoao1v': {
+      'en': 'Enter Amount',
+      'hi': 'राशि दर्ज करें',
+      'te': 'మొత్తం నమోదు చేయండి',
+    },
+    '9z3c0f6c': {
+      'en': '₹380',
+      'hi': '₹380',
+      'te': '₹380',
+    },
+    'visvh3a4': {
+      'en': 'Bank Account Number',
+      'hi': 'बैंक खाता संख्या',
+      'te': 'బ్యాంక్ ఖాతా సంఖ్య',
+    },
+    'g95ih7v8': {
+      'en': 'XXXXXXXXXXXXXXX38',
+      'hi': 'XXXXXXXXXXXXXXX38',
+      'te': 'XXXXXXXXXXXXXXX38',
+    },
+    '5rbl97wg': {
+      'en': 'Bank IFSC Code',
+      'hi': 'बैंक IFSC कोड',
+      'te': 'బ్యాంక్ IFSC కోడ్',
+    },
+    'i2j5vzhu': {
+      'en': 'XXXXXX38',
+      'hi': 'XXXXXX38',
+      'te': 'XXXXXX38',
+    },
+    'c1crgt2r': {
+      'en': 'Cancel',
+      'hi': 'रद्द करें',
+      'te': 'రద్దు చేయండి',
+    },
+    'bhzb42xw': {
+      'en': 'Submit',
+      'hi': 'जमा करें',
+      'te': 'సమర్పించండి',
     },
   },
 ].reduce((a, b) => a..addAll(b));

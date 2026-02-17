@@ -557,7 +557,7 @@ class ApiManager {
       result = ApiCallResponse(null, {}, -1, exception: e);
     }
 
-    print('API Call [$callName] to $apiUrl completed with status ${result.statusCode}');
+    print('API Call [$callName] to $apiUrl completed with status ${result.statusCode} and body: ${result.jsonBody}');
 
     // ✅ CHECK FOR UNAUTHORIZED (401)
     if (result.statusCode == 401) {

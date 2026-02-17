@@ -332,7 +332,7 @@ void setAppLanguage(BuildContext context, String language) =>
     MyApp.of(context).setLocale(language);
 
 void setDarkModeSetting(BuildContext context, ThemeMode themeMode) =>
-    MyApp.of(context).setThemeMode(themeMode);
+    MyApp.of(context).setThemeMode(ThemeMode.light);
 
 void showSnackbar(
   BuildContext context,

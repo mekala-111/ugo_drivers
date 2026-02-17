@@ -153,6 +153,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                   controller: _model.textController1,
                                   focusNode: _model.textFieldFocusNode1,
                                   autofocus: false,
+                                  readOnly: true,
                                   obscureText: false,
                                   decoration: InputDecoration(
                                     hintText:
@@ -256,6 +257,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                   controller: _model.textController2,
                                   focusNode: _model.textFieldFocusNode2,
                                   autofocus: false,
+                                  readOnly: true,
                                   obscureText: false,
                                   decoration: InputDecoration(
                                     hintText:
@@ -359,6 +361,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                   controller: _model.textController3,
                                   focusNode: _model.textFieldFocusNode3,
                                   autofocus: false,
+                                  readOnly: true,
                                   obscureText: false,
                                   decoration: InputDecoration(
                                     hintText:

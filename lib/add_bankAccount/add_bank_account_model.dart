@@ -13,6 +13,11 @@ class AddBankAccountModel extends FlutterFlowModel<AddBankAccountWidget> {
   FocusNode? confirmBankAccountNumberFocusNode;
   FocusNode? bankIfscCodeFocusNode;
 
+  // Razorpay validation states
+  bool isValidating = false;
+  String? validatedBankName;
+  String? validationError;
+
   @override
   void initState(BuildContext context) {
     bankHolderNameController = TextEditingController();

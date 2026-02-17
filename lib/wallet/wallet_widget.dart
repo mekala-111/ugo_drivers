@@ -34,12 +34,14 @@ class _WalletWidgetState extends State<WalletWidget> {
   String? ifscCode;
   String? bankName;
   String? accountHolderName;
+  String? walletBalance;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => WalletModel());
     _fetchBankAccount();
+    _fetchWallet();
   }
 
   // 🏦 Fetch bank account details from API
@@ -56,7 +58,8 @@ class _WalletWidgetState extends State<WalletWidget> {
         return;
       }
 
-      final response = await BankAccountCall.call(driverId: driverId);
+      final response = await BankAccountCall.call(
+          driverId: driverId, token: FFAppState().accessToken);
 
       if (response.succeeded) {
         setState(() {
@@ -88,6 +91,46 @@ class _WalletWidgetState extends State<WalletWidget> {
     }
   }
 
+  // 💳 Fetch wallet details from API
+  Future<void> _fetchWallet() async {
+    try {
+      final driverIdValue = FFAppState().driverid;
+      final driverId = int.tryParse(driverIdValue.toString());
+
+      if (driverId == null) {
+        if (kDebugMode) print('Driver ID is invalid for wallet');
+        return;
+      }
+
+      final response = await GetWalletCall.call(
+        driverId: driverId,
+        token: FFAppState().accessToken,
+      );
+
+      if (response.succeeded) {
+        setState(() {
+          walletBalance = GetWalletCall.walletBalance(response.jsonBody)
+              ?.toString();
+        });
+
+        if (kDebugMode) {
+          print('✅ Wallet Loaded Successfully');
+          print('   Balance: $walletBalance');
+        }
+      } else {
+        if (kDebugMode) {
+          print('❌ Failed to fetch wallet');
+          print('   Status: ${response.statusCode}');
+          if (response.exception != null) {
+            print('   Error: ${response.exceptionMessage}');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print('❌ Error fetching wallet: $e');
+    }
+  }
+
   @override
   void dispose() {
     _model.dispose();
@@ -96,6 +139,26 @@ class _WalletWidgetState extends State<WalletWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final isTablet = size.width >= 600;
+    final scale = isTablet
+        ? 1.1
+        : isSmallScreen
+            ? 0.9
+            : 1.0;
+    final horizontalPadding = isTablet
+        ? 32.0
+        : isSmallScreen
+            ? 16.0
+            : 20.0;
+    final contentMaxWidth = isTablet ? 720.0 : double.infinity;
+    final headerActions = [
+      _buildHeaderAction(Icons.add, "Add Money", () {}),
+      _buildHeaderAction(Icons.qr_code_scanner, "Scan", () {}),
+      _buildHeaderAction(Icons.history, "History", () {}),
+    ];
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -134,180 +197,216 @@ class _WalletWidgetState extends State<WalletWidget> {
         ),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              // ==========================================
-              // 1️⃣ BALANCE HEADER (Vibrant Gradient)
-              // ==========================================
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [ugoOrange, ugoOrangeLight],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: ugoOrange.withValues(alpha:0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    )
-                  ],
-                ),
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
-                child: Column(
-                  children: [
-                    Text(
-                      'Total Balance',
-                      style: GoogleFonts.inter(
-                        color: Colors.white.withValues(alpha:0.9),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: contentMaxWidth),
+              child: Column(
+                children: [
+                  // ==========================================
+                  // 1️⃣ BALANCE HEADER (Vibrant Gradient)
+                  // ==========================================
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [ugoOrange, ugoOrangeLight],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    // 💰 Dynamic Balance Amount
-                    Text(
-                      '₹4,250.00', // TODO: Connect to your AppState or API
-                      style: GoogleFonts.interTight(
-                        color: Colors.white,
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ⚡ Quick Actions Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildHeaderAction(Icons.add, "Add Money", () {}),
-                        _buildHeaderAction(
-                            Icons.qr_code_scanner, "Scan", () {}),
-                        _buildHeaderAction(Icons.history, "History", () {}),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ugoOrange.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        )
                       ],
                     ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // ==========================================
-              // 2️⃣ RECENT TRANSACTIONS (Driver Friendly)
-              // ==========================================
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Recent Transactions",
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    padding: EdgeInsets.fromLTRB(
+                      20.0 * scale,
+                      10.0 * scale,
+                      20.0 * scale,
+                      30.0 * scale,
                     ),
-                    const SizedBox(height: 12),
-
-                    // 🟢 Credit Example (Earnings)
-                    _buildTransactionTile(
-                      title: "Ride Earnings",
-                      date: "Today, 10:23 AM",
-                      amount: "+ ₹120.00",
-                      isCredit: true,
-                    ),
-                    // 🔴 Debit Example (Commission)
-                    _buildTransactionTile(
-                      title: "Commission Paid",
-                      date: "Today, 09:45 AM",
-                      amount: "- ₹35.00",
-                      isCredit: false,
-                    ),
-                    // 🟢 Credit Example (Incentive)
-                    _buildTransactionTile(
-                      title: "Incentive Bonus",
-                      date: "Yesterday",
-                      amount: "+ ₹50.00",
-                      isCredit: true,
-                    ),
-
-                    const SizedBox(height: 8),
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "View All Transactions",
-                          style: TextStyle(
-                              color: ugoOrange, fontWeight: FontWeight.w600),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Total Balance',
+                          style: GoogleFonts.inter(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 14.0 * scale,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
+                        SizedBox(height: 8.0 * scale),
+                        // 💰 Dynamic Balance Amount
+                        Text(
+                          '₹${walletBalance ?? '0.00'}',
+                          style: GoogleFonts.interTight(
+                            color: Colors.white,
+                            fontSize: 36.0 * scale,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 24.0 * scale),
+
+                        // ⚡ Quick Actions Row
+                        if (isSmallScreen)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 12.0 * scale,
+                            runSpacing: 12.0 * scale,
+                            children: headerActions,
+                          )
+                        else
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: headerActions,
+                          ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+
+                  SizedBox(height: 24.0 * scale),
+
+                  // ==========================================
+                  // 2️⃣ RECENT TRANSACTIONS (Driver Friendly)
+                  // ==========================================
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Recent Transactions",
+                          style: GoogleFonts.inter(
+                            fontSize: 18.0 * scale,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 12.0 * scale),
+
+                        // 🟢 Credit Example (Earnings)
+                        _buildTransactionTile(
+                          title: "Ride Earnings",
+                          date: "Today, 10:23 AM",
+                          amount: "+ ₹120.00",
+                          isCredit: true,
+                        ),
+                        // 🔴 Debit Example (Commission)
+                        _buildTransactionTile(
+                          title: "Commission Paid",
+                          date: "Today, 09:45 AM",
+                          amount: "- ₹35.00",
+                          isCredit: false,
+                        ),
+                        // 🟢 Credit Example (Incentive)
+                        _buildTransactionTile(
+                          title: "Incentive Bonus",
+                          date: "Yesterday",
+                          amount: "+ ₹50.00",
+                          isCredit: true,
+                        ),
+
+                        SizedBox(height: 8.0 * scale),
+                        Center(
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              "View All Transactions",
+                              style: TextStyle(
+                                color: ugoOrange,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16.0 * scale),
+
+                  // ==========================================
+                  // 3️⃣ MANAGE OPTIONS (Clean Cards)
+                  // ==========================================
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Manage",
+                          style: GoogleFonts.inter(
+                            fontSize: 18.0 * scale,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 12.0 * scale),
+                        _buildMenuCard(
+                          icon: Icons.account_balance,
+                          title: "Bank Account",
+                          subtitle: "Manage withdrawal account",
+                          onTap: () {
+                            if (kDebugMode) {
+                              print('🏦 Bank Account card tapped');
+                              print('   Account: $bankAccountNumber');
+                              print('   IFSC: $ifscCode');
+                            }
+
+                            final hasAccount =
+                                bankAccountNumber != null &&
+                                bankAccountNumber!.isNotEmpty;
+
+                            if (!mounted) return;
+
+                            if (hasAccount) {
+                              // Bank account exists - navigate to withdraw page
+                              context.pushNamedAuth(
+                                WithdrawWidget.routeName,
+                                mounted,
+                                ignoreRedirect: true,
+                              );
+                            } else {
+                              // No bank account - navigate to add bank account page
+                              context.pushNamedAuth(
+                                AddBankAccountWidget.routeName,
+                                mounted,
+                                ignoreRedirect: true,
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: 12.0 * scale),
+                        _buildMenuCard(
+                          icon: Icons.card_giftcard,
+                          title: "Vouchers & Promos",
+                          subtitle: "0 Active vouchers",
+                          onTap: () {},
+                        ),
+                        SizedBox(height: 12.0 * scale),
+                        _buildMenuCard(
+                          icon: Icons.group_add,
+                          title: "Referrals",
+                          subtitle: "Invite friends & earn",
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 40.0 * scale),
+                ],
               ),
-
-              const SizedBox(height: 16),
-
-              // ==========================================
-              // 3️⃣ MANAGE OPTIONS (Clean Cards)
-              // ==========================================
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Manage",
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildMenuCard(
-                      icon: Icons.account_balance,
-                      title: "Bank Account",
-                      subtitle: "Manage withdrawal account",
-                      onTap: () {
-                        // Navigate based on whether bank account exists
-                        if (bankAccountNumber != null &&
-                            bankAccountNumber!.isNotEmpty) {
-                          // Bank account exists - navigate to withdraw page
-                          context.pushNamed(WithdrawWidget.routeName);
-                        } else {
-                          // No bank account - navigate to add bank account page
-                          context.pushNamed(AddBankAccountWidget.routeName);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildMenuCard(
-                      icon: Icons.card_giftcard,
-                      title: "Vouchers & Promos",
-                      subtitle: "0 Active vouchers",
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 12),
-                    _buildMenuCard(
-                      icon: Icons.group_add,
-                      title: "Referrals",
-                      subtitle: "Invite friends & earn",
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
       ),
@@ -324,9 +423,9 @@ class _WalletWidgetState extends State<WalletWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha:0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha:0.3)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
             child: Icon(icon, color: Colors.white, size: 24),
           ),
@@ -359,7 +458,7 @@ class _WalletWidgetState extends State<WalletWidget> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -372,8 +471,8 @@ class _WalletWidgetState extends State<WalletWidget> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: isCredit
-                  ? ugoGreen.withValues(alpha:0.1)
-                  : ugoRed.withValues(alpha:0.1),
+                  ? ugoGreen.withValues(alpha: 0.1)
+                  : ugoRed.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

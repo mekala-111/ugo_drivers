@@ -508,6 +508,39 @@ class DriverIdfetchCall {
       ));
 }
 
+class GetWalletCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getWallet',
+      apiUrl: '$_baseUrl/api/wallets/driver/$driverId',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static dynamic data(dynamic response) => getJsonField(
+        response,
+        r'''$.data''',
+      );
+
+  static dynamic walletBalance(dynamic response) => getJsonField(
+        response,
+        r'''$.data.wallet_balance''',
+      );
+}
+
 class PostQRcodeCall {
   static Future<ApiCallResponse> call({
     int? driverId,
@@ -814,12 +847,15 @@ String _serializeJson(dynamic jsonVar, [bool isList = false]) {
 class BankAccountCall {
   static Future<ApiCallResponse> call({
     required String driverId,
+    required String token,
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getBankAccount',
       apiUrl: '$_baseUrl/api/drivers/bank-account/$driverId',
       callType: ApiCallType.GET,
-      headers: {},
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -831,25 +867,25 @@ class BankAccountCall {
   }
 
   // Response parsers
-  static dynamic bankAccountNumber(dynamic response) => getJsonField(
-        response,
-        r'$.data.account_number',
-      );
+  static String? bankAccountNumber(dynamic response) {
+    final value = getJsonField(response, r'$.data.bank_account_number');
+    return value?.toString();
+  }
 
-  static dynamic ifscCode(dynamic response) => getJsonField(
-        response,
-        r'$.data.ifsc_code',
-      );
+  static String? ifscCode(dynamic response) {
+    final value = getJsonField(response, r'$.data.bank_ifsc_code');
+    return value?.toString();
+  }
 
-  static dynamic bankName(dynamic response) => getJsonField(
-        response,
-        r'$.data.bank_name',
-      );
+  static String? bankName(dynamic response) {
+    final value = getJsonField(response, r'$.data.bank_name');
+    return value?.toString();
+  }
 
-  static dynamic accountHolderName(dynamic response) => getJsonField(
-        response,
-        r'$.data.account_holder_name',
-      );
+  static String? accountHolderName(dynamic response) {
+    final value = getJsonField(response, r'$.data.bank_holder_name');
+    return value?.toString();
+  }
 
   static bool? success(dynamic response) => castToType<bool>(getJsonField(
         response,
@@ -926,6 +962,50 @@ class AddBankAccountCall {
         response,
         r'$.data.bank_holder_name',
       );
+}
+
+// Razorpay Bank Account Validation
+class RazorpayBankValidationCall {
+  static Future<ApiCallResponse> call({
+    String? ifscCode,
+    String? accountNumber,
+    String? razorpayKeyId = 'rzp_test_SAvHgTPEoPnNo7',
+    String? razorpayKeySecret = 'mpSkf5lOQxSjcPAmzl4T54mv',
+  }) async {
+    // Validate IFSC using free Razorpay IFSC API (no auth needed)
+    // This will return bank details from the IFSC code
+    final ifscResponse = await ApiManager.instance.makeApiCall(
+      callName: 'razorpay_ifsc_lookup',
+      apiUrl: 'https://ifsc.razorpay.com/${ifscCode?.toUpperCase()}',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+
+    // Return the IFSC validation result
+    // The account number is validated locally in the widget
+    return ifscResponse;
+  }
+
+  static dynamic bankName(dynamic response) =>
+      getJsonField(response, r'$.BANK') ??
+      getJsonField(response, r'$.bank_name') ??
+      'Unknown Bank';
+  static dynamic branchName(dynamic response) =>
+      getJsonField(response, r'$.BRANCH');
+  static dynamic ifsc(dynamic response) =>
+      getJsonField(response, r'$.IFSC') ?? getJsonField(response, r'$.ifsc');
+  static dynamic address(dynamic response) =>
+      getJsonField(response, r'$.ADDRESS');
+  static dynamic city(dynamic response) => getJsonField(response, r'$.CITY');
+  static dynamic state(dynamic response) => getJsonField(response, r'$.STATE');
 }
 
 String? escapeStringForJson(String? input) {

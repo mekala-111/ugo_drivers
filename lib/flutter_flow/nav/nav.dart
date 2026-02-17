@@ -142,6 +142,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => AddBankAccountWidget(),
         ),
         FFRoute(
+          name: WithdrawWidget.routeName,
+          path: WithdrawWidget.routePath,
+          builder: (context, params) => WithdrawWidget(),
+        ),
+        FFRoute(
           name: PaymentsPageWidget.routeName,
           path: PaymentsPageWidget.routePath,
           builder: (context, params) => PaymentsPageWidget(),
