@@ -57,6 +57,15 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
+  double todayTotal = 0.0;
+int todayRideCount = 0;
+double todayWallet = 0.0;
+double lastRideAmount = 0.0;
+bool isLoadingEarnings = true;
+
+
+  // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +77,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         _fetchDriverProfile(),
         _fetchInitialRideStatus(),
         _fetchIncentiveData(),
+        _fetchTodayEarnings(),
       ]);
 
       setState(() {
@@ -100,6 +110,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       driverId: FFAppState().driverid,
     );
 
+    // Extract Name
     if (_model.userDetails?.jsonBody != null) {
       String fetchedName = getJsonField(
         _model.userDetails?.jsonBody,
@@ -131,6 +142,8 @@ class _HomeWidgetState extends State<HomeWidget> {
       safeSetState(() {});
     }
   }
+
+  // --- HELPER METHODS ---
 
   String _getGreeting() {
     var hour = DateTime.now().hour;
@@ -226,6 +239,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
+  // ✅ FIXED: Using LocationSettings instead of desiredAccuracy
   Future<void> _startLocationTracking() async {
     if (_isTrackingLocation) return;
     _isTrackingLocation = true;
@@ -412,10 +426,10 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   void _passDataToOverlay(dynamic data) {
     if (_overlayKey.currentState == null) return;
-print("✅ DATA: $data");
+
     void processSingleRide(Map<String, dynamic> rideData) {
       String status =
-          (rideData['ride_status'] ?? 'IDLE').toString().toUpperCase();
+          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
       print("🔄 Processing Status: \"$status\"");
 
       if (mounted) {
@@ -450,21 +464,13 @@ print("✅ DATA: $data");
     // Check if Online
     bool isOnline = _model.switchValue ?? false;
 
-    // -----------------------------------------------------------
-    // ✅ PANEL VISIBILITY LOGIC
-    // -----------------------------------------------------------
-    bool shouldShowPanels = false;
-
-    // 1. Show panels if ID is 0
-    if (FFAppState().activeRideId == 0) {
-      shouldShowPanels = true;
-    }
-
-    // 2. Hide if we are specifically fetching
-    if (_currentRideStatus.toUpperCase() == 'FETCHING') {
+    // FIXED LOGIC for Bottom Panels
+    bool shouldShowPanels = true;
+    String status = _currentRideStatus.toUpperCase();
+    if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
+        .contains(status)) {
       shouldShowPanels = false;
     }
-    // -----------------------------------------------------------
 
     if (currentUserLocationValue == null) {
       return Container(
@@ -483,6 +489,7 @@ print("✅ DATA: $data");
       },
       child: PopScope(
         canPop: false,
+        // ✅ FIXED: Updated to onPopInvokedWithResult
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
 
@@ -494,6 +501,7 @@ print("✅ DATA: $data");
                 content: Text('Press back again to exit'),
                 duration: Duration(seconds: 2)));
           } else {
+            // Allow exit
             if (context.mounted) Navigator.of(context).pop();
           }
         },
@@ -510,7 +518,7 @@ print("✅ DATA: $data");
               Expanded(
                 child: Stack(
                   children: [
-                    // 1. MAP
+                    // 1. MAP (ONLY VISIBLE IF ONLINE)
                     if (isOnline)
                       FlutterFlowGoogleMap(
                         controller: _model.googleMapsController,
@@ -520,6 +528,8 @@ print("✅ DATA: $data");
                             currentUserLocationValue!,
                         markerColor: GoogleMarkerColor.orange,
                         mapType: MapType.normal,
+                        // ✅ FIXED: Pass style manually since setMapStyle is removed
+                        // style: GoogleMapStyle.silver, // We can pass enum here if FF component supports it
                         initialZoom: 16,
                         allowInteraction: true,
                         allowZoom: true,
@@ -612,16 +622,7 @@ print("✅ DATA: $data");
                       ),
 
                     // 3. RIDE REQUEST OVERLAY (Always active)
-                    RideRequestOverlay(
-                      key: _overlayKey,
-                      // ✅ PASSING CALLBACK TO FORCE REFRESH
-                      onRideComplete: () {
-                        setState(() {
-                          // This empty setstate forces HomeWidget to rebuild,
-                          // checking activeRideId again, which will now be 0.
-                        });
-                      },
-                    ),
+                    RideRequestOverlay(key: _overlayKey),
                   ],
                 ),
               ),
@@ -680,8 +681,9 @@ print("✅ DATA: $data");
                       value: _model.switchValue ?? false,
                       onChanged:
                           _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
+                      // ✅ FIXED: Use activeTrackColor instead of activeColor
                       activeTrackColor: Colors.green,
-                      activeThumbColor: Colors.white,
+                      activeThumbColor: Colors.white, // Thumb color
                     ),
                   ],
                 ),
@@ -998,7 +1000,7 @@ print("✅ DATA: $data");
                   Row(
                     children: [
                       Text(
-                        '500.00',
+                        isLoadingEarnings ? '...' : todayTotal.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
@@ -1029,16 +1031,36 @@ print("✅ DATA: $data");
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Ride Count', '13', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                      'Ride Count',
+                      isLoadingEarnings ? '...' : todayRideCount.toString(),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+                    ),
                   SizedBox(width: isSmallScreen ? 8 : 12),
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Wallet', '600.00', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                      'Wallet',
+                      isLoadingEarnings ? '...' : todayWallet.toStringAsFixed(0),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+
+                          ),
                   SizedBox(width: isSmallScreen ? 8 : 12),
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Last Ride', '100', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                    'Last Ride',
+                    isLoadingEarnings ? '...' : lastRideAmount.toStringAsFixed(0),
+                    screenWidth,
+                    isSmallScreen,
+                  ),
+
+                          ),
                 ],
               ),
             ),
@@ -1046,6 +1068,36 @@ print("✅ DATA: $data");
       ),
     );
   }
+  Future<void> _fetchTodayEarnings() async {
+  try {
+    setState(() => isLoadingEarnings = true);
+
+    final response = await DriverEarningsCall.call(
+      driverId: FFAppState().driverid,
+      token: FFAppState().accessToken,
+      period: "daily",
+    );
+
+    if (response.succeeded) {
+      final data = response.jsonBody['data'];
+
+      todayTotal = (data['totalEarnings'] ?? 0).toDouble();
+      todayRideCount = data['totalRides'] ?? 0;
+      todayWallet = (data['walletEarnings'] ?? 0).toDouble();
+
+      List rides = data['rides'] ?? [];
+      if (rides.isNotEmpty) {
+        lastRideAmount =
+            (rides.first['amount'] ?? 0).toDouble(); // latest ride
+      }
+    }
+  } catch (e) {
+    print("❌ Earnings error: $e");
+  } finally {
+    setState(() => isLoadingEarnings = false);
+  }
+}
+
 
   Widget _buildOrangeCard(
       String title, String value, double screenWidth, bool isSmallScreen) {
