@@ -272,6 +272,7 @@ class UpdateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionCertificateImage,
+    
   }) async {
     // Build params dynamically - only include non-null values
     final Map<String, dynamic> params = {};
@@ -897,6 +898,50 @@ class BankAccountCall {
         r'$.message',
       ));
 }
+class DriverEarningsCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String token,
+    required String period,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'DriverEarnings',
+      apiUrl:
+          '$_baseUrl/api/drivers/earnings/driver/$driverId?period=$period',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  /// 🔹 Extract full data object
+  static Map<String, dynamic>? data(dynamic response) =>
+      getJsonField(response, r'$.data') as Map<String, dynamic>?;
+
+  /// 🔹 Extract individual keys
+  static int? totalEarnings(dynamic response) =>
+      getJsonField(response, r'$.data.totalEarnings');
+
+  static int? walletEarnings(dynamic response) =>
+      getJsonField(response, r'$.data.walletEarnings');
+
+  static int? totalRides(dynamic response) =>
+      getJsonField(response, r'$.data.totalRides');
+
+  static int? cashEarnings(dynamic response) =>
+      getJsonField(response, r'$.data.cashEarnings');
+
+  static int? onlineEarnings(dynamic response) =>
+      getJsonField(response, r'$.data.onlineEarnings');
+
+  static List<dynamic>? rides(dynamic response) =>
+      getJsonField(response, r'$.data.rides', true) as List<dynamic>?;
+}
+
+
 
 // 🏦 Add Bank Account API Call (POST)
 class AddBankAccountCall {

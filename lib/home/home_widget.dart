@@ -57,6 +57,13 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
+  double todayTotal = 0.0;
+int todayRideCount = 0;
+double todayWallet = 0.0;
+double lastRideAmount = 0.0;
+bool isLoadingEarnings = true;
+
+
   // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
 
   @override
@@ -70,6 +77,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         _fetchDriverProfile(),
         _fetchInitialRideStatus(),
         _fetchIncentiveData(),
+        _fetchTodayEarnings(),
       ]);
 
       setState(() {
@@ -992,7 +1000,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   Row(
                     children: [
                       Text(
-                        '500.00',
+                        isLoadingEarnings ? '...' : todayTotal.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
@@ -1023,16 +1031,36 @@ class _HomeWidgetState extends State<HomeWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Ride Count', '13', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                      'Ride Count',
+                      isLoadingEarnings ? '...' : todayRideCount.toString(),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+                    ),
                   SizedBox(width: isSmallScreen ? 8 : 12),
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Wallet', '600.00', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                      'Wallet',
+                      isLoadingEarnings ? '...' : todayWallet.toStringAsFixed(0),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+
+                          ),
                   SizedBox(width: isSmallScreen ? 8 : 12),
                   Expanded(
-                      child: _buildOrangeCard(
-                          'Last Ride', '100', screenWidth, isSmallScreen)),
+                      child: 
+                     _buildOrangeCard(
+                      'Last Ride',
+                      isLoadingEarnings ? '...' : lastRideAmount.toStringAsFixed(0),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+
+                          ),
                 ],
               ),
             ),
@@ -1040,6 +1068,36 @@ class _HomeWidgetState extends State<HomeWidget> {
       ),
     );
   }
+  Future<void> _fetchTodayEarnings() async {
+  try {
+    setState(() => isLoadingEarnings = true);
+
+    final response = await DriverEarningsCall.call(
+      driverId: FFAppState().driverid,
+      token: FFAppState().accessToken,
+      period: "daily",
+    );
+
+    if (response.succeeded) {
+      final data = response.jsonBody['data'];
+
+      todayTotal = (data['totalEarnings'] ?? 0).toDouble();
+      todayRideCount = data['totalRides'] ?? 0;
+      todayWallet = (data['walletEarnings'] ?? 0).toDouble();
+
+      List rides = data['rides'] ?? [];
+      if (rides.isNotEmpty) {
+        lastRideAmount =
+            (rides.first['amount'] ?? 0).toDouble(); // latest ride
+      }
+    }
+  } catch (e) {
+    print("❌ Earnings error: $e");
+  } finally {
+    setState(() => isLoadingEarnings = false);
+  }
+}
+
 
   Widget _buildOrangeCard(
       String title, String value, double screenWidth, bool isSmallScreen) {
