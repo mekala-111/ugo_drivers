@@ -264,6 +264,8 @@ class UpdateDriverCall {
     bool? isonline,
     double? latitude,
     double? longitude,
+    String? firstName,
+    String? lastName,
     FFUploadedFile? profileimage,
     FFUploadedFile? licenseimage,
     FFUploadedFile? aadhaarimage,
@@ -288,9 +290,22 @@ class UpdateDriverCall {
     if (longitude != null) {
       params['current_location_longitude'] = longitude.toString();
     }
+    
     if (profileimage != null) {
       params['profile_image'] = profileimage;
     }
+    
+    if (firstName != null) {
+      params['first_name'] = firstName;
+    }
+    
+    if (lastName != null) {
+      params['last_name'] = lastName;
+    }
+    
+    // if (email != null) {
+    //   params['email'] = email;
+    // }
 
     if (licenseimage != null) {
       params['license_image'] = licenseimage;
@@ -1017,4 +1032,32 @@ String? escapeStringForJson(String? input) {
       .replaceAll('"', '\\"')
       .replaceAll('\n', '\\n')
       .replaceAll('\t', '\\t');
+}
+
+class DriverRideHistoryCall {
+  static Future<ApiCallResponse> call({
+    String? token = '',
+    int? id,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverRideHistory',
+      apiUrl: '$_baseUrl/api/drivers/ride-history/$id',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static dynamic data(dynamic response) =>
+      getJsonField(response, r'''$.data''');
+
+  static List rides(dynamic response) =>
+      getJsonField(response, r'''$.data.rides''') ?? [];
+
+  static String? totalEarnings(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.data.total_earnings'''));
 }

@@ -1,3 +1,6 @@
+import 'package:ugo_driver/teamearning/all_orders_widget.dart';
+import 'package:ugo_driver/teamearning/last_order_widget.dart';
+
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +102,7 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
 
   @override
   Widget build(BuildContext context) {
-    const Color brandBlue = Color(0xFF2563EB);
+    const Color brand = Color(0xFFFF7B10);
     const Color bgGrey = Color(0xFFF5F7FA);
 
     return Scaffold(
@@ -128,9 +131,9 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
             ),
             child: TabBar(
               controller: _tabController,
-              labelColor: brandBlue,
+              labelColor: brand,
               unselectedLabelColor: Colors.grey,
-              indicatorColor: brandBlue,
+              indicatorColor: brand,
               indicatorWeight: 3,
               labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
               tabs: const [
@@ -158,11 +161,22 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
                 Text(todaysEarnings, style: GoogleFonts.inter(color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
                 Divider(thickness: 8, color: bgGrey),
-                _buildMenuItem(icon: Icons.receipt_long_rounded, title: "All Orders", subtitle: "Order History and Order Earnings", onTap: () {}),
+                _buildMenuItem(Icons.receipt_long_rounded, icon: Icons.receipt_long_rounded, title: "All Rides", subtitle: "Ride History and Ride Earnings", onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const AllOrdersScreen()),
+  );
+}),
                 _buildDivider(),
-                _buildMenuItem(icon: Icons.history_rounded, title: "Last Order Earnings", subtitle: "View recent trip details", onTap: () {}),
+                _buildMenuItem(Icons.history, icon: Icons.history, title: "Last Ride Earnings", subtitle: "View recent trip earnings", onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const LastOrderWidget()),
+  );
+}),
+
                 _buildDivider(),
-                _buildMenuItem(icon: Icons.currency_rupee_rounded, title: "View Rate Card", subtitle: null, onTap: () {}),
+                _buildMenuItem(Icons.currency_rupee_rounded, icon: Icons.currency_rupee_rounded, title: "View Rate Card", subtitle: null, onTap: () {}),
               ],
             ),
           ),
@@ -269,7 +283,7 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
     );
   }
 
-  Widget _buildMenuItem({
+  Widget _buildMenuItem(IconData history, {
     required IconData icon,
     required String title,
     String? subtitle,

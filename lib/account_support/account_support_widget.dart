@@ -1,3 +1,5 @@
+import 'package:ugo_driver/account_support/edit_profile.dart';
+
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/account_support/documents.dart';
@@ -85,13 +87,22 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     }
   }
 
+  // String getFullImageUrl(String? imagePath) {
+  //   if (imagePath == null || imagePath.isEmpty) return '';
+  //   if (imagePath.startsWith('http')) return imagePath;
+  //   const String baseUrl = 'https://ugo-api.icacorp.org';
+  //   String cleanPath = imagePath.startsWith('uploads/') ? imagePath.substring(8) : imagePath;
+  //   return '$baseUrl/$cleanPath';
+  // }
+
   String getFullImageUrl(String? imagePath) {
-    if (imagePath == null || imagePath.isEmpty) return '';
-    if (imagePath.startsWith('http')) return imagePath;
-    const String baseUrl = 'https://ugo-api.icacorp.org';
-    String cleanPath = imagePath.startsWith('uploads/') ? imagePath.substring(8) : imagePath;
-    return '$baseUrl/$cleanPath';
-  }
+  if (imagePath == null || imagePath.isEmpty) return '';
+
+  if (imagePath.startsWith('http')) return imagePath;
+
+  return 'https://ugo-api.icacorp.org/$imagePath';
+}
+
 
   String getDriverName() {
     if (driverData == null) return 'Driver Name';
@@ -185,35 +196,77 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                 ),
 
                 // Profile Picture (Overlapping)
+                // Profile Picture + Edit Button
                 Positioned(
-                  bottom: -50,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha:0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5)
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: driverData?['profile_image'] != null
-                          ? CachedNetworkImage(
-                        imageUrl: getFullImageUrl(driverData!['profile_image']),
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => const Icon(Icons.person, size: 50, color: Colors.grey),
-                      )
-                          : const Icon(Icons.person, size: 50, color: Colors.grey),
-                    ),
-                  ),
+  bottom: -50,
+  child: GestureDetector(
+    behavior: HitTestBehavior.opaque, // IMPORTANT
+    onTap: () async {
+      final updated = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => EditProfileScreen(driverData: driverData!),
+        ),
+      );
+
+      if (updated == true) {
+        fetchDriverDetails();
+      }
+    },
+    child: SizedBox(
+      width: 110,
+      height: 110,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
                 ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: driverData?['profile_image'] != null
+                  ? CachedNetworkImage(
+                      imageUrl: getFullImageUrl(driverData!['profile_image']),
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) =>
+                          const Icon(Icons.person, size: 50),
+                    )
+                  : const Icon(Icons.person, size: 50),
+            ),
+          ),
+
+          // Pencil (visual only)
+          Positioned(
+            bottom: 2,
+            right: 2,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: brandPrimary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.edit, size: 18, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+
               ],
             ),
 
