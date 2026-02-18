@@ -11,18 +11,17 @@ import 'dart:convert';
 import 'face_verify_model.dart';
 export 'face_verify_model.dart';
 
-class FaceVerifyWidget extends StatefulWidget {
-  const FaceVerifyWidget({super.key});
+class FaceVerifyupdateWidget extends StatefulWidget {
+  const FaceVerifyupdateWidget({super.key});
 
-  static String routeName = 'face_verify';
- // 
-  static String routePath = '/faceVerify';
+  static String routeName = 'face_verify_update';
+  static String routePath = '/faceVerifyUpdate';
 
   @override
-  State<FaceVerifyWidget> createState() => _FaceVerifyWidgetState();
+  State<FaceVerifyupdateWidget> createState() => _FaceVerifyupdateWidgetState();
 }
 
-class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
+class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
     with SingleTickerProviderStateMixin {
   late FaceVerifyModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();

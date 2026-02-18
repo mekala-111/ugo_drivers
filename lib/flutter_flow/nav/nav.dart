@@ -12,6 +12,7 @@ import '/index.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
+// import '/aadhaar/aadhaar_update.dart';
 
 const kTransitionInfoKey = '__transition_info__';
 
@@ -323,6 +324,34 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: UploadRcWidget.routePath,
           builder: (context, params) => UploadRcWidget(),
         ),
+        FFRoute(
+          name: VehicleImageUpdateWidget.routeName,
+          path: VehicleImageUpdateWidget.routePath,
+          builder: (context, params) => VehicleImageUpdateWidget(),
+        ),
+        
+        FFRoute(
+          name: DrivingDlUpdateWidget.routeName,
+          path: DrivingDlUpdateWidget.routePath,
+          builder: (context, params) => DrivingDlUpdateWidget(),
+        ),
+        FFRoute(
+          name: AdharUploadUpdateWidget.routeName,
+          path:AdharUploadUpdateWidget.routePath,
+          builder: (context, params) => AdharUploadUpdateWidget(),
+        ),
+        FFRoute(
+          name: RegistrationUpdateWidget.routeName,
+          path: RegistrationUpdateWidget.routePath,
+          builder: (context, params) => RegistrationUpdateWidget(),
+        ),
+        FFRoute(
+          name: FaceVerifyupdateWidget.routeName,
+          path: FaceVerifyupdateWidget.routePath,
+          builder: (context, params) => FaceVerifyupdateWidget(),
+        ),
+
+
         FFRoute(
           name: RCUploadWidget.routeName,
           path: RCUploadWidget.routePath,

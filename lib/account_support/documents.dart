@@ -1,3 +1,10 @@
+import 'package:ugo_driver/adhar_upload/adhar_upload_update.dart';
+import 'package:ugo_driver/driving_dl/driving_dl_update.dart';
+import 'package:ugo_driver/face_verify/face_verify_update.dart';
+import 'package:ugo_driver/panupload_screen/panupload_screen_pdate.dart';
+import 'package:ugo_driver/registration_image/registration_image_update.dart';
+import 'package:ugo_driver/vehicle_image/vehicle_image_update.dart';
+
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -321,28 +328,28 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         "Profile Photo",
                         "profilePhoto",
                             () => context
-                            .pushNamed(FaceVerifyWidget.routeName),
+                            .pushNamed(FaceVerifyupdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
                         "Driving License",
                         "imageLicense",
                             () => context
-                            .pushNamed(DrivingDlWidget.routeName),
+                            .pushNamed(DrivingDlUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
                         "Aadhaar Card",
                         "aadharImage",
                             () => context
-                            .pushNamed(AdharUploadWidget.routeName),
+                            .pushNamed(AdharUploadUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
                         "PAN Card",
                         "panImage",
                             () => context
-                            .pushNamed(PanuploadScreenWidget.routeName),
+                            .pushNamed(PanuploadScreenUpdateWidget.routeName),
                       ),
 
                       const SizedBox(height: 24),
@@ -356,14 +363,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         "Vehicle Photo",
                         "vehicleImage",
                             () => context
-                            .pushNamed(VehicleImageWidget.routeName),
+                            .pushNamed(VehicleImageUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
                         "RC Book",
                         "registrationImage",
                             () => context
-                            .pushNamed(RegistrationImageWidget.routeName),
+                            .pushNamed(RegistrationUpdateWidget.routeName),
                       ),
 
                       const SizedBox(height: 32),

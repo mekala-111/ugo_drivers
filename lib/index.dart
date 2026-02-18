@@ -61,3 +61,20 @@ export '/vehicle_image/vehicle_image_widget.dart' show VehicleImageWidget;
 export '/registration_image/registration_image_widget.dart'
     show RegistrationImageWidget;
 export '/inxentive_page/IncentivePageWidget.dart' show IncentivePageWidget;
+export '/face_verify/face_verify_update.dart'
+    show FaceVerifyupdateWidget;
+export '/driving_dl/driving_dl_update.dart'
+    show DrivingDlUpdateWidget;
+
+export '/adhar_upload/adhar_upload_update.dart'
+    show AdharUploadUpdateWidget;
+
+export '/panupload_screen/panupload_screen_pdate.dart'
+    show PanuploadScreenUpdateWidget;
+
+export '/vehicle_image/vehicle_image_update.dart'
+    show VehicleImageUpdateWidget;
+
+export '/registration_image/registration_image_update.dart'
+    show RegistrationUpdateWidget;
+

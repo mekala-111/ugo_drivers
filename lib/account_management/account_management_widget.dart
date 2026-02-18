@@ -109,23 +109,39 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       },
     );
 
-    if (confirmLogout == true) {
-      FFAppState().accessToken = '';
-      FFAppState().driverid = 0;
-      FFAppState().profilePhoto = null;
-      FFAppState().isLoggedIn = false;
+    // if (confirmLogout == true) {
+    //   FFAppState().accessToken = '';
+    //   FFAppState().driverid = 0;
+    //   FFAppState().profilePhoto = null;
+    //   FFAppState().isLoggedIn = false;
 
-      context.goNamedAuth(
-        LoginWidget.routeName,
-        context.mounted,
-        extra: <String, dynamic>{
-          kTransitionInfoKey: const TransitionInfo(
-            hasTransition: true,
-            transitionType: PageTransitionType.fade,
-          ),
-        },
-      );
-    }
+    //   context.goNamedAuth(
+    //     LoginWidget.routeName,
+    //     context.mounted,
+    //     extra: <String, dynamic>{
+    //       kTransitionInfoKey: const TransitionInfo(
+    //         hasTransition: true,
+    //         transitionType: PageTransitionType.fade,
+    //       ),
+    //     },
+    //   );
+    // }
+     if (confirmLogout == true) {
+  await FFAppState().clearAppState();   // 🔥 CLEAR EVERYTHING
+
+  if (!context.mounted) return;
+
+  context.goNamedAuth(
+    LoginWidget.routeName,
+    context.mounted,
+    extra: <String, dynamic>{
+      kTransitionInfoKey: const TransitionInfo(
+        hasTransition: true,
+        transitionType: PageTransitionType.fade,
+      ),
+    },
+  );
+}
   }
 
   @override

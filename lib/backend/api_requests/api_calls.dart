@@ -1107,6 +1107,110 @@ class DriverRideHistoryCall {
       castToType<String>(getJsonField(response, r'''$.data.total_earnings'''));
 }
 
+// 📅 DAILY INCENTIVES
+// GET /api/driver-incentives/daily-incentives?driver_id=X&date=YYYY-MM-DD
+// ─────────────────────────────────────────────────────────────
+// ============================================================
+// ADD THIS CLASS TO YOUR api_calls.dart FILE
+// ============================================================
+// Single unified incentives API
+// Base: /api/driver-incentives/daily-incentives/{driverId}
+//
+//   ?date=2026-02-11              → particular date
+//   ?type=weekly                  → current week
+//   ?type=monthly                 → current month
+//   ?from=2026-02-01&to=2026-02-20 → custom range
+// ============================================================
+
+class DriverIncentivesCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+    String? date,   // particular date  "2026-02-11"
+    String? type,   // "weekly" | "monthly"
+    String? from,   // range start      "2026-02-01"
+    String? to,     // range end        "2026-02-20"
+  }) async {
+    final Map<String, String> queryParams = {};
+    if (date != null) queryParams['date'] = date;
+    if (type != null) queryParams['type'] = type;
+    if (from != null) queryParams['from'] = from;
+    if (to != null) queryParams['to'] = to;
+
+    final queryString = Uri(queryParameters: queryParams).query;
+    final url =
+        '$_baseUrl/api/driver-incentives/daily-incentives/$driverId'
+        '${queryString.isNotEmpty ? '?$queryString' : ''}';
+
+    debugPrint('📡 DriverIncentivesCall → $url');
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'DriverIncentives',
+      apiUrl: url,
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  // ── Response Parsers ──────────────────────────────────────
+
+  static List<dynamic> incentiveList(dynamic response) =>
+      (getJsonField(response, r'$.data', true) as List?) ?? [];
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+
+  static String? filterStartDate(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.filter.startDate'));
+
+  static String? filterEndDate(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.filter.endDate'));
+
+  // ── Per-item Helpers (use when iterating incentiveList) ──
+
+  static int itemTargetRides(dynamic item) =>
+      castToType<int>(getJsonField(item, r'$.target_rides')) ?? 0;
+
+  static int itemCompletedRides(dynamic item) =>
+      castToType<int>(getJsonField(item, r'$.completed_rides')) ?? 0;
+
+  static double itemRewardAmount(dynamic item) =>
+      double.tryParse(
+          getJsonField(item, r'$.reward_amount')?.toString() ?? '0') ?? 0.0;
+
+  static String itemProgressStatus(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.progress_status')) ?? 'ongoing';
+
+  static bool itemIsCompleted(dynamic item) =>
+      itemProgressStatus(item) == 'completed';
+
+  static String itemIncentiveName(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.incentive.name')) ?? 'Incentive';
+
+  static String itemRecurrenceType(dynamic item) =>
+      castToType<String>(
+          getJsonField(item, r'$.incentive.recurrence_type')) ?? '';
+
+  static String itemStartTime(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.incentive.start_time')) ?? '';
+
+  static String itemEndTime(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.incentive.end_time')) ?? '';
+}
+
 class VehiclePricingCall {
   static Future<ApiCallResponse> call({
     required int driverId,

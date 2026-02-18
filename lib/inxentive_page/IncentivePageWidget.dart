@@ -3,6 +3,18 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// ==============================================================================
+// MODEL
+// ==============================================================================
+class DateRangeModel {
+  final DateTime start;
+  final DateTime end;
+  DateRangeModel({required this.start, required this.end});
+}
+
+// ==============================================================================
+// INCENTIVE PAGE
+// ==============================================================================
 class IncentivePageWidget extends StatefulWidget {
   const IncentivePageWidget({super.key});
 
@@ -18,99 +30,174 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late TabController _tabController;
 
-  // API State Variables
-  bool _isLoading = true;
-  int _currentRides = 0;
-  double _totalEarned = 0.0;
-  List<dynamic> _incentiveTiers = [];
-
-  // 📅 Weekly Date Selection
-  List<DateRangeModel> _weeklyRanges = [];
-  int _selectedWeeklyIndex = 0;
-
-  // 📅 Daily Date Selection
+  // ─── Daily ────────────────────────────────────────────────
   List<DateTime> _dailyDates = [];
   int _selectedDailyIndex = 0;
+  bool _dailyLoading = false;
+  List<dynamic> _dailyList = [];
+
+  // ─── Weekly ───────────────────────────────────────────────
+  List<DateRangeModel> _weeklyRanges = [];
+  int _selectedWeeklyIndex = 0;
+  bool _weeklyLoading = false;
+  List<dynamic> _weeklyList = [];
+
+  // ─── Monthly ──────────────────────────────────────────────
+  bool _monthlyLoading = false;
+  List<dynamic> _monthlyList = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-
-    _generateWeeklyRanges(); // 1. Generate Weeks
-    _generateDailyDates();   // 2. Generate Days (NEW)
-    _fetchIncentiveData();   // 3. Load API Data
+    _tabController.addListener(_onTabChanged);
+    _generateDailyDates();
+    _generateWeeklyRanges();
+    _fetchDailyData(); // load first tab immediately
   }
 
-  // 🔹 LOGIC: Generate Days (Today +/- 3 days)
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) return;
+    switch (_tabController.index) {
+      case 0: _fetchDailyData();   break;
+      case 1: _fetchWeeklyData();  break;
+      case 2: _fetchMonthlyData(); break;
+    }
+  }
+
+  // ── Date Generators ──────────────────────────────────────
+
   void _generateDailyDates() {
-    DateTime now = DateTime.now();
-    List<DateTime> days = [];
-    // Generate 3 days back and 3 days forward (Total 7 days)
-    for (int i = -3; i <= 3; i++) {
-      days.add(now.add(Duration(days: i)));
-    }
+    final now = DateTime.now();
     setState(() {
-      _dailyDates = days;
-      _selectedDailyIndex = 3; // Today is at index 3
+      _dailyDates =
+          List.generate(7, (i) => now.subtract(Duration(days: 3 - i)));
+      _selectedDailyIndex = 3; // today is index 3
     });
   }
 
-  // 🔹 LOGIC: Generate Weeks
   void _generateWeeklyRanges() {
-    DateTime now = DateTime.now();
-    DateTime currentMonday = now.subtract(Duration(days: now.weekday - 1));
-    List<DateRangeModel> ranges = [];
-    for (int i = -2; i <= 2; i++) {
-      DateTime start = currentMonday.add(Duration(days: i * 7));
-      DateTime end = start.add(const Duration(days: 6));
-      ranges.add(DateRangeModel(start: start, end: end));
-    }
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
     setState(() {
-      _weeklyRanges = ranges;
-      _selectedWeeklyIndex = 2; // Current Week
+      _weeklyRanges = List.generate(5, (i) {
+        final start = monday.add(Duration(days: (i - 2) * 7));
+        return DateRangeModel(
+            start: start, end: start.add(const Duration(days: 6)));
+      });
+      _selectedWeeklyIndex = 2; // current week
     });
   }
 
-  // 🔹 LOGIC: Fetch Data from API
-  Future<void> _fetchIncentiveData() async {
-    setState(() => _isLoading = true);
+  // ── Unified fetch using DriverIncentivesCall ─────────────
+
+  /// Daily  →  ?date=2026-02-11
+  Future<void> _fetchDailyData() async {
+    if (_dailyDates.isEmpty) return;
+    setState(() => _dailyLoading = true);
     try {
-      final response = await GetDriverIncentivesCall.call(
+      final date = DateFormat('yyyy-MM-dd')
+          .format(_dailyDates[_selectedDailyIndex]);
+      debugPrint('🗓 Fetching daily: date=$date');
+
+      final res = await DriverIncentivesCall.call(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
+        date: date,
       );
-      if (response.succeeded) {
-        setState(() {
-          _currentRides = GetDriverIncentivesCall.currentRides(response.jsonBody) ?? 0;
-          _totalEarned = GetDriverIncentivesCall.totalEarned(response.jsonBody) ?? 0.0;
-          _incentiveTiers = GetDriverIncentivesCall.incentiveTiers(response.jsonBody) ?? [];
-          _isLoading = false;
-        });
-      } else {
-        setState(() => _isLoading = false);
-      }
+
+      debugPrint('📥 Daily response: ${res.statusCode} | ${res.jsonBody}');
+      setState(() {
+        _dailyList = res.succeeded
+            ? DriverIncentivesCall.incentiveList(res.jsonBody)
+            : [];
+        _dailyLoading = false;
+      });
     } catch (e) {
-      print("Error fetching incentives: $e");
-      setState(() => _isLoading = false);
+      debugPrint('❌ Daily error: $e');
+      setState(() => _dailyLoading = false);
+    }
+  }
+
+  /// Weekly  →  ?type=weekly  (current week auto-handled by backend)
+  ///         OR ?from=...&to=...  for other weeks
+  Future<void> _fetchWeeklyData() async {
+    if (_weeklyRanges.isEmpty) return;
+    setState(() => _weeklyLoading = true);
+    try {
+      final range = _weeklyRanges[_selectedWeeklyIndex];
+      final isCurrentWeek = _selectedWeeklyIndex == 2;
+
+      ApiCallResponse res;
+      if (isCurrentWeek) {
+        debugPrint('🗓 Fetching weekly: type=weekly');
+        res = await DriverIncentivesCall.call(
+          token: FFAppState().accessToken,
+          driverId: FFAppState().driverid,
+          type: 'weekly',
+        );
+      } else {
+        final from = DateFormat('yyyy-MM-dd').format(range.start);
+        final to = DateFormat('yyyy-MM-dd').format(range.end);
+        debugPrint('🗓 Fetching weekly range: from=$from to=$to');
+        res = await DriverIncentivesCall.call(
+          token: FFAppState().accessToken,
+          driverId: FFAppState().driverid,
+          from: from,
+          to: to,
+        );
+      }
+
+      debugPrint('📥 Weekly response: ${res.statusCode} | ${res.jsonBody}');
+      setState(() {
+        _weeklyList = res.succeeded
+            ? DriverIncentivesCall.incentiveList(res.jsonBody)
+            : [];
+        _weeklyLoading = false;
+      });
+    } catch (e) {
+      debugPrint('❌ Weekly error: $e');
+      setState(() => _weeklyLoading = false);
+    }
+  }
+
+  /// Monthly  →  ?type=monthly
+  Future<void> _fetchMonthlyData() async {
+    if (_monthlyList.isNotEmpty) return; // already loaded, skip
+    setState(() => _monthlyLoading = true);
+    try {
+      debugPrint('🗓 Fetching monthly: type=monthly');
+      final res = await DriverIncentivesCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+        type: 'monthly',
+      );
+
+      debugPrint('📥 Monthly response: ${res.statusCode} | ${res.jsonBody}');
+      setState(() {
+        _monthlyList = res.succeeded
+            ? DriverIncentivesCall.incentiveList(res.jsonBody)
+            : [];
+        _monthlyLoading = false;
+      });
+    } catch (e) {
+      debugPrint('❌ Monthly error: $e');
+      setState(() => _monthlyLoading = false);
     }
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color brandPrimary = Color(0xFFFFFFFF);
-    const Color brandBlack = Color(0xFF1E293B);
-    const Color bgGrey = Color(0xFFF5F7FA);
-
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: bgGrey,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -118,60 +205,60 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
           onTap: () => context.pop(),
           child: const Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text(
-          "Incentives",
-          style: GoogleFonts.inter(
-            color: brandBlack,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text('Incentives',
+            style: GoogleFonts.inter(
+                color: const Color(0xFF1E293B),
+                fontSize: 20,
+                fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Container(
             color: const Color(0xFFF3A739),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: brandPrimary,
+              indicatorColor: Colors.white,
               indicatorWeight: 4,
-              labelColor: brandPrimary,
+              labelColor: Colors.white,
               unselectedLabelColor: Colors.black,
               labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
               tabs: const [
-                Tab(text: "Daily"),
-                Tab(text: "Weekly"),
-                Tab(text: "Bonus"),
+                Tab(text: 'Daily'),
+                Tab(text: 'Weekly'),
+                Tab(text: 'Bonus'),
               ],
             ),
           ),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: brandPrimary))
-          : TabBarView(
+      body: TabBarView(
         controller: _tabController,
         children: [
-          // 1. Daily View (Now with Dates!)
-          DailyIncentivesView(
+          // ── Tab 1: Daily ──────────────────────────────────
+          _DailyTab(
             dates: _dailyDates,
             selectedIndex: _selectedDailyIndex,
-            onDateSelected: (index) => setState(() => _selectedDailyIndex = index),
-            currentRides: _currentRides,
-            incentives: _incentiveTiers,
+            isLoading: _dailyLoading,
+            incentiveList: _dailyList,
+            onDateSelected: (i) {
+              setState(() => _selectedDailyIndex = i);
+              _fetchDailyData();
+            },
           ),
-
-          // 2. Weekly View
-          WeeklyIncentivesView(
+          // ── Tab 2: Weekly ─────────────────────────────────
+          _WeeklyTab(
             dateRanges: _weeklyRanges,
             selectedIndex: _selectedWeeklyIndex,
-            onDateSelected: (index) => setState(() => _selectedWeeklyIndex = index),
-            totalEarned: _totalEarned,
+            isLoading: _weeklyLoading,
+            incentiveList: _weeklyList,
+            onRangeSelected: (i) {
+              setState(() => _selectedWeeklyIndex = i);
+              _fetchWeeklyData();
+            },
           ),
-
-          // 3. Bonus View
-          BonusIncentivesView(
-            currentRides: _currentRides,
-            incentives: _incentiveTiers,
+          // ── Tab 3: Monthly ────────────────────────────────
+          _MonthlyTab(
+            isLoading: _monthlyLoading,
+            incentiveList: _monthlyList,
           ),
         ],
       ),
@@ -180,182 +267,382 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
 }
 
 // ==============================================================================
-// 📅 1️⃣ DAILY INCENTIVES VIEW (Dynamic Dates)
+// TAB 1 — DAILY
 // ==============================================================================
-class DailyIncentivesView extends StatelessWidget {
+class _DailyTab extends StatelessWidget {
   final List<DateTime> dates;
   final int selectedIndex;
+  final bool isLoading;
+  final List<dynamic> incentiveList;
   final Function(int) onDateSelected;
-  final int currentRides;
-  final List<dynamic> incentives;
 
-  const DailyIncentivesView({
-    super.key,
+  const _DailyTab({
     required this.dates,
     required this.selectedIndex,
+    required this.isLoading,
+    required this.incentiveList,
     required this.onDateSelected,
-    required this.currentRides,
-    required this.incentives,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // 🗓️ DATE SELECTOR (Daily)
-        Container(
-          color: const Color(0xFFF3A739),
-          height: 80,
-          width: double.infinity,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: dates.length,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              final date = dates[index];
-              final bool isSelected = index == selectedIndex;
-              final String dayName = DateFormat('E').format(date); // Mon, Tue
-              final String dayNum = DateFormat('d').format(date);  // 12, 13
-
-              return GestureDetector(
-                onTap: () => onDateSelected(index),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (isSelected)
-                        Container(
-                          width: 50,
-                          height: 54,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(25), // Pill shape
-                            border: Border.all(color: const Color(0xFFFF8900), width: 2),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(dayName, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
-                              Text(dayNum, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange)),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          spacing: 2,
-                          children: [
-                            Text(dayName, style: GoogleFonts.inter(fontSize: 10, color: Colors.black)),
-                            const SizedBox(height: 4),
-                            Text(dayNum, style: GoogleFonts.inter(fontSize: 14, color: Colors.black)),
-                          ],
-                        )
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+        _DateSelectorBar(
+          dates: dates,
+          selectedIndex: selectedIndex,
+          onDateSelected: onDateSelected,
         ),
-
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // ⏰ TIME HEADER
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Colors.grey.shade400)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        "7:00 AM to 11:59 PM",
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey.shade400)),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // 📝 REUSE BONUS VIEW LOGIC FOR DAILY LIST
-                // This will show the Red/Green/Orange cards based on progress
-                if (incentives.isNotEmpty)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          child: isLoading
+              ? const _Loader()
+              : RefreshIndicator(
+                  color: const Color(0xFFF3A739),
+                  onRefresh: () async => onDateSelected(selectedIndex),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _sectionDivider('7:00 AM  –  11:59 PM'),
+                        const SizedBox(height: 16),
+                        incentiveList.isNotEmpty
+                            ? _IncentiveList(items: incentiveList)
+                            : const _EmptyState(
+                                message: 'No incentives for this day'),
                       ],
                     ),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: List.generate(incentives.length, (index) {
-                        final item = incentives[index];
-                        final int target = item['target_rides'] ?? 0;
-                        final double reward = double.tryParse(item['reward_amount'].toString()) ?? 0.0;
-                        final bool isCompleted = currentRides >= target;
-                        final bool isLast = index == incentives.length - 1;
-
-                        return _buildTimelineItem(
-                          target: "Complete $target rides",
-                          reward: "₹ $reward",
-                          isCompleted: isCompleted,
-                          isLast: isLast,
-                        );
-                      }),
-                    ),
-                  )
-                else
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text("No incentives for this day"),
-                    ),
                   ),
-              ],
-            ),
-          ),
+                ),
         ),
       ],
     );
   }
+}
 
-  // Reuse the timeline item builder
-  Widget _buildTimelineItem({required String target, required String reward, required bool isCompleted, required bool isLast}) {
-    final Color activeColor = const Color(0xFFFFFFFF);
-    final Color inactiveColor = Colors.grey.shade300;
+// ==============================================================================
+// TAB 2 — WEEKLY
+// ==============================================================================
+class _WeeklyTab extends StatelessWidget {
+  final List<DateRangeModel> dateRanges;
+  final int selectedIndex;
+  final bool isLoading;
+  final List<dynamic> incentiveList;
+  final Function(int) onRangeSelected;
+
+  const _WeeklyTab({
+    required this.dateRanges,
+    required this.selectedIndex,
+    required this.isLoading,
+    required this.incentiveList,
+    required this.onRangeSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final range =
+        dateRanges.isNotEmpty ? dateRanges[selectedIndex] : null;
+    final label = range != null
+        ? '${DateFormat('EEE, MMM d').format(range.start)}  –  ${DateFormat('EEE, MMM d').format(range.end)}'
+        : '';
+
+    return Column(
+      children: [
+        _WeekSelectorBar(
+          dateRanges: dateRanges,
+          selectedIndex: selectedIndex,
+          onRangeSelected: onRangeSelected,
+        ),
+        Expanded(
+          child: isLoading
+              ? const _Loader()
+              : RefreshIndicator(
+                  color: const Color(0xFFF3A739),
+                  onRefresh: () async => onRangeSelected(selectedIndex),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        if (label.isNotEmpty) ...[
+                          Text(label,
+                              style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15)),
+                          const SizedBox(height: 4),
+                          Text('7:00 AM  –  11:59 PM',
+                              style: GoogleFonts.inter(
+                                  color: Colors.grey)),
+                          const SizedBox(height: 16),
+                        ],
+                        incentiveList.isNotEmpty
+                            ? _IncentiveList(items: incentiveList)
+                            : const _EmptyState(
+                                message: 'No incentives for this week'),
+                      ],
+                    ),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+// ==============================================================================
+// TAB 3 — MONTHLY
+// ==============================================================================
+class _MonthlyTab extends StatelessWidget {
+  final bool isLoading;
+  final List<dynamic> incentiveList;
+
+  const _MonthlyTab(
+      {required this.isLoading, required this.incentiveList});
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? const _Loader()
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Month banner
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF9A4D), Color(0xFFFF7B10)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        DateFormat('MMMM yyyy').format(DateTime.now()),
+                        style: GoogleFonts.inter(
+                            color: Colors.white70, fontSize: 13),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Monthly Incentives',
+                        style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                incentiveList.isNotEmpty
+                    ? _IncentiveList(items: incentiveList)
+                    : const _EmptyState(
+                        message: 'No monthly incentives available'),
+              ],
+            ),
+          );
+  }
+}
+
+// ==============================================================================
+// INCENTIVE LIST  — renders each item from $.data[]
+// ==============================================================================
+class _IncentiveList extends StatelessWidget {
+  final List<dynamic> items;
+  const _IncentiveList({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: List.generate(items.length, (i) {
+          final item = items[i];
+          return _IncentiveCard(
+            item: item,
+            isLast: i == items.length - 1,
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _IncentiveCard extends StatelessWidget {
+  final dynamic item;
+  final bool isLast;
+
+  const _IncentiveCard({required this.item, required this.isLast});
+
+  @override
+  Widget build(BuildContext context) {
+    final int targetRides =
+        DriverIncentivesCall.itemTargetRides(item);
+    final int completedRides =
+        DriverIncentivesCall.itemCompletedRides(item);
+    final double rewardAmount =
+        DriverIncentivesCall.itemRewardAmount(item);
+    final bool isCompleted =
+        DriverIncentivesCall.itemIsCompleted(item);
+    final String incentiveName =
+        DriverIncentivesCall.itemIncentiveName(item);
+    final String startTime =
+        DriverIncentivesCall.itemStartTime(item);
+    final String endTime =
+        DriverIncentivesCall.itemEndTime(item);
+
+    const Color orange = Color(0xFFF3A739);
+    final Color grey = Colors.grey.shade300;
+    final double progress = targetRides > 0
+        ? (completedRides / targetRides).clamp(0.0, 1.0)
+        : 0.0;
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Timeline dot + connector ────────────────────
           Column(
             children: [
               Container(
-                width: 16,
-                height: 16,
+                width: 22,
+                height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCompleted ? activeColor : Colors.white,
-                  border: Border.all(color: isCompleted ? activeColor : inactiveColor, width: 3),
+                  color: isCompleted ? orange : Colors.white,
+                  border: Border.all(
+                      color: isCompleted ? orange : grey, width: 2.5),
                 ),
-                child: isCompleted ? const Icon(Icons.check, size: 10, color: Colors.white) : null,
+                child: isCompleted
+                    ? const Icon(Icons.check,
+                        size: 13, color: Colors.white)
+                    : null,
               ),
-              if (!isLast) Expanded(child: Container(width: 2, color: isCompleted ? activeColor : inactiveColor)),
+              if (!isLast)
+                Expanded(
+                    child: Container(
+                        width: 2,
+                        color: isCompleted ? orange : grey)),
             ],
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
+
+          // ── Card content ─────────────────────────────────
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? Colors.green.withValues(alpha: 0.05)
+                    : Colors.orange.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isCompleted
+                      ? Colors.green.withValues(alpha: 0.2)
+                      : orange.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(target, style: GoogleFonts.inter(fontSize: 16, fontWeight: isCompleted ? FontWeight.bold : FontWeight.w500, color: isCompleted ? Colors.black87 : Colors.grey.shade600)),
-                  Text(reward, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: isCompleted ? activeColor : Colors.grey.shade400)),
+                  // Name + reward row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(incentiveName,
+                          style: GoogleFonts.inter(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87)),
+                      Text(
+                        '₹ ${rewardAmount.toStringAsFixed(0)}',
+                        style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isCompleted
+                                ? Colors.green
+                                : Colors.black87),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Target rides
+                  Text(
+                    'Complete $targetRides rides',
+                    style: GoogleFonts.inter(
+                        fontSize: 13, color: Colors.black54),
+                  ),
+
+                  // Time window
+                  if (startTime.isNotEmpty && endTime.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '$startTime  –  $endTime',
+                      style: GoogleFonts.inter(
+                          fontSize: 11, color: Colors.grey.shade500),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 7,
+                      backgroundColor: Colors.grey.shade200,
+                      color: isCompleted ? Colors.green : orange,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Progress label + status badge
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '$completedRides / $targetRides rides',
+                        style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey.shade600),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isCompleted
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : orange.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          isCompleted ? '✓ Completed' : '● Ongoing',
+                          style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isCompleted
+                                  ? Colors.green
+                                  : orange),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -367,225 +654,220 @@ class DailyIncentivesView extends StatelessWidget {
 }
 
 // ==============================================================================
-// 📅 2️⃣ WEEKLY INCENTIVES VIEW
+// DATE SELECTOR BAR
 // ==============================================================================
-class WeeklyIncentivesView extends StatelessWidget {
-  final List<DateRangeModel> dateRanges;
+class _DateSelectorBar extends StatelessWidget {
+  final List<DateTime> dates;
   final int selectedIndex;
   final Function(int) onDateSelected;
-  final double totalEarned;
 
-  const WeeklyIncentivesView({
-    super.key,
-    required this.dateRanges,
-    required this.selectedIndex,
-    required this.onDateSelected,
-    required this.totalEarned,
-  });
+  const _DateSelectorBar(
+      {required this.dates,
+      required this.selectedIndex,
+      required this.onDateSelected});
 
   @override
   Widget build(BuildContext context) {
-    final selectedRange = dateRanges[selectedIndex];
-    final String fullDateText = "${DateFormat('EEE, MMM dd').format(selectedRange.start)} - ${DateFormat('EEE, MMM dd').format(selectedRange.end)}";
+    return Container(
+      color: const Color(0xFFF3A739),
+      height: 80,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: dates.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, i) {
+          final date = dates[i];
+          final selected = i == selectedIndex;
+          final dayName = DateFormat('E').format(date);
+          final dayNum = DateFormat('d').format(date);
 
-    return Column(
-      children: [
-        Container(
-          color: const Color(0xFFF3A739),
-          height: 80,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: dateRanges.length,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              final range = dateRanges[index];
-              final bool isSelected = index == selectedIndex;
-              final String month = DateFormat('MMM').format(range.start);
-              final String days = "${range.start.day}-${range.end.day}";
+          return GestureDetector(
+            onTap: () => onDateSelected(i),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  selected
+                      ? Container(
+                          width: 50,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                                color: const Color(0xFFFF8900),
+                                width: 2),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(dayName,
+                                  style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange)),
+                              Text(dayNum,
+                                  style: GoogleFonts.inter(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange)),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            Text(dayName,
+                                style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    color: Colors.black87)),
+                            const SizedBox(height: 4),
+                            Text(dayNum,
+                                style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: Colors.black87)),
+                          ],
+                        ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
 
-              return GestureDetector(
-                onTap: () => onDateSelected(index),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (isSelected)
-                        Container(
+// ==============================================================================
+// WEEK SELECTOR BAR
+// ==============================================================================
+class _WeekSelectorBar extends StatelessWidget {
+  final List<DateRangeModel> dateRanges;
+  final int selectedIndex;
+  final Function(int) onRangeSelected;
+
+  const _WeekSelectorBar(
+      {required this.dateRanges,
+      required this.selectedIndex,
+      required this.onRangeSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFF3A739),
+      height: 80,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: dateRanges.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, i) {
+          final range = dateRanges[i];
+          final selected = i == selectedIndex;
+          final month = DateFormat('MMM').format(range.start);
+          final days = '${range.start.day}-${range.end.day}';
+
+          return GestureDetector(
+            onTap: () => onRangeSelected(i),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  selected
+                      ? Container(
                           width: 56,
                           height: 56,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFFF8900), width: 2),
+                            border: Border.all(
+                                color: const Color(0xFFFF8900),
+                                width: 2),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(month, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
-                              Text(days, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange)),
+                              Text(month,
+                                  style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange)),
+                              Text(days,
+                                  style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange)),
                             ],
                           ),
                         )
-                      else
-                        Column(
+                      : Column(
                           children: [
-                            Text(month, style: GoogleFonts.inter(fontSize: 10, color: Colors.black)),
-                            Text(days, style: GoogleFonts.inter(fontSize: 12, color: Colors.black)),
-                          ],
-                        )
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Text(fullDateText, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
-                Text("7:00 AM to 11:59 PM", style: GoogleFonts.inter(color: Colors.grey)),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 8, offset: const Offset(0, 2))],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.green.withValues(alpha:0.1), shape: BoxShape.circle), child: const Icon(Icons.account_balance_wallet, color: Colors.green)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Total Incentives Earned", style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade600)),
-                            const SizedBox(height: 2),
-                            Text("Processed", style: GoogleFonts.inter(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+                            Text(month,
+                                style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    color: Colors.black87)),
+                            Text(days,
+                                style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.black87)),
                           ],
                         ),
-                      ),
-                      Text("₹ $totalEarned", style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }
 
 // ==============================================================================
-// 🏆 3️⃣ BONUS VIEW (Reuses Daily View Logic)
+// SHARED SMALL WIDGETS
 // ==============================================================================
-class BonusIncentivesView extends StatelessWidget {
-  final int currentRides;
-  final List<dynamic> incentives;
+class _Loader extends StatelessWidget {
+  const _Loader();
+  @override
+  Widget build(BuildContext context) => const Center(
+      child: CircularProgressIndicator(color: Color(0xFFF3A739)));
+}
 
-  const BonusIncentivesView({
-    super.key,
-    required this.currentRides,
-    required this.incentives,
-  });
+class _EmptyState extends StatelessWidget {
+  final String message;
+  const _EmptyState({required this.message});
 
   @override
   Widget build(BuildContext context) {
-    if (incentives.isEmpty) {
-      return Center(
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            Text("No Bonus Offers", style: GoogleFonts.inter(color: Colors.grey)),
+            Icon(Icons.info_outline,
+                size: 56, color: Colors.grey.shade300),
+            const SizedBox(height: 12),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(color: Colors.grey.shade500)),
           ],
         ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFF9A4D), Color(0xFFFF7B10)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Text("Your Progress", style: GoogleFonts.inter(color: Colors.white70, fontSize: 14)),
-                const SizedBox(height: 8),
-                Text("$currentRides Rides Completed", style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Reuse the daily list renderer but for bonus context
-          DailyIncentivesView(
-            dates: [], // Pass empty, we are not rendering date bar here
-            selectedIndex: 0,
-            onDateSelected: (_) {},
-            currentRides: currentRides,
-            incentives: incentives,
-          ).buildListOnly(context), // Helper to just build the list
-        ],
       ),
     );
   }
 }
 
-// Extension to reuse the list part
-extension on DailyIncentivesView {
-  Widget buildListOnly(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4))],
+Widget _sectionDivider(String label) {
+  return Row(
+    children: [
+      Expanded(child: Divider(color: Colors.grey.shade300)),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Text(label,
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold, fontSize: 14)),
       ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: List.generate(incentives.length, (index) {
-          final item = incentives[index];
-          final int target = item['target_rides'] ?? 0;
-          final double reward = double.tryParse(item['reward_amount'].toString()) ?? 0.0;
-          final bool isCompleted = currentRides >= target;
-          final bool isLast = index == incentives.length - 1;
-
-          return _buildTimelineItem(
-            target: "Complete $target rides",
-            reward: "₹ $reward",
-            isCompleted: isCompleted,
-            isLast: isLast,
-          );
-        }),
-      ),
-    );
-  }
-}
-
-// 🗓️ MODEL
-class DateRangeModel {
-  final DateTime start;
-  final DateTime end;
-  DateRangeModel({required this.start, required this.end});
+      Expanded(child: Divider(color: Colors.grey.shade300)),
+    ],
+  );
 }

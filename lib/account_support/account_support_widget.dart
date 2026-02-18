@@ -355,7 +355,17 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                     onPressed: () async {
+                      await FFAppState().clearAppState();
+
+                      // Navigate to Login screen and remove all previous screens
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/login',
+                      (route) => false,
+                    );
+
+                    },    
+
                       icon: const Icon(Icons.power_settings_new, color: Colors.black),
                       label: const Text(
                           "Logout",

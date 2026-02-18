@@ -808,6 +808,71 @@ class FFAppState extends ChangeNotifier {
     prefs.setString('ff_qrImage', value);
     notifyListeners();
   }
+  
+  Future<void> clearAppState() async {
+  await prefs.clear();
+
+  // Auth
+  _accessToken = '';
+  _driverid = 0;
+  _isLoggedIn = false;
+  _isRegistered = false;
+
+  // Basic info
+  _mobileNo = 0;
+  _firstName = '';
+  _lastName = '';
+  _email = '';
+  _referralCode = '';
+
+  // Ride
+  _activeRideId = 0;
+  _activeRideStatus = '';
+  _kycStatus = '';
+  _isonline = false;
+
+  // 🔥 Profile
+  _profilePhotoUrl = '';
+  _profilePhotoBase64 = '';
+  _profilePhoto = null;
+
+  // 🔥 PAN
+  _panImageUrl = '';
+  // _panImageBase64 = '';
+  _panImage = null;
+
+  // 🔥 Aadhar
+  _aadharFrontImageUrl = '';
+  _aadharBackImageUrl = '';
+  _aadharFrontBase64 = '';
+  _aadharBackBase64 = '';
+  // _aadharFrontImage = null;
+  _aadharBackImage = null;
+
+  // 🔥 License
+  _licenseFrontImageUrl = '';
+  _licenseBackImageUrl = '';
+  _licenseFrontBase64 = '';
+  _licenseBackBase64 = '';
+  _licenseFrontImage = null;
+  _licenseBackImage = null;
+
+  // 🔥 Vehicle / RC
+  _vehicleImageUrl = '';
+  // _vehicleImageBase64 = '';
+  _vehicleImage = null;
+
+  _rcFrontImageUrl = '';
+  _rcBackImageUrl = '';
+  _rcFrontBase64 = '';
+  _rcBackBase64 = '';
+  _rcFrontImage = null;
+  _rcBackImage = null;
+
+  notifyListeners();
+}
+
+
 }
 
 void _safeInit(Function() initializeField) {
@@ -815,3 +880,4 @@ void _safeInit(Function() initializeField) {
     initializeField();
   } catch (_) {}
 }
+
