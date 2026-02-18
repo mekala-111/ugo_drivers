@@ -1106,3 +1106,62 @@ class DriverRideHistoryCall {
   static String? totalEarnings(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.data.total_earnings'''));
 }
+
+class VehiclePricingCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'vehiclePricing',
+      apiUrl:
+          '$_baseUrl/api/vehicle-types/drivers/$driverId/vehicle-pricing',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  /// Full pricing object
+  static dynamic pricing(dynamic response) =>
+      getJsonField(response, r'''$.data.pricing''');
+
+  /// Normal Ride
+  static dynamic normal(dynamic response) =>
+      getJsonField(response, r'''$.data.pricing.normal''');
+
+  /// Pro Ride
+  static dynamic pro(dynamic response) =>
+      getJsonField(response, r'''$.data.pricing.pro''');
+
+  /// Vehicle Name
+  static String? vehicleName(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.vehicle_type.name''',
+      ));
+
+  /// Vehicle Image
+  static String? vehicleImage(dynamic response) {
+    final path = castToType<String>(getJsonField(
+      response,
+      r'''$.data.vehicle_type.image''',
+    ));
+
+    if (path == null) return null;
+
+    if (path.startsWith("/")) {
+      return '$_baseUrl$path';
+    }
+
+    return path;
+  }
+
+
+}
+

@@ -1,5 +1,6 @@
 import 'package:ugo_driver/teamearning/all_orders_widget.dart';
 import 'package:ugo_driver/teamearning/last_order_widget.dart';
+import 'package:ugo_driver/teamearning/view_rate_card_widget.dart';
 
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -182,7 +183,12 @@ class _TeamearningWidgetState extends State<TeamearningWidget>
 }),
 
                 _buildDivider(),
-                _buildMenuItem(Icons.currency_rupee_rounded, icon: Icons.currency_rupee_rounded, title: "View Rate Card", subtitle: null, onTap: () {}),
+                _buildMenuItem(Icons.currency_rupee_rounded, icon: Icons.currency_rupee_rounded, title: "View Rate Card", subtitle: null, onTap: (){
+   Navigator.push(
+     context,
+     MaterialPageRoute(builder: (_) => const RateCardWidget()),
+   );
+ },),
               ],
             ),
           ),

@@ -29,7 +29,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-      GlobalKey<RideRequestOverlayState>();
+  GlobalKey<RideRequestOverlayState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -57,6 +57,13 @@ class _HomeWidgetState extends State<HomeWidget> {
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
+  double todayTotal = 0.0;
+  int todayRideCount = 0;
+  double todayWallet = 0.0;
+  double lastRideAmount = 0.0;
+  bool isLoadingEarnings = true;
+
+
   // 🗺️ UBER-LIKE MAP STYLE (Silver Theme)
 
   @override
@@ -70,6 +77,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         _fetchDriverProfile(),
         _fetchInitialRideStatus(),
         _fetchIncentiveData(),
+        _fetchTodayEarnings(),
       ]);
 
       setState(() {
@@ -211,7 +219,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               id: item['id'] ?? 0,
               targetRides: item['target_rides'] ?? 0,
               rewardAmount:
-                  double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
+              double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
               isLocked: item['progress_status'] != 'ongoing' &&
                   item['progress_status'] != 'completed',
               description: item['incentive']?['name'],
@@ -421,7 +429,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     void processSingleRide(Map<String, dynamic> rideData) {
       String status =
-          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+      (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
       print("🔄 Processing Status: \"$status\"");
 
       if (mounted) {
@@ -451,35 +459,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 360;
-    final isMediumScreen = screenWidth >= 360 && screenWidth < 600;
-    final isTablet = screenWidth >= 600;
-    final isLargeTablet = screenWidth >= 900;
-    final isLandscape = screenHeight < screenWidth;
-
-    // Scale calculation for responsive sizing
-    final scale = isLargeTablet
-        ? 1.2
-        : isTablet
-            ? 1.1
-            : isMediumScreen
-                ? 1.0
-                : 0.9;
-
-    // Responsive spacing values
-    final topPaddingSmall = isSmallScreen ? 16.0 : 20.0;
-    final topPaddingLarge = isSmallScreen ? 20.0 : 32.0;
-    final horizontalPadding =
-        isSmallScreen ? 12.0 : (isMediumScreen ? 16.0 : 20.0);
-    final cardPadding = isSmallScreen ? 8.0 : 12.0;
-    final appBarHeight = isSmallScreen
-        ? 45.0
-        : isMediumScreen
-            ? 55.0
-            : isTablet
-                ? 65.0
-                : 60.0;
 
     // Check if Online
     bool isOnline = _model.switchValue ?? false;
@@ -532,9 +512,8 @@ class _HomeWidgetState extends State<HomeWidget> {
           body: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SizedBox(height: isLandscape ? topPaddingSmall : topPaddingLarge),
-              _buildTopAppBar(screenWidth, screenHeight, isSmallScreen,
-                  isMediumScreen, isTablet, appBarHeight, scale),
+              SizedBox(height: isSmallScreen ? 20 : 32),
+              _buildTopAppBar(screenWidth, isSmallScreen),
 
               Expanded(
                 child: Stack(
@@ -544,9 +523,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                       FlutterFlowGoogleMap(
                         controller: _model.googleMapsController,
                         onCameraIdle: (latLng) =>
-                            _model.googleMapsCenter = latLng,
+                        _model.googleMapsCenter = latLng,
                         initialLocation: _model.googleMapsCenter ??=
-                            currentUserLocationValue!,
+                        currentUserLocationValue!,
                         markerColor: GoogleMarkerColor.orange,
                         mapType: MapType.normal,
                         // ✅ FIXED: Pass style manually since setMapStyle is removed
@@ -574,57 +553,39 @@ class _HomeWidgetState extends State<HomeWidget> {
                             Text(
                               "${_getGreeting()},",
                               style: TextStyle(
-                                fontSize: isSmallScreen
-                                    ? 18
-                                    : isMediumScreen
-                                        ? 22
-                                        : 24,
+                                fontSize: 22,
                                 color: Colors.grey[600],
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: isSmallScreen ? 8 : 12),
                             Text(
                               driverName,
                               style: TextStyle(
-                                fontSize: isSmallScreen
-                                    ? 24
-                                    : isMediumScreen
-                                        ? 28
-                                        : 32,
+                                fontSize: 28,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: isSmallScreen ? 20 : 30),
+                            SizedBox(height: 30),
                             Icon(
                               Icons.location_off_rounded,
-                              size: isSmallScreen
-                                  ? 60
-                                  : isMediumScreen
-                                      ? 70
-                                      : 80,
+                              size: 80,
                               color: Colors.grey[300],
                             ),
-                            SizedBox(height: isSmallScreen ? 16 : 20),
+                            SizedBox(height: 20),
                             Text(
                               "You are currently Offline",
                               style: TextStyle(
-                                fontSize: isSmallScreen
-                                    ? 14
-                                    : isMediumScreen
-                                        ? 16
-                                        : 18,
+                                fontSize: 16,
                                 color: Colors.grey[500],
                               ),
                             ),
-                            SizedBox(height: isSmallScreen ? 30 : 40),
+                            SizedBox(height: 40),
                             GestureDetector(
                               onTap: _isDataLoaded ? _toggleOnlineStatus : null,
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: isSmallScreen ? 30 : 40,
-                                    vertical: isSmallScreen ? 12 : 15),
+                                    horizontal: 40, vertical: 15),
                                 decoration: BoxDecoration(
                                   color: Color(0xFFFF7B10),
                                   borderRadius: BorderRadius.circular(30),
@@ -641,18 +602,13 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.power_settings_new,
-                                        color: Colors.white,
-                                        size: isSmallScreen ? 20 : 22),
-                                    SizedBox(width: isSmallScreen ? 8 : 10),
+                                        color: Colors.white),
+                                    SizedBox(width: 10),
                                     Text(
                                       "GO ONLINE",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: isSmallScreen
-                                            ? 16
-                                            : isMediumScreen
-                                                ? 18
-                                                : 20,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 1,
                                       ),
@@ -673,29 +629,11 @@ class _HomeWidgetState extends State<HomeWidget> {
 
               // CONDITIONALLY SHOW PANELS
               if (shouldShowPanels)
-                _buildCollapsibleBottomIncentive(
-                    screenWidth,
-                    screenHeight,
-                    isSmallScreen,
-                    isMediumScreen,
-                    isTablet,
-                    isLandscape,
-                    scale,
-                    cardPadding,
-                    horizontalPadding),
+                _buildCollapsibleBottomIncentive(screenWidth, isSmallScreen),
               if (shouldShowPanels)
-                _buildCollapsibleBottomPanel(
-                    screenWidth,
-                    screenHeight,
-                    isSmallScreen,
-                    isMediumScreen,
-                    isTablet,
-                    isLandscape,
-                    scale,
-                    cardPadding,
-                    horizontalPadding),
+                _buildCollapsibleBottomPanel(screenWidth, isSmallScreen),
 
-              SizedBox(height: isSmallScreen ? 8 : (isLandscape ? 10 : 15)),
+              SizedBox(height: isSmallScreen ? 10 : 15),
             ],
           ),
         ),
@@ -705,73 +643,47 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   // --- WIDGET BUILDERS ---
 
-  Widget _buildTopAppBar(
-      double screenWidth,
-      double screenHeight,
-      bool isSmallScreen,
-      bool isMediumScreen,
-      bool isTablet,
-      double appBarHeight,
-      double scale) {
+  Widget _buildTopAppBar(double screenWidth, bool isSmallScreen) {
     return Container(
       width: double.infinity,
-      height: appBarHeight,
+      height: isSmallScreen ? 45 : 60,
       decoration: BoxDecoration(color: Color(0xFFFF7B10)),
       child: SafeArea(
         top: false,
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? 10 : (isMediumScreen ? 12 : 16),
-              vertical: isSmallScreen ? 6 : 8),
+              horizontal: isSmallScreen ? 12 : 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
                 onTap: () => scaffoldKey.currentState?.openDrawer(),
-                child: Icon(Icons.menu,
-                    color: Colors.white,
-                    size: isSmallScreen ? 24 : (isMediumScreen ? 26 : 28)),
+                child: Icon(Icons.menu, color: Colors.white, size: 28),
               ),
               InkWell(
                 onTap: () => context.pushNamed(ScanToBookWidget.routeName),
-                child: Icon(Icons.qr_code,
-                    color: Colors.black,
-                    size: isSmallScreen
-                        ? 20
-                        : isMediumScreen
-                            ? 22
-                            : 24),
+                child: Icon(Icons.qr_code, color: Colors.black, size: 24),
               ),
               Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: isSmallScreen ? 10 : 12,
-                    vertical: isSmallScreen ? 3 : 4),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       (_model.switchValue ?? false) ? 'ON' : 'OFF',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: isSmallScreen ? 11 : 12),
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(
-                      width: isSmallScreen ? 30 : 40,
-                      height: isSmallScreen ? 24 : 32,
-                      child: Switch(
-                        value: _model.switchValue ?? false,
-                        onChanged: _isDataLoaded
-                            ? (val) => _toggleOnlineStatus()
-                            : null,
-                        // ✅ FIXED: Use activeTrackColor instead of activeColor
-                        activeTrackColor: Colors.green,
-                        activeThumbColor: Colors.white, // Thumb color
-                      ),
+                    Switch(
+                      value: _model.switchValue ?? false,
+                      onChanged:
+                      _isDataLoaded ? (val) => _toggleOnlineStatus() : null,
+                      // ✅ FIXED: Use activeTrackColor instead of activeColor
+                      activeTrackColor: Colors.green,
+                      activeThumbColor: Colors.white, // Thumb color
                     ),
                   ],
                 ),
@@ -780,9 +692,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 onTap: () async {
                   context.pushNamed(TeampageWidget.routeName);
                 },
-                child: Icon(Icons.people,
-                    color: Colors.white,
-                    size: isSmallScreen ? 24 : (isMediumScreen ? 26 : 28)),
+                child: Icon(Icons.people, color: Colors.white),
               ),
             ],
           ),
@@ -792,27 +702,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Widget _buildCollapsibleBottomIncentive(
-      double screenWidth,
-      double screenHeight,
-      bool isSmallScreen,
-      bool isMediumScreen,
-      bool isTablet,
-      bool isLandscape,
-      double scale,
-      double cardPadding,
-      double horizontalPadding) {
+      double screenWidth, bool isSmallScreen) {
     bool hasIncentives = incentiveTiers.isNotEmpty;
-    final panelPadding = isSmallScreen ? 12.0 : (isMediumScreen ? 14.0 : 16.0);
-    final titleFontSize = isSmallScreen
-        ? 13.0
-        : isMediumScreen
-            ? 14.0
-            : 16.0;
-    final valueFontSize = isSmallScreen
-        ? 15.0
-        : isMediumScreen
-            ? 16.0
-            : 18.0;
 
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
@@ -838,8 +729,8 @@ class _HomeWidgetState extends State<HomeWidget> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: panelPadding,
-                vertical: isSmallScreen ? 9 : 11,
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 10 : 12,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -847,7 +738,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   Text(
                     'Incentives',
                     style: TextStyle(
-                      fontSize: titleFontSize,
+                      fontSize: isSmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -870,7 +761,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                               ? '₹${totalIncentiveEarned.toStringAsFixed(0)}'
                               : 'Coming Soon',
                           style: TextStyle(
-                            fontSize: valueFontSize,
+                            fontSize: isSmallScreen ? 16 : 18,
                             fontWeight: FontWeight.bold,
                             color: hasIncentives ? Colors.black : Colors.grey,
                           ),
@@ -880,11 +771,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         _isIncentivePanelExpanded
                             ? Icons.keyboard_arrow_down
                             : Icons.keyboard_arrow_up,
-                        size: isSmallScreen
-                            ? 18.0
-                            : isMediumScreen
-                                ? 20.0
-                                : 24.0,
+                        size: isSmallScreen ? 20 : 24,
                       ),
                     ],
                   ),
@@ -894,70 +781,37 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
           if (_isIncentivePanelExpanded)
             isLoadingIncentives
-                ? _buildLoadingIndicator(isSmallScreen, isMediumScreen)
+                ? _buildLoadingIndicator(isSmallScreen)
                 : hasIncentives
-                    ? _buildIncentiveProgressBars(
-                        screenWidth,
-                        screenHeight,
-                        isSmallScreen,
-                        isMediumScreen,
-                        isTablet,
-                        isLandscape,
-                        scale,
-                        cardPadding,
-                        horizontalPadding)
-                    : _buildComingSoonMessage(isSmallScreen, isMediumScreen),
+                ? _buildIncentiveProgressBars(screenWidth, isSmallScreen)
+                : _buildComingSoonMessage(isSmallScreen),
         ],
       ),
     );
   }
 
-  Widget _buildLoadingIndicator(bool isSmallScreen, bool isMediumScreen) {
+  Widget _buildLoadingIndicator(bool isSmallScreen) {
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen
-          ? 20.0
-          : isMediumScreen
-              ? 24.0
-              : 32.0),
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
       child: CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7B10)),
       ),
     );
   }
 
-  Widget _buildIncentiveProgressBars(
-      double screenWidth,
-      double screenHeight,
-      bool isSmallScreen,
-      bool isMediumScreen,
-      bool isTablet,
-      bool isLandscape,
-      double scale,
-      double cardPadding,
-      double horizontalPadding) {
+  Widget _buildIncentiveProgressBars(double screenWidth, bool isSmallScreen) {
     int totalRequiredRides = incentiveTiers.isNotEmpty
         ? incentiveTiers
-            .map((t) => t.targetRides)
-            .reduce((a, b) => a > b ? a : b)
+        .map((t) => t.targetRides)
+        .reduce((a, b) => a > b ? a : b)
         : 0;
-
-    final contentPadding = isSmallScreen
-        ? 12.0
-        : isMediumScreen
-            ? 14.0
-            : 16.0;
-    final titleFontSize = isSmallScreen
-        ? 15.0
-        : isMediumScreen
-            ? 16.0
-            : 18.0;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        contentPadding,
+        isSmallScreen ? 12 : 16,
         0,
-        contentPadding,
-        contentPadding,
+        isSmallScreen ? 12 : 16,
+        isSmallScreen ? 12 : 16,
       ),
       child: Column(
         children: [
@@ -967,29 +821,27 @@ class _HomeWidgetState extends State<HomeWidget> {
               Text(
                 '$currentRides/$totalRequiredRides',
                 style: TextStyle(
-                  fontSize: titleFontSize,
+                  fontSize: isSmallScreen ? 16 : 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 '₹${totalIncentiveEarned.toStringAsFixed(0)}',
                 style: TextStyle(
-                  fontSize: titleFontSize,
+                  fontSize: isSmallScreen ? 16 : 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFFF7B10),
                 ),
               ),
             ],
           ),
-          SizedBox(height: isSmallScreen ? 10 : 14),
+          SizedBox(height: isSmallScreen ? 12 : 16),
           ...incentiveTiers
               .map((tier) => _buildIncentiveTierBar(
-                    tier: tier,
-                    currentRides: currentRides,
-                    isSmallScreen: isSmallScreen,
-                    isMediumScreen: isMediumScreen,
-                    isTablet: isTablet,
-                  ))
+            tier: tier,
+            currentRides: currentRides,
+            isSmallScreen: isSmallScreen,
+          ))
               .toList(),
         ],
       ),
@@ -1000,30 +852,12 @@ class _HomeWidgetState extends State<HomeWidget> {
     required IncentiveTier tier,
     required int currentRides,
     required bool isSmallScreen,
-    required bool isMediumScreen,
-    required bool isTablet,
   }) {
     double progress = (currentRides / tier.targetRides).clamp(0.0, 1.0);
     bool isCompleted = currentRides >= tier.targetRides;
 
-    final barHeight = isSmallScreen
-        ? 24.0
-        : isMediumScreen
-            ? 28.0
-            : 32.0;
-    final iconSize = isSmallScreen
-        ? 14.0
-        : isMediumScreen
-            ? 16.0
-            : 18.0;
-    final borderRadius = isSmallScreen
-        ? 12.0
-        : isMediumScreen
-            ? 14.0
-            : 16.0;
-
     return Padding(
-      padding: EdgeInsets.only(bottom: isSmallScreen ? 10 : 14),
+      padding: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1034,18 +868,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                 children: [
                   Icon(
                     tier.isLocked ? Icons.lock : Icons.lock_open,
-                    size: iconSize,
+                    size: isSmallScreen ? 16 : 18,
                     color: tier.isLocked ? Colors.grey : Color(0xFFFF7B10),
                   ),
                   SizedBox(width: 6),
                   Text(
                     '${tier.targetRides} rides',
                     style: TextStyle(
-                      fontSize: isSmallScreen
-                          ? 12.0
-                          : isMediumScreen
-                              ? 13.0
-                              : 14.0,
+                      fontSize: isSmallScreen ? 13 : 14,
                       fontWeight: FontWeight.w600,
                       color: tier.isLocked ? Colors.grey : Colors.black87,
                     ),
@@ -1055,11 +885,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               Text(
                 '+₹${tier.rewardAmount.toStringAsFixed(0)}',
                 style: TextStyle(
-                  fontSize: isSmallScreen
-                      ? 13.0
-                      : isMediumScreen
-                          ? 14.0
-                          : 16.0,
+                  fontSize: isSmallScreen ? 14 : 16,
                   fontWeight: FontWeight.bold,
                   color: isCompleted ? Colors.green : Color(0xFFFF7B10),
                 ),
@@ -1068,13 +894,13 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
           SizedBox(height: 8),
           Container(
-            height: barHeight,
+            height: isSmallScreen ? 28 : 32,
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),
               child: Stack(
                 children: [
                   FractionallySizedBox(
@@ -1085,8 +911,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                           colors: tier.isLocked
                               ? [Colors.grey.shade400, Colors.grey.shade500]
                               : isCompleted
-                                  ? [Colors.green, Colors.green.shade700]
-                                  : [Color(0xFFFFB785), Color(0xFFFF7B10)],
+                              ? [Colors.green, Colors.green.shade700]
+                              : [Color(0xFFFFB785), Color(0xFFFF7B10)],
                         ),
                       ),
                     ),
@@ -1100,52 +926,31 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget _buildComingSoonMessage(bool isSmallScreen, bool isMediumScreen) {
-    final iconSize = isSmallScreen
-        ? 44.0
-        : isMediumScreen
-            ? 56.0
-            : 64.0;
-    final titleFontSize = isSmallScreen
-        ? 16.0
-        : isMediumScreen
-            ? 18.0
-            : 20.0;
-    final descFontSize = isSmallScreen
-        ? 12.0
-        : isMediumScreen
-            ? 13.0
-            : 14.0;
-
+  Widget _buildComingSoonMessage(bool isSmallScreen) {
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen
-          ? 20.0
-          : isMediumScreen
-              ? 24.0
-              : 32.0),
+      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
       child: Column(
         children: [
           Icon(
             Icons.star_border_rounded,
-            size: iconSize,
+            size: isSmallScreen ? 48 : 64,
             color: Colors.grey.shade400,
           ),
-          SizedBox(height: isSmallScreen ? 10 : 14),
+          SizedBox(height: isSmallScreen ? 12 : 16),
           Text(
             'Coming Soon or Please Complete first ride to view Incentives',
             style: TextStyle(
-              fontSize: titleFontSize,
+              fontSize: isSmallScreen ? 18 : 20,
               fontWeight: FontWeight.bold,
               color: Colors.grey.shade600,
             ),
-            textAlign: TextAlign.center,
           ),
           SizedBox(height: 8),
           Text(
             'Exciting incentive programs will be available soon!',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: descFontSize,
+              fontSize: isSmallScreen ? 13 : 14,
               color: Colors.grey.shade500,
             ),
           ),
@@ -1154,28 +959,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget _buildCollapsibleBottomPanel(
-      double screenWidth,
-      double screenHeight,
-      bool isSmallScreen,
-      bool isMediumScreen,
-      bool isTablet,
-      bool isLandscape,
-      double scale,
-      double cardPadding,
-      double horizontalPadding) {
-    final panelPadding = isSmallScreen ? 12.0 : (isMediumScreen ? 14.0 : 16.0);
-    final titleFontSize = isSmallScreen
-        ? 13.0
-        : isMediumScreen
-            ? 14.0
-            : 16.0;
-    final valueFontSize = isSmallScreen
-        ? 15.0
-        : isMediumScreen
-            ? 16.0
-            : 18.0;
-
+  Widget _buildCollapsibleBottomPanel(double screenWidth, bool isSmallScreen) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -1200,8 +984,8 @@ class _HomeWidgetState extends State<HomeWidget> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: panelPadding,
-                vertical: isSmallScreen ? 9 : 11,
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 10 : 12,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1209,16 +993,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                   Text(
                     'Today Total',
                     style: TextStyle(
-                      fontSize: titleFontSize,
+                      fontSize: isSmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        '500.00',
+                        isLoadingEarnings ? '...' : todayTotal.toStringAsFixed(0),
                         style: TextStyle(
-                          fontSize: valueFontSize,
+                          fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1227,11 +1011,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         _isPanelExpanded
                             ? Icons.keyboard_arrow_down
                             : Icons.keyboard_arrow_up,
-                        size: isSmallScreen
-                            ? 18.0
-                            : isMediumScreen
-                                ? 20.0
-                                : 24.0,
+                        size: isSmallScreen ? 20 : 24,
                       ),
                     ],
                   ),
@@ -1242,103 +1022,93 @@ class _HomeWidgetState extends State<HomeWidget> {
           if (_isPanelExpanded)
             Padding(
               padding: EdgeInsets.fromLTRB(
-                panelPadding,
+                isSmallScreen ? 12 : 16,
                 0,
-                panelPadding,
-                panelPadding,
+                isSmallScreen ? 12 : 16,
+                isSmallScreen ? 12 : 16,
               ),
-              child: isSmallScreen
-                  ? Column(
-                      children: [
-                        _buildOrangeCard(
-                            'Ride Count',
-                            '13',
-                            screenWidth,
-                            screenHeight,
-                            isSmallScreen,
-                            isMediumScreen,
-                            isTablet),
-                        SizedBox(height: isSmallScreen ? 8 : 10),
-                        _buildOrangeCard(
-                            'Wallet',
-                            '600.00',
-                            screenWidth,
-                            screenHeight,
-                            isSmallScreen,
-                            isMediumScreen,
-                            isTablet),
-                        SizedBox(height: isSmallScreen ? 8 : 10),
-                        _buildOrangeCard(
-                            'Last Ride',
-                            '100',
-                            screenWidth,
-                            screenHeight,
-                            isSmallScreen,
-                            isMediumScreen,
-                            isTablet),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                            child: _buildOrangeCard(
-                                'Ride Count',
-                                '13',
-                                screenWidth,
-                                screenHeight,
-                                isSmallScreen,
-                                isMediumScreen,
-                                isTablet)),
-                        SizedBox(width: isSmallScreen ? 8 : 12),
-                        Expanded(
-                            child: _buildOrangeCard(
-                                'Wallet',
-                                '600.00',
-                                screenWidth,
-                                screenHeight,
-                                isSmallScreen,
-                                isMediumScreen,
-                                isTablet)),
-                        SizedBox(width: isSmallScreen ? 8 : 12),
-                        Expanded(
-                            child: _buildOrangeCard(
-                                'Last Ride',
-                                '100',
-                                screenWidth,
-                                screenHeight,
-                                isSmallScreen,
-                                isMediumScreen,
-                                isTablet)),
-                      ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child:
+                    _buildOrangeCard(
+                      'Ride Count',
+                      isLoadingEarnings ? '...' : todayRideCount.toString(),
+                      screenWidth,
+                      isSmallScreen,
                     ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                    child:
+                    _buildOrangeCard(
+                      'Wallet',
+                      isLoadingEarnings ? '...' : todayWallet.toStringAsFixed(0),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+
+                  ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                    child:
+                    _buildOrangeCard(
+                      'Last Ride',
+                      isLoadingEarnings ? '...' : lastRideAmount.toStringAsFixed(0),
+                      screenWidth,
+                      isSmallScreen,
+                    ),
+
+                  ),
+                ],
+              ),
             ),
         ],
       ),
     );
   }
+  Future<void> _fetchTodayEarnings() async {
+    try {
+      setState(() => isLoadingEarnings = true);
+
+      final response = await DriverEarningsCall.call(
+        driverId: FFAppState().driverid,
+        token: FFAppState().accessToken,
+        period: "daily",
+      );
+
+      if (response.succeeded) {
+        final data = response.jsonBody['data'];
+
+        todayTotal = (data['totalEarnings'] ?? 0).toDouble();
+        todayRideCount = data['totalRides'] ?? 0;
+        todayWallet = (data['walletEarnings'] ?? 0).toDouble();
+
+        List rides = data['rides'] ?? [];
+        if (rides.isNotEmpty) {
+          lastRideAmount =
+              (rides.first['amount'] ?? 0).toDouble(); // latest ride
+        }
+      }
+    } catch (e) {
+      print("❌ Earnings error: $e");
+    } finally {
+      setState(() => isLoadingEarnings = false);
+    }
+  }
+
 
   Widget _buildOrangeCard(
-      String title,
-      String value,
-      double screenWidth,
-      double screenHeight,
-      bool isSmallScreen,
-      bool isMediumScreen,
-      bool isTablet) {
-    final cardPadding = isSmallScreen ? 6.0 : (isMediumScreen ? 8.0 : 10.0);
-    final titleFontSize = isSmallScreen ? 10.0 : (isMediumScreen ? 11.0 : 12.0);
-    final valueFontSize = isSmallScreen ? 16.0 : (isMediumScreen ? 18.0 : 20.0);
-    final borderRadius = isSmallScreen ? 8.0 : (isMediumScreen ? 10.0 : 12.0);
-
+      String title, String value, double screenWidth, bool isSmallScreen) {
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: cardPadding,
-        horizontal: cardPadding * 0.75,
+        vertical: isSmallScreen ? 8 : 12,
+        horizontal: isSmallScreen ? 4 : 8,
       ),
       decoration: BoxDecoration(
         color: Color(0xFFFFB785),
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1348,20 +1118,20 @@ class _HomeWidgetState extends State<HomeWidget> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black87,
-              fontSize: titleFontSize,
+              fontSize: isSmallScreen ? 11 : 13,
               fontWeight: FontWeight.w600,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: isSmallScreen ? 4 : 6),
+          SizedBox(height: isSmallScreen ? 6 : 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               value,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: valueFontSize,
+                fontSize: isSmallScreen ? 18 : 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
