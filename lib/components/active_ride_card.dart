@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../home/ride_request_model.dart';
+import '../models/ride_status.dart';
 
 // --- Wrapper Widget ---
 class RidePickupOverlay extends StatelessWidget {
@@ -118,9 +119,9 @@ class ActiveRideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String status = ride.status.toLowerCase();
-    bool isArrived = status == 'arrived';
-    bool isStarted = status == 'started';
+    // ride.status is now a RideStatus enum
+    bool isArrived = ride.status == RideStatus.arrived;
+    bool isStarted = ride.status == RideStatus.started;
 
     String headerText = "GO TO PICKUP";
     Color headerColor = ugoGreen;

@@ -34,7 +34,7 @@ configurations.all {
 }
 
 android {
-    namespace "com.ugocabs.drivers"
+    namespace "com.ugotaxi_rajkumar.driver"
     compileSdkVersion 36
 
     compileOptions {
@@ -53,7 +53,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ugocabs.drivers"
+        applicationId "com.ugotaxi_rajkumar.driver"
         minSdkVersion 26
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()

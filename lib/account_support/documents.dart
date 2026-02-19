@@ -1,9 +1,3 @@
-import 'package:ugo_driver/adhar_upload/adhar_upload_update.dart';
-import 'package:ugo_driver/driving_dl/driving_dl_update.dart';
-import 'package:ugo_driver/face_verify/face_verify_update.dart';
-import 'package:ugo_driver/panupload_screen/panupload_screen_pdate.dart';
-import 'package:ugo_driver/registration_image/registration_image_update.dart';
-import 'package:ugo_driver/vehicle_image/vehicle_image_update.dart';
 
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';

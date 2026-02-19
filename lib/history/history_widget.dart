@@ -4,7 +4,11 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// API calls needed for history
+import '/backend/api_requests/api_calls.dart';
 import 'history_model.dart';
+import '../models/ride_history_item.dart';
 export 'history_model.dart';
 
 /// Past Booking History List
@@ -23,10 +27,47 @@ class _HistoryWidgetState extends State<HistoryWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _isLoading = true;
+  String? _error;
+  List<dynamic> _rides = [];
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => HistoryModel());
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final res = await DriverRideHistoryCall.call(
+        token: FFAppState().accessToken,
+        id: FFAppState().driverid,
+      );
+      if (res.succeeded) {
+        final data = DriverRideHistoryCall.rides(res.jsonBody) ?? [];
+        // convert to strongly-typed model objects
+        final parsed = data
+            .whereType<Map<String, dynamic>>()
+            .map((m) => RideHistoryItem.fromJson(m))
+            .toList();
+        setState(() {
+          _rides = parsed;
+        });
+      } else {
+        setState(() {
+          _error = 'Failed to load history';
+        });
+      }
+    } catch (e) {
+      setState(() { _error = e.toString(); });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -89,12 +130,18 @@ class _HistoryWidgetState extends State<HistoryWidget> {
           elevation: 0.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(child: Text(_error!))
+                  : _rides.isEmpty
+                      ? const Center(child: Text('No past rides yet.'))
+                      : SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

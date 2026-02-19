@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/home/ride_request_model.dart';
+import '../models/ride_status.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:async';
 
@@ -73,9 +74,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       final updatedRide = RideRequest.fromJson(rawData);
       if (!mounted) return;
 
-      final status = updatedRide.status.toLowerCase();
+      final RideStatus status = updatedRide.status;
 
-      if (status == "cancelled" || status == "completed_by_other") {
+      // Remove if cancelled or completed by another driver
+      if (status == RideStatus.cancelled || status == RideStatus.unknown) {
+        // NOTE: 'completed_by_other' isn't represented in enum; treat as unknown.
         removeRideById(updatedRide.id);
         return;
       }
@@ -85,21 +88,26 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (index != -1) {
         setState(() {
           _activeRequests[index] = updatedRide;
-          if (updatedRide.status.toLowerCase() == 'arrived' &&
-              !_waitTimers.containsKey(updatedRide.id)) {
+          if (status == RideStatus.arrived && !_waitTimers.containsKey(updatedRide.id)) {
             _waitTimers[updatedRide.id] = 0;
           }
         });
       } else {
         setState(() {
-          List<String> validStatuses = ['searching', 'accepted', 'arrived', 'started', 'ontrip'];
+          final validStatuses = [
+            RideStatus.searching,
+            RideStatus.accepted,
+            RideStatus.arrived,
+            RideStatus.started,
+            RideStatus.onTrip,
+          ];
           if (validStatuses.contains(status)) {
             _activeRequests.add(updatedRide);
-            if (status == 'searching') {
+            if (status == RideStatus.searching) {
               _timers[updatedRide.id] = 30;
               _startAlert();
             }
-            if (status != 'searching') {
+            if (status != RideStatus.searching) {
               FFAppState().activeRideId = updatedRide.id;
             }
           }
@@ -178,17 +186,19 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
-      _updateLocalRideStatus(rideId, 'accepted');
+      // update both server and local state
+      _updateRideStatus(rideId, RideStatus.accepted);
       FFAppState().activeRideId = rideId;
     } catch (e) {
       print("Accept Error: $e");
     }
   }
 
-  Future<void> _updateRideStatus(int rideId, String status) async {
+  Future<void> _updateRideStatus(int rideId, RideStatus status) async {
     try {
+      final payload = status.value.toLowerCase();
       await Dio().put("https://ugo-api.icacorp.org/api/rides/$rideId",
-          data: {"ride_status": status, "driver_id": FFAppState().driverid},
+          data: {"ride_status": payload, "driver_id": FFAppState().driverid},
           options: Options(headers: {
             "Authorization": "Bearer ${FFAppState().accessToken}"
           }));
@@ -214,7 +224,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (res.data['success'] == true) {
         setState(() {
           _showOtpOverlay.remove(rideId);
-          _updateLocalRideStatus(rideId, 'started');
+          _updateLocalRideStatus(rideId, 'started' as RideStatus);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid OTP")));
@@ -225,13 +235,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
-  void _updateLocalRideStatus(int rideId, String status) {
+  void _updateLocalRideStatus(int rideId, RideStatus status) {
     setState(() {
       final idx = _activeRequests.indexWhere((r) => r.id == rideId);
       if (idx != -1) {
         _activeRequests[idx] = _activeRequests[idx].copyWith(status: status);
-        if (status == 'arrived') _waitTimers[rideId] = 0;
-        if (status == 'completed') _paymentPendingRides.add(rideId);
+        if (status == RideStatus.arrived) _waitTimers[rideId] = 0;
+        if (status == RideStatus.completed) _paymentPendingRides.add(rideId);
       }
     });
   }
@@ -256,10 +266,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   @override
   Widget build(BuildContext context) {
+    // Guard against a race where the list becomes empty during build.
     if (_activeRequests.isEmpty) return const SizedBox.shrink();
 
-    final ride = _activeRequests.last;
-    final status = ride.status.toLowerCase();
+    // capture into a local variable immediately after the emptiness check.
+    final RideRequest ride = _activeRequests.last;
+    final RideStatus status = ride.status;
 
     if (_showOtpOverlay.contains(ride.id)) {
       if (!_otpControllers.containsKey(ride.id)) {
@@ -272,7 +284,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           ));
     }
 
-    if (_paymentPendingRides.contains(ride.id) || status == 'completed') {
+    if (_paymentPendingRides.contains(ride.id) || status == RideStatus.completed) {
       return Positioned.fill(
         child: Container(
           color: Colors.white,
@@ -296,7 +308,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
 
     switch (status) {
-      case 'searching':
+      case RideStatus.searching:
         return Positioned(
           bottom: 0, left: 0, right: 0,
           child: NewRequestCard(
@@ -307,15 +319,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             driverLocation: widget.driverLocation,
           ),
         );
-      case 'accepted':
+      case RideStatus.accepted:
         return Positioned.fill(
           child: RidePickupOverlay(
             ride: ride,
-            onSwipe: () => _updateRideStatus(ride.id, 'arrived'),
+            onSwipe: () => _updateRideStatus(ride.id, RideStatus.arrived),
             formattedWaitTime: '',
           ),
         );
-      case 'arrived':
+      case RideStatus.arrived:
         return Positioned.fill(
           child: RideBottomOverlay(
             ride: ride,
@@ -325,8 +337,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             onCall: () {},
           ),
         );
-      case 'started':
-      case 'ontrip':
+      case RideStatus.started:
+      case RideStatus.onTrip:
         return Positioned.fill(
           child: RideCompleteOverlay(
             ride: ride,

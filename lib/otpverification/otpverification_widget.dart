@@ -1,4 +1,4 @@
-import 'dart:async'; // ✅ Required for Timer
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
@@ -323,7 +323,6 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         context: context,
         phoneNumber: '+91${widget.mobile}',
         onCodeSent: (context) async {
-          // This callback fires when Firebase successfully sends the SMS
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -373,7 +372,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
       if (phoneVerifiedUser == null) {
         setState(() => _isLoading = false);
-        return; // Auth failed (User likely cancelled or error shown by authManager)
+        return; // Auth failed
       }
 
       // 2. Get FCM Token
@@ -387,20 +386,25 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       );
 
       // 4. Navigate Based on Response
+      // Assuming a success status (200-299) means the user exists.
       if (_model.apiResultk3y?.succeeded ?? false) {
+
         // ✅ EXISTING USER -> Go to Home
         FFAppState().isLoggedIn = true;
         FFAppState().isRegistered = true;
 
-        // Extract Data safely
+        // Safely extract Data (Assuming JSON structure: { "data": { "id": 123, "accessToken": "xyz" } })
+        final jsonResponse = _model.apiResultk3y?.jsonBody ?? '';
+
         FFAppState().driverid = getJsonField(
-          (_model.apiResultk3y?.jsonBody ?? ''),
+          jsonResponse,
           r'''$.data.id''',
         );
+
         FFAppState().accessToken = getJsonField(
-          (_model.apiResultk3y?.jsonBody ?? ''),
+          jsonResponse,
           r'''$.data.accessToken''',
-        ).toString();
+        )?.toString() ?? '';
 
         if (mounted) {
           context.goNamedAuth(
@@ -413,7 +417,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         FFAppState().isRegistered = false;
 
         if (mounted) {
-          context.pushNamedAuth(
+          // Changed from pushNamedAuth to goNamedAuth to prevent back navigation
+          context.goNamedAuth(
             'firstdetails',
             context.mounted,
             queryParameters: {

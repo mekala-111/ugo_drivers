@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../home/ride_request_model.dart';
+import '../models/ride_status.dart';
 
 // --- Main Wrapper Widget ---
 class RideBottomOverlay extends StatelessWidget {
@@ -29,7 +30,7 @@ class RideBottomOverlay extends StatelessWidget {
 
     final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
     final Uri fallbackUrl =
-        Uri.parse("http://googleusercontent.com/maps.google.com/?q=$lat,$lng");
+        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -131,8 +132,8 @@ class StartRideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String status = ride.status.toLowerCase();
-    bool isStarted = status == 'started';
+    // ride.status is now an enum
+    bool isStarted = ride.status == RideStatus.started;
 
     // Button Logic
     String btnText = isStarted ? "COMPLETE RIDE" : "START RIDE";

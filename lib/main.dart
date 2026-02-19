@@ -7,6 +7,7 @@ import 'auth/firebase_auth/firebase_user_provider.dart';
 import 'auth/firebase_auth/auth_util.dart';
 import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
+import 'providers/ride_provider.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
 import 'flutter_flow/firebase_app_check_util.dart';
@@ -26,14 +27,21 @@ void main() async {
   await FlutterFlowTheme.initialize();
 
   final appState = FFAppState();
-  print('MAIN → driverId: ${appState.driverid}');
-  print('MAIN → accessToken: ${appState.accessToken}');
+  // debug prints were leaking sensitive data; only log in debug mode
+  assert(() {
+    print('MAIN → driverId: ${appState.driverid}');
+    print('MAIN → accessToken: ${appState.accessToken}');
+    return true;
+  }());
   await appState.initializePersistedState();
 
   await initializeFirebaseAppCheck();
 
-  runApp(ChangeNotifierProvider.value(
-    value: appState,
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider.value(value: appState),
+      ChangeNotifierProvider(create: (_) => RideState()),
+    ],
     child: MyApp(),
   ));
 }

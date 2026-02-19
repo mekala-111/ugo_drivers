@@ -1,4 +1,4 @@
-package com.ugocabs.drivers
+package com.ugotaxi_rajkumar.driver
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,7 +11,7 @@ import android.provider.Settings
 import androidx.annotation.NonNull
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "com.ugocabs.drivers/floating_bubble"
+    private val CHANNEL = "com.ugotaxi_rajkumar.driver/floating_bubble"
     private lateinit var methodChannel: MethodChannel
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {

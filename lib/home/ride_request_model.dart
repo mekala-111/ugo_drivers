@@ -1,9 +1,11 @@
 
+import '../models/ride_status.dart';
+
 class RideRequest {
   final int id;
   final int userId;
   final int? driverId;
-  final String status;
+  final RideStatus status;
   final String pickupAddress;
   final String dropAddress;
 
@@ -43,7 +45,7 @@ class RideRequest {
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       driverId: json['driver_id'],
-      status: json['ride_status'] ?? 'SEARCHING',
+      status: RideStatusX.fromString(json['ride_status']?.toString()),
 
       // ✅ Name Handling: Checks 'user' object OR root level
       firstName: json['user'] != null
@@ -80,12 +82,13 @@ class RideRequest {
     );
   }
 
-  // ✅ The CopyWith Method (Required for Status Updates)
+
+  /// Provide a copy where the status can be updated either via RideStatus or raw string
   RideRequest copyWith({
     int? id,
     int? userId,
     int? driverId,
-    String? status,
+    RideStatus? status,
     String? pickupAddress,
     String? dropAddress,
     String? firstName,

@@ -4,36 +4,68 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UI ENHANCEMENT with wallets">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UPADTE PACKAGE">
+      <change afterPath="$PROJECT_DIR$/.idea/appInsightsSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_17_02_26,_11_59 am_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_17_02_26__11_59am__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_02_26,_7_34 pm_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_02_26__7_34pm__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_19_02_26,_12_26 am_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_19_02_26,_6_11 pm_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_19_02_26__12_26am__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_19_02_26__6_11pm__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/config.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/models/ride_history_item.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/models/ride_status.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/providers/ride_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/audioplayers_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/device_info_plus" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/file_picker" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/file_selector_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/flutter_local_notifications_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/image_picker_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/share_plus" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/ephemeral/.plugin_symlinks/wakelock_plus" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/macos/Flutter/ephemeral/Flutter-Generated.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/macos/Flutter/ephemeral/flutter_export_environment.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/macos/Podfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ugo_drivers.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ugo_drivers.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/Payments/payments_page_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/Payments/payments_page_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/Payments/payments_page_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/Payments/payments_page_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/ugocabs/drivers/FloatingBubbleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/com/ugocabs/drivers/FloatingBubbleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/profile/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/profile/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner/GoogleService-Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/GoogleService-Info.plist" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/editg_address.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/editg_address.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/auth/firebase_auth/firebase_user_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth/firebase_auth/firebase_user_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/otp_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/otp_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/add_bankAccount/add_bank_account_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/add_bankAccount/add_bank_account_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/active_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/active_ride_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/start_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/start_ride_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/firebase_options.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/firebase_options.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_google_map.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/flutter_flow_google_map.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/history/history_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/history/history_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/ride_request_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/registration_image/registration_image_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/registration_image/registration_image_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/scan_to_book/scan_to_book_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/support/support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/support/support_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/teamearning/teamearning_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamearning/teamearning_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/withdraw/withdraw_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/withdraw/withdraw_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/withdraw/withdraw_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/withdraw/withdraw_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/teamearning/all_orders_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamearning/all_orders_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/teamearning/last_order_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamearning/last_order_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,6 +121,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
+    "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
@@ -208,7 +241,8 @@
     <MESSAGE value="BOOKING FLOW LATEST UPADET and upadte gradel" />
     <MESSAGE value="UI ENHANCEMENT" />
     <MESSAGE value="UI ENHANCEMENT with wallets" />
-    <option name="LAST_COMMIT_MESSAGE" value="UI ENHANCEMENT with wallets" />
+    <MESSAGE value="UPADTE PACKAGE" />
+    <option name="LAST_COMMIT_MESSAGE" value="UPADTE PACKAGE" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -221,7 +255,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart</url>
-          <line>510</line>
+          <line>511</line>
           <option name="timeStamp" value="36" />
         </line-breakpoint>
       </breakpoints>

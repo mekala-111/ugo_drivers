@@ -10,7 +10,11 @@ import 'home_model.dart';
 export 'home_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import './ride_request_overlay.dart';
+import './ride_request_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/ride_provider.dart';
 import './incentive_model.dart';
+import '../flutter_flow/lat_lng.dart' as latlng;
 import '/components/menu_widget.dart';
 
 const String BASE_URL = "https://ugo-api.icacorp.org";
@@ -29,7 +33,9 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-  GlobalKey<RideRequestOverlayState>();
+      GlobalKey<RideRequestOverlayState>();
+  final GlobalKey<FlutterFlowGoogleMapState> _mapKey =
+      GlobalKey<FlutterFlowGoogleMapState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   late IO.Socket socket;
@@ -40,6 +46,10 @@ class _HomeWidgetState extends State<HomeWidget> {
   bool _isTrackingLocation = false;
   DateTime? _lastBackPressed;
   bool _isDataLoaded = false;
+
+  // --- socket init guard ---
+  bool _socketInitialized = false;
+
 
   // Panel States
   bool _isIncentivePanelExpanded = false;
@@ -87,7 +97,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       _initSocket();
     });
 
-    getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
+    getCurrentUserLocation(defaultLocation: const LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
   }
 
@@ -111,6 +121,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
 
     // Extract Name
+    if (!mounted) return;
     if (_model.userDetails?.jsonBody != null) {
       String fetchedName = getJsonField(
         _model.userDetails?.jsonBody,
@@ -118,10 +129,12 @@ class _HomeWidgetState extends State<HomeWidget> {
       ).toString();
 
       if (fetchedName != "null" && fetchedName.isNotEmpty) {
+        if (!mounted) return;
         setState(() => driverName = fetchedName);
       }
     }
 
+    if (!mounted) return;
     String kycStatus = getJsonField(
       (_model.userDetails?.jsonBody ?? ''),
       r'''$.data.kyc_status''',
@@ -133,12 +146,15 @@ class _HomeWidgetState extends State<HomeWidget> {
     ).toString();
 
     bool? isOnline = DriverIdfetchCall.isonline(_model.userDetails?.jsonBody);
+    if (!mounted) return;
     if (isOnline == true) {
       _model.switchValue = true;
+      if (!mounted) return;
       safeSetState(() {});
       _startLocationTracking();
     } else {
       _model.switchValue = false;
+      if (!mounted) return;
       safeSetState(() {});
     }
   }
@@ -183,6 +199,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Future<void> _fetchIncentiveData() async {
     try {
+      if (!mounted) return;
       setState(() => isLoadingIncentives = true);
 
       final response = await GetDriverIncentivesCall.call(
@@ -190,6 +207,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         driverId: FFAppState().driverid,
       );
 
+      if (!mounted) return;
       if (response.succeeded) {
         final incentivesArray = getJsonField(
           response.jsonBody,
@@ -232,10 +250,12 @@ class _HomeWidgetState extends State<HomeWidget> {
         incentiveTiers = [];
       }
     } catch (e) {
-      print('❌ Error fetching incentive data: $e');
-      incentiveTiers = [];
+      if (mounted) {
+        print('❌ Error fetching incentive data: $e');
+        incentiveTiers = [];
+      }
     } finally {
-      setState(() => isLoadingIncentives = false);
+      if (mounted) setState(() => isLoadingIncentives = false);
     }
   }
 
@@ -255,12 +275,15 @@ class _HomeWidgetState extends State<HomeWidget> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         _isTrackingLocation = false;
+        // educate user
+        _showPermissionEducation();
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       _isTrackingLocation = false;
+      _showPermissionEducation();
       return;
     }
 
@@ -395,13 +418,43 @@ class _HomeWidgetState extends State<HomeWidget> {
     _lastSavedPosition = null;
   }
 
+  Future<void> _showPermissionEducation() async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Location Permission Required'),
+        content: const Text(
+            'This app requires location access to track your rides. Please grant location permissions in settings.'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await Geolocator.openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _initSocket() {
+    if (_socketInitialized) return;
+    _socketInitialized = true;
+
     String token = FFAppState().accessToken;
     int driverId = FFAppState().driverid;
     socket = IO.io(
-        'https://ugo-api.icacorp.org',
+        BASE_URL,
         IO.OptionBuilder()
             .setTransports(['websocket'])
+            .enableReconnection()
+            .setReconnectionAttempts(5)
+            .setReconnectionDelay(2000)
             .disableAutoConnect()
             .enableForceNew()
             .setAuth({'token': token})
@@ -411,6 +464,22 @@ class _HomeWidgetState extends State<HomeWidget> {
       print('✅ Socket CONNECTED');
       socket.emit("watch_entity", {"type": "driver", "id": driverId});
     });
+
+    socket.onReconnect((attempt) {
+      print('🔄 Socket reconnected (attempt $attempt)');
+      socket.emit("watch_entity", {"type": "driver", "id": driverId});
+    });
+
+    socket.onReconnectAttempt((attempt) {
+      print('⏳ reconnect attempt $attempt');
+    });
+
+    socket.onConnectError((err) => print('❌ Socket connect error: $err'));
+    socket.onError((err) => print('❌ Socket error: $err'));
+
+    // ensure there are no duplicate handlers
+    socket.off('driver_rides');
+    socket.off('ride_updated');
 
     socket.on('driver_rides', (data) {
       _passDataToOverlay(data);
@@ -430,15 +499,36 @@ class _HomeWidgetState extends State<HomeWidget> {
     void processSingleRide(Map<String, dynamic> rideData) {
       String status =
       (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
-      print("🔄 Processing Status: \"$status\"");
+      // handle cancellation specially so the map/panels reset
+      if (status == 'CANCELLED' || status == 'REJECTED') {
+        if (mounted) {
+          setState(() {
+            _currentRideStatus = 'IDLE';
+          });
+        }
+        _overlayKey.currentState?.removeRideById(rideData['id'] as int);
+        return;
+      }
 
       if (mounted) {
         setState(() {
           _currentRideStatus = status;
         });
       }
+      // update central ride state
+      Provider.of<RideState>(context, listen: false)
+          .updateRide(RideRequest.fromJson(rideData));
 
       _overlayKey.currentState!.handleNewRide(rideData);
+      // also update map with pickup marker
+      try {
+        final rr = RideRequest.fromJson(rideData);
+        final ffm = FlutterFlowMarker(
+          'pickup_${rr.id}',
+          latlng.LatLng(rr.pickupLat, rr.pickupLng),
+        );
+        _mapKey.currentState?.updateMarkers([ffm]);
+      } catch (_) {}
     }
 
     if (data is List) {
@@ -473,11 +563,30 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
 
     if (currentUserLocationValue == null) {
-      return Container(
-        color: Colors.white,
-        child: Center(
-          child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6600))),
+      // location either still loading or permission denied
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.location_off, size: 48, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  'Location not available.\nPlease grant location permission to use the app.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    await Geolocator.openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -521,6 +630,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                     // 1. MAP (ONLY VISIBLE IF ONLINE)
                     if (isOnline)
                       FlutterFlowGoogleMap(
+                        key: _mapKey,
                         controller: _model.googleMapsController,
                         onCameraIdle: (latLng) =>
                         _model.googleMapsCenter = latLng,
@@ -1070,6 +1180,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
   Future<void> _fetchTodayEarnings() async {
     try {
+      if (!mounted) return;
       setState(() => isLoadingEarnings = true);
 
       final response = await DriverEarningsCall.call(
@@ -1078,6 +1189,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         period: "daily",
       );
 
+      if (!mounted) return;
       if (response.succeeded) {
         final data = response.jsonBody['data'];
 
@@ -1092,9 +1204,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         }
       }
     } catch (e) {
-      print("❌ Earnings error: $e");
+      if (mounted) print("❌ Earnings error: $e");
     } finally {
-      setState(() => isLoadingEarnings = false);
+      if (mounted) setState(() => isLoadingEarnings = false);
     }
   }
 

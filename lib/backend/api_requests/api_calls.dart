@@ -3,11 +3,12 @@ import 'package:flutter/foundation.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import 'api_manager.dart';
+import '../../config.dart';
 
 export 'api_manager.dart' show ApiCallResponse;
 
-// 🌐 API Base URL Configuration
-const String _baseUrl = 'https://ugo-api.icacorp.org';
+// 🌐 API Base URL Configuration (dynamic via dart-define or config)
+String get _baseUrl => Config.baseUrl;
 
 class LoginCall {
   static Future<ApiCallResponse> call({
@@ -19,7 +20,7 @@ class LoginCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'login',
-      apiUrl: '$_baseUrl/api/drivers/login',
+      apiUrl: '\${Config.baseUrl}/api/drivers/login',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -56,7 +57,7 @@ class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
-      apiUrl: '$_baseUrl/api/vehicle-types/getall-vehicle',
+      apiUrl: '\${Config.baseUrl}/api/vehicle-types/getall-vehicle',
       callType: ApiCallType.GET,
       headers: {}, // ✅ Clear that no auth needed
       params: {},

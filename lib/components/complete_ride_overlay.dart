@@ -21,8 +21,9 @@ class RideCompleteOverlay extends StatelessWidget {
     }
 
     final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    // fallback browser URL uses proper google maps query parameters
     final Uri browserUrl = Uri.parse(
-        "http://googleusercontent.com/maps.google.com/maps?q=$lat,$lng");
+        "https://www.google.com/maps/search/?api=1&query=$lat,$lng");
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {

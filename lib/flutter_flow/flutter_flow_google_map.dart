@@ -69,6 +69,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
   const FlutterFlowGoogleMap({
     required this.controller,
     this.onCameraIdle,
+    this.onMapCreated,
     this.initialLocation,
     this.markers = const [],
     this.markerColor = GoogleMarkerColor.red,
@@ -90,6 +91,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
 
   final Completer<GoogleMapController> controller;
   final Function(latlng.LatLng)? onCameraIdle;
+  final Function(GoogleMapController)? onMapCreated;
   final latlng.LatLng? initialLocation;
   final Iterable<FlutterFlowMarker> markers;
   final GoogleMarkerColor markerColor;
@@ -108,10 +110,10 @@ class FlutterFlowGoogleMap extends StatefulWidget {
   final bool mapTakesGesturePreference;
 
   @override
-  State<StatefulWidget> createState() => _FlutterFlowGoogleMapState();
+  State<StatefulWidget> createState() => FlutterFlowGoogleMapState();
 }
 
-class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
+class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   double get initialZoom => max(double.minPositive, widget.initialZoom);
   LatLng get initialPosition =>
       widget.initialLocation?.toGoogleMaps() ?? const LatLng(0.0, 0.0);
@@ -119,6 +121,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   late Completer<GoogleMapController> _controller;
   BitmapDescriptor? _markerDescriptor;
   late LatLng currentMapCenter;
+  Set<Marker> _cachedMarkers = {};
 
   void initializeMarkerBitmap() {
     final markerImage = widget.markerImage;
@@ -196,6 +199,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         onMapCreated: (controller) async {
           _controller.complete(controller);
           // ❌ Removed deprecated setMapStyle call
+          widget.onMapCreated?.call(controller);
         },
         // ✅ ADDED: Apply style directly here
         style: googleMapStyleStrings[widget.style],
@@ -213,7 +217,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         compassEnabled: widget.showCompass,
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
-        markers: widget.markers
+        markers: _cachedMarkers.isNotEmpty ? _cachedMarkers : widget.markers
             .map(
               (m) => Marker(
             markerId: MarkerId(m.markerId),
@@ -251,6 +255,31 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       child: googleMapWidget,
     )
         : googleMapWidget;
+  }
+
+  /// Replace the set of markers shown on the map without rebuilding the parent.
+  void updateMarkers(Iterable<FlutterFlowMarker> markers) {
+    final newSet = markers
+        .map((m) => Marker(
+              markerId: MarkerId(m.markerId),
+              position: m.location.toGoogleMaps(),
+              icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
+              onTap: () async {
+                if (widget.centerMapOnMarkerTap) {
+                  final controller = await _controller.future;
+                  await controller.animateCamera(
+                    CameraUpdate.newLatLng(m.location.toGoogleMaps()),
+                  );
+                  currentMapCenter = m.location.toGoogleMaps();
+                  onCameraIdle();
+                }
+                await m.onTap?.call();
+              },
+            ))
+        .toSet();
+    if (!setEquals(newSet, _cachedMarkers)) {
+      setState(() => _cachedMarkers = newSet);
+    }
   }
 }
 

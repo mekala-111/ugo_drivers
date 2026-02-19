@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 
 class FloatingBubbleService {
   static const MethodChannel _channel =
-      MethodChannel('com.ugocabs.drivers/floating_bubble');
+      MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
 
   /// Start the floating bubble service
   static Future<String> startFloatingBubble() async {
