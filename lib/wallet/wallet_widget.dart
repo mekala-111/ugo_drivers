@@ -34,6 +34,7 @@ class _WalletWidgetState extends State<WalletWidget> {
   String? ifscCode;
   String? bankName;
   String? accountHolderName;
+  String? fundAccountId;
   String? walletBalance;
 
   @override
@@ -69,6 +70,7 @@ class _WalletWidgetState extends State<WalletWidget> {
           bankName = BankAccountCall.bankName(response.jsonBody);
           accountHolderName =
               BankAccountCall.accountHolderName(response.jsonBody);
+            fundAccountId = BankAccountCall.fundAccountId(response.jsonBody);
         });
 
         if (kDebugMode) {
@@ -373,6 +375,12 @@ class _WalletWidgetState extends State<WalletWidget> {
                               context.pushNamedAuth(
                                 WithdrawWidget.routeName,
                                 mounted,
+                                extra: {
+                                  'bankAccountNumber': bankAccountNumber,
+                                  'ifscCode': ifscCode,
+                                  'accountHolderName': accountHolderName,
+                                  'fundAccountId': fundAccountId,
+                                },
                                 ignoreRedirect: true,
                               );
                             } else {

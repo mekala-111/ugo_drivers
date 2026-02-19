@@ -903,6 +903,57 @@ class BankAccountCall {
     return value?.toString();
   }
 
+  static String? fundAccountId(dynamic response) {
+    final value = getJsonField(response, r'$.data.fund_account_id');
+    return value?.toString();
+  }
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+}
+
+// 💸 Razorpay Payout (Withdraw) API Call
+class RazorpayPayoutCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required num amount,
+    String? fundAccountId,
+    required String token,
+  }) async {
+    final body = <String, dynamic>{
+      'driver_id': driverId,
+      'amount': amount,
+      if (fundAccountId != null && fundAccountId.isNotEmpty)
+        'fund_account_id': fundAccountId,
+    };
+    final ffApiRequestBody = json.encode(body);
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'razorpayPayout',
+      apiUrl: '$_baseUrl/api/payments/payout',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
   static bool? success(dynamic response) => castToType<bool>(getJsonField(
         response,
         r'$.success',

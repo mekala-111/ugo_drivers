@@ -145,7 +145,24 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: WithdrawWidget.routeName,
           path: WithdrawWidget.routePath,
-          builder: (context, params) => WithdrawWidget(),
+          builder: (context, params) => WithdrawWidget(
+            bankAccountNumber: params.getParam(
+              'bankAccountNumber',
+              ParamType.String,
+            ),
+            ifscCode: params.getParam(
+              'ifscCode',
+              ParamType.String,
+            ),
+            accountHolderName: params.getParam(
+              'accountHolderName',
+              ParamType.String,
+            ),
+            fundAccountId: params.getParam(
+              'fundAccountId',
+              ParamType.String,
+            ),
+          ),
         ),
         FFRoute(
           name: PaymentsPageWidget.routeName,
