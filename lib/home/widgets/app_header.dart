@@ -54,11 +54,14 @@ class AppHeader extends StatelessWidget {
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
-              _tapTarget(
-                onTap: () => context.pushNamed(ScanToBookWidget.routeName),
-                child: Icon(Icons.qr_code, color: Colors.black, size: iconSz),
-                minSize: minTap,
-              ),
+              if (switchValue)
+                _tapTarget(
+                  onTap: () => context.pushNamed(ScanToBookWidget.routeName),
+                  child: Icon(Icons.qr_code, color: Colors.black, size: iconSz),
+                  minSize: minTap,
+                )
+              else
+                SizedBox(width: minTap, height: minTap),
               OnlineToggle(
                 switchValue: switchValue,
                 isDataLoaded: isDataLoaded,

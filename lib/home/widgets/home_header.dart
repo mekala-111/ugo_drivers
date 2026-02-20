@@ -42,10 +42,13 @@ class HomeHeader extends StatelessWidget {
                 onTap: () => scaffoldKey.currentState?.openDrawer(),
                 child: const Icon(Icons.menu, color: Colors.white, size: 28),
               ),
-              InkWell(
-                onTap: () => context.pushNamed(ScanToBookWidget.routeName),
-                child: const Icon(Icons.qr_code, color: Colors.black, size: 24),
-              ),
+              if (switchValue)
+                InkWell(
+                  onTap: () => context.pushNamed(ScanToBookWidget.routeName),
+                  child: const Icon(Icons.qr_code, color: Colors.black, size: 24),
+                )
+              else
+                const SizedBox(width: 48, height: 48),
               OnlineToggle(
                 switchValue: switchValue,
                 isDataLoaded: isDataLoaded,

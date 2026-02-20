@@ -16,7 +16,6 @@ import 'widgets/app_header.dart';
 import 'widgets/bottom_ride_panel.dart';
 import 'widgets/earnings_summary.dart';
 import 'widgets/incentive_panel.dart';
-import 'widgets/location_unavailable_view.dart';
 import 'widgets/offline_dashboard.dart';
 import 'widgets/ride_map.dart';
 
@@ -220,9 +219,9 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
         final shouldShowPanels = !['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
             .contains(c.currentRideStatus.toUpperCase());
 
-        if (c.currentUserLocation == null) {
-          return const LocationUnavailableView();
-        }
+        // Use fallback location when unavailable - avoid blocking home screen
+        final userLocation = c.currentUserLocation ??
+            const LatLng(17.3850, 78.4867); // Default: Hyderabad
 
         return GestureDetector(
           onTap: () {
@@ -269,9 +268,9 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
                           RideMapContainer(
                             mapKey: _mapKey,
                             controller: _model.googleMapsController,
-                            initialLocation: c.currentUserLocation!,
+                            initialLocation: userLocation,
                             onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                            mapCenter: _model.googleMapsCenter ?? c.currentUserLocation,
+                            mapCenter: _model.googleMapsCenter ?? userLocation,
                             availableDriversCount: c.availableDriversCount,
                             showCaptainsPanel: shouldShowPanels,
                           ),
@@ -285,7 +284,7 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
                         BottomRidePanel(
                           overlayKey: _overlayKey,
                           onRideComplete: _onRideComplete,
-                          driverLocation: c.currentUserLocation,
+                          driverLocation: c.currentUserLocation ?? userLocation,
                         ),
                       ],
                     ),
