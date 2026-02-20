@@ -1,4 +1,5 @@
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   late Animation<double> _pulseAnimation;
 
   // Driver Data State
-  String _driverName = "Loading...";
+  String _driverName = 'Loading...';
   bool _isLoading = true;
 
   @override
@@ -57,7 +58,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
 
       if (driverId == 0 || token.isEmpty) {
         setState(() {
-          _driverName = "Guest Driver";
+          _driverName = 'Guest Driver';
           _isLoading = false;
         });
         return;
@@ -70,26 +71,26 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
 
       if (response.succeeded == true || response.statusCode == 200) {
         // ✅ Correctly extract First & Last Name
-        final firstName = getJsonField(response.jsonBody, r'$.data.first_name')?.toString() ?? "";
-        final lastName = getJsonField(response.jsonBody, r'$.data.last_name')?.toString() ?? "";
+        final firstName = getJsonField(response.jsonBody, r'$.data.first_name')?.toString() ?? '';
+        final lastName = getJsonField(response.jsonBody, r'$.data.last_name')?.toString() ?? '';
 
         // Combine them
-        final fullName = "$firstName $lastName".trim();
+        final fullName = '$firstName $lastName'.trim();
 
         setState(() {
-          _driverName = fullName.isNotEmpty ? fullName : "Driver";
+          _driverName = fullName.isNotEmpty ? fullName : 'Driver';
           _isLoading = false;
         });
       } else {
         setState(() {
-          _driverName = "Driver"; // Fallback
+          _driverName = 'Driver'; // Fallback
           _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint("Error fetching driver data: $e");
+      debugPrint('Error fetching driver data: $e');
       setState(() {
-        _driverName = "Driver";
+        _driverName = 'Driver';
         _isLoading = false;
       });
     }
@@ -105,8 +106,8 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
 
     return GestureDetector(
       onTap: () {
@@ -169,7 +170,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                     const SizedBox(height: 10),
 
                     Text(
-                      "Show this code to the passenger",
+                      'Show this code to the passenger',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         color: Colors.white.withValues(alpha:0.9),
@@ -218,7 +219,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                                             size: 60, color: Colors.grey.shade300),
                                         const SizedBox(height: 8),
                                         Text(
-                                          "QR not available",
+                                          'QR not available',
                                           style: TextStyle(color: Colors.grey.shade400),
                                         )
                                       ],
@@ -264,7 +265,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                               color: brandPrimary),
                           const SizedBox(width: 8),
                           Text(
-                            "NAME : $_driverName", // ✅ Dynamic Name
+                            'NAME : $_driverName', // ✅ Dynamic Name
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,

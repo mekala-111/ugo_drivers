@@ -45,7 +45,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
         borderRadius: BorderRadius.circular(0.0),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: InkWell(
           splashColor: Colors.transparent,
           focusColor: Colors.transparent,
@@ -58,7 +58,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
                 child: Container(
                   width: double.infinity,
                   height: 64.0,
@@ -66,7 +66,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                     color: FlutterFlowTheme.of(context).secondaryBackground,
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,7 +90,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                             .bodySmall
                                             .fontStyle,
                                       ),
-                                      color: Color(0xFF6B7280),
+                                      color: AppColors.greyVehicle,
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
@@ -100,7 +100,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                     ),
                               ),
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 2.0, 0.0, 0.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
@@ -116,7 +116,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF111827),
+                                        color: AppColors.textDark,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -146,7 +146,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF111827),
+                                    color: AppColors.textDark,
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
@@ -156,7 +156,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                   ),
                             ),
                             Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
                                   0.0, 2.0, 0.0, 0.0),
                               child: Text(
                                 FFLocalizations.of(context).getText(
@@ -171,7 +171,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                             .bodySmall
                                             .fontStyle,
                                       ),
-                                      color: Color(0xFF6B7280),
+                                      color: AppColors.greyVehicle,
                                       fontSize: 12.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
@@ -183,12 +183,12 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                             ),
                           ],
                         ),
-                        Padding(
+                        const Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               8.0, 0.0, 8.0, 0.0),
                           child: Icon(
                             Icons.chevron_right,
-                            color: Color(0xFF9CA3AF),
+                            color: AppColors.greyLight,
                             size: 22.0,
                           ),
                         ),
@@ -198,14 +198,14 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                 ),
               ),
               Container(
-                decoration: BoxDecoration(),
-                child: Container(
+                decoration: const BoxDecoration(),
+                child: SizedBox(
                   height: 200.0,
                   child: FlutterFlowGoogleMap(
                     controller: _model.googleMapsController,
                     onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
                     initialLocation: _model.googleMapsCenter ??=
-                        LatLng(13.106061, -59.613158),
+                        const LatLng(13.106061, -59.613158),
                     markerColor: GoogleMarkerColor.violet,
                     mapType: MapType.normal,
                     style: GoogleMapStyle.standard,

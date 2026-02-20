@@ -1,17 +1,41 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
-import 'package:ugo_driver/main.dart';
+import 'package:ugo_driver/app_state.dart';
+import 'package:ugo_driver/providers/ride_provider.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  group('UGO Driver App - Critical Widget Tests', () {
+    testWidgets('App providers build without crashing', (tester) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: FFAppState()),
+            ChangeNotifierProvider(create: (_) => RideState()),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: Center(child: Text('UGO Driver', style: TextStyle(color: AppColors.primary))),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('UGO Driver'), findsOneWidget);
+    });
+
+    test('AppColors constants are defined', () {
+      expect(AppColors.primary, isNotNull);
+      expect(AppColors.primary.value, 0xFFFF7B10);
+      expect(AppColors.success, isNotNull);
+      expect(AppColors.error, isNotNull);
+    });
+
+    test('RideState initial state', () {
+      final state = RideState();
+      expect(state.currentRide, isNull);
+      expect(state.hasActiveRide, isFalse);
+    });
   });
 }

@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -58,7 +59,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                 ),
                 child: Padding(
                   padding:
-                      EdgeInsetsDirectional.fromSTEB(16.0, 20.0, 16.0, 0.0),
+                      const EdgeInsetsDirectional.fromSTEB(16.0, 20.0, 16.0, 0.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -78,7 +79,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         },
                       ),
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 0.0, 16.0, 0.0),
                         child: Text(
                           FFLocalizations.of(context).getText(
@@ -108,7 +109,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +120,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         color: FlutterFlowTheme.of(context).secondaryBackground,
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             24.0, 16.0, 24.0, 16.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -158,7 +159,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              ].divide(SizedBox(width: 16.0)),
+                              ].divide(const SizedBox(width: 16.0)),
                             ),
                             Icon(
                               Icons.chevron_right,
@@ -169,10 +170,10 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         ),
                       ),
                     ),
-                    Divider(
+                    const Divider(
                       height: 1.0,
                       thickness: 1.0,
-                      color: Color(0xFFE0E0E0),
+                      color: AppColors.greyBorderLight,
                     ),
                     Container(
                       width: double.infinity,
@@ -180,7 +181,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         color: FlutterFlowTheme.of(context).secondaryBackground,
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             24.0, 16.0, 24.0, 16.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -219,7 +220,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              ].divide(SizedBox(width: 16.0)),
+                              ].divide(const SizedBox(width: 16.0)),
                             ),
                             Icon(
                               Icons.chevron_right,
@@ -230,10 +231,10 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         ),
                       ),
                     ),
-                    Divider(
+                    const Divider(
                       height: 1.0,
                       thickness: 1.0,
-                      color: Color(0xFFE0E0E0),
+                      color: AppColors.greyBorderLight,
                     ),
                     Container(
                       width: double.infinity,
@@ -241,7 +242,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         color: FlutterFlowTheme.of(context).secondaryBackground,
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             24.0, 16.0, 24.0, 16.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -280,7 +281,7 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              ].divide(SizedBox(width: 16.0)),
+                              ].divide(const SizedBox(width: 16.0)),
                             ),
                             Icon(
                               Icons.chevron_right,
@@ -291,12 +292,12 @@ class _SavedAddWidgetState extends State<SavedAddWidget> {
                         ),
                       ),
                     ),
-                    Divider(
+                    const Divider(
                       height: 1.0,
                       thickness: 1.0,
-                      color: Color(0xFFE0E0E0),
+                      color: AppColors.greyBorderLight,
                     ),
-                  ].divide(SizedBox(height: 0.0)),
+                  ].divide(const SizedBox(height: 0.0)),
                 ),
               ),
             ],

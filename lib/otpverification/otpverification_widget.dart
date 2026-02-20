@@ -5,6 +5,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'otpverification_model.dart';
@@ -49,13 +50,15 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
+    _resendTimer = null;
     _model.dispose();
-    _resendTimer?.cancel(); // ✅ Cancel timer on exit
     super.dispose();
   }
 
   // ✅ Start Countdown Timer
   void _startResendTimer() {
+    if (!mounted) return;
     setState(() {
       _timerSeconds = 30;
       _canResend = false;
@@ -63,14 +66,14 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
     _resendTimer?.cancel();
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_timerSeconds > 0) {
-        setState(() {
-          _timerSeconds--;
-        });
+        if (mounted) setState(() => _timerSeconds--);
       } else {
-        setState(() {
-          _canResend = true;
-        });
+        if (mounted) setState(() => _canResend = true);
         timer.cancel();
       }
     });
@@ -80,19 +83,19 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
   Future<String> _getSafeFcmToken() async {
     try {
       String? token = await FirebaseMessaging.instance.getToken();
-      return token ?? "temp_token_${DateTime.now().millisecondsSinceEpoch}";
+      return token ?? 'temp_token_${DateTime.now().millisecondsSinceEpoch}';
     } catch (e) {
-      print("FCM Token Error: $e");
-      return "error_token";
+      if (kDebugMode) debugPrint('FCM Token Error: $e');
+      return 'error_token';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // 🎨 DRIVER APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () {
@@ -129,17 +132,17 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                     )
                   ],
                 ),
-                child: SafeArea(
+                child: const SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    padding: EdgeInsets.symmetric(horizontal: 24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
-                        const Spacer(),
+                        SizedBox(height: 20),
+                        Spacer(),
                         Center(
-                          child: const Text(
-                            "Verification",
+                          child: Text(
+                            'Verification',
                             style: TextStyle(
                               fontSize: 30,
                               color: Colors.white70,
@@ -147,10 +150,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Center(
-                          child: const Text(
-                            "Enter the code we sent you.",
+                          child: Text(
+                            'Enter the code we sent you.',
                             style: TextStyle(
                               fontSize: 26,
                               color: Colors.white,
@@ -159,7 +162,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 60),
+                        SizedBox(height: 60),
                       ],
                     ),
                   ),
@@ -191,7 +194,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       child: Column(
                         children: [
                           Text(
-                            "Enter the 6-digit OTP sent to\n+91 ${widget.mobile}",
+                            'Enter the 6-digit OTP sent to\n+91 ${widget.mobile}',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
                               fontSize: 14,
@@ -229,8 +232,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                               inactiveColor: Colors.grey[200]!,
                               selectedColor: brandPrimary,
                               activeFillColor: Colors.white,
-                              selectedFillColor: const Color(0xFFFFF3E0),
-                              inactiveFillColor: const Color(0xFFFAFAFA),
+                              selectedFillColor: AppColors.sectionOrange,
+                              inactiveFillColor: AppColors.backgroundCard,
                             ),
                             controller: _model.pinCodeController,
                             onChanged: (_) {},
@@ -264,7 +267,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                                 ),
                               )
                                   : Text(
-                                "Verify & Continue",
+                                'Verify & Continue',
                                 style: GoogleFonts.interTight(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -288,8 +291,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                                 onTap: _canResend ? _handleResendOtp : null,
                                 child: Text(
                                   _canResend
-                                      ? "Resend"
-                                      : "Resend in $_timerSeconds s",
+                                      ? 'Resend'
+                                      : 'Resend in $_timerSeconds s',
                                   style: TextStyle(
                                     color: _canResend ? brandPrimary : Colors.grey,
                                     fontWeight: FontWeight.bold,
@@ -336,7 +339,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         },
       );
     } catch (e) {
-      print("Resend Error: $e");
+      if (kDebugMode) debugPrint('Resend Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to resend OTP'), backgroundColor: Colors.red),
@@ -380,9 +383,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       FFAppState().fcmToken = fcmToken;
       FFAppState().mobileNo = widget.mobile!;
 
-      // 3. Call Backend to Check User Existence
+      // 3. Call Backend to Check User Existence (include FCM token for push notifications)
       _model.apiResultk3y = await LoginCall.call(
         mobile: widget.mobile,
+        fcmToken: fcmToken,
       );
 
       // 4. Navigate Based on Response
@@ -431,7 +435,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         }
       }
     } catch (e) {
-      print("Error: $e");
+      if (kDebugMode) debugPrint('Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

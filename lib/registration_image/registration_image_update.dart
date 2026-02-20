@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -265,15 +266,15 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
               isError ? Icons.error_outline : Icons.check_circle_outline,
               color: Colors.white,
             ),
-            SizedBox(width: 12),
-            Expanded(child: Text(message, style: TextStyle(fontSize: 14))),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message, style: const TextStyle(fontSize: 14))),
           ],
         ),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: EdgeInsets.all(16),
-        duration: Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -300,24 +301,24 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
           BoxShadow(
             color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: Color(0xFFFF8C00), size: 20),
-              SizedBox(width: 8),
+              Icon(icon, color: AppColors.registrationOrange, size: 20),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600)),
                     Text(subtitle,
                         style:
@@ -327,15 +328,15 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           GestureDetector(
             onTap: onTap,
             child: Container(
               width: double.infinity,
               height: 180.0,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFF8F9FA), Color(0xFFE9ECEF)],
+                gradient: const LinearGradient(
+                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -343,7 +344,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? Color(0xFFFF8C00) : Colors.grey[300]!),
+                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
                   width: 2,
                 ),
               ),
@@ -377,7 +378,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                                   loadingProgress
                                                       .expectedTotalBytes!
                                               : null,
-                                      color: Color(0xFFFF8C00),
+                                      color: AppColors.registrationOrange,
                                     ),
                                   );
                                 },
@@ -387,23 +388,23 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.all(16),
+                                      padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color:
-                                            Color(0xFFFF8C00).withValues(alpha:0.1),
+                                            AppColors.registrationOrange.withValues(alpha:0.1),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(Icons.add_a_photo,
-                                          size: 40, color: Color(0xFFFF8C00)),
+                                      child: const Icon(Icons.add_a_photo,
+                                          size: 40, color: AppColors.registrationOrange),
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     Text(
                                       'Tap to upload $title',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text('Camera or Gallery',
                                         style: TextStyle(
                                             fontSize: 12,
@@ -420,11 +421,11 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         color: Colors.black.withValues(alpha:0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: Color(0xFFFF8C00)),
+                            CircularProgressIndicator(color: AppColors.registrationOrange),
                             SizedBox(height: 16),
                             Text(
                               'Reading Registration Number...',
@@ -441,7 +442,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                   if (hasImage && isValid)
                     Center(
                       child: CustomPaint(
-                        size: Size(120, 120),
+                        size: const Size(120, 120),
                         painter: VerifiedStampPainter(),
                       ),
                     ),
@@ -452,7 +453,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                       child: GestureDetector(
                         onTap: onRemove,
                         child: Container(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: Colors.red,
                             shape: BoxShape.circle,
@@ -460,12 +461,12 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                               BoxShadow(
                                 color: Colors.black.withValues(alpha:0.2),
                                 blurRadius: 4,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
                           child:
-                              Icon(Icons.close, color: Colors.white, size: 18),
+                              const Icon(Icons.close, color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -475,7 +476,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
           ),
           if (hasImage)
             Padding(
-              padding: EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 12),
               child: Row(
                 children: [
                   Icon(
@@ -483,7 +484,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                     size: 14,
                     color: isValid ? Colors.green : Colors.orange,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       isValid ? '✓ Verified and uploaded' : 'Image uploaded',
@@ -508,12 +509,12 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF5F7FA),
+        backgroundColor: AppColors.backgroundAlt,
         appBar: AppBar(
           flexibleSpace: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFFF8C00), Color(0xFFFF6B00)],
+                colors: [AppColors.registrationOrange, AppColors.accentCoral],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -524,10 +525,10 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
             borderRadius: 30.0,
             buttonSize: 60.0,
             icon:
-                Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30.0),
+                const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30.0),
             onPressed: () => context.pop(),
           ),
-          title: Row(
+          title: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.description, color: Colors.white, size: 24),
@@ -550,7 +551,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -558,31 +559,31 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                     children: [
                       // Header
                       Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFFF8C00).withValues(alpha:0.1),
-                              Color(0xFFFF6B00).withValues(alpha:0.05)
+                              AppColors.registrationOrange.withValues(alpha:0.1),
+                              AppColors.accentCoral.withValues(alpha:0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Color(0xFFFF8C00).withValues(alpha:0.2),
+                                color: AppColors.registrationOrange.withValues(alpha:0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(Icons.description,
-                                  color: Color(0xFFFF8C00), size: 32),
+                              child: const Icon(Icons.description,
+                                  color: AppColors.registrationOrange, size: 32),
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
+                            const SizedBox(width: 16),
+                            const Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -596,7 +597,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                   Text(
                                     'Both sides required',
                                     style: TextStyle(
-                                        fontSize: 13, color: Color(0xFF666666)),
+                                        fontSize: 13, color: AppColors.greyMedium),
                                   ),
                                 ],
                               ),
@@ -605,7 +606,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         ),
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // Front Side
                       _buildImageCard(
@@ -677,7 +678,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Back Side
                       _buildImageCard(
@@ -742,7 +743,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         },
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // Registration Number Input
                       Container(
@@ -753,29 +754,29 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             BoxShadow(
                               color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 10,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.confirmation_number,
-                                    color: Color(0xFFFF8C00), size: 20),
-                                SizedBox(width: 8),
-                                Text('Registration Number',
+                                const Icon(Icons.confirmation_number,
+                                    color: AppColors.registrationOrange, size: 20),
+                                const SizedBox(width: 8),
+                                const Text('Registration Number',
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
                                 if (_registrationNumberController
                                     .text.isNotEmpty)
                                   Padding(
-                                    padding: EdgeInsets.only(left: 8),
+                                    padding: const EdgeInsets.only(left: 8),
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: Colors.green.withValues(alpha:0.1),
@@ -783,7 +784,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                         border: Border.all(
                                             color: Colors.green, width: 1),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.check_circle,
@@ -800,7 +801,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                   ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             TextFormField(
                               controller: _registrationNumberController,
                               textCapitalization: TextCapitalization.characters,
@@ -812,14 +813,14 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                               decoration: InputDecoration(
                                 hintText: 'DL03CW3121',
                                 hintStyle: TextStyle(color: Colors.grey[400]),
-                                prefixIcon: Icon(Icons.directions_car,
-                                    color: Color(0xFFFF8C00)),
+                                prefixIcon: const Icon(Icons.directions_car,
+                                    color: AppColors.registrationOrange),
                                 suffixIcon: _isRegNumberValid
-                                    ? Icon(Icons.check_circle,
+                                    ? const Icon(Icons.check_circle,
                                         color: Colors.green)
                                     : null,
                                 filled: true,
-                                fillColor: Color(0xFFF8F9FA),
+                                fillColor: AppColors.backgroundLight,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
@@ -832,12 +833,12 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFFFF8C00), width: 2),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.registrationOrange, width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red),
+                                  borderSide: const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: _validateRegistrationNumber,
@@ -854,12 +855,12 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                 }
                               },
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Row(
                               children: [
                                 Icon(Icons.info_outline,
                                     size: 14, color: Colors.grey[600]),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     _registrationNumberController.text.isEmpty
@@ -880,24 +881,24 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         ),
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // Guidelines
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFF4E6),
+                          color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
-                                    color: Color(0xFFFF8C00), size: 20),
+                                    color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
                                 Text('Important Guidelines',
                                     style: TextStyle(
@@ -905,7 +906,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                         fontWeight: FontWeight.w600)),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             _buildGuideline('Upload both front and back sides'),
                             _buildGuideline(
                                 'Registration number must be clearly visible'),
@@ -919,7 +920,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         ),
                       ),
 
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
                       // Submit Button
                       FFButtonWidget(
@@ -969,17 +970,17 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             print('✅ RC data saved');
                             _showSnackBar('Registration certificate uploaded!');
 
-                            await Future.delayed(Duration(milliseconds: 500));
+                            await Future.delayed(const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
                         text: 'Submit',
-                        icon: Icon(Icons.arrow_forward, size: 20),
+                        icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,
                           height: 56.0,
-                          color: Color(0xFFFF8C00),
-                          textStyle: TextStyle(
+                          color: AppColors.registrationOrange,
+                          textStyle: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -1001,15 +1002,15 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
   Widget _buildGuideline(String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.arrow_right, size: 18, color: Color(0xFFFF8C00)),
-          SizedBox(width: 4),
+          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const SizedBox(width: 4),
           Expanded(
               child: Text(text,
-                  style: TextStyle(fontSize: 13, color: Color(0xFF666666)))),
+                  style: const TextStyle(fontSize: 13, color: AppColors.greyMedium))),
         ],
       ),
     );
@@ -1024,7 +1025,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = Color(0xFF2E7D32).withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha:0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1054,18 +1055,18 @@ class VerifiedStampPainter extends CustomPainter {
     canvas.drawPath(path, outerPaint);
 
     final innerCirclePaint = Paint()
-      ..color = Color(0xFF2E7D32)
+      ..color = AppColors.successDark
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawCircle(center, radius - 12, innerCirclePaint);
 
     final bannerY = center.dy;
-    final bannerHeight = 28.0;
+    const bannerHeight = 28.0;
     final bannerWidth = size.width * 0.85;
     final bannerLeft = center.dx - bannerWidth / 2;
 
     final ribbonPaint = Paint()
-      ..color = Color(0xFF1976D2)
+      ..color = AppColors.info
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(
@@ -1074,7 +1075,7 @@ class VerifiedStampPainter extends CustomPainter {
     );
 
     final textPainter = TextPainter(
-      text: TextSpan(
+      text: const TextSpan(
         text: 'VERIFIED',
         style: TextStyle(
             color: Colors.white,

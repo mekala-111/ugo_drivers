@@ -55,7 +55,7 @@ class _RidecheckWidgetState extends State<RidecheckWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -81,12 +81,12 @@ class _RidecheckWidgetState extends State<RidecheckWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -170,8 +170,8 @@ class _RidecheckWidgetState extends State<RidecheckWidget> {
                       ),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 24.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 24.0)),
             ),
           ),
         ),

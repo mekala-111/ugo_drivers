@@ -8,7 +8,6 @@ import 'choose_vehicle_model.dart';
 export 'choose_vehicle_model.dart';
 
 // ✅ Ensure OnBoardingWidget is accessible
-import '/on_boarding/on_boarding_widget.dart';
 
 class ChooseVehicleWidget extends StatefulWidget {
   const ChooseVehicleWidget({
@@ -52,9 +51,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   @override
   Widget build(BuildContext context) {
     // 🎨 APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () {
@@ -90,17 +89,17 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                   )
                 ],
               ),
-              child: SafeArea(
+              child: const SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 16),
-                      const Spacer(),
+                      SizedBox(height: 16),
+                      Spacer(),
                       Center(
-                        child: const Text(
-                          "Vehicle Type",
+                        child: Text(
+                          'Vehicle Type',
                           style: TextStyle(
                             fontSize: 28,
                             color: Colors.white70,
@@ -108,9 +107,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        "How do you want to earn?",
+                      SizedBox(height: 4),
+                      Text(
+                        'How do you want to earn?',
                         style: TextStyle(
                           fontSize: 28,
                           color: Colors.white,
@@ -118,7 +117,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                           height: 1.1,
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -150,7 +149,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                     builder: (context, snapshot) {
                       // LOADING
                       if (!snapshot.hasData) {
-                        return Center(
+                        return const Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(brandPrimary),
                           ),
@@ -194,7 +193,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                 vehicleName = getJsonField(item, r'$["name"]')?.toString() ?? '';
                               }
 
-                              if (vehicleName.isEmpty) vehicleName = "Unknown";
+                              if (vehicleName.isEmpty) vehicleName = 'Unknown';
 
                               final isSelected =
                                   FFAppState().selectvehicle == vehicleName;
@@ -264,7 +263,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                     disabledBackgroundColor: Colors.grey[300],
                   ),
                   child: Text(
-                    "Continue",
+                    'Continue',
                     style: GoogleFonts.interTight(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -349,14 +348,14 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
           Icon(Icons.cloud_off, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            "Failed to load vehicles",
+            'Failed to load vehicles',
             style: GoogleFonts.inter(color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
           TextButton(
             onPressed: () => setState(() {}),
             child: Text(
-              "Retry",
+              'Retry',
               style: TextStyle(color: color, fontWeight: FontWeight.bold),
             ),
           )

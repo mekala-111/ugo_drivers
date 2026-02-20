@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
+
 import '/backend/api_requests/api_calls.dart';
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -148,7 +151,7 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
         );
       }
 
-      debugPrint('📥 Weekly response: ${res.statusCode} | ${res.jsonBody}');
+      if (kDebugMode) debugPrint('📥 Weekly response: ${res.statusCode}');
       setState(() {
         _weeklyList = res.succeeded
             ? DriverIncentivesCall.incentiveList(res.jsonBody)
@@ -173,7 +176,7 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
         type: 'monthly',
       );
 
-      debugPrint('📥 Monthly response: ${res.statusCode} | ${res.jsonBody}');
+      if (kDebugMode) debugPrint('📥 Monthly response: ${res.statusCode}');
       setState(() {
         _monthlyList = res.succeeded
             ? DriverIncentivesCall.incentiveList(res.jsonBody)
@@ -197,7 +200,7 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: AppColors.backgroundAlt,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -207,13 +210,13 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
         ),
         title: Text('Incentives',
             style: GoogleFonts.inter(
-                color: const Color(0xFF1E293B),
+                color: AppColors.textDark,
                 fontSize: 20,
                 fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Container(
-            color: const Color(0xFFF3A739),
+            color: AppColors.accentAmber,
             child: TabBar(
               controller: _tabController,
               indicatorColor: Colors.white,
@@ -297,7 +300,7 @@ class _DailyTab extends StatelessWidget {
           child: isLoading
               ? const _Loader()
               : RefreshIndicator(
-                  color: const Color(0xFFF3A739),
+                  color: AppColors.accentAmber,
                   onRefresh: () async => onDateSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -357,7 +360,7 @@ class _WeeklyTab extends StatelessWidget {
           child: isLoading
               ? const _Loader()
               : RefreshIndicator(
-                  color: const Color(0xFFF3A739),
+                  color: AppColors.accentAmber,
                   onRefresh: () async => onRangeSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -413,7 +416,7 @@ class _MonthlyTab extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF9A4D), Color(0xFFFF7B10)],
+                      colors: [AppColors.primaryLight, AppColors.primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -505,7 +508,7 @@ class _IncentiveCard extends StatelessWidget {
     final String endTime =
         DriverIncentivesCall.itemEndTime(item);
 
-    const Color orange = Color(0xFFF3A739);
+    const Color orange = AppColors.accentAmber;
     final Color grey = Colors.grey.shade300;
     final double progress = targetRides > 0
         ? (completedRides / targetRides).clamp(0.0, 1.0)
@@ -669,7 +672,7 @@ class _DateSelectorBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3A739),
+      color: AppColors.accentAmber,
       height: 80,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -696,7 +699,7 @@ class _DateSelectorBar extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(25),
                             border: Border.all(
-                                color: const Color(0xFFFF8900),
+                                color: AppColors.registrationOrange,
                                 width: 2),
                           ),
                           child: Column(
@@ -754,7 +757,7 @@ class _WeekSelectorBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3A739),
+      color: AppColors.accentAmber,
       height: 80,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -781,7 +784,7 @@ class _WeekSelectorBar extends StatelessWidget {
                             color: Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: const Color(0xFFFF8900),
+                                color: AppColors.registrationOrange,
                                 width: 2),
                           ),
                           child: Column(
@@ -829,7 +832,7 @@ class _Loader extends StatelessWidget {
   const _Loader();
   @override
   Widget build(BuildContext context) => const Center(
-      child: CircularProgressIndicator(color: Color(0xFFF3A739)));
+      child: CircularProgressIndicator(color: AppColors.accentAmber));
 }
 
 class _EmptyState extends StatelessWidget {

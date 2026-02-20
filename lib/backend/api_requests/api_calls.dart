@@ -13,14 +13,16 @@ String get _baseUrl => Config.baseUrl;
 class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
+    String? fcmToken,
   }) async {
-    final ffApiRequestBody = '''
-{
-  "mobile_number": "${mobile}"
-}''';
+    final body = <String, dynamic>{
+      'mobile_number': mobile?.toString() ?? '',
+      if (fcmToken != null && fcmToken.isNotEmpty) 'fcm_token': fcmToken,
+    };
+    final ffApiRequestBody = json.encode(body);
     return ApiManager.instance.makeApiCall(
       callName: 'login',
-      apiUrl: '\${Config.baseUrl}/api/drivers/login',
+      apiUrl: '$_baseUrl/api/drivers/login',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -57,7 +59,7 @@ class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
       callName: 'choosevehicle',
-      apiUrl: '\${Config.baseUrl}/api/vehicle-types/getall-vehicle',
+      apiUrl: '$_baseUrl/api/vehicle-types/getall-vehicle',
       callType: ApiCallType.GET,
       headers: {}, // ✅ Clear that no auth needed
       params: {},
@@ -123,6 +125,43 @@ class ChoosevehicleCall {
           .toList();
 }
 
+/// Get all drivers - used for showing available captains (like Rapido).
+/// Filters by is_online & is_active for "available drivers".
+class GetAllDriversCall {
+  static Future<ApiCallResponse> call({String? token}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getAllDrivers',
+      apiUrl: '$_baseUrl/api/drivers/getall',
+      callType: ApiCallType.GET,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<dynamic>? data(dynamic response) =>
+      getJsonField(response, r'$.data', true) as List?;
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  /// Returns drivers that are online and active (available for rides)
+  static List<dynamic> availableDrivers(dynamic response) {
+    final list = data(response) ?? [];
+    return list
+        .where((d) =>
+            (d is Map && d['is_online'] == true && d['is_active'] == true))
+        .toList();
+  }
+}
+
 class CreateDriverCall {
   static Future<ApiCallResponse> call({
     FFUploadedFile? profileimage,
@@ -147,16 +186,7 @@ class CreateDriverCall {
 
     final vehicle = _serializeJson(vehicleJson);
 
-    print("🚀 CreateDriver API Request}");
-    print("🚀 CreateDriver API Request");
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    print("📍 URL: $_baseUrl/api/drivers/signup-with-vehicle");
-    print("📦 Body Type: ${BodyType.MULTIPART}");
-    print("\n📄 FORM FIELDS:");
-    print("  • driver: $driver");
-    print("  • vehicle: $vehicle");
-    print("  • fcm_token: $fcmToken");
-
+    // Do not log request body - may contain PII (driver, vehicle, tokens)
     return ApiManager.instance.makeApiCall(
       callName: 'createDriver',
       apiUrl: '$_baseUrl/api/drivers/signup-with-vehicle',
@@ -220,6 +250,45 @@ class DeleteDriverCall {
   }
 }
 
+class CancelRideCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    String? cancellationReason,
+    String? token = '',
+    String? cancelledBy = 'driver',
+  }) async {
+    final ffApiRequestBody = '''
+{
+  "ride_id": $rideId,
+  "cancellation_reason": "${escapeStringForJson(cancellationReason ?? '')}",
+  "cancelled_by": "${escapeStringForJson(cancelledBy ?? 'driver')}"
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'cancelRide',
+      apiUrl: '$_baseUrl/api/rides/rides/cancel',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
 class CompleteRideCall {
   static Future<ApiCallResponse> call({
     required int rideId,
@@ -256,6 +325,24 @@ class CompleteRideCall {
         response,
         r'''$.message''',
       ));
+  static dynamic data(dynamic response) => getJsonField(response, r'$.data');
+  static double? finalFare(dynamic response) {
+    final d = data(response);
+    if (d is Map) {
+      final v = d['final_fare'] ?? d['ride_amount'] ?? d['amount'] ?? d['fare'];
+      if (v != null && v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+    }
+    return null;
+  }
+  static String? paymentMode(dynamic response) {
+    final d = data(response);
+    if (d is Map) {
+      final v = d['payment_mode'] ?? d['payment_method'] ?? d['payment_type'];
+      return v?.toString();
+    }
+    return null;
+  }
 }
 
 class UpdateDriverCall {
@@ -265,6 +352,7 @@ class UpdateDriverCall {
     bool? isonline,
     double? latitude,
     double? longitude,
+    String? fcmToken,
     String? firstName,
     String? lastName,
     FFUploadedFile? profileimage,
@@ -291,6 +379,10 @@ class UpdateDriverCall {
 
     if (longitude != null) {
       params['current_location_longitude'] = longitude.toString();
+    }
+
+    if (fcmToken != null && fcmToken.isNotEmpty) {
+      params['fcm_token'] = fcmToken;
     }
     
     if (profileimage != null) {
@@ -337,10 +429,10 @@ class UpdateDriverCall {
       params['pollution_certificate_image'] = pollutionCertificateImage;
     }
 
-    print("🚀 UpdateDriver API Request:");
-    print("   URL: $_baseUrl/api/drivers/$id");
-    print("   Token: ${token?.substring(0, 20)}...");
-    print("   Params: $params");
+    print('🚀 UpdateDriver API Request:');
+    print('   URL: $_baseUrl/api/drivers/$id');
+    print('   Token: ${token?.substring(0, 20)}...');
+    print('   Params: $params');
 
     final response = await ApiManager.instance.makeApiCall(
       callName: 'updateDriver',
@@ -358,11 +450,6 @@ class UpdateDriverCall {
       isStreamingApi: false,
       alwaysAllowBody: false,
     );
-
-    print("📥 UpdateDriver API Response:");
-    print("   Status: ${response.statusCode}");
-    print("   Success: ${response.succeeded}");
-    print("   Body: ${response.jsonBody}");
 
     return response;
   }
@@ -385,10 +472,10 @@ class DriverIdfetchCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'driverIdfetch',
-      apiUrl: '$_baseUrl/api/drivers/${id}',
+      apiUrl: '$_baseUrl/api/drivers/$id',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer ${token}',
+        'Authorization': 'Bearer $token',
       },
       params: {},
       returnBody: true,
@@ -565,14 +652,14 @@ class PostQRcodeCall {
   }) async {
     final ffApiRequestBody = '''
 {
-  "driver_id":${driverId}
+  "driver_id":$driverId
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'postQRcode',
       apiUrl: '$_baseUrl/api/qr-codes/generate',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization': 'Bearer ${token}',
+        'Authorization': 'Bearer $token',
       },
       params: {},
       body: ffApiRequestBody,
@@ -854,7 +941,7 @@ String _serializeJson(dynamic jsonVar, [bool isList = false]) {
     return json.encode(jsonVar, toEncodable: _toEncodable);
   } catch (_) {
     if (kDebugMode) {
-      print("Json serialization failed. Returning empty json.");
+      print('Json serialization failed. Returning empty json.');
     }
     return isList ? '[]' : '{}';
   }
@@ -1020,16 +1107,13 @@ class AddBankAccountCall {
   }) async {
     final ffApiRequestBody = '''
 {
-  "driver_id": ${driverId},
-  "bank_account_number": "${bankAccountNumber}",
-  "bank_ifsc_code": "${bankIfscCode}",
-  "bank_holder_name": "${bankHolderName}"
+  "driver_id": $driverId,
+  "bank_account_number": "$bankAccountNumber",
+  "bank_ifsc_code": "$bankIfscCode",
+  "bank_holder_name": "$bankHolderName"
 }''';
 
-    print("🚀 AddBankAccount API Request:");
-    print("📍 URL: $_baseUrl/api/drivers/bank-account");
-    print("📦 Body: $ffApiRequestBody");
-
+    // Do not log body - contains bank account details
     return ApiManager.instance.makeApiCall(
       callName: 'addBankAccount',
       apiUrl: '$_baseUrl/api/drivers/bank-account',
@@ -1076,13 +1160,13 @@ class AddBankAccountCall {
       );
 }
 
-// Razorpay Bank Account Validation
+// Razorpay Bank Account Validation (IFSC lookup - no auth needed)
 class RazorpayBankValidationCall {
   static Future<ApiCallResponse> call({
     String? ifscCode,
     String? accountNumber,
-    String? razorpayKeyId = 'rzp_test_SAvHgTPEoPnNo7',
-    String? razorpayKeySecret = 'mpSkf5lOQxSjcPAmzl4T54mv',
+    String? razorpayKeyId,
+    String? razorpayKeySecret,
   }) async {
     // Validate IFSC using free Razorpay IFSC API (no auth needed)
     // This will return bank details from the IFSC code
@@ -1152,11 +1236,51 @@ class DriverRideHistoryCall {
   static dynamic data(dynamic response) =>
       getJsonField(response, r'''$.data''');
 
-  static List rides(dynamic response) =>
-      getJsonField(response, r'''$.data.rides''') ?? [];
+  /// Full data.tabs object
+  static dynamic tabs(dynamic response) =>
+      getJsonField(response, r'''$.data.tabs''');
 
-  static String? totalEarnings(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.data.total_earnings'''));
+  /// Completed rides: data.tabs.completed.rides
+  static List<dynamic> completedRides(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.completed.rides''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Cancelled rides: data.tabs.cancelled.rides
+  static List<dynamic> cancelledRides(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.cancelled.rides''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Missed rides: data.tabs.missed.rides
+  static List<dynamic> missedRides(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.missed.rides''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Summary: data.summary (totalCompletedRides, totalEarnings, etc.)
+  static Map<String, dynamic>? summary(dynamic response) =>
+      getJsonField(response, r'''$.data.summary''') as Map<String, dynamic>?;
+
+  /// Total earnings from summary (INR)
+  static int? totalEarnings(dynamic response) {
+    final s = summary(response);
+    if (s != null && s['totalEarnings'] != null) {
+      final v = s['totalEarnings'];
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse(v.toString());
+    }
+    return null;
+  }
+
+  /// All rides combined (completed + cancelled + missed) - for backwards compat
+  static List rides(dynamic response) {
+    final completed = completedRides(response);
+    final cancelled = cancelledRides(response);
+    final missed = missedRides(response);
+    return [...completed, ...cancelled, ...missed];
+  }
 }
 
 // 📅 DAILY INCENTIVES
@@ -1311,7 +1435,7 @@ class VehiclePricingCall {
 
     if (path == null) return null;
 
-    if (path.startsWith("/")) {
+    if (path.startsWith('/')) {
       return '$_baseUrl$path';
     }
 

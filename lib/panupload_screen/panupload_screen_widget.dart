@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -177,11 +178,11 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
               isError ? Icons.error_outline : Icons.check_circle_outline,
               color: Colors.white,
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
           ],
@@ -189,8 +190,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: EdgeInsets.all(16),
-        duration: Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -216,18 +217,18 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
           BoxShadow(
             color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: Color(0xFFFF8C00), size: 20),
-              SizedBox(width: 8),
+              Icon(icon, color: AppColors.registrationOrange, size: 20),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,15 +250,15 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           GestureDetector(
             onTap: onTap,
             child: Container(
               width: double.infinity,
               height: 200.0,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFF8F9FA), Color(0xFFE9ECEF)],
+                gradient: const LinearGradient(
+                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -265,7 +266,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? Color(0xFFFF8C00) : Colors.grey[300]!),
+                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
                   width: 2,
                   style: BorderStyle.solid,
                 ),
@@ -301,12 +302,12 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                                   loadingProgress
                                                       .expectedTotalBytes!
                                               : null,
-                                      color: Color(0xFFFF8C00),
+                                      color: AppColors.registrationOrange,
                                     ),
                                   );
                                 },
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Column(
+                                  return const Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.error_outline,
@@ -323,28 +324,28 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.all(16),
+                                      padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color:
-                                            Color(0xFFFF8C00).withValues(alpha:0.1),
+                                            AppColors.registrationOrange.withValues(alpha:0.1),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.add_a_photo,
                                         size: 40.0,
-                                        color: Color(0xFFFF8C00),
+                                        color: AppColors.registrationOrange,
                                       ),
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     Text(
                                       'Tap to upload $title',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1A1A1A),
+                                        color: AppColors.textNearBlack,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       'Camera or Gallery',
                                       style: TextStyle(
@@ -361,7 +362,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                   if (hasImage && isValid)
                     Center(
                       child: CustomPaint(
-                        size: Size(120, 120),
+                        size: const Size(120, 120),
                         painter: VerifiedStampPainter(),
                       ),
                     ),
@@ -376,7 +377,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         child: GestureDetector(
                           onTap: onRemove,
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
@@ -384,11 +385,11 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha:0.2),
                                   blurRadius: 4,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.close,
                               color: Colors.white,
                               size: 18,
@@ -403,7 +404,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
           ),
           if (hasImage)
             Padding(
-              padding: EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 12),
               child: Row(
                 children: [
                   Icon(
@@ -411,7 +412,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                     size: 14,
                     color: isValid ? Colors.green : Colors.orange,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       isValid ? '✓ Verified and uploaded' : 'Image uploaded',
@@ -439,12 +440,12 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF5F7FA),
+        backgroundColor: AppColors.backgroundAlt,
         appBar: AppBar(
           flexibleSpace: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFFF8C00), Color(0xFFFF6B00)],
+                colors: [AppColors.registrationOrange, AppColors.accentCoral],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -454,7 +455,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 20.0,
             buttonSize: 40.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 24.0,
@@ -466,8 +467,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.local_taxi, color: Colors.white, size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.local_taxi, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
               Text(
                 'UGQ TAXI',
                 style: FlutterFlowTheme.of(context).titleLarge.override(
@@ -489,7 +490,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -497,37 +498,37 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                     children: [
                       // Header
                       Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFFFF8C00).withValues(alpha:0.1),
-                              Color(0xFFFF6B00).withValues(alpha:0.05)
+                              AppColors.registrationOrange.withValues(alpha:0.1),
+                              AppColors.accentCoral.withValues(alpha:0.05)
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Color(0xFFFF8C00).withValues(alpha:0.3),
+                            color: AppColors.registrationOrange.withValues(alpha:0.3),
                           ),
                         ),
                         child: Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Color(0xFFFF8C00).withValues(alpha:0.2),
+                                color: AppColors.registrationOrange.withValues(alpha:0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.credit_card,
-                                color: Color(0xFFFF8C00),
+                                color: AppColors.registrationOrange,
                                 size: 32,
                               ),
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
+                            const SizedBox(width: 16),
+                            const Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -536,7 +537,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1A1A1A),
+                                      color: AppColors.textNearBlack,
                                     ),
                                   ),
                                   SizedBox(height: 4),
@@ -544,7 +545,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                     'Front side with photo',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Color(0xFF666666),
+                                      color: AppColors.greyMedium,
                                     ),
                                   ),
                                 ],
@@ -554,7 +555,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         ),
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // PAN Card Image
                       _buildImageCard(
@@ -639,7 +640,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         },
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // PAN Number Input
                       Container(
@@ -650,23 +651,23 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                             BoxShadow(
                               color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 10,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.assignment_ind_outlined,
-                                  color: Color(0xFFFF8C00),
+                                  color: AppColors.registrationOrange,
                                   size: 20,
                                 ),
-                                SizedBox(width: 8),
-                                Text(
+                                const SizedBox(width: 8),
+                                const Text(
                                   'PAN Number',
                                   style: TextStyle(
                                     fontSize: 16,
@@ -676,9 +677,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 // Saved badge
                                 if (_panController.text.isNotEmpty)
                                   Padding(
-                                    padding: EdgeInsets.only(left: 8),
+                                    padding: const EdgeInsets.only(left: 8),
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
                                         vertical: 4,
                                       ),
@@ -690,7 +691,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                           width: 1,
                                         ),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
@@ -713,7 +714,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             TextFormField(
                               controller: _panController,
                               textCapitalization: TextCapitalization.characters,
@@ -726,16 +727,16 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               decoration: InputDecoration(
                                 hintText: 'ABCDE1234F',
                                 hintStyle: TextStyle(color: Colors.grey[400]),
-                                prefixIcon: Icon(
+                                prefixIcon: const Icon(
                                   Icons.badge,
-                                  color: Color(0xFFFF8C00),
+                                  color: AppColors.registrationOrange,
                                 ),
                                 suffixIcon: _isPanNumberValid
-                                    ? Icon(Icons.check_circle,
+                                    ? const Icon(Icons.check_circle,
                                         color: Colors.green)
                                     : null,
                                 filled: true,
-                                fillColor: Color(0xFFF8F9FA),
+                                fillColor: AppColors.backgroundLight,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
@@ -748,17 +749,17 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                      color: Color(0xFFFF8C00), width: 2),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.registrationOrange, width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.red),
+                                  borderSide: const BorderSide(color: Colors.red),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
-                                      BorderSide(color: Colors.red, width: 2),
+                                      const BorderSide(color: Colors.red, width: 2),
                                 ),
                               ),
                               validator: _validatePan,
@@ -777,12 +778,12 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 }
                               },
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Row(
                               children: [
                                 Icon(Icons.info_outline,
                                     size: 14, color: Colors.grey[600]),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     _panController.text.isEmpty
@@ -802,24 +803,24 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         ),
                       ),
 
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                       // Guidelines
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFF4E6),
+                          color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: Color(0xFFFF8C00).withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
-                                    color: Color(0xFFFF8C00), size: 20),
+                                    color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   'Important Guidelines',
@@ -829,7 +830,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             _buildGuideline('Upload clear photo of PAN card'),
                             _buildGuideline(
                                 'All four corners should be visible'),
@@ -843,7 +844,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         ),
                       ),
 
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
                       // Submit Button
                       FFButtonWidget(
@@ -890,17 +891,17 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                             _showSnackBar('PAN verification completed!');
 
                             // Navigate back
-                            await Future.delayed(Duration(milliseconds: 500));
+                            await Future.delayed(const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
                         text: 'Submit',
-                        icon: Icon(Icons.arrow_forward, size: 20),
+                        icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,
                           height: 56.0,
-                          color: Color(0xFFFF8C00),
-                          textStyle: TextStyle(
+                          color: AppColors.registrationOrange,
+                          textStyle: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -922,15 +923,15 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
   Widget _buildGuideline(String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.arrow_right, size: 18, color: Color(0xFFFF8C00)),
-          SizedBox(width: 4),
+          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(text,
-                style: TextStyle(fontSize: 13, color: Color(0xFF666666))),
+                style: const TextStyle(fontSize: 13, color: AppColors.greyMedium)),
           ),
         ],
       ),
@@ -961,7 +962,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = Color(0xFF2E7D32).withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha:0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -991,7 +992,7 @@ class VerifiedStampPainter extends CustomPainter {
     canvas.drawPath(path, outerPaint);
 
     final innerCirclePaint = Paint()
-      ..color = Color(0xFF2E7D32)
+      ..color = AppColors.successDark
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawCircle(center, radius - 12, innerCirclePaint);
@@ -1001,11 +1002,11 @@ class VerifiedStampPainter extends CustomPainter {
       final angle = (i * 2 * pi / 8) - pi / 2;
       final starX = center.dx + (radius - 14) * cos(angle);
       final starY = center.dy + (radius - 14) * sin(angle);
-      _drawStar(canvas, Offset(starX, starY), 2.5, Color(0xFF2E7D32));
+      _drawStar(canvas, Offset(starX, starY), 2.5, AppColors.successDark);
     }
 
     final bannerY = center.dy;
-    final bannerHeight = 28.0;
+    const bannerHeight = 28.0;
     final bannerWidth = size.width * 0.85;
     final bannerLeft = center.dx - bannerWidth / 2;
 
@@ -1023,7 +1024,7 @@ class VerifiedStampPainter extends CustomPainter {
     );
 
     final ribbonPaint = Paint()
-      ..color = Color(0xFF1976D2)
+      ..color = AppColors.info
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(
@@ -1036,7 +1037,7 @@ class VerifiedStampPainter extends CustomPainter {
     );
 
     final ribbonBorderPaint = Paint()
-      ..color = Color(0xFF0D47A1)
+      ..color = AppColors.infoDark
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     canvas.drawRect(
@@ -1050,7 +1051,7 @@ class VerifiedStampPainter extends CustomPainter {
     );
 
     final textPainter = TextPainter(
-      text: TextSpan(
+      text: const TextSpan(
         text: 'VERIFIED',
         style: TextStyle(
           color: Colors.white,

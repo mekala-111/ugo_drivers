@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -35,10 +36,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
       token: FFAppState().accessToken,
     );
 
-    print('=== NOTIFICATION HISTORY API ===');
-    print('Status: ${response.statusCode}');
-    print('Response: ${response.jsonBody}');
-    print('================================');
+    // Do not log full response body - may contain PII
 
     if (response.succeeded) {
       setState(() {
@@ -72,7 +70,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -101,7 +99,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 2.0,
         ),
@@ -115,7 +113,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                           _model.notificationData)!
                       .isNotEmpty
               ? ListView.builder(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                   itemCount: NotificationHistoryCall.notifications(
                           _model.notificationData)!
                       .length,
@@ -153,7 +151,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
 
                     return Container(
                       margin:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12.0),
@@ -167,12 +165,12 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                           BoxShadow(
                             color: Colors.black.withValues(alpha:0.05),
                             blurRadius: 4.0,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -198,13 +196,13 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                 ),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.notifications_active,
                                 color: Colors.white,
                                 size: 24.0,
                               ),
                             ),
-                            SizedBox(width: 12.0),
+                            const SizedBox(width: 12.0),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +219,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                             fontWeight: isRead
                                                 ? FontWeight.w500
                                                 : FontWeight.w700,
-                                            color: Color(0xFF1A1A1A),
+                                            color: AppColors.textNearBlack,
                                           ),
                                         ),
                                       ),
@@ -237,13 +235,13 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                         ),
                                     ],
                                   ),
-                                  SizedBox(height: 6.0),
+                                  const SizedBox(height: 6.0),
                                   Text(
                                     message,
                                     style: GoogleFonts.inter(
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w400,
-                                      color: Color(0xFF4A4A4A),
+                                      color: AppColors.greyDark,
                                       height: 1.5,
                                     ),
                                     maxLines: 3,
@@ -251,22 +249,22 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                   ),
                                   if (createdAt.isNotEmpty)
                                     Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(
                                           0.0, 8.0, 0.0, 0.0),
                                       child: Row(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.access_time,
                                             size: 14.0,
-                                            color: Color(0xFF757575),
+                                            color: AppColors.grey,
                                           ),
-                                          SizedBox(width: 4.0),
+                                          const SizedBox(width: 4.0),
                                           Text(
                                             createdAt,
                                             style: GoogleFonts.inter(
                                               fontSize: 12.0,
                                               fontWeight: FontWeight.w400,
-                                              color: Color(0xFF757575),
+                                              color: AppColors.grey,
                                             ),
                                           ),
                                         ],
@@ -298,22 +296,22 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                           color: FlutterFlowTheme.of(context).primary,
                         ),
                       ),
-                      SizedBox(height: 24.0),
+                      const SizedBox(height: 24.0),
                       Text(
                         'No notifications yet',
                         style: GoogleFonts.inter(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
+                          color: AppColors.textNearBlack,
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         'You\'re all caught up!',
                         style: GoogleFonts.inter(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF757575),
+                          color: AppColors.grey,
                         ),
                       ),
                     ],

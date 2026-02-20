@@ -40,13 +40,13 @@ class _VehicleWidgetState extends State<VehicleWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
       ),
       child: Align(
-        alignment: AlignmentDirectional(1.0, 0.0),
+        alignment: const AlignmentDirectional(1.0, 0.0),
         child: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +79,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                     scrollDirection: Axis.vertical,
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(1.0),
+                        padding: const EdgeInsets.all(1.0),
                         child: Container(
                           width: double.infinity,
                           height: 80.0,
@@ -92,7 +92,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                             ),
                           ),
                           child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 16.0, 16.0, 16.0),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
@@ -165,7 +165,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                                                       .fontStyle,
                                             ),
                                       ),
-                                    ].divide(SizedBox(height: 4.0)),
+                                    ].divide(const SizedBox(height: 4.0)),
                                   ),
                                 ),
                                 Container(
@@ -180,7 +180,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                                     ),
                                   ),
                                   child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
                                         8.0, 4.0, 8.0, 4.0),
                                     child: Text(
                                       FFLocalizations.of(context).getText(
@@ -214,14 +214,14 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                                     ),
                                   ),
                                 ),
-                              ].divide(SizedBox(width: 12.0)),
+                              ].divide(const SizedBox(width: 12.0)),
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ].divide(SizedBox(height: 16.0)),
+                ].divide(const SizedBox(height: 16.0)),
               ),
               FFButtonWidget(
                 onPressed: () async {
@@ -261,10 +261,10 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                 options: FFButtonOptions(
                   width: double.infinity,
                   height: 55.0,
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   iconPadding:
-                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  color: Color(0xFFFF6B35),
+                      const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  color: AppColors.accentCoral,
                   textStyle: FlutterFlowTheme.of(context).titleMedium.override(
                         font: GoogleFonts.interTight(
                           fontWeight: FontWeight.w600,
@@ -281,7 +281,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                   elevation: 0.0,
                 ),
               ),
-            ].divide(SizedBox(height: 24.0)),
+            ].divide(const SizedBox(height: 24.0)),
           ),
         ),
       ),

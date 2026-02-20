@@ -45,18 +45,18 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF8F9FA),
+        backgroundColor: AppColors.backgroundLight,
         appBar: AppBar(
-          backgroundColor: Color(0xFFFF7B10),
+          backgroundColor: AppColors.primary,
           automaticallyImplyLeading: false,
           leading: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: FlutterFlowIconButton(
               borderRadius: 20.0,
               buttonSize: 40.0,
-              icon: Icon(
+              icon: const Icon(
                 Icons.arrow_back,
-                color: Color(0xFFF8F9FA),
+                color: AppColors.backgroundLight,
                 size: 24.0,
               ),
               onPressed: () async {
@@ -74,14 +74,14 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                     fontStyle:
                         FlutterFlowTheme.of(context).titleLarge.fontStyle,
                   ),
-                  color: Color(0xFFF8F9FA),
+                  color: AppColors.backgroundLight,
                   fontSize: 16.0,
                   letterSpacing: 0.0,
                   fontWeight: FontWeight.w500,
                   fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 0.0,
         ),
@@ -91,7 +91,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                 child: Text(
                   FFLocalizations.of(context).getText(
                     'xlfqyvqa' /* Comfortable Rides, Anytime */,
@@ -114,7 +114,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
@@ -122,7 +122,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                       width: double.infinity,
                       height: 80.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFFF8F9FA),
+                        color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
                           color: Colors.black,
@@ -130,7 +130,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             20.0, 0.0, 20.0, 0.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -165,7 +165,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          ].divide(SizedBox(width: 16.0)),
+                          ].divide(const SizedBox(width: 16.0)),
                         ),
                       ),
                     ),
@@ -173,7 +173,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                       width: double.infinity,
                       height: 80.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFFF8F9FA),
+                        color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
                           color: Colors.black,
@@ -181,7 +181,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             20.0, 0.0, 20.0, 0.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -216,7 +216,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          ].divide(SizedBox(width: 16.0)),
+                          ].divide(const SizedBox(width: 16.0)),
                         ),
                       ),
                     ),
@@ -224,7 +224,7 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                       width: double.infinity,
                       height: 80.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFFF8F9FA),
+                        color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
                           color: Colors.black,
@@ -232,16 +232,16 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             20.0, 0.0, 20.0, 0.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.local_taxi,
-                              color: Color(0xFFFFCC00),
+                              color: AppColors.accentAmber,
                               size: 40.0,
                             ),
                             Text(
@@ -266,17 +266,17 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          ].divide(SizedBox(width: 16.0)),
+                          ].divide(const SizedBox(width: 16.0)),
                         ),
                       ),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                  ].divide(const SizedBox(height: 16.0)),
                 ),
               ),
             ]
-                .divide(SizedBox(height: 24.0))
-                .addToStart(SizedBox(height: 24.0))
-                .addToEnd(SizedBox(height: 100.0)),
+                .divide(const SizedBox(height: 24.0))
+                .addToStart(const SizedBox(height: 24.0))
+                .addToEnd(const SizedBox(height: 100.0)),
           ),
         ),
       ),

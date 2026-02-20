@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -37,24 +38,24 @@ class _SupportWidgetState extends State<SupportWidget> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
-      print("Could not launch $url");
+      print('Could not launch $url');
     }
   }
 
   Future<void> _launchWhatsApp(String phone) async {
     // Remove '+' and spaces for WhatsApp URL
     final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
-    final url = "https://wa.me/$cleanPhone";
+    final url = 'https://wa.me/$cleanPhone';
     _launchUrl(url);
   }
 
   @override
   Widget build(BuildContext context) {
     // 🎨 App Colors
-    const Color brandPrimary = Color(0xFFFF7B10); // UGO Orange
-    const Color bgWhite = Colors.white;
-    const Color textDark = Color(0xFF1E293B);
-    const Color textGrey = Color(0xFF64748B);
+    const Color brandPrimary = AppColors.primary; // UGO Orange
+    const Color bgWhite = AppColors.white;
+    const Color textDark = AppColors.textDark;
+    const Color textGrey = AppColors.greySlate;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -77,7 +78,7 @@ class _SupportWidgetState extends State<SupportWidget> {
             onPressed: () => context.pop(),
           ),
           title: Text(
-            "Support Center",
+            'Support Center',
             style: GoogleFonts.inter(
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -114,7 +115,7 @@ class _SupportWidgetState extends State<SupportWidget> {
 
               // 📢 Hero Text
               Text(
-                "We are here to help!",
+                'We are here to help!',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.interTight(
                   fontSize: 24,
@@ -126,7 +127,7 @@ class _SupportWidgetState extends State<SupportWidget> {
               const SizedBox(height: 12),
 
               Text(
-                "24/7 Customer support will be available soon.\nPlease contact the company directly for any queries or details.",
+                '24/7 Customer support will be available soon.\nPlease contact the company directly for any queries or details.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 14,
@@ -142,9 +143,9 @@ class _SupportWidgetState extends State<SupportWidget> {
                 icon: Icons.call_rounded,
                 iconColor: Colors.blue,
                 bgColor: Colors.blue.shade50,
-                title: "Call Us",
-                subtitle: "+91 9100088718",
-                onTap: () => _launchUrl("tel:+919100088718"),
+                title: 'Call Us',
+                subtitle: '+91 9100088718',
+                onTap: () => _launchUrl('tel:+919100088718'),
               ),
 
               const SizedBox(height: 16),
@@ -153,9 +154,9 @@ class _SupportWidgetState extends State<SupportWidget> {
                 icon: FontAwesomeIcons.whatsapp,
                 iconColor: Colors.green,
                 bgColor: Colors.green.shade50,
-                title: "WhatsApp Us",
-                subtitle: "Chat with support",
-                onTap: () => _launchWhatsApp("919100088718"),
+                title: 'WhatsApp Us',
+                subtitle: 'Chat with support',
+                onTap: () => _launchWhatsApp('919100088718'),
               ),
 
               const SizedBox(height: 16),
@@ -164,9 +165,9 @@ class _SupportWidgetState extends State<SupportWidget> {
                 icon: Icons.email_rounded,
                 iconColor: Colors.red,
                 bgColor: Colors.red.shade50,
-                title: "Email Us",
-                subtitle: "ugocabservice@gmail.com",
-                onTap: () => _launchUrl("mailto:ugocabservice@gmail.com"),
+                title: 'Email Us',
+                subtitle: 'ugocabservice@gmail.com',
+                onTap: () => _launchUrl('mailto:ugocabservice@gmail.com'),
               ),
 
               const SizedBox(height: 16),
@@ -175,16 +176,16 @@ class _SupportWidgetState extends State<SupportWidget> {
                 icon: Icons.language_rounded,
                 iconColor: Colors.purple,
                 bgColor: Colors.purple.shade50,
-                title: "Visit Website",
-                subtitle: "ugotaxi.com",
-                onTap: () => _launchUrl("https://ugotaxi.com"),
+                title: 'Visit Website',
+                subtitle: 'ugotaxi.com',
+                onTap: () => _launchUrl('https://ugotaxi.com'),
               ),
 
               const SizedBox(height: 50),
 
               // Footer
               Text(
-                "UGO Taxi Services",
+                'UGO Taxi Services',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: Colors.grey.shade400,
@@ -246,7 +247,7 @@ class _SupportWidgetState extends State<SupportWidget> {
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1E293B),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -254,7 +255,7 @@ class _SupportWidgetState extends State<SupportWidget> {
                     subtitle,
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: const Color(0xFF64748B),
+                      color: AppColors.greySlate,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -1,6 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -70,9 +71,9 @@ class _LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
     // 🎨 DRIVER APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     // 📐 RESPONSIVE SIZING
     final size = MediaQuery.of(context).size;
@@ -159,7 +160,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         const Spacer(),
                         Center(
                           child: Text(
-                            "Welcome Partner,",
+                            'Welcome Partner,',
                             style: GoogleFonts.inter(
                               fontSize: headlineFontSize,
                               color: Colors.white.withValues(alpha:0.9),
@@ -212,7 +213,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Enter Mobile Number",
+                            'Enter Mobile Number',
                             style: GoogleFonts.inter(
                               fontSize: 14 * scale,
                               fontWeight: FontWeight.w600,
@@ -225,10 +226,10 @@ class _LoginWidgetState extends State<LoginWidget> {
                           Container(
                             height: 60 * scale,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF9F9F9),
+                              color: AppColors.backgroundCard,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(0xFFEEEEEE),
+                                color: AppColors.divider,
                                 width: 1.5,
                               ),
                             ),
@@ -243,7 +244,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                           color: Colors.orange, size: 20 * scale),
                                       SizedBox(width: 8 * scale),
                                       Text(
-                                        "+91",
+                                        '+91',
                                         style: GoogleFonts.inter(
                                           fontSize: 18 * scale,
                                           fontWeight: FontWeight.bold,
@@ -278,7 +279,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       LengthLimitingTextInputFormatter(10),
                                     ],
                                     decoration: InputDecoration(
-                                      hintText: "Mobile Number",
+                                      hintText: 'Mobile Number',
                                       hintStyle: GoogleFonts.inter(
                                         color: Colors.grey[400],
                                         fontSize: phoneFontSize,
@@ -319,13 +320,13 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   ? SizedBox(
                                 height: 24 * scale,
                                 width: 24 * scale,
-                                child: CircularProgressIndicator(
+                                child: const CircularProgressIndicator(
                                   color: Colors.white,
                                   strokeWidth: 2.5,
                                 ),
                               )
                                   : Text(
-                                "Get OTP",
+                                'Get OTP',
                                 style: GoogleFonts.interTight(
                                   fontSize: buttonFontSize,
                                   fontWeight: FontWeight.bold,
@@ -337,39 +338,47 @@ class _LoginWidgetState extends State<LoginWidget> {
 
                           SizedBox(height: 24 * scale),
 
-                          // 📄 LEGAL TEXT
+                          // 📄 LEGAL TEXT (tappable)
                           Center(
-                            child: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                style: GoogleFonts.inter(
-                                  fontSize: 12 * scale,
-                                  color: Colors.grey[500],
-                                  height: 1.5,
-                                ),
-                                children: const [
-                                  TextSpan(
-                                      text:
-                                      "By continuing, you agree to our\n"),
-                                  TextSpan(
-                                    text: "Terms of Service",
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.underline,
+                            child: Builder(
+                              builder: (context) {
+                                return RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12 * scale,
+                                      color: Colors.grey[500],
+                                      height: 1.5,
                                     ),
+                                    children: [
+                                      const TextSpan(text: 'By continuing, you agree to our\n'),
+                                      TextSpan(
+                                        text: 'Terms of Service',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 12 * scale,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => context.pushNamed(TermsConditionsWidget.routeName),
+                                      ),
+                                      const TextSpan(text: ' & '),
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 12 * scale,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
+                                      ),
+                                    ],
                                   ),
-                                  TextSpan(text: " & "),
-                                  TextSpan(
-                                    text: "Privacy Policy",
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -388,7 +397,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                 children: [
                   const Expanded(child: Divider(indent: 40, endIndent: 10)),
                   Text(
-                    "Or connect with",
+                    'Or connect with',
                     style: GoogleFonts.inter(
                       fontSize: 12 * scale,
                       color: Colors.grey[500],
@@ -406,7 +415,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                 children: [
                   _socialButton(
                     icon: FontAwesomeIcons.google,
-                    color: const Color(0xFFDB4437),
+                    color: AppColors.googleRed,
                     onTap: () async {
                       setState(() => _isLoading = true);
                       try {

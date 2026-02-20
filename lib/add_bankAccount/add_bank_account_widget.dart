@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -259,7 +260,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 2,
         ),
@@ -353,9 +354,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
-                                                    const Color(0xFFF5F5F5),
+                                                    AppColors.background,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 12,
                                                   vertical: 12,
                                                 ),
@@ -463,9 +464,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
-                                                    const Color(0xFFF5F5F5),
+                                                    AppColors.background,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 12,
                                                   vertical: 12,
                                                 ),
@@ -575,9 +576,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
-                                                    const Color(0xFFF5F5F5),
+                                                    AppColors.background,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 12,
                                                   vertical: 12,
                                                 ),
@@ -678,9 +679,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor:
-                                                    const Color(0xFFF5F5F5),
+                                                    AppColors.background,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 12,
                                                   vertical: 12,
                                                 ),
@@ -737,9 +738,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                   options: FFButtonOptions(
                                                     width: cancelButtonWidth,
                                                     height: buttonHeight,
-                                                    padding: EdgeInsets.all(8),
+                                                    padding: const EdgeInsets.all(8),
                                                     iconPadding:
-                                                        EdgeInsetsDirectional
+                                                        const EdgeInsetsDirectional
                                                             .fromSTEB(
                                                                 0, 0, 0, 0),
                                                     color: FlutterFlowTheme.of(
@@ -802,9 +803,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                   options: FFButtonOptions(
                                                     width: submitButtonWidth,
                                                     height: buttonHeight,
-                                                    padding: EdgeInsets.all(8),
+                                                    padding: const EdgeInsets.all(8),
                                                     iconPadding:
-                                                        EdgeInsetsDirectional
+                                                        const EdgeInsetsDirectional
                                                             .fromSTEB(
                                                                 0, 0, 0, 0),
                                                     color: _model.isValidating
@@ -867,9 +868,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                   options: FFButtonOptions(
                                                     width: cancelButtonWidth,
                                                     height: buttonHeight,
-                                                    padding: EdgeInsets.all(8),
+                                                    padding: const EdgeInsets.all(8),
                                                     iconPadding:
-                                                        EdgeInsetsDirectional
+                                                        const EdgeInsetsDirectional
                                                             .fromSTEB(
                                                                 0, 0, 0, 0),
                                                     color: FlutterFlowTheme.of(
@@ -929,9 +930,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                   options: FFButtonOptions(
                                                     width: submitButtonWidth,
                                                     height: buttonHeight,
-                                                    padding: EdgeInsets.all(8),
+                                                    padding: const EdgeInsets.all(8),
                                                     iconPadding:
-                                                        EdgeInsetsDirectional
+                                                        const EdgeInsetsDirectional
                                                             .fromSTEB(
                                                                 0, 0, 0, 0),
                                                     color: _model.isValidating

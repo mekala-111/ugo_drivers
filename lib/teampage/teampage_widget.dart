@@ -23,10 +23,10 @@ class _TeampageWidgetState extends State<TeampageWidget>
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Ugo Brand Colors
-  final Color ugoOrange = const Color(0xFFFF7B10);
-  final Color ugoOrangeLight = const Color(0xFFFF9E4D);
-  final Color ugoGreen = const Color(0xFF4CAF50);
-  final Color ugoBlue = const Color(0xFF2196F3);
+  final Color ugoOrange = AppColors.primary;
+  final Color ugoOrangeLight = AppColors.primaryLight;
+  final Color ugoGreen = AppColors.success;
+  final Color ugoBlue = AppColors.accentBlue;
 
   bool _isLoading = true;
 
@@ -70,7 +70,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF5F7FA), // Light Grey Background
+        backgroundColor: AppColors.backgroundAlt, // Light Grey Background
         body: _isLoading
             ? Center(child: CircularProgressIndicator(color: ugoOrange))
             : Stack(
@@ -121,7 +121,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          "My Team",
+                          'My Team',
                           style: GoogleFonts.interTight(
                             color: Colors.white,
                             fontSize: 24.0,
@@ -142,7 +142,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Referred By",
+                              'Referred By',
                               style: GoogleFonts.inter(
                                 color: Colors.white70,
                                 fontSize: 12,
@@ -176,7 +176,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                   color: Colors.amber, size: 16),
                               const SizedBox(width: 4),
                               Text(
-                                "Team Leader",
+                                'Team Leader',
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -200,7 +200,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           // Total Rides Card
                           Expanded(
                             child: _buildStatCard(
-                              title: "Total Rides",
+                              title: 'Total Rides',
                               value: _model.referralData != null
                                   ? '${(getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.pro_rides_completed') ?? 0) + (getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.normal_rides_completed') ?? 0)}'
                                   : '0',
@@ -215,7 +215,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           // Earnings Card
                           Expanded(
                             child: _buildStatCard(
-                              title: "Earnings",
+                              title: 'Earnings',
                               value: _model.referralData != null
                                   ? '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}'
                                   : '₹0',
@@ -223,7 +223,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                               color: ugoGreen,
                               delay: 200,
                               onTap: () => context
-                                  .pushNamed(TeamearningWidget.routeName),
+                                  .pushNamed(TeamEarningsWidget.routeName),
                             ),
                           ),
                         ],
@@ -249,7 +249,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Team Performance",
+                            'Team Performance',
                             style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -365,7 +365,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
           children: [
             Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
             const SizedBox(height: 12),
-            Text("No team members active yesterday",
+            Text('No team members active yesterday',
                 style: GoogleFonts.inter(color: Colors.grey[400])),
           ],
         ),
@@ -444,7 +444,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                     size: 14, color: ugoBlue),
                                 const SizedBox(width: 4),
                                 Text(
-                                  "$proRides Pro Rides",
+                                  '$proRides Pro Rides',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.grey[600],
@@ -460,7 +460,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            "EARNED",
+                            'EARNED',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -468,7 +468,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             ),
                           ),
                           Text(
-                            "+₹$commission",
+                            '+₹$commission',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

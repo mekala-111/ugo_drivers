@@ -1,8 +1,13 @@
+// Export constants
+export '/constants/app_colors.dart' show AppColors;
+
 // Export pages
 export '/login/login_widget.dart' show LoginWidget;
 export '/otpverification/otpverification_widget.dart'
     show OtpverificationWidget;
 export '/privacypolicy/privacypolicy_widget.dart' show PrivacypolicyWidget;
+export '/terms_conditions/terms_conditions_widget.dart' show TermsConditionsWidget;
+export '/privacy_policy_page/privacy_policy_page_widget.dart' show PrivacyPolicyPageWidget;
 export '/serviceoptions/serviceoptions_widget.dart' show ServiceoptionsWidget;
 export '/home/home_widget.dart' show HomeWidget;
 export '/account_management/account_management_widget.dart'
@@ -41,19 +46,19 @@ export '/account_support/account_support_widget.dart' show AccountSupportWidget;
 export '/support_ride/support_ride_widget.dart' show SupportRideWidget;
 export '/ride_overview/ride_overview_widget.dart' show RideOverviewWidget;
 export '/report_issues/report_issues_widget.dart' show ReportIssuesWidget;
-export '/customer_suport/customer_suport_widget.dart' show CustomerSuportWidget;
+export '/customer_support/customer_support_widget.dart' show CustomerSupportWidget;
 
 export '/choose_vehicle/choose_vehicle_widget.dart' show ChooseVehicleWidget;
 export '/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
 export '/driving_dl/driving_dl_widget.dart' show DrivingDlWidget;
 export '/face_verify/face_verify_widget.dart' show FaceVerifyWidget;
 export '/adhar_upload/adhar_upload_widget.dart' show AdharUploadWidget;
-export 'insurenceimage/insurence_widget.dart' show UploadRcWidget;
-export 'polutioimage/polutionimage_widget.dart' show RCUploadWidget;
+export 'insurance_image/insurance_image_widget.dart' show UploadRcWidget;
+export 'pollution_image/pollution_image_widget.dart' show RCUploadWidget;
 export '/inbox_page/inbox_page_widget.dart' show InboxPageWidget;
 export '/teampage/teampage_widget.dart' show TeampageWidget;
 export '/teamrides/teamrides_widget.dart' show TeamridesWidget;
-export '/teamearning/teamearning_widget.dart' show TeamearningWidget;
+export '/team_earnings/team_earnings_widget.dart' show TeamEarningsWidget;
 export '/firstdetails/firstdetails_widget.dart' show FirstdetailsWidget;
 export '/panupload_screen/panupload_screen_widget.dart'
     show PanuploadScreenWidget;

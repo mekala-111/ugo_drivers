@@ -6,7 +6,6 @@ import 'firstdetails_model.dart';
 export 'firstdetails_model.dart';
 
 // ✅ Ensure ChooseVehicleWidget is imported
-import '/choose_vehicle/choose_vehicle_widget.dart';
 
 class FirstdetailsWidget extends StatefulWidget {
   const FirstdetailsWidget({
@@ -55,9 +54,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
   @override
   Widget build(BuildContext context) {
     // 🎨 APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () {
@@ -104,7 +103,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                         const Spacer(),
                         Center(
                           child: Text(
-                            "Partner Profile",
+                            'Partner Profile',
                             style: GoogleFonts.inter(
                               fontSize: 30,
                               color: Colors.white.withValues(alpha:0.9),
@@ -160,7 +159,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                           children: [
                             Center(
                               child: Text(
-                                "Basic Details",
+                                'Basic Details',
                                 style: GoogleFonts.inter(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -258,7 +257,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                   ),
                                 ),
                                 child: Text(
-                                  "Continue",
+                                  'Continue',
                                   style: GoogleFonts.interTight(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -316,13 +315,13 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: Colors.grey[400], size: 22),
             filled: true,
-            fillColor: const Color(0xFFF9F9F9),
+            fillColor: AppColors.backgroundCard,
             enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Color(0xFFEEEEEE), width: 1.5),
+              borderSide: const BorderSide(color: AppColors.divider, width: 1.5),
               borderRadius: BorderRadius.circular(12),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Color(0xFFFF7B10), width: 1.5),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
               borderRadius: BorderRadius.circular(12),
             ),
             errorBorder: OutlineInputBorder(

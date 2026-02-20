@@ -1,11 +1,16 @@
 /// Application configuration and constants.
 ///
-/// For production builds you should supply `--dart-define=API_BASE_URL=...`.
-/// During development this defaults to the value used previously.
+/// For production: use --dart-define for sensitive values.
+/// Example: flutter run --dart-define=API_BASE_URL=https://...
 class Config {
   static String get baseUrl {
-    // dart-define has higher precedence; falls back to hardcoded.
     const defaultUrl = 'https://ugo-api.icacorp.org';
     return const String.fromEnvironment('API_BASE_URL', defaultValue: defaultUrl);
   }
+
+  /// Razorpay keys - use dart-define in production. IFSC lookup is free and keyless.
+  static String get razorpayKeyId =>
+      const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');
+  static String get razorpayKeySecret =>
+      const String.fromEnvironment('RAZORPAY_KEY_SECRET', defaultValue: '');
 }

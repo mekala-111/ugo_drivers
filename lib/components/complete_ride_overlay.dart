@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../home/ride_request_model.dart';
 
 // --- Wrapper Widget ---
 class RideCompleteOverlay extends StatelessWidget {
   final RideRequest ride;
-  final VoidCallback onSwipe;
+  final VoidCallback? onSwipe;
+  final bool isLoading;
 
   const RideCompleteOverlay({
-    Key? key,
+    super.key,
     required this.ride,
-    required this.onSwipe,
-  }) : super(key: key);
+    this.onSwipe,
+    this.isLoading = false,
+  });
 
   // ✅ Universal Map Launcher
   Future<void> _launchMap(double? lat, double? lng) async {
     if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
-      debugPrint("❌ Error: Invalid Coordinates ($lat, $lng)");
+      debugPrint('❌ Error: Invalid Coordinates ($lat, $lng)');
       return;
     }
 
-    final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     // fallback browser URL uses proper google maps query parameters
     final Uri browserUrl = Uri.parse(
-        "https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -31,10 +35,10 @@ class RideCompleteOverlay extends StatelessWidget {
       } else if (await canLaunchUrl(browserUrl)) {
         await launchUrl(browserUrl, mode: LaunchMode.externalApplication);
       } else {
-        debugPrint("❌ Could not launch maps url");
+        debugPrint('❌ Could not launch maps url');
       }
     } catch (e) {
-      debugPrint("❌ Map Launch Error: $e");
+      debugPrint('❌ Map Launch Error: $e');
     }
   }
 
@@ -56,7 +60,7 @@ class RideCompleteOverlay extends StatelessWidget {
                   height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF7B10), // ugoOrange
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: const [
                       BoxShadow(
@@ -65,13 +69,13 @@ class RideCompleteOverlay extends StatelessWidget {
                           offset: Offset(0, 4))
                     ],
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.navigation, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        "DROP",
+                        'DROP',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -88,6 +92,7 @@ class RideCompleteOverlay extends StatelessWidget {
             CompleteRideCard(
               ride: ride,
               onSwipe: onSwipe,
+              isLoading: isLoading,
             ),
           ],
         ),
@@ -99,17 +104,19 @@ class RideCompleteOverlay extends StatelessWidget {
 // --- The Card Widget ---
 class CompleteRideCard extends StatelessWidget {
   final RideRequest ride;
-  final VoidCallback onSwipe;
+  final VoidCallback? onSwipe;
+  final bool isLoading;
 
   const CompleteRideCard({
-    Key? key,
+    super.key,
     required this.ride,
-    required this.onSwipe,
-  }) : super(key: key);
+    this.onSwipe,
+    this.isLoading = false,
+  });
 
-  static const Color ugoOrange = Color(0xFFFF7B10);
-  static const Color ugoGreen = Color(0xFF4CAF50);
-  static const Color ugoRed = Color(0xFFE53935);
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
+  static const Color ugoRed = AppColors.error;
 
   // ✅ Logic to Make Phone Call
   Future<void> _makePhoneCall(BuildContext context) async {
@@ -122,17 +129,17 @@ class CompleteRideCard extends StatelessWidget {
       return;
     }
 
-    final Uri phoneUri = Uri.parse("tel:$phoneNumber");
+    final Uri phoneUri = Uri.parse('tel:$phoneNumber');
     try {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch dialer.')),
+          SnackBar(content: Text(FFLocalizations.of(context).getText('drv_dialer_fail'))),
         );
       }
     } catch (e) {
-      debugPrint("Phone call error: $e");
+      debugPrint('Phone call error: $e');
     }
   }
 
@@ -161,10 +168,10 @@ class CompleteRideCard extends StatelessWidget {
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
-            child: const Text(
-              "GO TO DROP",
+            child: Text(
+              FFLocalizations.of(context).getText('drv_go_to_drop'),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -211,7 +218,7 @@ class CompleteRideCard extends StatelessWidget {
                                     const Icon(Icons.location_on,
                                         color: ugoRed, size: 24),
                                     Text(
-                                      "Drop",
+                                      FFLocalizations.of(context).getText('drv_drop'),
                                       style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[800],
@@ -224,7 +231,7 @@ class CompleteRideCard extends StatelessWidget {
 
                               // ✅ Rich Address with Pincode Badge
                               Expanded(
-                                child: _buildRichAddress(ride.dropAddress),
+                                child: _buildRichAddress(context, ride.dropAddress),
                               ),
                             ],
                           ),
@@ -241,10 +248,16 @@ class CompleteRideCard extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Swipe to Complete
-                SlideToAction(
-                    text: "COMPLETE RIDE",
-                    outerColor: ugoRed,
-                    onSubmitted: onSwipe),
+                isLoading
+                    ? Container(
+                        height: 55,
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(color: ugoRed),
+                      )
+                    : SlideToAction(
+                        text: FFLocalizations.of(context).getText('drv_complete_ride'),
+                        outerColor: ugoRed,
+                        onSubmitted: onSwipe ?? () {}),
               ],
             ),
           ),
@@ -254,9 +267,9 @@ class CompleteRideCard extends StatelessWidget {
   }
 
   // ✅ UGO-STYLE ADDRESS PARSER
-  Widget _buildRichAddress(String rawAddress) {
-    String pincode = "";
-    String locality = "";
+  Widget _buildRichAddress(BuildContext context, String rawAddress) {
+    String pincode = '';
+    String locality = '';
     String fullAddressWithoutPin = rawAddress;
 
     // 1. Extract Pincode
@@ -275,7 +288,7 @@ class CompleteRideCard extends StatelessWidget {
       locality = parts[0].trim();
       // Handle short house numbers by appending street name
       if (locality.length < 5 && parts.length > 1) {
-        locality = "$locality, ${parts[1].trim()}";
+        locality = '$locality, ${parts[1].trim()}';
       }
     }
 
@@ -285,7 +298,7 @@ class CompleteRideCard extends StatelessWidget {
         // 🔹 Pincode Badge
         if (pincode.isNotEmpty)
           Text(
-            "$pincode",
+            pincode,
             style: const TextStyle(
                 color: ugoOrange,
                 fontWeight: FontWeight.bold,
@@ -295,7 +308,7 @@ class CompleteRideCard extends StatelessWidget {
 
         // 🔹 Bold Area Name
         Text(
-          locality.isNotEmpty ? locality : "Drop Location",
+          locality.isNotEmpty ? locality : FFLocalizations.of(context).getText('drv_drop_location'),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -343,12 +356,12 @@ class SlideToAction extends StatefulWidget {
   final double height;
 
   const SlideToAction({
-    Key? key,
+    super.key,
     required this.text,
     required this.outerColor,
     required this.onSubmitted,
     this.height = 55.0,
-  }) : super(key: key);
+  });
 
   @override
   _SlideToActionState createState() => _SlideToActionState();

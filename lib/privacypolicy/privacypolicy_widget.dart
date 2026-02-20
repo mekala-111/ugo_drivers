@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -44,11 +45,11 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF4F4F4),
+        backgroundColor: AppColors.containerGrey,
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(20.0, 60.0, 20.0, 40.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(20.0, 60.0, 20.0, 40.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,7 +172,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                     lineHeight: 1.5,
                                   ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                   ],
                 ),
@@ -182,11 +183,11 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                       width: 20.0,
                       height: 20.0,
                       decoration: BoxDecoration(
-                        color: Color(0xFFD9D9D9),
+                        color: AppColors.greyBorderLight,
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                       child: Container(
-                        decoration: BoxDecoration(),
+                        decoration: const BoxDecoration(),
                         child: Theme(
                           data: ThemeData(
                             checkboxTheme: CheckboxThemeData(
@@ -238,7 +239,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                             ),
                       ),
                     ),
-                  ].divide(SizedBox(width: 12.0)),
+                  ].divide(const SizedBox(width: 12.0)),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.max,
@@ -280,7 +281,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF666666),
+                                    color: AppColors.greyMedium,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -301,7 +302,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF666666),
+                                    color: AppColors.greyMedium,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -322,7 +323,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF666666),
+                                    color: AppColors.greyMedium,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -331,7 +332,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
@@ -369,7 +370,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFFFF7B10),
+                                    color: AppColors.primary,
                                     fontSize: 14.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
@@ -378,9 +379,9 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                      ].divide(SizedBox(width: 8.0)),
+                      ].divide(const SizedBox(width: 8.0)),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                  ].divide(const SizedBox(height: 16.0)),
                 ),
                 Flexible(
                   child: FFButtonWidget(
@@ -393,10 +394,10 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                     options: FFButtonOptions(
                       width: double.infinity,
                       height: 56.0,
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       iconPadding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      color: Color(0xFFFF7B10),
+                          const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      color: AppColors.primary,
                       textStyle:
                           FlutterFlowTheme.of(context).titleMedium.override(
                                 font: GoogleFonts.interTight(
@@ -405,7 +406,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                                       .titleMedium
                                       .fontStyle,
                                 ),
-                                color: Color(0xFFF4F4F4),
+                                color: AppColors.containerGrey,
                                 fontSize: 24.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.normal,
@@ -419,9 +420,9 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                   ),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 20.0))
-                  .addToEnd(SizedBox(height: 20.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 20.0))
+                  .addToEnd(const SizedBox(height: 20.0)),
             ),
           ),
         ),

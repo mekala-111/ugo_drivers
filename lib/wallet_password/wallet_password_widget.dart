@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -54,7 +55,7 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -80,12 +81,12 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -125,7 +126,7 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                            color: Color(0xFFC3C3C3),
+                            color: AppColors.greyBg,
                             fontSize: 14.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.normal,
@@ -141,11 +142,10 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                         color: FlutterFlowTheme.of(context).accent1,
                       ),
                     ),
-                  ].divide(SizedBox(height: 8.0)),
+                  ].divide(const SizedBox(height: 8.0)),
                 ),
                 FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     '3tili4xw' /* Next */,
@@ -153,9 +153,9 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                   options: FFButtonOptions(
                     width: double.infinity,
                     height: 56.0,
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     iconPadding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium
@@ -176,7 +176,7 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                               .fontStyle,
                         ),
                     elevation: 0.0,
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.transparent,
                       width: 1.0,
                     ),
@@ -184,9 +184,9 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                   ),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 24.0))
-                  .addToEnd(SizedBox(height: 24.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 24.0))
+                  .addToEnd(const SizedBox(height: 24.0)),
             ),
           ),
         ),

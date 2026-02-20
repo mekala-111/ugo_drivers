@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
@@ -34,19 +35,19 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   late Animation<double> _fadeAnimation;
 
   final List<Map<String, dynamic>> vehicleTypes = [
-    {'name': 'Car', 'icon': '🚗', 'color': Color(0xFF6366F1)},
-    {'name': 'Bike', 'icon': '🏍️', 'color': Color(0xFFEC4899)},
-    {'name': 'Truck', 'icon': '🚚', 'color': Color(0xFF10B981)},
-    {'name': 'SUV', 'icon': '🚙', 'color': Color(0xFFF59E0B)},
+    {'name': 'Car', 'icon': '🚗', 'color': AppColors.accentIndigo},
+    {'name': 'Bike', 'icon': '🏍️', 'color': AppColors.accentPink},
+    {'name': 'Truck', 'icon': '🚚', 'color': AppColors.accentEmerald},
+    {'name': 'SUV', 'icon': '🚙', 'color': AppColors.accentAmber},
   ];
 
   final List<Map<String, dynamic>> vehicleColors = [
-    {'name': 'White', 'color': Color(0xFFFFFFFF), 'border': Colors.grey[300]},
-    {'name': 'Black', 'color': Color(0xFF000000), 'border': Colors.black},
-    {'name': 'Silver', 'color': Color(0xFFC0C0C0), 'border': Colors.grey[400]},
-    {'name': 'Red', 'color': Color(0xFFEF4444), 'border': Color(0xFFEF4444)},
-    {'name': 'Blue', 'color': Color(0xFF3B82F6), 'border': Color(0xFF3B82F6)},
-    {'name': 'Grey', 'color': Color(0xFF6B7280), 'border': Color(0xFF6B7280)},
+    {'name': 'White', 'color': AppColors.white, 'border': Colors.grey[300]},
+    {'name': 'Black', 'color': AppColors.black, 'border': Colors.black},
+    {'name': 'Silver', 'color': AppColors.silver, 'border': Colors.grey[400]},
+    {'name': 'Red', 'color': AppColors.accentRed, 'border': AppColors.accentRed},
+    {'name': 'Blue', 'color': AppColors.accentBlue, 'border': AppColors.accentBlue},
+    {'name': 'Grey', 'color': AppColors.greyVehicle, 'border': AppColors.greyVehicle},
   ];
 
   @override
@@ -125,17 +126,17 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               color: Colors.white,
               size: 20,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(message, style: TextStyle(fontSize: 14)),
+              child: Text(message, style: const TextStyle(fontSize: 14)),
             ),
           ],
         ),
         backgroundColor: isError ? Colors.red[400] : Colors.green[500],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: EdgeInsets.all(16),
-        duration: Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -148,18 +149,18 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF8FAFC),
+        backgroundColor: AppColors.backgroundLight,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
             onPressed: () => context.pop(),
           ),
-          title: Text(
+          title: const Text(
             'Vehicle Details',
             style: TextStyle(
-              color: Color(0xFF1E293B),
+              color: AppColors.textDark,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -170,25 +171,25 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Vehicle Type
-                    Text(
+                    const Text(
                       'Vehicle Type',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textDark,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _buildVehicleTypeGrid(),
 
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
                     // Make
                     _buildSimpleTextField(
@@ -198,7 +199,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       icon: Icons.directions_car,
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Model
                     _buildSimpleTextField(
@@ -208,7 +209,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       icon: Icons.car_rental,
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Year
                     _buildSimpleTextField(
@@ -219,40 +220,40 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       keyboardType: TextInputType.number,
                     ),
 
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
                     // Color
-                    Text(
+                    const Text(
                       'Vehicle Color',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textDark,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _buildColorGrid(),
 
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
                     // Photo Upload
-                    Text(
+                    const Text(
                       'Vehicle Photo',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textDark,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _buildPhotoUpload(hasImage),
 
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
                     // Submit Button
                     _buildSubmitButton(hasImage),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -266,8 +267,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   Widget _buildVehicleTypeGrid() {
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
@@ -285,12 +286,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             FFAppState().update(() {});
           },
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               color: isSelected ? type['color'] : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? type['color'] : Color(0xFFE2E8F0),
+                color: isSelected ? type['color'] : AppColors.greyBorder,
                 width: 2,
               ),
               boxShadow: [
@@ -298,7 +299,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   BoxShadow(
                     color: type['color'].withValues(alpha:0.3),
                     blurRadius: 8,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
               ],
             ),
@@ -307,15 +308,15 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               children: [
                 Text(
                   type['icon'],
-                  style: TextStyle(fontSize: 32),
+                  style: const TextStyle(fontSize: 32),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   type['name'],
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : Color(0xFF64748B),
+                    color: isSelected ? Colors.white : AppColors.greySlate,
                   ),
                 ),
               ],
@@ -338,42 +339,42 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            color: AppColors.textDark,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: controller.text.isNotEmpty ? Color(0xFF6366F1) : Color(0xFFE2E8F0),
+              color: controller.text.isNotEmpty ? AppColors.accentIndigo : AppColors.greyBorder,
               width: 2,
             ),
           ),
           child: TextField(
             controller: controller,
             keyboardType: keyboardType,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF1E293B),
+              color: AppColors.textDark,
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(
-                color: Color(0xFF94A3B8),
+              hintStyle: const TextStyle(
+                color: AppColors.greyLight,
                 fontSize: 15,
               ),
-              prefixIcon: Icon(icon, color: Color(0xFF6366F1), size: 20),
+              prefixIcon: Icon(icon, color: AppColors.accentIndigo, size: 20),
               suffixIcon: controller.text.isNotEmpty
-                  ? Icon(Icons.check_circle, color: Color(0xFF10B981), size: 20)
+                  ? const Icon(Icons.check_circle, color: AppColors.accentEmerald, size: 20)
                   : null,
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             onChanged: (value) {
               setState(() {});
@@ -405,13 +406,13 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             FFAppState().update(() {});
           },
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF6366F1).withValues(alpha:0.1) : Colors.white,
+              color: isSelected ? AppColors.accentIndigo.withValues(alpha:0.1) : Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? Color(0xFF6366F1) : Color(0xFFE2E8F0),
+                color: isSelected ? AppColors.accentIndigo : AppColors.greyBorder,
                 width: 2,
               ),
             ),
@@ -430,18 +431,18 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     ),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   colorData['name'],
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? Color(0xFF6366F1) : Color(0xFF64748B),
+                    color: isSelected ? AppColors.accentIndigo : AppColors.greySlate,
                   ),
                 ),
                 if (isSelected) ...[
-                  SizedBox(width: 6),
-                  Icon(Icons.check, size: 16, color: Color(0xFF6366F1)),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.check, size: 16, color: AppColors.accentIndigo),
                 ],
               ],
             ),
@@ -492,14 +493,14 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         }
       },
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
           color: hasImage ? null : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: hasImage ? Color(0xFF10B981) : Color(0xFFE2E8F0),
+            color: hasImage ? AppColors.accentEmerald : AppColors.greyBorder,
             width: 2,
           ),
         ),
@@ -519,32 +520,32 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Color(0xFF6366F1).withValues(alpha:0.1),
+                        color: AppColors.accentIndigo.withValues(alpha:0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.add_photo_alternate,
                         size: 40,
-                        color: Color(0xFF6366F1),
+                        color: AppColors.accentIndigo,
                       ),
                     ),
-                    SizedBox(height: 12),
-                    Text(
+                    const SizedBox(height: 12),
+                    const Text(
                       'Tap to upload photo',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
+                        color: AppColors.greySlate,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
+                    const SizedBox(height: 4),
+                    const Text(
                       'Camera or Gallery',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.greyLight,
                       ),
                     ),
                   ],
@@ -568,11 +569,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     _showSnackBar('Photo removed', isError: true);
                   },
                   child: Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.red[400],
                       shape: BoxShape.circle,
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 4,
@@ -580,7 +581,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                         ),
                       ],
                     ),
-                    child: Icon(Icons.close, color: Colors.white, size: 18),
+                    child: const Icon(Icons.close, color: Colors.white, size: 18),
                   ),
                 ),
               ),
@@ -590,11 +591,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 top: 8,
                 left: 8,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFF10B981),
+                    color: AppColors.accentEmerald,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 4,
@@ -602,7 +603,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.check_circle, color: Colors.white, size: 16),
@@ -638,20 +639,20 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       height: 56,
       decoration: BoxDecoration(
         gradient: isFormValid
-            ? LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+            ? const LinearGradient(
+          colors: [AppColors.accentIndigo, AppColors.accentPurple],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         )
             : null,
-        color: isFormValid ? null : Color(0xFFE2E8F0),
+        color: isFormValid ? null : AppColors.greyBorder,
         borderRadius: BorderRadius.circular(12),
         boxShadow: isFormValid
             ? [
           BoxShadow(
-            color: Color(0xFF6366F1).withValues(alpha:0.4),
+            color: AppColors.accentIndigo.withValues(alpha:0.4),
             blurRadius: 12,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ]
             : [],
@@ -677,7 +678,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
 
             _showSnackBar('✓ Vehicle details saved successfully!');
 
-            await Future.delayed(Duration(milliseconds: 600));
+            await Future.delayed(const Duration(milliseconds: 600));
             context.pop();
           }
               : () {
@@ -699,7 +700,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             child: Text(
               'Save Vehicle Details',
               style: TextStyle(
-                color: isFormValid ? Colors.white : Color(0xFF94A3B8),
+                color: isFormValid ? Colors.white : AppColors.greyLight,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,

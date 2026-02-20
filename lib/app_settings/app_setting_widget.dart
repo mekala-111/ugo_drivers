@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ugo_driver/app_settings/emergencycontactscreen.dart';
 
 class AppSettingsWidget extends StatefulWidget {
-  const AppSettingsWidget({Key? key}) : super(key: key);
+  const AppSettingsWidget({super.key});
 
   static String routeName = 'AppSettings';
   static String routePath = '/appSettings';

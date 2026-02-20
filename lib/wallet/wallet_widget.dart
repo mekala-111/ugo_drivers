@@ -24,10 +24,10 @@ class _WalletWidgetState extends State<WalletWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   // 🎨 UGO BRAND COLORS
-  final Color ugoOrange = const Color(0xFFFF7B10);
-  final Color ugoOrangeLight = const Color(0xFFFF9E4D);
-  final Color ugoGreen = const Color(0xFF4CAF50);
-  final Color ugoRed = const Color(0xFFE53935);
+  final Color ugoOrange = AppColors.primary;
+  final Color ugoOrangeLight = AppColors.primaryLight;
+  final Color ugoGreen = AppColors.success;
+  final Color ugoRed = AppColors.error;
 
   // Bank Account Data
   String? bankAccountNumber;
@@ -73,19 +73,10 @@ class _WalletWidgetState extends State<WalletWidget> {
             fundAccountId = BankAccountCall.fundAccountId(response.jsonBody);
         });
 
-        if (kDebugMode) {
-          print('✅ Bank Account Loaded Successfully');
-          print('   Account: $bankAccountNumber');
-          print('   IFSC: $ifscCode');
-          print('   Bank: $bankName');
-        }
+        // Do not log bank details
       } else {
         if (kDebugMode) {
-          print('❌ Failed to fetch bank account');
-          print('   Status: ${response.statusCode}');
-          if (response.exception != null) {
-            print('   Error: ${response.exceptionMessage}');
-          }
+          debugPrint('Bank account fetch failed: status ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -115,17 +106,10 @@ class _WalletWidgetState extends State<WalletWidget> {
               ?.toString();
         });
 
-        if (kDebugMode) {
-          print('✅ Wallet Loaded Successfully');
-          print('   Balance: $walletBalance');
-        }
+        // Wallet loaded
       } else {
         if (kDebugMode) {
-          print('❌ Failed to fetch wallet');
-          print('   Status: ${response.statusCode}');
-          if (response.exception != null) {
-            print('   Error: ${response.exceptionMessage}');
-          }
+          debugPrint('Wallet fetch failed: status ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -156,9 +140,9 @@ class _WalletWidgetState extends State<WalletWidget> {
             : 20.0;
     final contentMaxWidth = isTablet ? 720.0 : double.infinity;
     final headerActions = [
-      _buildHeaderAction(Icons.add, "Add Money", () {}),
-      _buildHeaderAction(Icons.qr_code_scanner, "Scan", () {}),
-      _buildHeaderAction(Icons.history, "History", () {}),
+      _buildHeaderAction(Icons.add, 'Add Money', () {}),
+      _buildHeaderAction(Icons.qr_code_scanner, 'Scan', () {}),
+      _buildHeaderAction(Icons.history, 'History', () {}),
     ];
 
     return GestureDetector(
@@ -168,7 +152,7 @@ class _WalletWidgetState extends State<WalletWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF5F7FA), // Light grey for contrast
+        backgroundColor: AppColors.backgroundAlt,
         appBar: AppBar(
           backgroundColor: ugoOrange,
           elevation: 0,
@@ -285,7 +269,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Recent Transactions",
+                          'Recent Transactions',
                           style: GoogleFonts.inter(
                             fontSize: 18.0 * scale,
                             fontWeight: FontWeight.bold,
@@ -296,23 +280,23 @@ class _WalletWidgetState extends State<WalletWidget> {
 
                         // 🟢 Credit Example (Earnings)
                         _buildTransactionTile(
-                          title: "Ride Earnings",
-                          date: "Today, 10:23 AM",
-                          amount: "+ ₹120.00",
+                          title: 'Ride Earnings',
+                          date: 'Today, 10:23 AM',
+                          amount: '+ ₹120.00',
                           isCredit: true,
                         ),
                         // 🔴 Debit Example (Commission)
                         _buildTransactionTile(
-                          title: "Commission Paid",
-                          date: "Today, 09:45 AM",
-                          amount: "- ₹35.00",
+                          title: 'Commission Paid',
+                          date: 'Today, 09:45 AM',
+                          amount: '- ₹35.00',
                           isCredit: false,
                         ),
                         // 🟢 Credit Example (Incentive)
                         _buildTransactionTile(
-                          title: "Incentive Bonus",
-                          date: "Yesterday",
-                          amount: "+ ₹50.00",
+                          title: 'Incentive Bonus',
+                          date: 'Yesterday',
+                          amount: '+ ₹50.00',
                           isCredit: true,
                         ),
 
@@ -321,7 +305,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                           child: TextButton(
                             onPressed: () {},
                             child: Text(
-                              "View All Transactions",
+                              'View All Transactions',
                               style: TextStyle(
                                 color: ugoOrange,
                                 fontWeight: FontWeight.w600,
@@ -345,7 +329,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Manage",
+                          'Manage',
                           style: GoogleFonts.inter(
                             fontSize: 18.0 * scale,
                             fontWeight: FontWeight.bold,
@@ -355,13 +339,11 @@ class _WalletWidgetState extends State<WalletWidget> {
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.account_balance,
-                          title: "Bank Account",
-                          subtitle: "Manage withdrawal account",
+                          title: 'Bank Account',
+                          subtitle: 'Manage withdrawal account',
                           onTap: () {
                             if (kDebugMode) {
-                              print('🏦 Bank Account card tapped');
-                              print('   Account: $bankAccountNumber');
-                              print('   IFSC: $ifscCode');
+                              // Bank card tapped - do not log details
                             }
 
                             final hasAccount =
@@ -396,15 +378,15 @@ class _WalletWidgetState extends State<WalletWidget> {
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.card_giftcard,
-                          title: "Vouchers & Promos",
-                          subtitle: "0 Active vouchers",
+                          title: 'Vouchers & Promos',
+                          subtitle: '0 Active vouchers',
                           onTap: () {},
                         ),
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.group_add,
-                          title: "Referrals",
-                          subtitle: "Invite friends & earn",
+                          title: 'Referrals',
+                          subtitle: 'Invite friends & earn',
                           onTap: () {},
                         ),
                       ],

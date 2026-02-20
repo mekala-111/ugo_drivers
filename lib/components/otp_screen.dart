@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:flutter/services.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 
 // --- The OTP Card Widget ---
 class OtpVerificationSheet extends StatefulWidget {
   final List<TextEditingController> otpControllers;
   final VoidCallback onVerify;
+  /// Dynamic OTP from ride (shown to driver if passenger shares it - Rapido style)
+  final String? displayOtp;
 
   const OtpVerificationSheet({
-    Key? key,
+    super.key,
     required this.otpControllers,
     required this.onVerify,
-  }) : super(key: key);
+    this.displayOtp,
+  });
 
   @override
   State<OtpVerificationSheet> createState() => _OtpVerificationSheetState();
@@ -18,7 +23,7 @@ class OtpVerificationSheet extends StatefulWidget {
 
 class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   // Colors from screenshot
-  static const Color ugoGreen = Color(0xFF4CAF50);
+  static const Color ugoGreen = AppColors.success;
 
   // Focus nodes for Rapido-style navigation
   late List<FocusNode> _focusNodes;
@@ -78,10 +83,10 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         topRight: Radius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      "Enter The OTP To Start The Ride",
+                    child: Text(
+                      FFLocalizations.of(context).getText('drv_otp_title'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -95,14 +100,43 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // "Enter OTP" Title
-                        const Text(
-                          "Enter OTP",
-                          style: TextStyle(
+                        Text(
+                          FFLocalizations.of(context).getText('drv_enter_otp'),
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
+
+                        // Dynamic OTP display (Rapido-style - show if backend provides it)
+                        if (widget.displayOtp != null && widget.displayOtp!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: ugoGreen.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: ugoGreen, width: 1),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.pin, color: ugoGreen, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "${FFLocalizations.of(context).getText('drv_ride_otp')}: ${widget.displayOtp}",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         const SizedBox(height: 24),
 
@@ -133,10 +167,10 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                const Center(
+                                Center(
                                   child: Text(
-                                    "VERIFY",
-                                    style: TextStyle(
+                                    FFLocalizations.of(context).getText('drv_verify'),
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -189,7 +223,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
           style: const TextStyle(
               fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
           decoration: InputDecoration(
-            counterText: "",
+            counterText: '',
             contentPadding: EdgeInsets.zero,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),

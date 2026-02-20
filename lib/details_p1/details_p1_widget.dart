@@ -66,10 +66,10 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
             mainAxisSize: MainAxisSize.max,
             children: [
               Container(
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Padding(
                   padding:
-                      EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+                      const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,7 +160,7 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                               ),
                             ),
                             child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
                                   16.0, 0.0, 16.0, 0.0),
                               child: TextFormField(
                                 controller: _model.textController,
@@ -219,7 +219,7 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                               ),
                             ),
                           ),
-                        ].divide(SizedBox(height: 16.0)),
+                        ].divide(const SizedBox(height: 16.0)),
                       ),
                       FFButtonWidget(
                         onPressed: () async {
@@ -252,10 +252,10 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                         options: FFButtonOptions(
                           width: double.infinity,
                           height: 50.0,
-                          padding: EdgeInsets.all(8.0),
-                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsets.all(8.0),
+                          iconPadding: const EdgeInsetsDirectional.fromSTEB(
                               0.0, 0.0, 0.0, 0.0),
-                          color: Color(0xFFFF6B35),
+                          color: AppColors.accentCoral,
                           textStyle:
                               FlutterFlowTheme.of(context).titleMedium.override(
                                     font: GoogleFonts.interTight(
@@ -276,7 +276,7 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                    ].divide(SizedBox(height: 24.0)),
+                    ].divide(const SizedBox(height: 24.0)),
                   ),
                 ),
               ),

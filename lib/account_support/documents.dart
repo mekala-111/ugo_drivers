@@ -70,7 +70,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           bool hasDoc(dynamic path) =>
               path != null &&
                   path.toString().isNotEmpty &&
-                  path.toString() != "null";
+                  path.toString() != 'null';
 
           setState(() {
             _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
@@ -84,13 +84,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 hasDoc(data['rc_image']) || hasDoc(data['rc_front_image']);
           });
 
-          print("✅ Documents Status Updated from Server");
         }
       } else {
-        print("❌ Failed to fetch driver details: ${response.statusCode}");
       }
-    } catch (e) {
-      print('❌ Error fetching documents: $e');
     } finally {
       if (mounted) setState(() => _isFetchingDocuments = false);
     }
@@ -153,9 +149,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         // Success Logic
         setState(() {
           // Mark locally uploaded docs as "On Server" now
-          _serverDocuments.keys.forEach((key) {
+          for (var key in _serverDocuments.keys) {
             if (_getLocalDoc(key) != null) _serverDocuments[key] = true;
-          });
+          }
         });
 
         // Clear local state
@@ -202,9 +198,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     context.watch<FFAppState>();
 
     // 🎨 APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -258,7 +254,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               ),
                               const SizedBox(width: 16),
                               const Text(
-                                "Manage Documents",
+                                'Manage Documents',
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -269,9 +265,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           ),
 
                           const SizedBox(height: 40),
-                          Center(
-                            child: const Text(
-                              "Update your Proofs here.",
+                          const Center(
+                            child: Text(
+                              'Update your Proofs here.',
                               style: TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
@@ -295,7 +291,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             Positioned.fill(
               top: 180,
               child: _isFetchingDocuments
-                  ? Center(
+                  ? const Center(
                   child: CircularProgressIndicator(color: brandPrimary))
                   : SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -315,33 +311,33 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader("Personal Documents"),
+                      _buildSectionHeader('Personal Documents'),
                       const SizedBox(height: 16),
 
                       _buildStepItem(
-                        "Profile Photo",
-                        "profilePhoto",
+                        'Profile Photo',
+                        'profilePhoto',
                             () => context
                             .pushNamed(FaceVerifyupdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        "Driving License",
-                        "imageLicense",
+                        'Driving License',
+                        'imageLicense',
                             () => context
                             .pushNamed(DrivingDlUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        "Aadhaar Card",
-                        "aadharImage",
+                        'Aadhaar Card',
+                        'aadharImage',
                             () => context
                             .pushNamed(AdharUploadUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        "PAN Card",
-                        "panImage",
+                        'PAN Card',
+                        'panImage',
                             () => context
                             .pushNamed(PanuploadScreenUpdateWidget.routeName),
                       ),
@@ -350,19 +346,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       Divider(color: Colors.grey.shade100, thickness: 2),
                       const SizedBox(height: 24),
 
-                      _buildSectionHeader("Vehicle Documents"),
+                      _buildSectionHeader('Vehicle Documents'),
                       const SizedBox(height: 16),
 
                       _buildStepItem(
-                        "Vehicle Photo",
-                        "vehicleImage",
+                        'Vehicle Photo',
+                        'vehicleImage',
                             () => context
                             .pushNamed(VehicleImageUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        "RC Book",
-                        "registrationImage",
+                        'RC Book',
+                        'registrationImage',
                             () => context
                             .pushNamed(RegistrationUpdateWidget.routeName),
                       ),
@@ -395,7 +391,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 strokeWidth: 2.5),
                           )
                               : const Text(
-                            "Update Documents",
+                            'Update Documents',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -434,27 +430,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     bool isServer = _serverDocuments[key] ?? false;
 
     // Define Visuals
-    Color bgColor = const Color(0xFFF9F9F9);
-    Color borderColor = const Color(0xFFEEEEEE);
+    Color bgColor = AppColors.backgroundCard;
+    Color borderColor = AppColors.divider;
     Color iconColor = Colors.grey.shade400;
     IconData icon = Icons.upload_file_rounded;
-    String statusText = "Tap to upload";
+    String statusText = 'Tap to upload';
     Color textColor = Colors.grey.shade500;
 
     if (isLocal) {
-      bgColor = const Color(0xFFFFF7ED); // Light Orange
-      borderColor = const Color(0xFFFF7B10).withValues(alpha:0.5);
-      iconColor = const Color(0xFFFF7B10);
+      bgColor = AppColors.sectionOrangeTint;
+      borderColor = AppColors.primary.withValues(alpha:0.5);
+      iconColor = AppColors.primary;
       icon = Icons.cloud_upload_rounded;
-      statusText = "Ready to Update";
-      textColor = const Color(0xFFFF7B10);
+      statusText = 'Ready to Update';
+      textColor = AppColors.primary;
     } else if (isServer) {
-      bgColor = const Color(0xFFF0FDF4); // Light Green
-      borderColor = const Color(0xFF10B981).withValues(alpha:0.5);
-      iconColor = const Color(0xFF10B981);
+      bgColor = AppColors.sectionGreenTint;
+      borderColor = AppColors.accentEmerald.withValues(alpha:0.5);
+      iconColor = AppColors.accentEmerald;
       icon = Icons.check_circle_rounded;
-      statusText = "Uploaded";
-      textColor = const Color(0xFF10B981);
+      statusText = 'Uploaded';
+      textColor = AppColors.accentEmerald;
     }
 
     return InkWell(

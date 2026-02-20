@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -57,7 +58,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -83,12 +84,12 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -99,7 +100,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: TextFormField(
                         controller: _model.textController,
@@ -121,7 +122,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF9C9898),
+                                    color: AppColors.textMuted,
                                     fontSize: 16.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
@@ -132,36 +133,36 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                                         .fontStyle,
                                   ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.transparent,
                               width: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Color(0x00000000),
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
                               width: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Color(0x00000000),
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
                               width: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedErrorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Color(0x00000000),
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
                               width: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           filled: true,
-                          fillColor: Color(0xFFD9D9D9),
-                          contentPadding: EdgeInsetsDirectional.fromSTEB(
+                          fillColor: AppColors.greyBorderLight,
+                          contentPadding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 16.0, 16.0, 16.0),
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -173,7 +174,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                                     .bodyMedium
                                     .fontStyle,
                               ),
-                              color: Color(0xFF9C9898),
+                              color: AppColors.textMuted,
                               fontSize: 16.0,
                               letterSpacing: 0.0,
                               fontWeight: FlutterFlowTheme.of(context)
@@ -199,7 +200,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                            color: Color(0xFF9C9898),
+                            color: AppColors.textMuted,
                             fontSize: 12.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.normal,
@@ -210,12 +211,11 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                           ),
                     ),
                   ]
-                      .divide(SizedBox(height: 24.0))
-                      .addToStart(SizedBox(height: 32.0)),
+                      .divide(const SizedBox(height: 24.0))
+                      .addToStart(const SizedBox(height: 32.0)),
                 ),
                 FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     'zflfzuy8' /* Continue */,
@@ -224,9 +224,9 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                     width: double.infinity,
                     height: 56.0,
                     padding:
-                        EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                     iconPadding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium
@@ -247,7 +247,7 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                               .fontStyle,
                         ),
                     elevation: 0.0,
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.transparent,
                       width: 1.0,
                     ),

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:http/http.dart' as http;
 import 'package:equatable/equatable.dart';
 import 'package:http_parser/http_parser.dart';
@@ -228,7 +229,7 @@ class ApiManager {
 
   static String asQueryParams(Map<String, dynamic> map) => map.entries
       .map((e) =>
-  "${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}")
+  '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}')
       .join('&');
 
   static Future<ApiCallResponse> urlRequest(
@@ -477,8 +478,11 @@ class ApiManager {
           isStreamingApi: isStreamingApi,
         );
 
-    if (_accessToken != null) {
-      headers[HttpHeaders.authorizationHeader] = 'Bearer $_accessToken';
+    var requestHeaders = headers;
+    if (!headers.keys.any((k) => k.toLowerCase() == 'authorization') &&
+        _accessToken != null) {
+      requestHeaders = Map<String, dynamic>.from(headers);
+      requestHeaders[HttpHeaders.authorizationHeader] = 'Bearer $_accessToken';
     }
     if (!apiUrl.startsWith('http')) {
       apiUrl = 'https://$apiUrl';
@@ -495,7 +499,7 @@ class ApiManager {
           result = await urlRequest(
             callType,
             apiUrl,
-            headers,
+            requestHeaders,
             params,
             returnBody,
             decodeUtf8,
@@ -522,7 +526,7 @@ class ApiManager {
               : await urlRequest(
             callType,
             apiUrl,
-            headers,
+            requestHeaders,
             params,
             returnBody,
             decodeUtf8,
@@ -536,7 +540,7 @@ class ApiManager {
           result = await requestWithBody(
             callType,
             apiUrl,
-            headers,
+            requestHeaders,
             params,
             body,
             bodyType,
@@ -557,11 +561,13 @@ class ApiManager {
       result = ApiCallResponse(null, {}, -1, exception: e);
     }
 
-    print('API Call [$callName] to $apiUrl completed with status ${result.statusCode} and body: ${result.jsonBody}');
+    if (kDebugMode) {
+      // Log status only - never full response body (may contain PII/sensitive data)
+      final suffix = !result.succeeded && result.statusCode >= 400 ? ' (error)' : '';
+      debugPrint('API [$callName] → ${result.statusCode}$suffix');
+    }
 
-    // ✅ CHECK FOR UNAUTHORIZED (401)
     if (result.statusCode == 401) {
-      print("🚨 401 Unauthorized Detected - Triggering Global Logout");
       onUnauthenticated?.call();
     }
 

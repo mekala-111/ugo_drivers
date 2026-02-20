@@ -3,6 +3,7 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'account_management_model.dart';
 export 'account_management_model.dart';
+import '/services/voice_service.dart';
 
 class AccountManagementWidget extends StatefulWidget {
   const AccountManagementWidget({super.key});
@@ -57,99 +58,134 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
     super.dispose();
   }
 
-  Future<void> _handleLogout() async {
-    bool? confirmLogout = await showDialog<bool>(
+  Future<void> _showLanguageSelector() async {
+    const options = [
+      {'code': 'en', 'label': 'English', 'flag': '🇬🇧'},
+      {'code': 'hi', 'label': 'हिंदी', 'flag': '🇮🇳'},
+      {'code': 'te', 'label': 'తెలుగు', 'flag': '🇮🇳'},
+    ];
+    final currentLang = FFLocalizations.of(context).languageCode;
+
+    if (!mounted) return;
+    final selected = await showModalBottomSheet<String>(
       context: context,
-      builder: (alertDialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                child: Icon(Icons.logout_rounded, color: Colors.red[700], size: 24),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Logout',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to logout?',
-            style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(alertDialogContext, false),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(alertDialogContext, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[500],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            const SizedBox(height: 20),
+            Text(
+              FFLocalizations.of(context).getVariableText(
+                enText: 'Select Language',
+                hiText: 'भाषा चुनें',
+                teText: 'భాష ఎంచుకోండి',
               ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              FFLocalizations.of(context).getVariableText(
+                enText: 'App and voice will use this language',
+                hiText: 'ऐप और वॉयस इस भाषा का उपयोग करेंगे',
+                teText: 'యాప్ మరియు వాయిస్ ఈ భాషను ఉపయోగిస్తాయి',
+              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 20),
+            ...options.map((opt) {
+              final code = opt['code']!;
+              final isSelected = currentLang == code;
+              return InkWell(
+                onTap: () => Navigator.pop(ctx, code),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.accentPurple.withValues(alpha: 0.1)
+                        : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected ? AppColors.accentPurple : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(opt['flag']!, style: const TextStyle(fontSize: 24)),
+                      const SizedBox(width: 16),
+                      Text(
+                        opt['label']!,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? AppColors.accentPurple : AppColors.textDark,
+                        ),
+                      ),
+                      if (isSelected) ...[
+                        const Spacer(),
+                        const Icon(Icons.check_circle, color: AppColors.accentPurple, size: 24),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
-        );
-      },
+        ),
+      ),
     );
 
-    // if (confirmLogout == true) {
-    //   FFAppState().accessToken = '';
-    //   FFAppState().driverid = 0;
-    //   FFAppState().profilePhoto = null;
-    //   FFAppState().isLoggedIn = false;
-
-    //   context.goNamedAuth(
-    //     LoginWidget.routeName,
-    //     context.mounted,
-    //     extra: <String, dynamic>{
-    //       kTransitionInfoKey: const TransitionInfo(
-    //         hasTransition: true,
-    //         transitionType: PageTransitionType.fade,
-    //       ),
-    //     },
-    //   );
-    // }
-     if (confirmLogout == true) {
-  await FFAppState().clearAppState();   // 🔥 CLEAR EVERYTHING
-
-  if (!context.mounted) return;
-
-  context.goNamedAuth(
-    LoginWidget.routeName,
-    context.mounted,
-    extra: <String, dynamic>{
-      kTransitionInfoKey: const TransitionInfo(
-        hasTransition: true,
-        transitionType: PageTransitionType.fade,
-      ),
-    },
-  );
-}
+    if (selected != null && selected != currentLang && mounted) {
+      await FFLocalizations.storeLocale(selected);
+      VoiceService().setLanguage(selected);
+      setAppLanguage(context, selected);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              selected == 'en'
+                  ? 'Language changed to English'
+                  : selected == 'hi'
+                      ? 'भाषा हिंदी में बदल दी गई'
+                      : 'భాష తెలుగుకు మార్చబడింది',
+            ),
+            backgroundColor: AppColors.accentPurple,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // 🎨 APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () {
@@ -212,9 +248,9 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                           const Spacer(),
                           const SizedBox(height: 4),
                           Center(
-                            child: const Text(
-                              "Manage your Preferences.",
-                              style: TextStyle(
+                            child: Text(
+                              FFLocalizations.of(context).getText('drv_manage_prefs'),
+                              style: const TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -248,11 +284,6 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                         // Menu Card
                         _buildMenuCard(),
 
-                        const SizedBox(height: 24),
-
-                        // Logout Button
-                        _buildLogoutButton(),
-
                         const SizedBox(height: 40),
                       ],
                     ),
@@ -271,15 +302,15 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       {
         'icon': Icons.message_rounded,
         'title': FFLocalizations.of(context).getText('uwwd4cw4' /* Inbox */),
-        'subtitle': 'View messages',
-        'color': const Color(0xFF6366F1),
+        'subtitle': FFLocalizations.of(context).getText('drv_view_messages'),
+        'color': AppColors.accentIndigo,
         'onTap': () => context.pushNamed(InboxPageWidget.routeName),
       },
       {
         'icon': Icons.account_balance_wallet_rounded,
         'title': FFLocalizations.of(context).getText('u3u05cev' /* Wallet */),
-        'subtitle': 'Check balance',
-        'color': const Color(0xFF10B981),
+        'subtitle': FFLocalizations.of(context).getText('drv_check_balance'),
+        'color': AppColors.accentEmerald,
         'onTap': () => context.pushNamed(WalletWidget.routeName),
       },
       {
@@ -289,16 +320,45 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
           hiText: 'प्रोफ़ाइल',
           teText: 'ప్రొఫైల్',
         ),
-        'subtitle': 'Edit your info',
-        'color': const Color(0xFFF59E0B),
+        'subtitle': FFLocalizations.of(context).getText('drv_edit_info'),
+        'color': AppColors.accentAmber,
         'onTap': () => context.pushNamed(AccountSupportWidget.routeName),
+      },
+      {
+        'icon': Icons.language_rounded,
+        'title': FFLocalizations.of(context).getVariableText(
+          enText: 'Language',
+          hiText: 'भाषा',
+          teText: 'భాష',
+        ),
+        'subtitle': FFLocalizations.of(context).getVariableText(
+          enText: 'App & voice language',
+          hiText: 'ऐप और वॉयस भाषा',
+          teText: 'యాప్ మరియు వాయిస్ భాష',
+        ),
+        'color': AppColors.accentPurple,
+        'onTap': _showLanguageSelector,
+      },
+      {
+        'icon': Icons.record_voice_over_rounded,
+        'title': FFLocalizations.of(context).getText('drv_voice'),
+        'subtitle': FFLocalizations.of(context).getText('drv_ride_announcements'),
+        'color': AppColors.accentPink,
+        'isSwitch': true,
       },
       {
         'icon': Icons.description_rounded,
         'title': FFLocalizations.of(context).getText('utfxvwam' /* Terms & Conditions */),
-        'subtitle': 'Legal information',
-        'color': const Color(0xFF64748B),
-        'onTap': () {},
+        'subtitle': FFLocalizations.of(context).getText('drv_legal_info'),
+        'color': AppColors.greySlate,
+        'onTap': () => context.pushNamed(TermsConditionsWidget.routeName),
+      },
+      {
+        'icon': Icons.privacy_tip_rounded,
+        'title': FFLocalizations.of(context).getText('drv_privacy_policy'),
+        'subtitle': FFLocalizations.of(context).getText('drv_how_we_handle'),
+        'color': AppColors.accentIndigo,
+        'onTap': () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
       },
     ];
 
@@ -318,11 +378,18 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         children: List.generate(menuItems.length, (index) {
           final item = menuItems[index];
           final isLast = index == menuItems.length - 1;
+          final isSwitch = item['isSwitch'] == true;
 
           return Column(
             children: [
               InkWell(
-                onTap: item['onTap'] as VoidCallback,
+                onTap: isSwitch
+                    ? () async {
+                        final v = VoiceService().voiceEnabled;
+                        await VoiceService().setVoiceEnabled(!v);
+                        if (mounted) setState(() {});
+                      }
+                    : item['onTap'] as VoidCallback,
                 borderRadius: BorderRadius.vertical(
                   top: index == 0 ? const Radius.circular(24) : Radius.zero,
                   bottom: isLast ? const Radius.circular(24) : Radius.zero,
@@ -353,7 +420,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textDark,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -368,11 +435,20 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                           ],
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: Colors.grey[400],
-                        size: 24,
-                      ),
+                      if (isSwitch)
+                        Switch.adaptive(
+                          value: VoiceService().voiceEnabled,
+                          onChanged: (v) async {
+                            await VoiceService().setVoiceEnabled(v);
+                            if (mounted) setState(() {});
+                          },
+                        )
+                      else
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: Colors.grey[400],
+                          size: 24,
+                        ),
                     ],
                   ),
                 ),
@@ -391,34 +467,4 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
     );
   }
 
-  Widget _buildLogoutButton() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2), // Light Red Background
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFEE2E2)),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: _handleLogout,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
-            const SizedBox(width: 12),
-            Text(
-              FFLocalizations.of(context).getText('p0413re4' /* Logout */),
-              style: const TextStyle(
-                color: Color(0xFFEF4444),
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '/app_state.dart';
+import '/config.dart';
+
 class EmergencyContactsScreen extends StatefulWidget {
-  const EmergencyContactsScreen({Key? key}) : super(key: key);
+  const EmergencyContactsScreen({super.key});
 
   static String routeName = 'EmergencyContacts';
   static String routePath = '/emergencyContacts';
@@ -15,11 +18,10 @@ class EmergencyContactsScreen extends StatefulWidget {
 class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   List<EmergencyContact> contacts = [];
   bool isLoading = true;
-  
-  // Replace these with actual values from your auth system
-  final String baseUrl = 'http://localhost:5000/api/emergency-contacts';
-  final int userId = 1; // Get from your auth/session
-  final String accessToken = 'your_access_token'; // Get from your auth/session
+
+  String get _baseUrl =>
+      '${Config.baseUrl}/api/drivers/${FFAppState().driverid}/emergency-contacts';
+  String get _accessToken => FFAppState().accessToken;
 
   @override
   void initState() {
@@ -28,16 +30,18 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   }
 
   Future<void> _loadContacts() async {
+    if (!mounted) return;
     setState(() => isLoading = true);
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/$userId'),
+        Uri.parse(_baseUrl),
         headers: {
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $_accessToken',
           'Content-Type': 'application/json',
         },
       );
 
+      if (!mounted) return;
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -48,8 +52,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         throw Exception('Failed to load contacts');
       }
     } catch (e) {
-      setState(() => isLoading = false);
-      _showError('Failed to load contacts: $e');
+      if (mounted) setState(() => isLoading = false);
+      if (mounted) _showError('Failed to load contacts');
     }
   }
 
@@ -69,8 +73,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   Future<void> _saveContact(EmergencyContact contact, int? existingId) async {
     try {
       final url = existingId != null 
-          ? '$baseUrl/$existingId'
-          : '$baseUrl/post';
+          ? '$_baseUrl/$existingId'
+          : '$_baseUrl/post';
       
       final method = existingId != null ? 'PUT' : 'POST';
       
@@ -78,7 +82,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           ? http.post(
               Uri.parse(url),
               headers: {
-                'Authorization': 'Bearer $accessToken',
+                'Authorization': 'Bearer $_accessToken',
                 'Content-Type': 'application/json',
               },
               body: json.encode(contact.toJson()),
@@ -86,7 +90,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           : http.put(
               Uri.parse(url),
               headers: {
-                'Authorization': 'Bearer $accessToken',
+                'Authorization': 'Bearer $_accessToken',
                 'Content-Type': 'application/json',
               },
               body: json.encode(contact.toJson()),
@@ -125,12 +129,13 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
     if (confirm == true) {
       try {
         final response = await http.delete(
-          Uri.parse('$baseUrl/$id'),
+          Uri.parse('$_baseUrl/$id'),
           headers: {
-            'Authorization': 'Bearer $accessToken',
+            'Authorization': 'Bearer $_accessToken',
           },
         );
 
+        if (!mounted) return;
         if (response.statusCode == 200) {
           _showSuccess('Contact deleted');
           _loadContacts();
@@ -138,7 +143,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           throw Exception('Failed to delete contact');
         }
       } catch (e) {
-        _showError('Failed to delete contact: $e');
+        if (mounted) _showError('Failed to delete contact');
       }
     }
   }
@@ -268,7 +273,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 class AddEditContactScreen extends StatefulWidget {
   final EmergencyContact? contact;
 
-  const AddEditContactScreen({Key? key, this.contact}) : super(key: key);
+  const AddEditContactScreen({super.key, this.contact});
 
   @override
   State<AddEditContactScreen> createState() => _AddEditContactScreenState();
@@ -302,7 +307,7 @@ class _AddEditContactScreenState extends State<AddEditContactScreen> {
     if (_formKey.currentState!.validate()) {
       final contact = EmergencyContact(
         id: widget.contact?.id,
-        userId: 1, // Get from your auth/session
+        userId: FFAppState().driverid,
         contactName: _nameController.text,
         contactPhone: _phoneController.text,
         contactRelationship: _relationshipController.text,

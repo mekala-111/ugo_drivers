@@ -51,7 +51,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     try {
       fcm_token = await FirebaseMessaging.instance.getToken();
     } catch (e) {
-      print("FCM Error: $e");
+      print('FCM Error: $e');
     }
   }
 
@@ -96,9 +96,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     final allDocsUploaded = completionPercentage == 100;
 
     // 🎨 APP COLORS
-    const Color brandPrimary = Color(0xFFFF7B10);
-    const Color brandGradientStart = Color(0xFFFF8E32);
-    const Color bgOffWhite = Color(0xFFF5F7FA);
+    const Color brandPrimary = AppColors.primary;
+    const Color brandGradientStart = AppColors.primaryGradientStart;
+    const Color bgOffWhite = AppColors.backgroundAlt;
 
     return GestureDetector(
       onTap: () {
@@ -160,7 +160,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Setup Profile",
+                                'Setup Profile',
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   color: Colors.white.withValues(alpha:0.9),
@@ -169,7 +169,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "$completionPercentage% Done",
+                                '$completionPercentage% Done',
                                 style: GoogleFonts.interTight(
                                   fontSize: 32,
                                   color: Colors.white,
@@ -193,7 +193,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                                 ),
                                 Center(
                                   child: Text(
-                                    "${(completionPercentage / 16.6).round()}/6",
+                                    '${(completionPercentage / 16.6).round()}/6',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Required Documents",
+                          'Required Documents',
                           style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -247,37 +247,37 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                         const SizedBox(height: 20),
 
                         _buildDocItem(
-                          "Driving License",
+                          'Driving License',
                           FFAppState().imageLicense,
                               () => context.pushNamed(DrivingDlWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          "Profile Photo",
+                          'Profile Photo',
                           FFAppState().profilePhoto,
                               () => context.pushNamed(FaceVerifyWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          "Aadhaar Card",
+                          'Aadhaar Card',
                           FFAppState().aadharImage,
                               () => context.pushNamed(AdharUploadWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          "PAN Card",
+                          'PAN Card',
                           FFAppState().panImage,
                               () => context.pushNamed(PanuploadScreenWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          "Vehicle Photo",
+                          'Vehicle Photo',
                           FFAppState().vehicleImage,
                               () => context.pushNamed(VehicleImageWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          "RC Book",
+                          'RC Book',
                           FFAppState().registrationImage,
                               () => context.pushNamed(RegistrationImageWidget.routeName),
                         ),
@@ -309,7 +309,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : () => _handleContinue(allDocsUploaded),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: allDocsUploaded ? const Color(0xFF10B981) : brandPrimary,
+                    backgroundColor: allDocsUploaded ? AppColors.accentEmerald : brandPrimary,
                     foregroundColor: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -322,7 +322,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                   )
                       : Text(
-                    allDocsUploaded ? "Submit for Verification" : "Skip for Now",
+                    allDocsUploaded ? 'Submit for Verification' : 'Skip for Now',
                     style: GoogleFonts.interTight(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -348,10 +348,10 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUploaded ? const Color(0xFFF0FDF4) : const Color(0xFFF9F9F9),
+          color: isUploaded ? AppColors.sectionGreenTint : AppColors.backgroundCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isUploaded ? const Color(0xFF10B981) : const Color(0xFFEEEEEE),
+            color: isUploaded ? AppColors.accentEmerald : AppColors.divider,
             width: 1.5,
           ),
         ),
@@ -361,7 +361,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isUploaded ? const Color(0xFFDCFCE7) : Colors.white,
+                color: isUploaded ? AppColors.sectionGreenTint : Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isUploaded ? Colors.transparent : Colors.grey.shade300,
@@ -369,7 +369,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
               ),
               child: Icon(
                 isUploaded ? Icons.check : Icons.upload_file,
-                color: isUploaded ? const Color(0xFF16A34A) : Colors.grey.shade500,
+                color: isUploaded ? AppColors.accentEmerald : Colors.grey.shade500,
                 size: 22,
               ),
             ),
@@ -388,10 +388,10 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    isUploaded ? "Uploaded" : "Tap to upload",
+                    isUploaded ? 'Uploaded' : 'Tap to upload',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: isUploaded ? const Color(0xFF16A34A) : Colors.grey.shade500,
+                      color: isUploaded ? AppColors.accentEmerald : Colors.grey.shade500,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -415,18 +415,18 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text("Incomplete Profile"),
+          title: const Text('Incomplete Profile'),
           content: const Text(
             "You won't be able to go online until all documents are verified. Continue anyway?",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text("Cancel"),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text("Skip", style: TextStyle(color: Color(0xFFFF7B10))),
+              child: const Text('Skip', style: TextStyle(color: AppColors.primary)),
             ),
           ],
         ),
@@ -492,14 +492,14 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(errorMsg.isEmpty ? "Registration Failed" : errorMsg),
+              content: Text(errorMsg.isEmpty ? 'Registration Failed' : errorMsg),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      print("Error: $e");
+      print('Error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

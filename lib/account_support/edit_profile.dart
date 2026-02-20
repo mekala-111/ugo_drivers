@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -19,14 +20,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   FFUploadedFile? profileImage;
   bool saving = false;
 
-  static const Color brandPrimary = Color(0xFFFF7B10);
+  static const Color brandPrimary = AppColors.primary;
 
   @override
   void initState() {
     super.initState();
 
-    firstNameCtrl.text = widget.driverData['first_name'] ?? "";
-    lastNameCtrl.text = widget.driverData['last_name'] ?? "";
+    firstNameCtrl.text = widget.driverData['first_name'] ?? '';
+    lastNameCtrl.text = widget.driverData['last_name'] ?? '';
   }
 
   Future pickImage() async {
@@ -49,7 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (firstNameCtrl.text.trim().isEmpty ||
         lastNameCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("First & Last name required")),
+        const SnackBar(content: Text('First & Last name required')),
       );
       return;
     }
@@ -77,7 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         elevation: 0,
         backgroundColor: brandPrimary,
         title: const Text(
-          "Edit Profile",
+          'Edit Profile',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -135,7 +136,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextField(
   controller: firstNameCtrl,
   decoration: InputDecoration(
-    labelText: "First Name",
+    labelText: 'First Name',
     prefixIcon: const Icon(Icons.person_outline),
     filled: true,
     fillColor: Colors.white,
@@ -159,7 +160,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextField(
   controller: lastNameCtrl,
   decoration: InputDecoration(
-    labelText: "Last Name",
+    labelText: 'Last Name',
     prefixIcon: const Icon(Icons.person_outline),
     filled: true,
     fillColor: Colors.white,
@@ -195,7 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: saving
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        "Save Changes",
+                        'Save Changes',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),

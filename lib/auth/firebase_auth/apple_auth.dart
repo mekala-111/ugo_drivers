@@ -9,7 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 /// Generates a cryptographically secure random nonce, to be included in a
 /// credential request.
 String generateNonce([int length = 32]) {
-  final charset =
+  const charset =
       '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
   final random = Random.secure();
   return List.generate(length, (_) => charset[random.nextInt(charset.length)])
@@ -25,7 +25,7 @@ String sha256ofString(String input) {
 
 Future<UserCredential> appleSignIn() async {
   if (kIsWeb) {
-    final provider = OAuthProvider("apple.com")
+    final provider = OAuthProvider('apple.com')
       ..addScope('email')
       ..addScope('name');
 
@@ -49,7 +49,7 @@ Future<UserCredential> appleSignIn() async {
   );
 
   // Create an `OAuthCredential` from the credential returned by Apple.
-  final oauthCredential = OAuthProvider("apple.com").credential(
+  final oauthCredential = OAuthProvider('apple.com').credential(
     idToken: appleCredential.identityToken,
     rawNonce: rawNonce,
     accessToken: appleCredential.authorizationCode,

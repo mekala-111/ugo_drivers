@@ -44,7 +44,7 @@ class _DetailsWidgetState extends State<DetailsWidget> {
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-        padding: EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+        padding: const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +122,7 @@ class _DetailsWidgetState extends State<DetailsWidget> {
                   ),
                   child: Padding(
                     padding:
-                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                     child: TextFormField(
                       controller: _model.textController,
                       focusNode: _model.textFieldFocusNode,
@@ -175,7 +175,7 @@ class _DetailsWidgetState extends State<DetailsWidget> {
                     ),
                   ),
                 ),
-              ].divide(SizedBox(height: 16.0)),
+              ].divide(const SizedBox(height: 16.0)),
             ),
             FFButtonWidget(
               onPressed: () async {
@@ -211,9 +211,9 @@ class _DetailsWidgetState extends State<DetailsWidget> {
               options: FFButtonOptions(
                 width: double.infinity,
                 height: 50.0,
-                padding: EdgeInsets.all(8.0),
-                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                color: Color(0xFFFF6B35),
+                padding: const EdgeInsets.all(8.0),
+                iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                color: AppColors.accentCoral,
                 textStyle: FlutterFlowTheme.of(context).titleMedium.override(
                       font: GoogleFonts.interTight(
                         fontWeight: FontWeight.w600,
@@ -231,7 +231,7 @@ class _DetailsWidgetState extends State<DetailsWidget> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
-          ].divide(SizedBox(height: 24.0)),
+          ].divide(const SizedBox(height: 24.0)),
         ),
       ),
     );

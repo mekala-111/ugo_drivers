@@ -1,4 +1,5 @@
 import '/components/ride_detais_widget.dart';
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -129,7 +130,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Color(0xFFF6F6F6),
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
@@ -138,7 +139,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -164,7 +165,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
@@ -182,8 +183,8 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 4.0,
-                        color: Color(0x1A000000),
-                        offset: Offset(
+                        color: AppColors.black.withValues(alpha: 0.1),
+                        offset: const Offset(
                           0.0,
                           1.0,
                         ),
@@ -194,7 +195,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                   child: wrapWithModel(
                     model: _model.rideDetaisModel1,
                     updateCallback: () => safeSetState(() {}),
-                    child: RideDetaisWidget(),
+                    child: const RideDetaisWidget(),
                   ),
                 ),
                 Container(
@@ -204,8 +205,8 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 4.0,
-                        color: Color(0x1A000000),
-                        offset: Offset(
+                        color: AppColors.black.withValues(alpha: 0.1),
+                        offset: const Offset(
                           0.0,
                           1.0,
                         ),
@@ -216,7 +217,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                   child: wrapWithModel(
                     model: _model.rideDetaisModel2,
                     updateCallback: () => safeSetState(() {}),
-                    child: RideDetaisWidget(),
+                    child: const RideDetaisWidget(),
                   ),
                 ),
                 Container(
@@ -226,8 +227,8 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 4.0,
-                        color: Color(0x1A000000),
-                        offset: Offset(
+                        color: AppColors.black.withValues(alpha: 0.1),
+                        offset: const Offset(
                           0.0,
                           1.0,
                         ),
@@ -238,7 +239,7 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                   child: wrapWithModel(
                     model: _model.rideDetaisModel3,
                     updateCallback: () => safeSetState(() {}),
-                    child: RideDetaisWidget(),
+                    child: const RideDetaisWidget(),
                   ),
                 ),
                 Container(
@@ -248,8 +249,8 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 4.0,
-                        color: Color(0x1A000000),
-                        offset: Offset(
+                        color: AppColors.black.withValues(alpha: 0.1),
+                        offset: const Offset(
                           0.0,
                           1.0,
                         ),
@@ -260,12 +261,12 @@ class _SupportRideWidgetState extends State<SupportRideWidget> {
                   child: wrapWithModel(
                     model: _model.rideDetaisModel4,
                     updateCallback: () => safeSetState(() {}),
-                    child: RideDetaisWidget(),
+                    child: const RideDetaisWidget(),
                   ),
                 ),
               ]
-                  .divide(SizedBox(height: 16.0))
-                  .addToStart(SizedBox(height: 0.0)),
+                  .divide(const SizedBox(height: 16.0))
+                  .addToStart(const SizedBox(height: 0.0)),
             ),
           ),
         ),

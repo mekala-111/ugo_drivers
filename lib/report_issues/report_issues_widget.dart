@@ -53,7 +53,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -79,12 +79,12 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -121,7 +121,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                         Container(
                           width: 24.0,
                           height: 24.0,
-                          decoration: BoxDecoration(),
+                          decoration: const BoxDecoration(),
                           child: Icon(
                             Icons.library_books,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -152,7 +152,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
                     Divider(
                       thickness: 2.0,
@@ -165,7 +165,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                         Container(
                           width: 24.0,
                           height: 24.0,
-                          decoration: BoxDecoration(),
+                          decoration: const BoxDecoration(),
                           child: Icon(
                             Icons.library_books,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -196,7 +196,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
                     Divider(
                       thickness: 2.0,
@@ -209,7 +209,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                         Container(
                           width: 24.0,
                           height: 24.0,
-                          decoration: BoxDecoration(),
+                          decoration: const BoxDecoration(),
                           child: Icon(
                             Icons.library_books,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -240,7 +240,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
                     Divider(
                       thickness: 2.0,
@@ -253,7 +253,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                         Container(
                           width: 24.0,
                           height: 24.0,
-                          decoration: BoxDecoration(),
+                          decoration: const BoxDecoration(),
                           child: Icon(
                             Icons.library_books,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -284,7 +284,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
                     Divider(
                       thickness: 2.0,
@@ -297,7 +297,7 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                         Container(
                           width: 24.0,
                           height: 24.0,
-                          decoration: BoxDecoration(),
+                          decoration: const BoxDecoration(),
                           child: Icon(
                             Icons.library_books,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -328,13 +328,13 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
-                  ].divide(SizedBox(height: 32.0)),
+                  ].divide(const SizedBox(height: 32.0)),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 24.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 24.0)),
             ),
           ),
         ),

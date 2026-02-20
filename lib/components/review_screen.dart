@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 import '../home/ride_request_model.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -7,11 +9,11 @@ class ReviewScreen extends StatefulWidget {
   final VoidCallback onClose;
 
   const ReviewScreen({
-    Key? key,
+    super.key,
     required this.ride,
     required this.onSubmit,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   _ReviewScreenState createState() => _ReviewScreenState();
@@ -19,17 +21,11 @@ class ReviewScreen extends StatefulWidget {
 
 class _ReviewScreenState extends State<ReviewScreen> {
   int _starRating = 0;
-  List<String> _selectedTags = [];
-  final List<String> _reviewTags = [
-    'Friendly',
-    'Safe',
-    'Worst',
-    'Fast',
-    'Clean'
-  ];
+  List<String> _selectedTagKeys = [];
+  static const List<String> _reviewTagKeys = ['drv_review_friendly', 'drv_review_safe', 'drv_review_worst', 'drv_review_fast', 'drv_review_clean'];
 
-  static const Color ugoOrange = Color(0xFFFF7B10);
-  static const Color ugoGreen = Color(0xFF4CAF50);
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +34,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       appBar: AppBar(
         backgroundColor: ugoOrange,
         title:
-            const Text("Ride Completed", style: TextStyle(color: Colors.white)),
+            Text(FFLocalizations.of(context).getText('drv_ride_completed'), style: const TextStyle(color: Colors.white)),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
@@ -48,15 +44,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
       body: Column(
         children: [
           const SizedBox(height: 30),
-          const Text("You received it online",
-              style: TextStyle(
+          Text(FFLocalizations.of(context).getText('drv_received_online'),
+              style: const TextStyle(
                   color: ugoGreen, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text("₹${widget.ride.estimatedFare?.toInt() ?? 76}",
+          Text('₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toInt() ?? 0}',
               style: const TextStyle(
                   color: ugoGreen, fontSize: 40, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          const Text("Review",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(FFLocalizations.of(context).getText('drv_review'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -72,16 +68,25 @@ class _ReviewScreenState extends State<ReviewScreen> {
           const SizedBox(height: 20),
           Wrap(
             spacing: 8,
-            children: _reviewTags
-                .map((tag) => ChoiceChip(
-                      label: Text(tag),
-                      selected: _selectedTags.contains(tag),
-                      selectedColor: ugoOrange.withValues(alpha:0.2),
-                      backgroundColor: Colors.grey[200],
-                      onSelected: (sel) => setState(() => sel
-                          ? _selectedTags.add(tag)
-                          : _selectedTags.remove(tag)),
-                    ))
+            children: _reviewTagKeys
+                .map((key) {
+                  final tag = FFLocalizations.of(context).getText(key);
+                  return ChoiceChip(
+                    label: Text(tag),
+                    selected: _selectedTagKeys.contains(key),
+                    selectedColor: ugoOrange.withValues(alpha:0.2),
+                    backgroundColor: Colors.grey[200],
+                    onSelected: (sel) {
+                      setState(() {
+                        if (sel) {
+                          _selectedTagKeys = [..._selectedTagKeys, key];
+                        } else {
+                          _selectedTagKeys = _selectedTagKeys.where((k) => k != key).toList();
+                        }
+                      });
+                    },
+                  );
+                })
                 .toList(),
           ),
           const Spacer(),
@@ -94,9 +99,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Total Fare",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("₹${widget.ride.estimatedFare?.toStringAsFixed(2)}",
+                    Text(FFLocalizations.of(context).getText('drv_total_fare'),
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text("₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toStringAsFixed(2) ?? '0.00'}",
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -107,8 +112,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: ElevatedButton(
                     onPressed: widget.onSubmit,
                     style: ElevatedButton.styleFrom(backgroundColor: ugoOrange),
-                    child: const Text("Submit",
-                        style: TextStyle(
+                    child: Text(FFLocalizations.of(context).getText('drv_submit'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold)),

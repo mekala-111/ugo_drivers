@@ -48,11 +48,11 @@ class _SplashWidgetState extends State<SplashWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.white, // Ensure background isn't black during load
       body: Center(
         child: CircularProgressIndicator(
-          color: Color(0xFFFF7B10), // Match your brand color
+          color: AppColors.primary, // Match your brand color
         ),
       ),
     );

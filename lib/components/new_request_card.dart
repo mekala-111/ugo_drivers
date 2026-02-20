@@ -1,29 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/flutter_flow/lat_lng.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import '../home/ride_request_model.dart';
 
 class NewRequestCard extends StatelessWidget {
   final RideRequest ride;
   final int remainingTime;
-  final VoidCallback onAccept;
-  final VoidCallback onDecline;
+  final VoidCallback? onAccept;
+  final VoidCallback? onDecline;
+  final LatLng? driverLocation;
+  final bool isLoading;
 
   const NewRequestCard({
-    Key? key,
+    super.key,
     required this.ride,
     required this.remainingTime,
-    required this.onAccept,
-    required this.onDecline, LatLng? driverLocation,
-  }) : super(key: key);
+    this.onAccept,
+    this.onDecline,
+    this.driverLocation,
+    this.isLoading = false,
+  });
 
   // --- Colors ---
-  static const Color ugoOrange = Color(0xFFFF7B10);
-  static const Color ugoGreen = Color(0xFF4CAF50);
-  static const Color ugoRed = Color(0xFFE53935);
-  static const Color ugoBlue = Color(0xFF0D47A1);
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
+  static const Color ugoRed = AppColors.error;
+  static const Color ugoBlue = AppColors.infoDark;
+
+  /// Extract 6-digit pincode from address.
+  static String _extractPincode(String address) {
+    final match = RegExp(r'\b\d{6}\b').firstMatch(address);
+    return match?.group(0) ?? '';
+  }
+
+  /// Compute pickup distance from driver to pickup (km).
+  static double? _pickupDistanceKm(LatLng? driver, RideRequest ride) {
+    if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0) return null;
+    final m = Geolocator.distanceBetween(
+      driver.latitude, driver.longitude,
+      ride.pickupLat, ride.pickupLng,
+    );
+    return m / 1000;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final pickupKm = _pickupDistanceKm(driverLocation, ride);
+    final pickupDistStr = pickupKm != null
+        ? '${pickupKm < 1 ? (pickupKm * 1000).round() : pickupKm.toStringAsFixed(1)}${pickupKm < 1 ? 'm' : 'Km'}'
+        : '--';
+    final dropDistStr = ride.distance != null
+        ? (ride.distance! >= 1
+            ? '${ride.distance!.toStringAsFixed(1)}Km'
+            : '${(ride.distance! * 1000).round()}m')
+        : '--';
+    final pickupPin = _extractPincode(ride.pickupAddress);
+    final dropPin = _extractPincode(ride.dropAddress);
     return Container(
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -45,12 +78,12 @@ class NewRequestCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("NEW REQUEST",
-                    style: TextStyle(
+                Text(FFLocalizations.of(context).getText('drv_new_request'),
+                    style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16)),
-                Text("${remainingTime}s",
+                Text('${remainingTime}s',
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -65,7 +98,7 @@ class NewRequestCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDistanceInfo("Pickup Distance", "0.31Km"),
+                    _buildDistanceInfo(FFLocalizations.of(context).getText('drv_pickup_distance'), pickupDistStr),
                     Expanded(
                       child: Stack(
                         alignment: Alignment.center,
@@ -82,10 +115,10 @@ class NewRequestCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.grey[400]!)),
                               child: Column(children: [
-                                Text("Fare",
+                                Text('Fare',
                                     style: TextStyle(
                                         color: Colors.grey[400], fontSize: 10)),
-                                Text("₹${ride.estimatedFare?.toInt() ?? 80}",
+                                Text('₹${ride.estimatedFare?.toInt() ?? 80}',
                                     style: const TextStyle(
                                         color: ugoBlue,
                                         fontSize: 18,
@@ -97,28 +130,45 @@ class NewRequestCard extends StatelessWidget {
                       ),
                     ),
                     _buildDistanceInfo(
-                        "Drop Distance", "${ride.distance ?? 4}Km",
+                        FFLocalizations.of(context).getText('drv_drop_distance'), dropDistStr,
                         alignRight: true),
                   ],
                 ),
                 const SizedBox(height: 20),
                 _buildAddressRow(
                     color: ugoRed,
-                    label: "Drop",
-                    code: "506000",
+                    label: FFLocalizations.of(context).getText('drv_drop'),
+                    code: dropPin.isEmpty ? '--' : dropPin,
                     address: ride.dropAddress),
                 const SizedBox(height: 12),
                 _buildAddressRow(
                     color: ugoGreen,
-                    label: "Pickup",
-                    code: "508001",
+                    label: FFLocalizations.of(context).getText('drv_pickup'),
+                    code: pickupPin.isEmpty ? '--' : pickupPin,
                     address: ride.pickupAddress),
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Expanded(child: _buildButton("DECLINE", ugoRed, onDecline)),
+                    Expanded(
+                        child: _buildButton(
+                            FFLocalizations.of(context).getText('drv_decline'), ugoRed, isLoading ? null : onDecline)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildButton("ACCEPT", ugoGreen, onAccept)),
+                    Expanded(
+                        child: isLoading
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: ugoGreen,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : _buildButton(FFLocalizations.of(context).getText('drv_accept'), ugoGreen, onAccept)),
                   ],
                 )
               ],
@@ -174,7 +224,7 @@ class NewRequestCard extends StatelessWidget {
     ]);
   }
 
-  Widget _buildButton(String text, Color bg, VoidCallback onTap) {
+  Widget _buildButton(String text, Color bg, VoidCallback? onTap) {
     return ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(

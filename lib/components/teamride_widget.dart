@@ -42,7 +42,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -85,7 +85,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                     .fontStyle,
                               ),
                     ),
-                  ].divide(SizedBox(width: 12.0)),
+                  ].divide(const SizedBox(width: 12.0)),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
@@ -116,14 +116,14 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(8.0, 12.0, 8.0, 12.0),
+                          const EdgeInsetsDirectional.fromSTEB(8.0, 12.0, 8.0, 12.0),
                       child: Container(
                         decoration: BoxDecoration(
                           color: FlutterFlowTheme.of(context).alternate,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
@@ -157,19 +157,19 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                     FlutterFlowTheme.of(context).secondaryText,
                                 size: 20.0,
                               ),
-                            ].divide(SizedBox(width: 4.0)),
+                            ].divide(const SizedBox(width: 4.0)),
                           ),
                         ),
                       ),
                     ),
-                  ].divide(SizedBox(width: 12.0)),
+                  ].divide(const SizedBox(width: 12.0)),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 16.0, 16.0, 16.0),
                         child: Container(
                           decoration: BoxDecoration(
@@ -177,7 +177,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               children: [
@@ -233,7 +233,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              ].divide(SizedBox(height: 4.0)),
+                              ].divide(const SizedBox(height: 4.0)),
                             ),
                           ),
                         ),
@@ -241,7 +241,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 16.0, 16.0, 16.0),
                         child: Container(
                           decoration: BoxDecoration(
@@ -254,7 +254,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                             ),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               children: [
@@ -310,20 +310,20 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              ].divide(SizedBox(height: 4.0)),
+                              ].divide(const SizedBox(height: 4.0)),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ].divide(SizedBox(width: 12.0)),
+                  ].divide(const SizedBox(width: 12.0)),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -336,7 +336,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -401,7 +401,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -465,7 +465,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
@@ -474,7 +474,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -487,7 +487,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -552,7 +552,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -616,7 +616,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
@@ -625,7 +625,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -638,7 +638,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -703,7 +703,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -767,7 +767,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
@@ -776,7 +776,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -789,7 +789,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -854,7 +854,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -918,7 +918,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
@@ -927,7 +927,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -940,7 +940,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1005,7 +1005,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -1069,7 +1069,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
@@ -1078,7 +1078,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -1091,7 +1091,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1156,7 +1156,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.max,
@@ -1220,19 +1220,19 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                ].divide(SizedBox(height: 4.0)),
+                                ].divide(const SizedBox(height: 4.0)),
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ].divide(SizedBox(height: 12.0)),
+                  ].divide(const SizedBox(height: 12.0)),
                 ),
-              ].divide(SizedBox(height: 16.0)),
+              ].divide(const SizedBox(height: 16.0)),
             ),
           ),
-        ].divide(SizedBox(height: 16.0)),
+        ].divide(const SizedBox(height: 16.0)),
       ),
     );
   }

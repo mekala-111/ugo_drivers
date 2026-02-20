@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/uploaded_file.dart';
+import '/services/secure_storage_service.dart';
 
 class FFAppState extends ChangeNotifier {
-  static FFAppState _instance = FFAppState._internal();
+  static final FFAppState _instance = FFAppState._internal();
 
   factory FFAppState() {
     return _instance;
@@ -19,6 +20,13 @@ class FFAppState extends ChangeNotifier {
   bool hasRC = false;
   int _activeRideId = 0;
   String _activeRideStatus = '';
+
+  /// Set when user taps ride request notification (Rapido-style). HomeWidget fetches and shows.
+  int _pendingRideIdFromNotification = 0;
+  int get pendingRideIdFromNotification => _pendingRideIdFromNotification;
+  set pendingRideIdFromNotification(int value) {
+    _pendingRideIdFromNotification = value;
+  }
   int _mobileNo = 0;
   String _firstName = '';
   String _lastName = '';
@@ -27,6 +35,7 @@ class FFAppState extends ChangeNotifier {
 
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
+    SecureStorageService.instance.init();
     _safeInit(() {
       _accessToken = prefs.getString('ff_accessToken') ?? _accessToken;
     });
@@ -72,34 +81,8 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _fcmToken = prefs.getString('ff_fcmToken') ?? '';
     });
-    // Aadhaar number
-    _safeInit(() {
-      _aadharNumber = prefs.getString('ff_aadharNumber') ?? '';
-    });
-    // Aadhaar image URLs (persistent)
-    _safeInit(() {
-      _aadharFrontImageUrl = prefs.getString('ff_aadharFrontImageUrl') ?? '';
-    });
-    _safeInit(() {
-      _aadharBackImageUrl = prefs.getString('ff_aadharBackImageUrl') ?? '';
-    });
-    // Base64 strings (for temporary persistence - optional)
-    _safeInit(() {
-      _aadharFrontBase64 = prefs.getString('ff_aadharFrontBase64') ?? '';
-    });
-    _safeInit(() {
-      _aadharBackBase64 = prefs.getString('ff_aadharBackBase64') ?? '';
-    });
-
-    _safeInit(() {
-      _panImageUrl = prefs.getString('ff_panImageUrl') ?? '';
-    });
-    _safeInit(() {
-      _panBase64 = prefs.getString('ff_panBase64') ?? '';
-    });
-    _safeInit(() {
-      _panNumber = prefs.getString('ff_panNumber') ?? '';
-    });
+    // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
+    await _loadAadharPanFromSecureStorage();
 
     _safeInit(() {
       _profilePhotoUrl = prefs.getString('ff_profilePhotoUrl') ?? '';
@@ -162,6 +145,108 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _vehicleColor = prefs.getString('ff_vehicleColor') ?? '';
     });
+  }
+
+  Future<void> _loadAadharPanFromSecureStorage() async {
+    final sec = SecureStorageService.instance;
+    try {
+      var v = await sec.read(SecureStorageService.keyAadharNumber);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_aadharNumber');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAadharNumber, fromPrefs);
+          await prefs.remove('ff_aadharNumber');
+        }
+        v = fromPrefs ?? '';
+      }
+      _aadharNumber = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyAadharFrontImageUrl);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_aadharFrontImageUrl');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAadharFrontImageUrl, fromPrefs);
+          await prefs.remove('ff_aadharFrontImageUrl');
+          v = fromPrefs;
+        } else {
+          v = '';
+        }
+      }
+      _aadharFrontImageUrl = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyAadharBackImageUrl);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_aadharBackImageUrl');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAadharBackImageUrl, fromPrefs);
+          await prefs.remove('ff_aadharBackImageUrl');
+        }
+        v = fromPrefs ?? '';
+      }
+      _aadharBackImageUrl = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyAadharFrontBase64);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_aadharFrontBase64');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAadharFrontBase64, fromPrefs);
+          await prefs.remove('ff_aadharFrontBase64');
+        }
+        v = fromPrefs ?? '';
+      }
+      _aadharFrontBase64 = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyAadharBackBase64);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_aadharBackBase64');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAadharBackBase64, fromPrefs);
+          await prefs.remove('ff_aadharBackBase64');
+        }
+        v = fromPrefs ?? '';
+      }
+      _aadharBackBase64 = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyPanImageUrl);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_panImageUrl');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyPanImageUrl, fromPrefs);
+          await prefs.remove('ff_panImageUrl');
+        }
+        v = fromPrefs ?? '';
+      }
+      _panImageUrl = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyPanBase64);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_panBase64');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyPanBase64, fromPrefs);
+          await prefs.remove('ff_panBase64');
+        }
+        v = fromPrefs ?? '';
+      }
+      _panBase64 = v;
+    } catch (_) {}
+    try {
+      var v = await sec.read(SecureStorageService.keyPanNumber);
+      if (v == null || v.isEmpty) {
+        final fromPrefs = prefs.getString('ff_panNumber');
+        if (fromPrefs != null && fromPrefs.isNotEmpty) {
+          await sec.write(SecureStorageService.keyPanNumber, fromPrefs);
+          await prefs.remove('ff_panNumber');
+        }
+        v = fromPrefs ?? '';
+      }
+      _panNumber = v;
+    } catch (_) {}
   }
 
   void update(VoidCallback callback) {
@@ -344,18 +429,12 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ==========================================
-  // AADHAAR IMAGE URLs (persistent - from server)
-  // ==========================================
+  // AADHAAR IMAGE URLs - stored in secure storage
   String _aadharFrontImageUrl = '';
   String get aadharFrontImageUrl => _aadharFrontImageUrl;
   set aadharFrontImageUrl(String value) {
     _aadharFrontImageUrl = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_aadharFrontImageUrl');
-    } else {
-      prefs.setString('ff_aadharFrontImageUrl', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyAadharFrontImageUrl, value);
     notifyListeners();
   }
 
@@ -363,27 +442,16 @@ class FFAppState extends ChangeNotifier {
   String get aadharBackImageUrl => _aadharBackImageUrl;
   set aadharBackImageUrl(String value) {
     _aadharBackImageUrl = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_aadharBackImageUrl');
-    } else {
-      prefs.setString('ff_aadharBackImageUrl', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyAadharBackImageUrl, value);
     notifyListeners();
   }
 
-  // ==========================================
-  // AADHAAR BASE64 (temporary persistence - for testing only)
-  // WARNING: Not recommended for production
-  // ==========================================
+  // AADHAAR BASE64 - stored in secure storage
   String _aadharFrontBase64 = '';
   String get aadharFrontBase64 => _aadharFrontBase64;
   set aadharFrontBase64(String value) {
     _aadharFrontBase64 = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_aadharFrontBase64');
-    } else {
-      prefs.setString('ff_aadharFrontBase64', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyAadharFrontBase64, value);
     notifyListeners();
   }
 
@@ -391,26 +459,16 @@ class FFAppState extends ChangeNotifier {
   String get aadharBackBase64 => _aadharBackBase64;
   set aadharBackBase64(String value) {
     _aadharBackBase64 = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_aadharBackBase64');
-    } else {
-      prefs.setString('ff_aadharBackBase64', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyAadharBackBase64, value);
     notifyListeners();
   }
 
-  // ==========================================
-  // AADHAAR NUMBER (persistent)
-  // ==========================================
+  // AADHAAR NUMBER - stored in secure storage
   String _aadharNumber = '';
   String get aadharNumber => _aadharNumber;
   set aadharNumber(String value) {
     _aadharNumber = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_aadharNumber');
-    } else {
-      prefs.setString('ff_aadharNumber', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyAadharNumber, value);
     notifyListeners();
   }
 
@@ -424,48 +482,30 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-// ==========================================
-// PAN IMAGE URL (persistent - from server)
-// ==========================================
+// PAN IMAGE URL - stored in secure storage
   String _panImageUrl = '';
   String get panImageUrl => _panImageUrl;
   set panImageUrl(String value) {
     _panImageUrl = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_panImageUrl');
-    } else {
-      prefs.setString('ff_panImageUrl', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyPanImageUrl, value);
     notifyListeners();
   }
 
-// ==========================================
-// PAN BASE64 (temporary persistence)
-// ==========================================
+// PAN BASE64 - stored in secure storage
   String _panBase64 = '';
   String get panBase64 => _panBase64;
   set panBase64(String value) {
     _panBase64 = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_panBase64');
-    } else {
-      prefs.setString('ff_panBase64', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyPanBase64, value);
     notifyListeners();
   }
 
-// ==========================================
-// PAN NUMBER (persistent)
-// ==========================================
+// PAN NUMBER - stored in secure storage
   String _panNumber = '';
   String get panNumber => _panNumber;
   set panNumber(String value) {
     _panNumber = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_panNumber');
-    } else {
-      prefs.setString('ff_panNumber', value);
-    }
+    SecureStorageService.instance.write(SecureStorageService.keyPanNumber, value);
     notifyListeners();
   }
 
@@ -740,10 +780,10 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  FFUploadedFile? _insurenceImge;
-  FFUploadedFile? get insurenceImge => _insurenceImge;
-  set insurenceImge(FFUploadedFile? value) {
-    _insurenceImge = value;
+  FFUploadedFile? _insuranceImage;
+  FFUploadedFile? get insuranceImage => _insuranceImage;
+  set insuranceImage(FFUploadedFile? value) {
+    _insuranceImage = value;
     notifyListeners();
   }
 
@@ -838,7 +878,8 @@ class FFAppState extends ChangeNotifier {
 
   // 🔥 PAN
   _panImageUrl = '';
-  // _panImageBase64 = '';
+  _panBase64 = '';
+  _panNumber = '';
   _panImage = null;
 
   // 🔥 Aadhar
@@ -846,8 +887,19 @@ class FFAppState extends ChangeNotifier {
   _aadharBackImageUrl = '';
   _aadharFrontBase64 = '';
   _aadharBackBase64 = '';
-  // _aadharFrontImage = null;
+  _aadharNumber = '';
   _aadharBackImage = null;
+
+  // Clear secure storage for Aadhaar/PAN
+  final sec = SecureStorageService.instance;
+  await sec.delete(SecureStorageService.keyAadharNumber);
+  await sec.delete(SecureStorageService.keyAadharFrontImageUrl);
+  await sec.delete(SecureStorageService.keyAadharBackImageUrl);
+  await sec.delete(SecureStorageService.keyAadharFrontBase64);
+  await sec.delete(SecureStorageService.keyAadharBackBase64);
+  await sec.delete(SecureStorageService.keyPanImageUrl);
+  await sec.delete(SecureStorageService.keyPanBase64);
+  await sec.delete(SecureStorageService.keyPanNumber);
 
   // 🔥 License
   _licenseFrontImageUrl = '';

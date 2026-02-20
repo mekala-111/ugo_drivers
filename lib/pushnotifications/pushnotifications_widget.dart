@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -50,7 +51,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
           leading: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: FlutterFlowIconButton(
               borderRadius: 20.0,
               buttonSize: 40.0,
@@ -81,12 +82,12 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 0.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -195,7 +196,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF7B7A7A),
+                                    color: AppColors.textMuted,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -204,12 +205,12 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                        Divider(
+                        const Divider(
                           height: 1.0,
                           thickness: 1.0,
-                          color: Color(0xFFE0E0E0),
+                          color: AppColors.greyBorderLight,
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -292,7 +293,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF7B7A7A),
+                                    color: AppColors.textMuted,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -301,12 +302,12 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                        Divider(
+                        const Divider(
                           height: 1.0,
                           thickness: 1.0,
-                          color: Color(0xFFE0E0E0),
+                          color: AppColors.greyBorderLight,
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -389,7 +390,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF7B7A7A),
+                                    color: AppColors.textMuted,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -398,12 +399,12 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                        Divider(
+                        const Divider(
                           height: 1.0,
                           thickness: 1.0,
-                          color: Color(0xFFE0E0E0),
+                          color: AppColors.greyBorderLight,
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -486,7 +487,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF7B7A7A),
+                                    color: AppColors.textMuted,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -495,12 +496,12 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                        Divider(
+                        const Divider(
                           height: 1.0,
                           thickness: 1.0,
-                          color: Color(0xFFE0E0E0),
+                          color: AppColors.greyBorderLight,
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -583,7 +584,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF7B7A7A),
+                                    color: AppColors.textMuted,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -592,13 +593,13 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                                         .fontStyle,
                                   ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
-                  ].divide(SizedBox(height: 24.0)),
+                  ].divide(const SizedBox(height: 24.0)),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 24.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 24.0)),
             ),
           ),
         ),

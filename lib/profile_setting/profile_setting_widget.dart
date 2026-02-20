@@ -83,14 +83,14 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                           FlutterFlowTheme.of(context).titleLarge.fontStyle,
                     ),
               ),
-            ].divide(SizedBox(width: 12.0)),
+            ].divide(const SizedBox(width: 12.0)),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 0.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -153,7 +153,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   ),
                         ),
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 0.0, 16.0, 0.0),
                           child: Container(
                             width: double.infinity,
@@ -166,9 +166,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'nzougsbz' /* Go CODE DESIGNERS */,
@@ -197,7 +197,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                             ),
                           ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -225,7 +225,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   ),
                         ),
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 0.0, 16.0, 0.0),
                           child: Container(
                             width: double.infinity,
@@ -238,9 +238,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(4.0),
+                                padding: const EdgeInsets.all(4.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     '99l2lyka' /* 9885881832 */,
@@ -269,7 +269,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                             ),
                           ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -297,7 +297,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   ),
                         ),
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 0.0, 16.0, 0.0),
                           child: Container(
                             width: double.infinity,
@@ -310,9 +310,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     '3yx1101c' /* Man */,
@@ -342,7 +342,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                             ),
                           ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -370,7 +370,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   ),
                         ),
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 0.0, 16.0, 0.0),
                           child: Container(
                             width: double.infinity,
@@ -383,9 +383,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'cqz2gscf' /* Duggiralanaresh1@gmail.com */,
@@ -414,7 +414,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                             ),
                           ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.max,
@@ -442,7 +442,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   ),
                         ),
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
                               16.0, 0.0, 16.0, 0.0),
                           child: Container(
                             width: double.infinity,
@@ -455,9 +455,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(-1.0, 0.0),
+                              alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'h5ox1a3d' /* English */,
@@ -486,9 +486,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                             ),
                           ),
                         ),
-                      ].divide(SizedBox(height: 8.0)),
+                      ].divide(const SizedBox(height: 8.0)),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                  ].divide(const SizedBox(height: 16.0)),
                 ),
                 FFButtonWidget(
                   onPressed: () {
@@ -500,9 +500,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                   options: FFButtonOptions(
                     width: double.infinity,
                     height: 56.0,
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     iconPadding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context).titleSmall.override(
                           font: GoogleFonts.interTight(
@@ -520,7 +520,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                               FlutterFlowTheme.of(context).titleSmall.fontStyle,
                         ),
                     elevation: 0.0,
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.transparent,
                       width: 1.0,
                     ),
@@ -528,9 +528,9 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                   ),
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 32.0))
-                  .addToEnd(SizedBox(height: 32.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 32.0))
+                  .addToEnd(const SizedBox(height: 32.0)),
             ),
           ),
         ),

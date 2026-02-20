@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -254,7 +255,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
             borderRadius: 30,
             borderWidth: 1,
             buttonSize: 60,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30,
@@ -283,24 +284,24 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2,
         ),
         body: SafeArea(
           top: true,
           child: Container(
-            decoration: BoxDecoration(),
+            decoration: const BoxDecoration(),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
                 Container(
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF5F5F5),
+                  decoration: const BoxDecoration(
+                    color: AppColors.background,
                   ),
                   child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +323,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF333333),
+                                    color: AppColors.greyDark,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
@@ -334,11 +335,11 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                               width: double.infinity,
                               height: 50,
                               decoration: BoxDecoration(
-                                color: Color(0xFFE8E8E8),
+                                color: AppColors.greyMid,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     16, 0, 16, 0),
                                 child: TextFormField(
                                   controller: _model.textController1,
@@ -372,7 +373,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                          color: Color(0xFF666666),
+                                          color: AppColors.greyMedium,
                                           letterSpacing: 0.0,
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
@@ -401,7 +402,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF333333),
+                                        color: AppColors.greyDark,
                                         letterSpacing: 0.0,
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -415,7 +416,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 ),
                               ),
                             ),
-                          ].divide(SizedBox(height: 8)),
+                          ].divide(const SizedBox(height: 8)),
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.max,
@@ -434,7 +435,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF333333),
+                                    color: AppColors.greyDark,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
@@ -446,11 +447,11 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                               width: double.infinity,
                               height: 50,
                               decoration: BoxDecoration(
-                                color: Color(0xFFE8E8E8),
+                                color: AppColors.greyMid,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     16, 0, 16, 0),
                                 child: TextFormField(
                                   controller: _model.textController2,
@@ -476,7 +477,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                          color: Color(0xFF666666),
+                                          color: AppColors.greyMedium,
                                           letterSpacing: 0.0,
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
@@ -505,7 +506,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF333333),
+                                        color: AppColors.greyDark,
                                         letterSpacing: 0.0,
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -519,7 +520,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 ),
                               ),
                             ),
-                          ].divide(SizedBox(height: 8)),
+                          ].divide(const SizedBox(height: 8)),
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.max,
@@ -538,7 +539,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF333333),
+                                    color: AppColors.greyDark,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
@@ -550,11 +551,11 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                               width: double.infinity,
                               height: 50,
                               decoration: BoxDecoration(
-                                color: Color(0xFFE8E8E8),
+                                color: AppColors.greyMid,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     16, 0, 16, 0),
                                 child: TextFormField(
                                   controller: _model.textController3,
@@ -580,7 +581,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                          color: Color(0xFF666666),
+                                          color: AppColors.greyMedium,
                                           letterSpacing: 0.0,
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
@@ -609,7 +610,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF333333),
+                                        color: AppColors.greyDark,
                                         letterSpacing: 0.0,
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -623,7 +624,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 ),
                               ),
                             ),
-                          ].divide(SizedBox(height: 8)),
+                          ].divide(const SizedBox(height: 8)),
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.max,
@@ -639,10 +640,10 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                               options: FFButtonOptions(
                                 width: 120,
                                 height: 50,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 iconPadding:
-                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                color: Color(0xFFCCCCCC),
+                                    const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                color: AppColors.greyBg,
                                 textStyle: FlutterFlowTheme.of(context)
                                     .titleSmall
                                     .override(
@@ -654,7 +655,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                             .titleSmall
                                             .fontStyle,
                                       ),
-                                      color: Color(0xFF666666),
+                                      color: AppColors.greyMedium,
                                       letterSpacing: 0.0,
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .titleSmall
@@ -675,10 +676,10 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                               options: FFButtonOptions(
                                 width: 200,
                                 height: 50,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 iconPadding:
-                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                color: Color(0xFFFF6B35),
+                                    const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                color: AppColors.accentCoral,
                                 textStyle: FlutterFlowTheme.of(context)
                                     .titleSmall
                                     .override(
@@ -703,13 +704,13 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                          ].divide(SizedBox(width: 16)),
+                          ].divide(const SizedBox(width: 16)),
                         ),
-                      ].divide(SizedBox(height: 24)),
+                      ].divide(const SizedBox(height: 24)),
                     ),
                   ),
                 ),
-              ].divide(SizedBox(height: 0)),
+              ].divide(const SizedBox(height: 0)),
             ),
           ),
         ),

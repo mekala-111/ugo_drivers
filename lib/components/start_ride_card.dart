@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../home/ride_request_model.dart';
@@ -13,24 +15,24 @@ class RideBottomOverlay extends StatelessWidget {
   final VoidCallback onCall;
 
   const RideBottomOverlay({
-    Key? key,
+    super.key,
     required this.ride,
     required this.formattedWaitTime,
     required this.onSwipe,
     required this.onCancel,
     required this.onCall,
-  }) : super(key: key);
+  });
 
   // ✅ Helper to launch Google Maps Navigation
   Future<void> _launchMap(double? lat, double? lng) async {
     if (lat == null || lng == null) {
-      debugPrint("❌ Coordinates are null");
+      debugPrint('❌ Coordinates are null');
       return;
     }
 
-    final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri fallbackUrl =
-        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -39,7 +41,7 @@ class RideBottomOverlay extends StatelessWidget {
         await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      debugPrint("❌ Could not launch map: $e");
+      debugPrint('❌ Could not launch map: $e');
     }
   }
 
@@ -51,20 +53,23 @@ class RideBottomOverlay extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end, // Align button to right
       children: [
-        // ✅ The Orange "Drop" Navigation Button
+        // ✅ Navigation Button - Pickup when arrived, Drop when started
         Padding(
           padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
           child: InkWell(
             onTap: () {
-              // Navigate to DROP location when ride is started
-              _launchMap(ride.pickupLat, ride.pickupLng);
+              final isStarted = ride.status == RideStatus.started || ride.status == RideStatus.onTrip;
+              _launchMap(
+                isStarted ? ride.dropLat : ride.pickupLat,
+                isStarted ? ride.dropLng : ride.pickupLng,
+              );
             },
             borderRadius: BorderRadius.circular(30),
             child: Container(
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF7B10), // ugoOrange
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: const [
                   BoxShadow(
@@ -75,12 +80,14 @@ class RideBottomOverlay extends StatelessWidget {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.navigation, color: Colors.black, size: 20),
-                  SizedBox(width: 8),
+                children: [
+                  const Icon(Icons.navigation, color: Colors.black, size: 20),
+                  const SizedBox(width: 8),
                   Text(
-                    "PICK UP",
-                    style: TextStyle(
+                    (ride.status == RideStatus.started || ride.status == RideStatus.onTrip)
+                        ? FFLocalizations.of(context).getText('drv_nav_to_drop')
+                        : FFLocalizations.of(context).getText('drv_nav_to_pickup'),
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -117,18 +124,18 @@ class StartRideCard extends StatelessWidget {
   final VoidCallback onCall;
 
   const StartRideCard({
-    Key? key,
+    super.key,
     required this.ride,
     required this.formattedWaitTime,
     required this.onSwipe,
     required this.onCancel,
     required this.onCall,
-  }) : super(key: key);
+  });
 
   // --- Colors ---
-  static const Color ugoOrange = Color(0xFFFF7B10);
-  static const Color ugoGreen = Color(0xFF4CAF50);
-  static const Color ugoRed = Color(0xFFE53935);
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
+  static const Color ugoRed = AppColors.error;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +143,7 @@ class StartRideCard extends StatelessWidget {
     bool isStarted = ride.status == RideStatus.started;
 
     // Button Logic
-    String btnText = isStarted ? "COMPLETE RIDE" : "START RIDE";
+    String btnText = isStarted ? FFLocalizations.of(context).getText('drv_complete_ride') : FFLocalizations.of(context).getText('drv_start_ride');
     Color btnColor = isStarted ? ugoRed : ugoGreen;
 
     return Container(
@@ -163,7 +170,7 @@ class StartRideCard extends StatelessWidget {
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Text(
-              'Waiting Time : $formattedWaitTime',
+              "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime",
               textAlign: TextAlign.center,
               style: const TextStyle(
                   color: Colors.white,
@@ -182,7 +189,7 @@ class StartRideCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        ride.firstName ?? 'Passenger', // Dynamic Name
+                        ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
                         style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -225,7 +232,7 @@ class StartRideCard extends StatelessWidget {
                           Icon(Icons.location_on,
                               color: isStarted ? ugoRed : ugoGreen, size: 20),
                           Text(
-                            isStarted ? "Drop" : "Pickup",
+                            isStarted ? FFLocalizations.of(context).getText('drv_drop') : FFLocalizations.of(context).getText('drv_pickup'),
                             style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey[700],
@@ -261,8 +268,8 @@ class StartRideCard extends StatelessWidget {
   }
 
   Widget _buildRichAddress(String rawAddress) {
-    String pincode = "";
-    String locality = "";
+    String pincode = '';
+    String locality = '';
     String rest = rawAddress;
 
     final pinMatch = RegExp(r'\b\d{6}\b').firstMatch(rawAddress);
@@ -279,7 +286,7 @@ class StartRideCard extends StatelessWidget {
       if (parts.length > 1) {
         rest = parts.sublist(1).join(', ').trim();
       } else {
-        rest = "";
+        rest = '';
       }
     }
 
@@ -299,7 +306,7 @@ class StartRideCard extends StatelessWidget {
                 const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
             children: [
               TextSpan(
-                  text: "$locality, ",
+                  text: '$locality, ',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: rest, style: TextStyle(color: Colors.grey[600])),
             ],
@@ -333,12 +340,12 @@ class SlideToAction extends StatefulWidget {
   final double height;
 
   const SlideToAction({
-    Key? key,
+    super.key,
     required this.text,
     required this.outerColor,
     required this.onSubmitted,
     this.height = 55.0,
-  }) : super(key: key);
+  });
 
   @override
   _SlideToActionState createState() => _SlideToActionState();

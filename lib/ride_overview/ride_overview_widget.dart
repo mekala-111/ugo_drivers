@@ -57,7 +57,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -86,7 +86,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
@@ -96,15 +96,15 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Color(0xFFF0F0F5),
+                    color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,7 +126,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                         .bodyMedium
                                         .fontStyle,
                                   ),
-                                  color: Color(0xFF666666),
+                                  color: AppColors.greyMedium,
                                   fontSize: 14.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FlutterFlowTheme.of(context)
@@ -147,9 +147,9 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                           ),
                           options: FFButtonOptions(
                             height: 36.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 8.0, 16.0, 8.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                            iconPadding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 0.0, 0.0),
                             color: FlutterFlowTheme.of(context)
                                 .secondaryBackground,
@@ -162,7 +162,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                         .titleSmall
                                         .fontStyle,
                                   ),
-                                  color: Color(0xFF333333),
+                                  color: AppColors.greyDark,
                                   fontSize: 14.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
@@ -171,7 +171,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                       .fontStyle,
                                 ),
                             elevation: 0.0,
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.transparent,
                               width: 1.0,
                             ),
@@ -184,7 +184,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Container(
                   width: double.infinity,
                   height: 200.0,
@@ -201,7 +201,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                     controller: _model.googleMapsController,
                     onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
                     initialLocation: _model.googleMapsCenter ??=
-                        LatLng(13.106061, -59.613158),
+                        const LatLng(13.106061, -59.613158),
                     markerColor: GoogleMarkerColor.violet,
                     mapType: MapType.normal,
                     style: GoogleMapStyle.standard,
@@ -219,7 +219,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +260,7 @@ RAJENDRA ... */
                                     ),
                               ),
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 4.0, 0.0, 0.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
@@ -279,7 +279,7 @@ RAJENDRA ... */
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF666666),
+                                        color: AppColors.greyMedium,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FlutterFlowTheme.of(context)
@@ -292,7 +292,7 @@ RAJENDRA ... */
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 4.0, 0.0, 0.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
@@ -325,15 +325,15 @@ RAJENDRA ... */
                         Container(
                           width: 50.0,
                           height: 50.0,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFE0E0E0),
+                          decoration: const BoxDecoration(
+                            color: AppColors.greyBorderLight,
                             shape: BoxShape.circle,
                           ),
-                          child: Align(
+                          child: const Align(
                             alignment: AlignmentDirectional(0.0, 0.0),
                             child: Icon(
                               Icons.person,
-                              color: Color(0xFF999999),
+                              color: AppColors.greyMedium,
                               size: 30.0,
                             ),
                           ),
@@ -350,18 +350,18 @@ RAJENDRA ... */
                           text: FFLocalizations.of(context).getText(
                             't13nqnia' /* Receipt */,
                           ),
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.receipt,
                             size: 20.0,
                           ),
                           options: FFButtonOptions(
                             height: 36.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 8.0, 16.0, 8.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                            iconPadding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 8.0, 0.0),
                             iconColor: FlutterFlowTheme.of(context).accent1,
-                            color: Color(0xFFF5F5F5),
+                            color: AppColors.background,
                             textStyle: FlutterFlowTheme.of(context)
                                 .titleSmall
                                 .override(
@@ -380,7 +380,7 @@ RAJENDRA ... */
                                       .fontStyle,
                                 ),
                             elevation: 0.0,
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.transparent,
                               width: 1.0,
                             ),
@@ -394,18 +394,18 @@ RAJENDRA ... */
                           text: FFLocalizations.of(context).getText(
                             '858a9u1g' /* Invoice */,
                           ),
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.description,
                             size: 20.0,
                           ),
                           options: FFButtonOptions(
                             height: 36.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
                                 16.0, 8.0, 16.0, 8.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                            iconPadding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 8.0, 0.0),
                             iconColor: FlutterFlowTheme.of(context).accent1,
-                            color: Color(0xFFF5F5F5),
+                            color: AppColors.background,
                             textStyle: FlutterFlowTheme.of(context)
                                 .titleSmall
                                 .override(
@@ -424,20 +424,20 @@ RAJENDRA ... */
                                       .fontStyle,
                                 ),
                             elevation: 0.0,
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.transparent,
                               width: 1.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
-                      ].divide(SizedBox(width: 16.0)),
+                      ].divide(const SizedBox(width: 16.0)),
                     ),
-                  ].divide(SizedBox(height: 8.0)),
+                  ].divide(const SizedBox(height: 8.0)),
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,7 +503,7 @@ RAJENDRA ... */
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF666666),
+                                    color: AppColors.greyMedium,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
@@ -514,7 +514,7 @@ RAJENDRA ... */
                                         .fontStyle,
                                   ),
                         ),
-                      ].divide(SizedBox(width: 12.0)),
+                      ].divide(const SizedBox(width: 12.0)),
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
@@ -577,7 +577,7 @@ RAJENDRA ... */
                                           .bodySmall
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF666666),
+                                    color: AppColors.greyMedium,
                                     fontSize: 12.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
@@ -588,7 +588,7 @@ RAJENDRA ... */
                                         .fontStyle,
                                   ),
                         ),
-                      ].divide(SizedBox(width: 12.0)),
+                      ].divide(const SizedBox(width: 12.0)),
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
@@ -627,7 +627,7 @@ RAJENDRA ... */
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 12.0)),
+                      ].divide(const SizedBox(width: 12.0)),
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
@@ -666,20 +666,20 @@ RAJENDRA ... */
                                 ),
                           ),
                         ),
-                      ].divide(SizedBox(width: 12.0)),
+                      ].divide(const SizedBox(width: 12.0)),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                  ].divide(const SizedBox(height: 16.0)),
                 ),
               ),
-              Padding(
+              const Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Divider(
                   thickness: 1.0,
-                  color: Color(0xFFE0E0E0),
+                  color: AppColors.greyBorderLight,
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -742,7 +742,7 @@ RAJENDRA ... */
                                     ),
                               ),
                               Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 2.0, 0.0, 0.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
@@ -761,7 +761,7 @@ RAJENDRA ... */
                                                   .bodySmall
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF666666),
+                                        color: AppColors.greyMedium,
                                         fontSize: 12.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FlutterFlowTheme.of(context)
@@ -776,12 +776,12 @@ RAJENDRA ... */
                             ],
                           ),
                         ),
-                        Icon(
+                        const Icon(
                           Icons.chevron_right,
-                          color: Color(0xFF666666),
+                          color: AppColors.greyMedium,
                           size: 20.0,
                         ),
-                      ].divide(SizedBox(width: 12.0)),
+                      ].divide(const SizedBox(width: 12.0)),
                     ),
                     InkWell(
                       splashColor: Colors.transparent,
@@ -830,7 +830,7 @@ RAJENDRA ... */
                                       ),
                                 ),
                                 Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
                                       0.0, 2.0, 0.0, 0.0),
                                   child: Text(
                                     FFLocalizations.of(context).getText(
@@ -849,7 +849,7 @@ RAJENDRA ... */
                                                     .bodySmall
                                                     .fontStyle,
                                           ),
-                                          color: Color(0xFF666666),
+                                          color: AppColors.greyMedium,
                                           fontSize: 12.0,
                                           letterSpacing: 0.0,
                                           fontWeight:
@@ -866,12 +866,12 @@ RAJENDRA ... */
                               ],
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.chevron_right,
-                            color: Color(0xFF666666),
+                            color: AppColors.greyMedium,
                             size: 20.0,
                           ),
-                        ].divide(SizedBox(width: 12.0)),
+                        ].divide(const SizedBox(width: 12.0)),
                       ),
                     ),
                     InkWell(
@@ -880,7 +880,7 @@ RAJENDRA ... */
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
                       onTap: () async {
-                        context.pushNamed(CustomerSuportWidget.routeName);
+                        context.pushNamed(CustomerSupportWidget.routeName);
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
@@ -920,10 +920,10 @@ RAJENDRA ... */
                             color: FlutterFlowTheme.of(context).accent1,
                             size: 20.0,
                           ),
-                        ].divide(SizedBox(width: 12.0)),
+                        ].divide(const SizedBox(width: 12.0)),
                       ),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                  ].divide(const SizedBox(height: 16.0)),
                 ),
               ),
             ],

@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -51,7 +52,7 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
           leading: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: FlutterFlowIconButton(
               borderRadius: 20.0,
               buttonSize: 40.0,
@@ -82,14 +83,14 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                   fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 0.0,
         ),
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.max,
@@ -198,9 +199,9 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
+                              alignment: const AlignmentDirectional(0.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     'ixm84wqm' /* 10 */,
@@ -241,9 +242,9 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
+                              alignment: const AlignmentDirectional(0.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     '7l694w2k' /* 20 */,
@@ -284,9 +285,9 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                               ),
                             ),
                             child: Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
+                              alignment: const AlignmentDirectional(0.0, 0.0),
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   FFLocalizations.of(context).getText(
                                     '7q63yu0x' /* Custom */,
@@ -301,7 +302,7 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF7E7D7D),
+                                        color: AppColors.textMuted,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -313,13 +314,13 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                               ),
                             ),
                           ),
-                        ].divide(SizedBox(width: 12.0)),
+                        ].divide(const SizedBox(width: 12.0)),
                       ),
-                    ].divide(SizedBox(height: 16.0)),
+                    ].divide(const SizedBox(height: 16.0)),
                   ),
                 ]
-                    .divide(SizedBox(height: 24.0))
-                    .addToStart(SizedBox(height: 24.0)),
+                    .divide(const SizedBox(height: 24.0))
+                    .addToStart(const SizedBox(height: 24.0)),
               ),
             ),
           ),

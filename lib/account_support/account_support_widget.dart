@@ -1,9 +1,12 @@
 import 'package:ugo_driver/account_support/edit_profile.dart';
+import 'package:ugo_driver/account_support/refer_friend.dart';
 
 import '/backend/api_requests/api_calls.dart';
+import '/config.dart' as app_config;
 import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
 import 'package:ugo_driver/account_support/documents.dart';
-import 'package:ugo_driver/account_support/editg_address.dart';
+import 'package:ugo_driver/account_support/edit_address.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,12 +27,16 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
   late AccountSupportModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  static const Color _brandPrimary = AppColors.primary;
+
   Map<String, dynamic>? driverData;
   bool isLoading = true;
+  bool _isLoggingOut = false;
+  bool _isDeletingAccount = false;
 
   // Stats Variables
-  String driverRating = "5.0"; // Default to 5.0 to avoid "null"
-  String driverYears = "0.0";
+  String driverRating = '5.0'; // Default to 5.0 to avoid "null"
+  String driverYears = '0.0';
 
   @override
   void initState() {
@@ -60,8 +67,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
           driverData = data;
 
           // 1. Get Rating
-          driverRating = data['driver_rating']?.toString() ?? "5.0";
-          if (driverRating == "null" || driverRating.isEmpty) driverRating = "5.0";
+          driverRating = data['driver_rating']?.toString() ?? '5.0';
+          if (driverRating == 'null' || driverRating.isEmpty) driverRating = '5.0';
 
           // 2. Calculate Years from 'created_at'
           if (data['created_at'] != null) {
@@ -72,8 +79,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
               if (years < 0.1) years = 0.1;
               driverYears = years.toStringAsFixed(1);
             } catch (e) {
-              print("Date parse error: $e");
-              driverYears = "0.1";
+              driverYears = '0.1';
             }
           }
 
@@ -100,8 +106,103 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
   if (imagePath.startsWith('http')) return imagePath;
 
-  return 'https://ugo-api.icacorp.org/$imagePath';
+  return '${app_config.Config.baseUrl}/$imagePath';
 }
+
+  /// Logout - clear state and navigate to login (Rapido-style)
+  Future<void> _logout() async {
+    if (_isLoggingOut) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text(
+          'Are you sure you want to logout? You will need to sign in again to receive ride requests.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: _brandPrimary),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _isLoggingOut = true);
+    await FFAppState().clearAppState();
+    if (!mounted) return;
+    context.go(LoginWidget.routePath);
+  }
+
+  /// Delete account - call API, clear state, navigate to login
+  Future<void> _deleteAccount() async {
+    if (_isDeletingAccount) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Account', style: TextStyle(color: AppColors.errorDark, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'This action cannot be undone. All your data including ride history, earnings, and documents will be permanently deleted.\n\nAre you sure you want to delete your account?',
+          style: TextStyle(height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.errorDark),
+            child: const Text('Delete Account'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _isDeletingAccount = true);
+    try {
+      final res = await DeleteDriverCall.call(
+        token: FFAppState().accessToken,
+        id: FFAppState().driverid,
+      );
+      if (!mounted) return;
+      if (res.succeeded) {
+        await FFAppState().clearAppState();
+        if (!mounted) return;
+        context.go(LoginWidget.routePath);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Account deleted successfully'),
+          backgroundColor: Colors.green,
+        ));
+      } else {
+        setState(() => _isDeletingAccount = false);
+        final err = getJsonField(res.jsonBody ?? {}, r'$.error')?.toString() ?? '';
+        final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString() ?? 'Failed to delete account';
+        final isFkError = err.toLowerCase().contains('foreign key') || err.toLowerCase().contains('constraint');
+        final userMsg = isFkError
+            ? 'Account deletion is not available. Your account has linked data. Please contact support.'
+            : msg;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(userMsg),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDeletingAccount = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
+  }
 
 
   String getDriverName() {
@@ -113,15 +214,14 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
   @override
   Widget build(BuildContext context) {
-    const Color brandPrimary = Color(0xFFFF7B10);
     const Color bgWhite = Colors.white;
-    const Color bgGrey = Color(0xFFF5F7FA);
+    const Color bgGrey = AppColors.backgroundAlt;
 
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: bgWhite,
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: brandPrimary))
+          ? const Center(child: CircularProgressIndicator(color: _brandPrimary))
           : SingleChildScrollView(
         child: Column(
           children: [
@@ -138,7 +238,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFFFF8E32), brandPrimary],
+                      colors: [AppColors.primaryGradientStart, AppColors.primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -148,23 +248,27 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       alignment: Alignment.topRight,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha:0.2),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white, width: 1),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.headset_mic_rounded, color: Colors.white, size: 16),
-                              SizedBox(width: 6),
-                              Text(
-                                  "Help",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
-                              ),
-                            ],
+                        child: InkWell(
+                          onTap: () => context.pushNamed(SupportWidget.routeName),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white, width: 1),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.headset_mic_rounded, color: Colors.white, size: 16),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Help',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -184,7 +288,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       ),
                       const SizedBox(width: 16),
                       const Text(
-                        "My Profile",
+                        'My Profile',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -254,8 +358,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             right: 2,
             child: Container(
               padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: brandPrimary,
+              decoration: const BoxDecoration(
+                color: _brandPrimary,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.edit, size: 18, color: Colors.white),
@@ -285,28 +389,31 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             const SizedBox(height: 24),
 
             // ==========================================
-            // 2️⃣ DYNAMIC STATS ROW
+            // 2️⃣ STATS ROW (Rapido Captain style)
             // ==========================================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+              decoration: BoxDecoration(
+                color: bgGrey,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatItem("$driverRating ⭐", "RATING >"),
-                  Container(width: 1, height: 30, color: Colors.grey[300]),
-                  _buildStatItem("${driverData?['total_rides_completed'] ?? 0}", "ORDERS"),
-                  Container(width: 1, height: 30, color: Colors.grey[300]),
-                  _buildStatItem(driverYears, "YEARS"),
+                  _buildStatItem(driverRating, 'Rating', Icons.star_rounded),
+                  Container(width: 1, height: 36, color: Colors.grey[300]),
+                  _buildStatItem("${driverData?['total_rides_completed'] ?? 0}", 'Trips', Icons.local_taxi_rounded),
+                  Container(width: 1, height: 36, color: Colors.grey[300]),
+                  _buildStatItem(driverYears, 'Years', Icons.calendar_today_rounded),
                 ],
               ),
             ),
 
-            const SizedBox(height: 30),
-            Divider(thickness: 8, color: bgGrey),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             // ==========================================
-            // 3️⃣ MENU LIST
+            // 3️⃣ MENU LIST (Rapido Captain style)
             // ==========================================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -314,16 +421,18 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                 children: [
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    title: "Documents (RC, DL, PAN)",
+                    title: 'Documents',
+                    subtitle: 'RC, DL, PAN & Insurance',
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const DocumentsScreen()),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.edit_location_alt_outlined,
-                    title: "Edit Address",
+                    title: 'Edit Address',
+                    subtitle: 'Update your address',
                     onTap: () {
                       if (driverData != null) {
                         Navigator.push(
@@ -337,6 +446,30 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                         );
                       }
                     },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    icon: Icons.card_giftcard_rounded,
+                    title: 'Refer & Earn',
+                    subtitle: 'Invite friends, earn rewards',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ReferFriendWidget()),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    icon: Icons.description_outlined,
+                    title: 'Terms & Conditions',
+                    subtitle: 'Legal information',
+                    onTap: () => context.pushNamed(TermsConditionsWidget.routeName),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Privacy Policy',
+                    subtitle: 'How we handle your data',
+                    onTap: () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
                   ),
                 ],
               ),
@@ -355,50 +488,55 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton.icon(
-                     onPressed: () async {
-                      await FFAppState().clearAppState();
-
-                      // Navigate to Login screen and remove all previous screens
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/login',
-                      (route) => false,
-                    );
-
-                    },    
-
-                      icon: const Icon(Icons.power_settings_new, color: Colors.black),
-                      label: const Text(
-                          "Logout",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16
-                          )
+                      onPressed: _isLoggingOut ? null : _logout,
+                      icon: _isLoggingOut
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.power_settings_new, color: Colors.black87),
+                      label: Text(
+                        _isLoggingOut ? 'Logging out...' : 'Logout',
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.black, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        side: const BorderSide(color: Colors.black54, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.delete_outline, color: Colors.white),
-                      label: const Text(
-                          "Delete Account",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16
-                          )
+                      onPressed: _isDeletingAccount ? null : _deleteAccount,
+                      icon: _isDeletingAccount
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.delete_outline, color: Colors.white),
+                      label: Text(
+                        _isDeletingAccount ? 'Deleting...' : 'Delete Account',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B0000),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        backgroundColor: AppColors.errorCritical,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
                     ),
@@ -414,57 +552,90 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(String value, String label, IconData icon) {
     return Column(
       children: [
+        Icon(icon, color: _brandPrimary, size: 22),
+        const SizedBox(height: 6),
         Text(
-            value,
-            style: GoogleFonts.inter(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black
-            )
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
-            label,
-            style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[500],
-                letterSpacing: 0.5
-            )
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildMenuItem({required IconData icon, required String title, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
       borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F7FA),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.black87, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-                child: Text(
-                    title,
-                    style: GoogleFonts.inter(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: _brandPrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: _brandPrimary, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87
-                    )
-                )
-            ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
-          ],
+                        color: Colors.black87,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 24),
+            ],
+          ),
         ),
       ),
     );

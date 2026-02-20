@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -51,7 +52,7 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
           leading: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+            padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
             child: FlutterFlowIconButton(
               borderRadius: 20.0,
               buttonSize: 40.0,
@@ -83,12 +84,12 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 0.0,
         ),
         body: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+          padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -124,7 +125,7 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                           fontStyle:
                               FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
-                        color: Color(0xFF656565),
+                        color: AppColors.greyMedium,
                         fontSize: 16.0,
                         letterSpacing: 0.0,
                         fontWeight: FontWeight.normal,
@@ -166,7 +167,7 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                                 ),
                           ),
                           Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 8.0, 0.0, 0.0),
                             child: Text(
                               FFLocalizations.of(context).getText(
@@ -181,7 +182,7 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: Color(0xFF656565),
+                                    color: AppColors.greyMedium,
                                     fontSize: 16.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.normal,
@@ -211,8 +212,8 @@ class _ReservematchingWidgetState extends State<ReservematchingWidget> {
                   ],
                 ),
               ]
-                  .divide(SizedBox(height: 24.0))
-                  .addToStart(SizedBox(height: 24.0)),
+                  .divide(const SizedBox(height: 24.0))
+                  .addToStart(const SizedBox(height: 24.0)),
             ),
           ),
         ),

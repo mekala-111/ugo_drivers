@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -54,7 +55,7 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
             borderRadius: 30,
             borderWidth: 1,
             buttonSize: 60,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30,
@@ -83,20 +84,20 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 2,
         ),
         body: SafeArea(
           top: true,
           child: Container(
-            decoration: BoxDecoration(),
+            decoration: const BoxDecoration(),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(32, 0, 32, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(32, 0, 32, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -149,14 +150,13 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                                   .fontStyle,
                             ),
                       ),
-                    ].divide(SizedBox(height: 16)),
+                    ].divide(const SizedBox(height: 16)),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(32, 0, 32, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(32, 0, 32, 0),
                   child: FFButtonWidget(
                     onPressed: () {
-                      print('Button pressed ...');
                     },
                     text: FFLocalizations.of(context).getText(
                       'jc5v3zns' /* Add Bank Account */,
@@ -164,9 +164,9 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                     options: FFButtonOptions(
                       width: double.infinity,
                       height: 56,
-                      padding: EdgeInsets.all(8),
-                      iconPadding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                      color: Color(0xFFFF6B35),
+                      padding: const EdgeInsets.all(8),
+                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                      color: AppColors.accentCoral,
                       textStyle:
                           FlutterFlowTheme.of(context).titleMedium.override(
                                 font: GoogleFonts.interTight(
@@ -191,7 +191,7 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                     ),
                   ),
                 ),
-              ].divide(SizedBox(height: 24)),
+              ].divide(const SizedBox(height: 24)),
             ),
           ),
         ),

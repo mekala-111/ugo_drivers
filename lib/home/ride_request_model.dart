@@ -1,5 +1,5 @@
-
 import '../models/ride_status.dart';
+import '../models/payment_mode.dart';
 
 class RideRequest {
   final int id;
@@ -22,6 +22,11 @@ class RideRequest {
   // 💰 RIDE INFO
   final double? distance;
   final double? estimatedFare;
+  final double? finalFare;
+  final PaymentMode paymentMode;
+
+  /// 4-digit OTP for ride start verification (from backend if provided)
+
 
   RideRequest({
     required this.id,
@@ -36,6 +41,8 @@ class RideRequest {
     required this.dropLng,
     this.distance,
     this.estimatedFare,
+    this.finalFare,
+    this.paymentMode = PaymentMode.unknown,
     this.firstName,
     this.mobileNumber,
   });
@@ -78,7 +85,13 @@ class RideRequest {
           0.0,
 
       distance: _parseToDouble(json['ride_distance_km']),
-      estimatedFare: _parseToDouble(json['estimated_fare']),
+      estimatedFare: _parseToDouble(json['estimated_fare']) ?? _parseToDouble(json['fare']),
+      finalFare: _parseToDouble(json['final_fare']) ??
+          _parseToDouble(json['ride_amount']) ??
+          _parseToDouble(json['amount']),
+      paymentMode: parsePaymentMode(
+        json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'],
+      ),
     );
   }
 
@@ -99,6 +112,9 @@ class RideRequest {
     double? dropLng,
     double? distance,
     double? estimatedFare,
+    double? finalFare,
+    PaymentMode? paymentMode,
+    String? otp,
   }) {
     return RideRequest(
       id: id ?? this.id,
@@ -115,6 +131,8 @@ class RideRequest {
       dropLng: dropLng ?? this.dropLng,
       distance: distance ?? this.distance,
       estimatedFare: estimatedFare ?? this.estimatedFare,
+      finalFare: finalFare ?? this.finalFare,
+      paymentMode: paymentMode ?? this.paymentMode,
     );
   }
 
@@ -123,7 +141,7 @@ class RideRequest {
     if (value == null) return null;
     if (value is num) return value.toDouble();
     if (value is String) {
-      if (value.isEmpty || value == "null") return null;
+      if (value.isEmpty || value == 'null') return null;
       return double.tryParse(value);
     }
     return null;

@@ -1,3 +1,4 @@
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -54,7 +55,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -64,7 +65,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
             },
           ),
           title: Align(
-            alignment: AlignmentDirectional(0.0, 0.0),
+            alignment: const AlignmentDirectional(0.0, 0.0),
             child: Text(
               FFLocalizations.of(context).getText(
                 'i7r9ws1o' /* Trusted contacts */,
@@ -84,7 +85,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                   ),
             ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: true,
           elevation: 2.0,
         ),
@@ -126,11 +127,11 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                                       .fontStyle,
                                 ),
                       ),
-                    ].divide(SizedBox(width: 12.0)),
+                    ].divide(const SizedBox(width: 12.0)),
                   ),
                   Padding(
                     padding:
-                        EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
                     child: Text(
                       FFLocalizations.of(context).getText(
                         'ic5f70x5' /* Share your live location with ... */,
@@ -142,7 +143,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                            color: Color(0xFF7E7777),
+                            color: AppColors.textMuted,
                             fontSize: 12.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.normal,
@@ -152,12 +153,12 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                           ),
                     ),
                   ),
-                ].divide(SizedBox(height: 8.0)),
+                ].divide(const SizedBox(height: 8.0)),
               ),
-              Divider(
+              const Divider(
                 height: 1.0,
                 thickness: 0.5,
-                color: Color(0xFFCCCCCC),
+                color: AppColors.greyBg,
               ),
               Column(
                 mainAxisSize: MainAxisSize.max,
@@ -192,11 +193,11 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                                       .fontStyle,
                                 ),
                       ),
-                    ].divide(SizedBox(width: 12.0)),
+                    ].divide(const SizedBox(width: 12.0)),
                   ),
                   Padding(
                     padding:
-                        EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
                     child: Text(
                       FFLocalizations.of(context).getText(
                         'vmbbzyy4' /* Share your live location with ... */,
@@ -208,7 +209,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                                   .bodyMedium
                                   .fontStyle,
                             ),
-                            color: Color(0xFF7E7777),
+                            color: AppColors.textMuted,
                             fontSize: 12.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.normal,
@@ -218,15 +219,15 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                           ),
                     ),
                   ),
-                ].divide(SizedBox(height: 8.0)),
+                ].divide(const SizedBox(height: 8.0)),
               ),
-              Divider(
+              const Divider(
                 height: 1.0,
                 thickness: 0.5,
-                color: Color(0xFFCCCCCC),
+                color: AppColors.greyBg,
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                 child: FFButtonWidget(
                   onPressed: () {
                     print('Button pressed ...');
@@ -237,9 +238,9 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                   options: FFButtonOptions(
                     width: double.infinity,
                     height: 56.0,
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     iconPadding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium
@@ -265,9 +266,9 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                 ),
               ),
             ]
-                .divide(SizedBox(height: 24.0))
-                .addToStart(SizedBox(height: 24.0))
-                .addToEnd(SizedBox(height: 24.0)),
+                .divide(const SizedBox(height: 24.0))
+                .addToStart(const SizedBox(height: 24.0))
+                .addToEnd(const SizedBox(height: 24.0)),
           ),
         ),
       ),

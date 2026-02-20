@@ -9,6 +9,7 @@ import 'package:mime_type/mime_type.dart';
 import 'package:video_player/video_player.dart';
 
 import '../auth/firebase_auth/auth_util.dart';
+import '../constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow_util.dart';
 
@@ -55,13 +56,12 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
   required bool allowPhoto,
   bool allowVideo = false,
   String pickerFontFamily = 'Roboto',
-  Color textColor = const Color(0xFF111417),
-  Color backgroundColor = const Color(0xFFF5F5F5),
+  Color textColor = AppColors.textNearBlack,
+  Color backgroundColor = AppColors.background,
   bool includeDimensions = false,
   bool includeBlurHash = false,
 }) async {
-  final createUploadMediaListTile =
-      (String label, MediaSource mediaSource) => ListTile(
+  ListTile createUploadMediaListTile(String label, MediaSource mediaSource) => ListTile(
             title: Text(
               label,
               textAlign: TextAlign.center,
@@ -88,7 +88,7 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
           children: [
             if (!kIsWeb) ...[
               Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                 child: ListTile(
                   title: Text(
                     'Choose Source',
@@ -305,7 +305,7 @@ List<SelectedFile> selectedFilesFromUploadedFiles(
         final file = entry.value;
         return SelectedFile(
             storagePath: _getStoragePath(
-              storageFolderPath != null ? storageFolderPath : null,
+              storageFolderPath,
               file.name!,
               false,
               isMultiData ? index : null,
@@ -367,7 +367,7 @@ void showUploadMessage(
           children: [
             if (showLoading)
               Padding(
-                padding: EdgeInsetsDirectional.only(end: 10.0),
+                padding: const EdgeInsetsDirectional.only(end: 10.0),
                 child: CircularProgressIndicator(
                   valueColor: Theme.of(context).brightness == Brightness.dark
                       ? AlwaysStoppedAnimation<Color>(
@@ -378,7 +378,7 @@ void showUploadMessage(
             Text(message),
           ],
         ),
-        duration: showLoading ? Duration(days: 1) : Duration(seconds: 4),
+        duration: showLoading ? const Duration(days: 1) : const Duration(seconds: 4),
       ),
     );
 }

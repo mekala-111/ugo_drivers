@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -8,22 +10,24 @@ class RidePickupOverlay extends StatelessWidget {
   final RideRequest ride;
   final String formattedWaitTime;
   final VoidCallback onSwipe;
+  final VoidCallback? onCancel;
 
   const RidePickupOverlay({
-    Key? key,
+    super.key,
     required this.ride,
     required this.formattedWaitTime,
     required this.onSwipe,
-  }) : super(key: key);
+    this.onCancel,
+  });
 
   Future<void> _launchMap(double? lat, double? lng) async {
     if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
-      debugPrint("❌ Error: Invalid Coordinates ($lat, $lng)");
+      debugPrint('❌ Error: Invalid Coordinates ($lat, $lng)');
       return;
     }
-    final Uri googleMapsUrl = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri browserUrl =
-        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -31,10 +35,10 @@ class RidePickupOverlay extends StatelessWidget {
       } else if (await canLaunchUrl(browserUrl)) {
         await launchUrl(browserUrl, mode: LaunchMode.externalApplication);
       } else {
-        debugPrint("❌ Could not launch maps url");
+        debugPrint('❌ Could not launch maps url');
       }
     } catch (e) {
-      debugPrint("❌ Map Launch Error: $e");
+      debugPrint('❌ Map Launch Error: $e');
     }
   }
 
@@ -53,14 +57,14 @@ class RidePickupOverlay extends StatelessWidget {
               child: InkWell(
                 onTap: () {
                   print(
-                      "📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}");
+                      '📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}');
                   _launchMap(ride.pickupLat, ride.pickupLng);
                 },
                 child: Container(
                   height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF7B10), // ugoOrange
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: const [
                       BoxShadow(
@@ -71,12 +75,12 @@ class RidePickupOverlay extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.navigation, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
+                    children: [
+                      const Icon(Icons.navigation, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
                       Text(
-                        "NAVIGATE",
-                        style: TextStyle(
+                        FFLocalizations.of(context).getText('drv_navigate'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -92,6 +96,7 @@ class RidePickupOverlay extends StatelessWidget {
               ride: ride,
               formattedWaitTime: formattedWaitTime,
               onSwipe: onSwipe,
+              onCancel: onCancel,
             ),
           ],
         ),
@@ -105,17 +110,19 @@ class ActiveRideCard extends StatelessWidget {
   final RideRequest ride;
   final String formattedWaitTime;
   final VoidCallback onSwipe;
+  final VoidCallback? onCancel;
 
   const ActiveRideCard({
-    Key? key,
+    super.key,
     required this.ride,
     required this.formattedWaitTime,
     required this.onSwipe,
-  }) : super(key: key);
+    this.onCancel,
+  });
 
-  static const Color ugoOrange = Color(0xFFFF7B10);
-  static const Color ugoGreen = Color(0xFF4CAF50);
-  static const Color ugoRed = Color(0xFFE53935);
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
+  static const Color ugoRed = AppColors.error;
 
   @override
   Widget build(BuildContext context) {
@@ -123,18 +130,18 @@ class ActiveRideCard extends StatelessWidget {
     bool isArrived = ride.status == RideStatus.arrived;
     bool isStarted = ride.status == RideStatus.started;
 
-    String headerText = "GO TO PICKUP";
+    String headerText = FFLocalizations.of(context).getText('drv_go_to_pickup');
     Color headerColor = ugoGreen;
-    String btnText = "ARRIVED";
+    String btnText = FFLocalizations.of(context).getText('drv_arrived');
     Color btnColor = ugoGreen;
     bool showPickupBox = true;
 
     if (isArrived) {
-      headerText = "Waiting Time : $formattedWaitTime";
-      btnText = "START RIDE";
+      headerText = "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
+      btnText = FFLocalizations.of(context).getText('drv_start_ride');
     } else if (isStarted) {
-      headerText = "GO TO DROP";
-      btnText = "COMPLETE RIDE";
+      headerText = FFLocalizations.of(context).getText('drv_go_to_drop');
+      btnText = FFLocalizations.of(context).getText('drv_complete_ride');
       btnColor = ugoRed;
       headerColor = ugoRed; // Change header color for Drop
       showPickupBox = false;
@@ -186,7 +193,7 @@ class ActiveRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${ride.firstName ?? 'Passenger'}",
+                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -216,7 +223,7 @@ class ActiveRideCard extends StatelessWidget {
                                             showPickupBox ? ugoGreen : ugoRed,
                                         size: 24),
                                     Text(
-                                      showPickupBox ? "Pickup" : "Drop",
+                                      showPickupBox ? FFLocalizations.of(context).getText('drv_pickup') : FFLocalizations.of(context).getText('drv_drop'),
                                       style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[800],
@@ -228,7 +235,7 @@ class ActiveRideCard extends StatelessWidget {
                               const SizedBox(width: 12),
                               // Rich Address Display
                               Expanded(
-                                child: _buildRichAddress(showPickupBox
+                                child: _buildRichAddress(context, showPickupBox
                                     ? ride.pickupAddress
                                     : ride.dropAddress),
                               ),
@@ -245,7 +252,7 @@ class ActiveRideCard extends StatelessWidget {
                               Uri.parse("tel:${ride.mobileNumber ?? ''}"));
                         }),
                         const SizedBox(height: 16),
-                        _buildSquareIconBtn(Icons.close, ugoRed, () {}),
+                        _buildSquareIconBtn(Icons.close, ugoRed, onCancel ?? () {}),
                       ],
                     )
                   ],
@@ -263,9 +270,9 @@ class ActiveRideCard extends StatelessWidget {
   }
 
   // ✅ RAPIDO-STYLE ADDRESS HIGHLIGHTING
-  Widget _buildRichAddress(String rawAddress) {
-    String pincode = "";
-    String locality = "";
+  Widget _buildRichAddress(BuildContext context, String rawAddress) {
+    String pincode = '';
+    String locality = '';
     String fullAddressWithoutPin = rawAddress;
 
     // 1. Extract Pincode (Matches 6 digits like 500081 or 500 081)
@@ -286,7 +293,7 @@ class ActiveRideCard extends StatelessWidget {
       locality = parts[0].trim();
       // If the first part is just a house number, maybe take the second part too
       if (locality.length < 5 && parts.length > 1) {
-        locality = "$locality, ${parts[1].trim()}";
+        locality = '$locality, ${parts[1].trim()}';
       }
     }
 
@@ -296,7 +303,7 @@ class ActiveRideCard extends StatelessWidget {
         // 🔹 1. Pincode Badge (Top)
         if (pincode.isNotEmpty)
           Text(
-            "$pincode",
+            pincode,
             style: const TextStyle(
                 color: ugoOrange,
                 fontWeight: FontWeight.bold,
@@ -306,7 +313,7 @@ class ActiveRideCard extends StatelessWidget {
 
         // 🔹 2. Area Name (Large & Bold)
         Text(
-          locality.isNotEmpty ? locality : "Unknown Location",
+          locality.isNotEmpty ? locality : FFLocalizations.of(context).getText('drv_unknown_location'),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -353,12 +360,12 @@ class SlideToAction extends StatefulWidget {
   final double height;
 
   const SlideToAction({
-    Key? key,
+    super.key,
     required this.text,
     required this.outerColor,
     required this.onSubmitted,
     this.height = 55.0,
-  }) : super(key: key);
+  });
 
   @override
   _SlideToActionState createState() => _SlideToActionState();

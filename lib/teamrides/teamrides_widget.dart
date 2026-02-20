@@ -53,7 +53,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
             borderRadius: 30.0,
             borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 30.0,
@@ -82,7 +82,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: [],
+          actions: const [],
           centerTitle: false,
           elevation: 2.0,
         ),
@@ -94,7 +94,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
               wrapWithModel(
                 model: _model.teamrideModel,
                 updateCallback: () => safeSetState(() {}),
-                child: TeamrideWidget(),
+                child: const TeamrideWidget(),
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -25,8 +26,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
   String _errorMessage = '';
 
   // Ugo Brand Colors
-  final Color ugoOrange = const Color(0xFFFF7B10);
-  final Color ugoOrangeLight = const Color(0xFFFF9E4D);
+  final Color ugoOrange = AppColors.primary;
+  final Color ugoOrangeLight = AppColors.primaryLight;
 
   @override
   void initState() {
@@ -158,7 +159,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF5F7FA), // Light grey background
+        backgroundColor: AppColors.backgroundAlt, // Light grey background
         body: Stack(
           children: [
             // 1️⃣ VIBRANT HEADER BACKGROUND
@@ -211,7 +212,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                         ),
                         const Expanded(
                           child: Text(
-                            "Refer & Earn",
+                            'Refer & Earn',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
@@ -228,7 +229,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   // Header Text
                   const SizedBox(height: 10),
                   Text(
-                    "Invite Friends,\nGet Rewards!",
+                    'Invite Friends,\nGet Rewards!',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.interTight(
                       color: Colors.white,
@@ -239,7 +240,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Earn when your friend completes their first ride.",
+                    'Earn when your friend completes their first ride.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       color: Colors.white.withValues(alpha: 0.9),
@@ -253,7 +254,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   // 3️⃣ SCROLLABLE CARD AREA
                   Expanded(
                     child: _isLoading
-                        ? Center(child: CircularProgressIndicator(color: Colors.white))
+                        ? const Center(child: CircularProgressIndicator(color: Colors.white))
                         : _errorMessage.isNotEmpty
                         ? _buildErrorView()
                         : SingleChildScrollView(
@@ -269,7 +270,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
                             // 📢 SOCIAL SHARE BUTTONS
                             Text(
-                              "Share via",
+                              'Share via',
                               style: GoogleFonts.inter(
                                 color: Colors.grey[600],
                                 fontWeight: FontWeight.w600,
@@ -282,22 +283,22 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                               children: [
                                 _socialButton(
                                   icon: FontAwesomeIcons.whatsapp,
-                                  color: const Color(0xFF25D366),
-                                  label: "WhatsApp",
+                                  color: AppColors.accentEmerald,
+                                  label: 'WhatsApp',
                                   onTap: _shareViaWhatsApp,
                                 ),
                                 const SizedBox(width: 20),
                                 _socialButton(
                                   icon: FontAwesomeIcons.solidMessage,
-                                  color: const Color(0xFF3B5998),
-                                  label: "Message",
+                                  color: AppColors.accentBlue,
+                                  label: 'Message',
                                   onTap: _shareReferralCode,
                                 ),
                                 const SizedBox(width: 20),
                                 _socialButton(
                                   icon: Icons.share_rounded,
                                   color: ugoOrange,
-                                  label: "More",
+                                  label: 'More',
                                   onTap: _shareReferralCode,
                                 ),
                               ],
@@ -324,7 +325,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "How it works",
+                                    'How it works',
                                     style: GoogleFonts.inter(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -332,16 +333,16 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  _buildStepRow("1", "Invite your friends", "Share your code via WhatsApp or SMS."),
+                                  _buildStepRow('1', 'Invite your friends', 'Share your code via WhatsApp or SMS.'),
                                   _buildConnectorLine(),
-                                  _buildStepRow("2", "They register", "They sign up using your referral code."),
+                                  _buildStepRow('2', 'They register', 'They sign up using your referral code.'),
                                   _buildConnectorLine(),
 
                                   // ✅ UPDATED STEP 3: Specific amount
                                   _buildStepRow(
-                                      "3",
-                                      "You earn rewards",
-                                      "Get paid ₹10 for every Pro ride completed by the friends."
+                                      '3',
+                                      'You earn rewards',
+                                      'Get paid ₹10 for every Pro ride completed by the friends.'
                                   ),
                                 ],
                               ),
@@ -384,7 +385,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
             child: Column(
               children: [
                 Text(
-                  "YOUR REFERRAL CODE",
+                  'YOUR REFERRAL CODE',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -399,7 +400,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF4E6), // Light Orange bg
+                      color: AppColors.sectionOrangeLight, // Light Orange bg
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: ugoOrange.withValues(alpha: 0.3), width: 1.5),
                     ),
@@ -448,7 +449,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              "Share this code with your friends",
+              'Share this code with your friends',
               style: GoogleFonts.inter(
                 color: Colors.grey[500],
                 fontSize: 13,
@@ -507,7 +508,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF4E6),
+            color: AppColors.sectionOrangeLight,
             shape: BoxShape.circle,
             border: Border.all(color: ugoOrange.withValues(alpha: 0.2)),
           ),
@@ -571,7 +572,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
             const SizedBox(height: 16),
             FFButtonWidget(
               onPressed: _fetchReferralCode,
-              text: "Retry",
+              text: 'Retry',
               options: FFButtonOptions(
                 width: 100,
                 height: 40,
