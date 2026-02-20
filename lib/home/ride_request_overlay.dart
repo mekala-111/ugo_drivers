@@ -9,7 +9,6 @@ import 'package:ugo_driver/services/ride_notification_service.dart';
 import 'package:ugo_driver/home/ride_request_model.dart';
 import '../models/ride_status.dart';
 import '../models/payment_mode.dart';
-import 'package:vibration/vibration.dart';
 import 'dart:async';
 
 // Import your components
@@ -55,6 +54,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   late AudioPlayer _audioPlayer;
   bool _isAlerting = false;
   Timer? _tickTimer;
+  Timer? _searchingPollTimer; // Rapido-style: poll to remove when another driver accepts
   bool _isAcceptingRide = false;
   bool _isCompletingRide = false;
   bool _isCancellingRide = false;
@@ -81,6 +81,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _tickTimer?.cancel();
+    _searchingPollTimer?.cancel();
     _audioPlayer.dispose();
     for (var list in _otpControllers.values) {
       for (var c in list) {
@@ -96,10 +97,26 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (!mounted) return;
 
       final RideStatus status = updatedRide.status;
+      final int myDriverId = FFAppState().driverid;
+      final int? rideDriverId = updatedRide.driverId;
 
-      // Remove if cancelled or completed by another driver
-      if (status == RideStatus.cancelled || status == RideStatus.unknown) {
-        // NOTE: 'completed_by_other' isn't represented in enum; treat as unknown.
+      // Remove if cancelled, rejected, or completed by another driver
+      if (status == RideStatus.cancelled ||
+          status == RideStatus.rejected ||
+          status == RideStatus.unknown) {
+        removeRideById(updatedRide.id);
+        return;
+      }
+
+      // Rapido-style: Remove if another driver accepted (status changed to accepted/arrived/started/onTrip with different driver_id)
+      final takenByOther = rideDriverId != null &&
+          rideDriverId != 0 &&
+          rideDriverId != myDriverId &&
+          (status == RideStatus.accepted ||
+              status == RideStatus.arrived ||
+              status == RideStatus.started ||
+              status == RideStatus.onTrip);
+      if (takenByOther) {
         removeRideById(updatedRide.id);
         return;
       }
@@ -127,7 +144,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             if (status == RideStatus.searching) {
               _timers[updatedRide.id] = 30;
               _startAlert();
-              VoiceService().newRideRequest(); // Rapido-style voice
+              _startSearchingPoll(); // Rapido-style: poll to detect when another driver accepts
               RideNotificationService().onNewRideFromSocket(
                 rideId: updatedRide.id,
                 isAppInForeground: _isAppInForeground,
@@ -160,6 +177,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     });
     if (_activeRequests.isEmpty) _stopAlert();
+    if (_activeRequests.every((r) => r.status != RideStatus.searching)) {
+      _stopSearchingPoll();
+    }
   }
 
   void _startTickTimer() {
@@ -180,8 +200,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (_isAlerting) return;
     _isAlerting = true;
     try {
+      await _audioPlayer.stop();
+      await VoiceService().newRideRequest();
+      await Future.delayed(const Duration(milliseconds: 2500));
+      if (!_isAlerting) return;
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
-      Vibration.vibrate(pattern: [0, 500, 200, 500], repeat: 0);
     } catch (_) {}
   }
 
@@ -189,7 +213,44 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (!_isAlerting) return;
     _isAlerting = false;
     _audioPlayer.stop();
-    Vibration.cancel();
+  }
+
+  /// Rapido-style: Poll SEARCHING rides to remove when another driver accepts.
+  void _startSearchingPoll() {
+    if (_searchingPollTimer?.isActive == true) return;
+    _searchingPollTimer = Timer.periodic(const Duration(seconds: 2), (_) => _pollSearchingRides());
+  }
+
+  void _stopSearchingPoll() {
+    _searchingPollTimer?.cancel();
+    _searchingPollTimer = null;
+  }
+
+  Future<void> _pollSearchingRides() async {
+    if (!mounted) return;
+    final searchingIds = _activeRequests
+        .where((r) => r.status == RideStatus.searching)
+        .map((r) => r.id)
+        .toList();
+    if (searchingIds.isEmpty) {
+      _stopSearchingPoll();
+      return;
+    }
+    for (final rideId in searchingIds) {
+      try {
+        final response = await Dio().get(
+          '${Config.baseUrl}/api/rides/$rideId',
+          options: Options(
+              headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
+        );
+        if (!mounted) return;
+        final data = response.data;
+        final rideData = data is Map && data['data'] != null
+            ? (data['data'] as Map<String, dynamic>)
+            : (data is Map<String, dynamic> ? data : null);
+        if (rideData != null) handleNewRide(rideData);
+      } catch (_) {}
+    }
   }
 
   /// Public: Fetch ride by ID (e.g. when user taps notification from background).
@@ -378,7 +439,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             finalFare: fare, paymentMode: pm);
         VoiceService().rideCompleted();
       } else {
-        setState(() => _isCompletingRide = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Failed to complete ride. Please try again.'),
@@ -388,12 +448,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isCompletingRide = false);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Connection error. Please try again.'),
           backgroundColor: Colors.red,
         ));
       }
+    } finally {
+      if (mounted) setState(() => _isCompletingRide = false);
     }
   }
 

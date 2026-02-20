@@ -390,12 +390,28 @@ class HomeController extends ChangeNotifier {
 
     _socket.off('driver_rides');
     _socket.off('ride_updated');
+    _socket.off('ride_taken');
+    _socket.off('ride_assigned');
     _socket.on('driver_rides', (data) {
       if (!_disposed) onSocketRideData(data);
     });
     _socket.on('ride_updated', (data) {
       if (!_disposed) onSocketRideData(data);
     });
+    // Rapido-style: when another driver accepts, backend may emit ride_taken/ride_assigned
+    void onRideTaken(dynamic data) {
+      if (_disposed) return;
+      final d = data is Map ? Map<String, dynamic>.from(Map.from(data)) : null;
+      if (d == null) return;
+      final rideId = d['ride_id'] ?? d['rideId'];
+      final driverId = d['driver_id'];
+      final myId = FFAppState().driverid;
+      if (rideId != null && driverId != null && driverId != myId) {
+        onSocketRideData({'id': rideId, 'driver_id': driverId, 'ride_status': 'ACCEPTED'});
+      }
+    }
+    _socket.on('ride_taken', onRideTaken);
+    _socket.on('ride_assigned', onRideTaken);
 
     _socket.connect();
   }

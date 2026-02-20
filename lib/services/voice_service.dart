@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,11 +35,11 @@ class VoiceService {
     } catch (_) {}
   }
 
-  /// TTS locale codes: en-IN, hi-IN, te-IN
-  static const Map<String, String> _ttsLocale = {
-    'en': 'en-IN',
-    'hi': 'hi-IN',
-    'te': 'te-IN',
+  /// TTS locale codes. Fallback order: en-IN -> en-US -> en (wider compatibility)
+  static const Map<String, List<String>> _ttsLocaleFallbacks = {
+    'en': ['en-IN', 'en-US', 'en'],
+    'hi': ['hi-IN', 'hi'],
+    'te': ['te-IN', 'te'],
   };
 
   /// Voice messages in English, Hindi, Telugu
@@ -97,8 +98,28 @@ class VoiceService {
 
   Future<void> _ensureInit() async {
     if (_initialized) return;
-    final locale = _ttsLocale[_language] ?? 'en-IN';
-    await _tts.setLanguage(locale);
+    final fallbacks = _ttsLocaleFallbacks[_language] ?? ['en-US', 'en'];
+    bool localeSet = false;
+    for (final locale in fallbacks) {
+      try {
+        final available = await _tts.isLanguageAvailable(locale).timeout(
+          const Duration(seconds: 2),
+          onTimeout: () => false,
+        );
+        if (available == true) {
+          await _tts.setLanguage(locale);
+          localeSet = true;
+          break;
+        }
+      } catch (_) {}
+    }
+    if (!localeSet) {
+      try {
+        await _tts.setLanguage('en-US');
+      } catch (e) {
+        if (kDebugMode) debugPrint('VoiceService: TTS setLanguage failed: $e');
+      }
+    }
     await _tts.setSpeechRate(0.5);
     await _tts.setVolume(1.0);
     _initialized = true;
@@ -110,11 +131,12 @@ class VoiceService {
   /// Speak text (Rapido Captain style announcements). No-op if voice disabled.
   Future<void> speak(String text) async {
     if (!_voiceEnabled) return;
+    if (text.isEmpty) return;
     try {
       await _ensureInit();
       await _tts.speak(text);
     } catch (e) {
-      // TTS might not be available on some devices
+      if (kDebugMode) debugPrint('VoiceService: speak failed: $e');
     }
   }
 
@@ -153,6 +175,9 @@ class VoiceService {
 
   Future<void> initFromStorage() async {
     await _loadVoiceEnabled();
+    try {
+      await _ensureInit();
+    } catch (_) {}
   }
 
   Future<void> captainsNearby(int count) async {

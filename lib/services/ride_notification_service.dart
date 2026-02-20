@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:vibration/vibration.dart';
 import 'package:ugo_driver/app_state.dart';
 import 'package:ugo_driver/flutter_flow/nav/nav.dart';
 import 'package:ugo_driver/home/home_widget.dart';
@@ -46,7 +45,7 @@ Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
       _kChannelName,
       importance: Importance.max,
       playSound: true,
-      enableVibration: true,
+      enableVibration: false,
     );
     await plugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
@@ -146,7 +145,7 @@ class RideNotificationService {
         description: 'New ride requests - Rapido Captain style',
         importance: Importance.max,
         playSound: true,
-        enableVibration: true,
+        enableVibration: false,
         showBadge: true,
         enableLights: true,
         ledColor: AppColors.primary,
@@ -190,7 +189,6 @@ class RideNotificationService {
   void _onForegroundMessage(RemoteMessage msg) {
     if (msg.data.containsKey('type') && msg.data['type'] == 'ride_request') {
       _parseAndShowLocalNotification(msg);
-      try { Vibration.vibrate(pattern: [0, 500, 200, 500], repeat: 0); } catch (_) {}
     }
   }
 
@@ -257,7 +255,7 @@ class RideNotificationService {
         importance: Importance.max,
         priority: Priority.max,
         playSound: true,
-        enableVibration: true,
+        enableVibration: false,
         styleInformation: BigTextStyleInformation(body),
         category: AndroidNotificationCategory.call,
         fullScreenIntent: true,
