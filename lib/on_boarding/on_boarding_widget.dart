@@ -456,6 +456,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         'email': FFAppState().email,
         'referal_code': FFAppState().referralCode,
         'fcm_token': fcm_token ?? '',
+        'license_number':FFAppState().licenseNumber,
+        'aadhaar_number':FFAppState().aadharNumber,
+        'pan_number':FFAppState().panNumber
       };
       if (FFAppState().licenseNumber.isNotEmpty) {
         driverJsonData['license_number'] = FFAppState().licenseNumber;
