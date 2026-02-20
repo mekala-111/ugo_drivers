@@ -78,23 +78,26 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn
-              ? const ErrorBoundary(child: HomeWidget())
-              : const LoginWidget(),
+      errorBuilder: (context, state) => appStateNotifier.loggedIn
+          ? const ErrorBoundary(child: HomeWidget())
+          : const LoginWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) =>
-              appStateNotifier.loggedIn
-                  ? const ErrorBoundary(child: HomeWidget())
-                  : const LoginWidget(),
+          builder: (context, _) => appStateNotifier.loggedIn
+              ? const ErrorBoundary(child: HomeWidget())
+              : const LoginWidget(),
         ),
         FFRoute(
           name: LoginWidget.routeName,
           path: LoginWidget.routePath,
           builder: (context, params) => const LoginWidget(),
+        ),
+        FFRoute(
+          name: LanguageSelectWidget.routeName,
+          path: LanguageSelectWidget.routePath,
+          builder: (context, params) => const LanguageSelectWidget(),
         ),
         FFRoute(
           name: OtpverificationWidget.routeName,
@@ -135,7 +138,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: HomeWidget.routeName,
           path: HomeWidget.routePath,
-          builder: (context, params) => const ErrorBoundary(child: HomeWidget()),
+          builder: (context, params) =>
+              const ErrorBoundary(child: HomeWidget()),
         ),
         FFRoute(
           name: AccountManagementWidget.routeName,
@@ -150,7 +154,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: WalletWidget.routeName,
           path: WalletWidget.routePath,
-          builder: (context, params) => const ErrorBoundary(child: WalletWidget()),
+          builder: (context, params) =>
+              const ErrorBoundary(child: WalletWidget()),
         ),
         FFRoute(
           name: AddBankAccountWidget.routeName,
@@ -362,7 +367,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: VehicleImageUpdateWidget.routePath,
           builder: (context, params) => const VehicleImageUpdateWidget(),
         ),
-        
+
         FFRoute(
           name: DrivingDlUpdateWidget.routeName,
           path: DrivingDlUpdateWidget.routePath,
@@ -370,7 +375,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         ),
         FFRoute(
           name: AdharUploadUpdateWidget.routeName,
-          path:AdharUploadUpdateWidget.routePath,
+          path: AdharUploadUpdateWidget.routePath,
           builder: (context, params) => const AdharUploadUpdateWidget(),
         ),
         FFRoute(
@@ -383,7 +388,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: FaceVerifyupdateWidget.routePath,
           builder: (context, params) => const FaceVerifyupdateWidget(),
         ),
-
 
         FFRoute(
           name: RCUploadWidget.routeName,
@@ -682,7 +686,8 @@ class TransitionInfo {
   final Duration duration;
   final Alignment? alignment;
 
-  static TransitionInfo appDefault() => const TransitionInfo(hasTransition: false);
+  static TransitionInfo appDefault() =>
+      const TransitionInfo(hasTransition: false);
 }
 
 class RootPageContext {

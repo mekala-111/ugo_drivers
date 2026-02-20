@@ -147,7 +147,6 @@ bool _isSupportedLocale(Locale locale) {
 final kTranslationsMap = <Map<String, Map<String, String>>>[
   // login
   {
-      
     '0wqdgogt': {
       'en': 'Start your journey – enter your phone number',
       'hi': 'अपनी यात्रा शुरू करें - अपना फ़ोन नंबर दर्ज करें',
@@ -178,6 +177,69 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'या से जुड़ें',
       'te': 'లేదా కనెక్ట్ అవ్వండి',
     },
+    'login0001': {
+      'en': 'Welcome Partner,',
+      'hi': 'स्वागत है, पार्टनर,',
+      'te': 'స్వాగతం, భాగస్వామి,',
+    },
+    'login0002': {
+      'en': "Let's get you on the road.",
+      'hi': 'चलिए आपको सड़क पर ले चलते हैं।',
+      'te': 'మిమ్మల్ని రోడ్డుపైకి తీసుకెళ్దాం.',
+    },
+    'login0003': {
+      'en': 'Enter Mobile Number',
+      'hi': 'मोबाइल नंबर दर्ज करें',
+      'te': 'మొబైల్ నంబర్ నమోదు చేయండి',
+    },
+    'login0004': {
+      'en': 'Mobile Number',
+      'hi': 'मोबाइल नंबर',
+      'te': 'మొబైల్ నంబర్',
+    },
+    'login0005': {
+      'en': 'Get OTP',
+      'hi': 'OTP प्राप्त करें',
+      'te': 'OTP పొందండి',
+    },
+    'login0006': {
+      'en': 'By continuing, you agree to our\n',
+      'hi': 'जारी रखने पर, आप हमारी\n',
+      'te': 'కొనసాగించడం ద్వారా, మీరు మా\n',
+    },
+    'login0007': {
+      'en': 'Terms of Service',
+      'hi': 'सेवा की शर्तें',
+      'te': 'సేవా నిబంధనలు',
+    },
+    'login0008': {
+      'en': ' & ',
+      'hi': ' और ',
+      'te': ' మరియు ',
+    },
+    'login0009': {
+      'en': 'Privacy Policy',
+      'hi': 'गोपनीयता नीति',
+      'te': 'గోప్యతా విధానం',
+    },
+    'login0010': {
+      'en':
+          'Verification Required: Please enter your mobile number to complete registration.',
+      'hi':
+          'सत्यापन आवश्यक: पंजीकरण पूरा करने के लिए अपना मोबाइल नंबर दर्ज करें।',
+      'te':
+          'ధృవీకరణ అవసరం: రిజిస్ట్రేషన్ పూర్తి చేయడానికి మీ మొబైల్ నంబర్ నమోదు చేయండి.',
+    },
+    'login0011': {
+      'en': 'Please enter a valid 10-digit mobile number.',
+      'hi': 'कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।',
+      'te': 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.',
+    },
+    'login0012': {
+      'en': '+91',
+      'hi': '+91',
+      'te': '+91',
+    },
   },
   // otpverification
   {
@@ -206,6 +268,152 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'सत्यापन',
       'te': 'ధృవీకరణ',
     },
+    'otpv0001': {
+      'en': 'Enter the code we sent you.',
+      'hi': 'हमने आपको जो कोड भेजा है उसे दर्ज करें।',
+      'te': 'మేము పంపిన కోడ్‌ను నమోదు చేయండి.',
+    },
+    'otpv0002': {
+      'en': 'Enter the 6-digit OTP sent to',
+      'hi': 'भेजा गया 6-अंकीय OTP दर्ज करें',
+      'te': 'పంపిన 6-అంకెల OTPను నమోదు చేయండి',
+    },
+    'otpv0003': {
+      'en': 'Verify & Continue',
+      'hi': 'सत्यापित करें और जारी रखें',
+      'te': 'ధృవీకరించి కొనసాగించండి',
+    },
+    'otpv0004': {
+      'en': "Didn't receive code?",
+      'hi': 'कोड नहीं मिला?',
+      'te': 'కోడ్ రాలేదా?',
+    },
+    'otpv0005': {
+      'en': 'Resend',
+      'hi': 'पुनः भेजें',
+      'te': 'మళ్లీ పంపండి',
+    },
+    'otpv0006': {
+      'en': 'Resend in',
+      'hi': 'फिर से भेजें',
+      'te': 'మళ్లీ పంపండి',
+    },
+    'otpv0007': {
+      'en': 'OTP Resent Successfully!',
+      'hi': 'OTP सफलतापूर्वक फिर से भेजा गया!',
+      'te': 'OTP విజయవంతంగా మళ్లీ పంపబడింది!',
+    },
+    'otpv0008': {
+      'en': 'Failed to resend OTP',
+      'hi': 'OTP फिर से भेजने में विफल',
+      'te': 'OTP మళ్లీ పంపడం విఫలమైంది',
+    },
+    'otpv0009': {
+      'en': 'Please enter a valid 6-digit OTP.',
+      'hi': 'कृपया एक मान्य 6-अंकीय OTP दर्ज करें।',
+      'te': 'దయచేసి చెల్లుబాటు అయ్యే 6-అంకెల OTPని నమోదు చేయండి.',
+    },
+    'otpv0010': {
+      'en': 'Verification Failed:',
+      'hi': 'सत्यापन विफल:',
+      'te': 'ధృవీకరణ విఫలమైంది:',
+    },
+  },
+  // language_select
+  {
+    'langsel0001': {
+      'en': 'Choose your language',
+      'hi': 'अपनी भाषा चुनें',
+      'te': 'మీ భాషను ఎంచుకోండి',
+    },
+    'langsel0002': {
+      'en': 'Select the language you want to use.',
+      'hi': 'आप उपयोग करना चाहते हैं वह भाषा चुनें।',
+      'te': 'మీరు ఉపయోగించాలనుకునే భాషను ఎంచుకోండి.',
+    },
+    'langsel0003': {
+      'en': 'Select language',
+      'hi': 'भाषा चुनें',
+      'te': 'భాషను ఎంచుకోండి',
+    },
+    'langsel0004': {
+      'en': 'English',
+      'hi': 'अंग्रेज़ी',
+      'te': 'ఇంగ్లీష్',
+    },
+    'langsel0005': {
+      'en': 'Hindi',
+      'hi': 'हिन्दी',
+      'te': 'హిందీ',
+    },
+    'langsel0006': {
+      'en': 'Telugu',
+      'hi': 'तेलुगु',
+      'te': 'తెలుగు',
+    },
+    'langsel0007': {
+      'en': 'Continue',
+      'hi': 'जारी रखें',
+      'te': 'కొనసాగించండి',
+    },
+  },
+  // menu_widget
+  {
+    'menu0001': {
+      'en': 'Welcome Back',
+      'hi': 'वापसी पर स्वागत है',
+      'te': 'తిరిగి స్వాగతం',
+    },
+    'menu0002': {
+      'en': 'Account',
+      'hi': 'खाता',
+      'te': 'ఖాతా',
+    },
+    'menu0003': {
+      'en': 'Manage your profile',
+      'hi': 'अपनी प्रोफ़ाइल प्रबंधित करें',
+      'te': 'మీ ప్రొఫైల్‌ను నిర్వహించండి',
+    },
+    'menu0004': {
+      'en': 'Earnings',
+      'hi': 'कमाई',
+      'te': 'ఆదాయాలు',
+    },
+    'menu0005': {
+      'en': 'History & Bank transfer',
+      'hi': 'इतिहास और बैंक ट्रांसफर',
+      'te': 'చరిత్ర & బ్యాంక్ బదిలీ',
+    },
+    'menu0006': {
+      'en': 'Incentives',
+      'hi': 'प्रोत्साहन',
+      'te': 'ప్రోత్సాహకాలు',
+    },
+    'menu0007': {
+      'en': 'Know how you get paid',
+      'hi': 'जानें कि आपको कैसे भुगतान मिलता है',
+      'te': 'మీరు ఎలా చెల్లింపు పొందుతున్నారో తెలుసుకోండి',
+    },
+    'menu0008': {
+      'en': 'Help',
+      'hi': 'मदद',
+      'te': 'సహాయం',
+    },
+    'menu0009': {
+      'en': 'Support & Accident Insurance',
+      'hi': 'सहायता और दुर्घटना बीमा',
+      'te': 'మద్దతు & ప్రమాద బీమా',
+    },
+    'menu0010': {
+      'en': 'Refer friends & earn ₹10 per ride',
+      'hi': 'दोस्तों को रेफर करें और प्रति सवारी ₹10 कमाएं',
+      'te': 'స్నేహితులను సిఫార్సు చేయండి & ప్రతి రైడ్‌కు ₹10 సంపాదించండి',
+    },
+    'menu0011': {
+      'en': 'Refer Now',
+      'hi': 'अभी रेफर करें',
+      'te': 'ఇప్పుడే సిఫార్సు చేయండి',
+    },
   },
   // privacypolicy
   {
@@ -216,8 +424,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     '1hdp8y0l': {
       'en': 'By selecting \\"I Agree\\" below, I confirm that:',
-      'hi':
-          'नीचे \\"मैं सहमत हूँ\\" का चयन करके, मैं पुष्टि करता/करती हूँ कि:',
+      'hi': 'नीचे \\"मैं सहमत हूँ\\" का चयन करके, मैं पुष्टि करता/करती हूँ कि:',
       'te':
           'కింద \\"నేను అంగీకరిస్తున్నాను\\" ఎంచుకోవడం ద్వారా, నేను వీటిని నిర్ధారిస్తున్నాను:',
     },
@@ -4159,97 +4366,379 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // driver_app - Home, Ride flow, Account
   {
-    'drv_good_morning': {'en': 'Good Morning', 'hi': 'सुप्रभात', 'te': 'శుభోదయం'},
-    'drv_good_afternoon': {'en': 'Good Afternoon', 'hi': 'शुभ दोपहर', 'te': 'శుభ మధ్యాహ్నం'},
-    'drv_good_evening': {'en': 'Good Evening', 'hi': 'शुभ संध्या', 'te': 'శుభ సాయంత్రం'},
-    'drv_cannot_offline': {'en': 'Cannot go offline during an active ride!', 'hi': 'सक्रिय राइड के दौरान ऑफलाइन नहीं हो सकते!', 'te': 'యాక్టివ్ రైడ్ సమయంలో ఆఫ్‌లైన్ కాజాలరు!'},
-    'drv_kyc_not_approved': {'en': 'KYC Not Approved', 'hi': 'KYC स्वीकृत नहीं', 'te': 'KYC ఆమోదించబడలేదు'},
-    'drv_kyc_complete': {'en': 'Your KYC status is "%1". Please complete KYC.', 'hi': 'आपकी KYC स्थिति "%1" है। कृपया KYC पूर्ण करें।', 'te': 'మీ KYC స్థితి "%1". దయచేసి KYC పూర్తి చేయండి.'},
+    'drv_good_morning': {
+      'en': 'Good Morning',
+      'hi': 'सुप्रभात',
+      'te': 'శుభోదయం'
+    },
+    'drv_good_afternoon': {
+      'en': 'Good Afternoon',
+      'hi': 'शुभ दोपहर',
+      'te': 'శుభ మధ్యాహ్నం'
+    },
+    'drv_good_evening': {
+      'en': 'Good Evening',
+      'hi': 'शुभ संध्या',
+      'te': 'శుభ సాయంత్రం'
+    },
+    'drv_cannot_offline': {
+      'en': 'Cannot go offline during an active ride!',
+      'hi': 'सक्रिय राइड के दौरान ऑफलाइन नहीं हो सकते!',
+      'te': 'యాక్టివ్ రైడ్ సమయంలో ఆఫ్‌లైన్ కాజాలరు!'
+    },
+    'drv_kyc_not_approved': {
+      'en': 'KYC Not Approved',
+      'hi': 'KYC स्वीकृत नहीं',
+      'te': 'KYC ఆమోదించబడలేదు'
+    },
+    'drv_kyc_complete': {
+      'en': 'Your KYC status is "%1". Please complete KYC.',
+      'hi': 'आपकी KYC स्थिति "%1" है। कृपया KYC पूर्ण करें।',
+      'te': 'మీ KYC స్థితి "%1". దయచేసి KYC పూర్తి చేయండి.'
+    },
     'drv_ok': {'en': 'OK', 'hi': 'ठीक है', 'te': 'సరే'},
-    'drv_you_online': {'en': 'You are online', 'hi': 'आप ऑनलाइन हैं', 'te': 'మీరు ఆన్‌లైన్‌లో ఉన్నారు'},
-    'drv_failed_offline': {'en': 'Failed to go offline', 'hi': 'ऑफलाइन जाने में विफल', 'te': 'ఆఫ్‌లైన్ కావడంలో విఫలమైంది'},
-    'drv_location_needed': {'en': 'Location Access Needed', 'hi': 'स्थान पहुंच की आवश्यकता', 'te': 'స్థాన ప్రవేశం అవసరం'},
-    'drv_location_body': {'en': 'UGO needs your location to receive ride requests, share with passengers, and navigate. Your location is only used when you\'re online.', 'hi': 'राइड रिक्वेस्ट प्राप्त करने, यात्रियों के साथ साझा करने और नेविगेट करने के लिए UGO को आपके स्थान की आवश्यकता है। आपका स्थान केवल ऑनलाइन होने पर उपयोग किया जाता है।', 'te': 'రైడ్ అభ్యర్థనలు స్వీకరించడానికి, ప్రయాణీకులతో భాగస్వామ్యం చేయడానికి మరియు నావిగేట్ చేయడానికి UGOకు మీ స్థానం అవసరం. మీరు ఆన్‌లైన్‌లో ఉన్నప్పుడు మాత్రమే మీ స్థానం ఉపయోగించబడుతుంది.'},
+    'drv_you_online': {
+      'en': 'You are online',
+      'hi': 'आप ऑनलाइन हैं',
+      'te': 'మీరు ఆన్‌లైన్‌లో ఉన్నారు'
+    },
+    'drv_failed_offline': {
+      'en': 'Failed to go offline',
+      'hi': 'ऑफलाइन जाने में विफल',
+      'te': 'ఆఫ్‌లైన్ కావడంలో విఫలమైంది'
+    },
+    'drv_location_needed': {
+      'en': 'Location Access Needed',
+      'hi': 'स्थान पहुंच की आवश्यकता',
+      'te': 'స్థాన ప్రవేశం అవసరం'
+    },
+    'drv_location_body': {
+      'en':
+          'UGO needs your location to receive ride requests, share with passengers, and navigate. Your location is only used when you\'re online.',
+      'hi':
+          'राइड रिक्वेस्ट प्राप्त करने, यात्रियों के साथ साझा करने और नेविगेट करने के लिए UGO को आपके स्थान की आवश्यकता है। आपका स्थान केवल ऑनलाइन होने पर उपयोग किया जाता है।',
+      'te':
+          'రైడ్ అభ్యర్థనలు స్వీకరించడానికి, ప్రయాణీకులతో భాగస్వామ్యం చేయడానికి మరియు నావిగేట్ చేయడానికి UGOకు మీ స్థానం అవసరం. మీరు ఆన్‌లైన్‌లో ఉన్నప్పుడు మాత్రమే మీ స్థానం ఉపయోగించబడుతుంది.'
+    },
     'drv_not_now': {'en': 'Not Now', 'hi': 'अभी नहीं', 'te': 'ఇప్పుడు కాదు'},
-    'drv_open_settings': {'en': 'Open Settings', 'hi': 'सेटिंग्स खोलें', 'te': 'సెట్టింగ్‌లు తెరయండి'},
-    'drv_location_unavailable': {'en': 'Location not available.\\nPlease grant location permission to use the app.', 'hi': 'स्थान उपलब्ध नहीं।\\nऐप उपयोग के लिए स्थान अनुमति दें।', 'te': 'స్థానం అందుబాటులో లేదు.\\nయాప్ ఉపయోగించడానికి స్థాన అనుమతి ఇవ్వండి.'},
-    'drv_back_exit': {'en': 'Press back again to exit', 'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं', 'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'},
-    'drv_captains_nearby': {'en': 'captains nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్లు సమీపంలో'},
-    'drv_captain_nearby': {'en': 'captain nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్ సమీపంలో'},
-    'drv_offline': {'en': 'You are currently Offline', 'hi': 'आप वर्तमान में ऑफलाइन हैं', 'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'},
-    'drv_go_online': {'en': 'GO ONLINE', 'hi': 'ऑनलाइन जाएं', 'te': 'ఆన్‌లైన్ కండి'},
-    'drv_incentives': {'en': 'Incentives', 'hi': 'प्रोत्साहन', 'te': 'ప్రోత్సాహకాలు'},
-    'drv_coming_soon': {'en': 'Coming Soon', 'hi': 'जल्द ही आ रहा है', 'te': 'త్వరలో వస్తోంది'},
-    'drv_incentives_soon': {'en': 'Coming Soon or Please Complete first ride to view Incentives', 'hi': 'जल्द आ रहा है या प्रोत्साहन देखने के लिए पहली राइड पूरी करें', 'te': 'త్వరలో వస్తోంది లేదా ప్రోత్సాహకాలు చూడడానికి మొదటి రైడ్ పూర్తి చేయండి'},
-    'drv_incentives_excite': {'en': 'Exciting incentive programs will be available soon!', 'hi': 'रोमांचक प्रोत्साहन कार्यक्रम जल्द उपलब्ध होंगे!', 'te': 'ఉత్తేజకరమైన ప్రోత్సాహక కార్యక్రమాలు త్వరలో అందుబాటులో ఉంటాయి!'},
+    'drv_open_settings': {
+      'en': 'Open Settings',
+      'hi': 'सेटिंग्स खोलें',
+      'te': 'సెట్టింగ్‌లు తెరయండి'
+    },
+    'drv_location_unavailable': {
+      'en':
+          'Location not available.\\nPlease grant location permission to use the app.',
+      'hi': 'स्थान उपलब्ध नहीं।\\nऐप उपयोग के लिए स्थान अनुमति दें।',
+      'te':
+          'స్థానం అందుబాటులో లేదు.\\nయాప్ ఉపయోగించడానికి స్థాన అనుమతి ఇవ్వండి.'
+    },
+    'drv_back_exit': {
+      'en': 'Press back again to exit',
+      'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं',
+      'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'
+    },
+    'drv_captains_nearby': {
+      'en': 'captains nearby',
+      'hi': 'कैप्टन पास में',
+      'te': 'కెప్టెన్లు సమీపంలో'
+    },
+    'drv_captain_nearby': {
+      'en': 'captain nearby',
+      'hi': 'कैप्टन पास में',
+      'te': 'కెప్టెన్ సమీపంలో'
+    },
+    'drv_offline': {
+      'en': 'You are currently Offline',
+      'hi': 'आप वर्तमान में ऑफलाइन हैं',
+      'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'
+    },
+    'drv_go_online': {
+      'en': 'GO ONLINE',
+      'hi': 'ऑनलाइन जाएं',
+      'te': 'ఆన్‌లైన్ కండి'
+    },
+    'drv_incentives': {
+      'en': 'Incentives',
+      'hi': 'प्रोत्साहन',
+      'te': 'ప్రోత్సాహకాలు'
+    },
+    'drv_coming_soon': {
+      'en': 'Coming Soon',
+      'hi': 'जल्द ही आ रहा है',
+      'te': 'త్వరలో వస్తోంది'
+    },
+    'drv_incentives_soon': {
+      'en': 'Coming Soon or Please Complete first ride to view Incentives',
+      'hi': 'जल्द आ रहा है या प्रोत्साहन देखने के लिए पहली राइड पूरी करें',
+      'te':
+          'త్వరలో వస్తోంది లేదా ప్రోత్సాహకాలు చూడడానికి మొదటి రైడ్ పూర్తి చేయండి'
+    },
+    'drv_incentives_excite': {
+      'en': 'Exciting incentive programs will be available soon!',
+      'hi': 'रोमांचक प्रोत्साहन कार्यक्रम जल्द उपलब्ध होंगे!',
+      'te': 'ఉత్తేజకరమైన ప్రోత్సాహక కార్యక్రమాలు త్వరలో అందుబాటులో ఉంటాయి!'
+    },
     'drv_rides': {'en': 'rides', 'hi': 'राइड्स', 'te': 'రైడ్‌లు'},
-    'drv_today_total': {'en': 'Today Total', 'hi': 'आज का कुल', 'te': 'ఈ రోజు మొత్తం'},
-    'drv_ride_count': {'en': 'Ride Count', 'hi': 'राइड की संख्या', 'te': 'రైడ్ గణన'},
+    'drv_today_total': {
+      'en': 'Today Total',
+      'hi': 'आज का कुल',
+      'te': 'ఈ రోజు మొత్తం'
+    },
+    'drv_ride_count': {
+      'en': 'Ride Count',
+      'hi': 'राइड की संख्या',
+      'te': 'రైడ్ గణన'
+    },
     'drv_wallet': {'en': 'Wallet', 'hi': 'वॉलेट', 'te': 'వాలెట్'},
-    'drv_last_ride': {'en': 'Last Ride', 'hi': 'आखिरी राइड', 'te': 'చివరి రైడ్'},
-    'drv_new_request': {'en': 'NEW REQUEST', 'hi': 'नई अनुरोध', 'te': 'కొత్త అభ్యర్థన'},
-    'drv_pickup_distance': {'en': 'Pickup Distance', 'hi': 'पिकअप दूरी', 'te': 'పికప్ దూరం'},
+    'drv_last_ride': {
+      'en': 'Last Ride',
+      'hi': 'आखिरी राइड',
+      'te': 'చివరి రైడ్'
+    },
+    'drv_new_request': {
+      'en': 'NEW REQUEST',
+      'hi': 'नई अनुरोध',
+      'te': 'కొత్త అభ్యర్థన'
+    },
+    'drv_pickup_distance': {
+      'en': 'Pickup Distance',
+      'hi': 'पिकअप दूरी',
+      'te': 'పికప్ దూరం'
+    },
     'drv_fare': {'en': 'Fare', 'hi': 'किराया', 'te': 'ఛార్జీ'},
-    'drv_drop_distance': {'en': 'Drop Distance', 'hi': 'ड्रॉप दूरी', 'te': 'డ్రాప్ దూరం'},
+    'drv_drop_distance': {
+      'en': 'Drop Distance',
+      'hi': 'ड्रॉप दूरी',
+      'te': 'డ్రాప్ దూరం'
+    },
     'drv_drop': {'en': 'Drop', 'hi': 'ड्रॉप', 'te': 'డ్రాప్'},
     'drv_pickup': {'en': 'Pickup', 'hi': 'पिकअप', 'te': 'పికప్'},
     'drv_decline': {'en': 'DECLINE', 'hi': 'अस्वीकार', 'te': 'తిరస్కరించండి'},
     'drv_accept': {'en': 'ACCEPT', 'hi': 'स्वीकार', 'te': 'అంగీకరించండి'},
-    'drv_navigate': {'en': 'NAVIGATE', 'hi': 'नेविगेट', 'te': 'నావిగేట్ చేయండి'},
-    'drv_go_to_pickup': {'en': 'GO TO PICKUP', 'hi': 'पिकअप पर जाएं', 'te': 'పికప్‌కు వెళ్లండి'},
-    'drv_waiting_time': {'en': 'Waiting Time', 'hi': 'प्रतीक्षा समय', 'te': 'వేచి ఉన్న సమయం'},
+    'drv_navigate': {
+      'en': 'NAVIGATE',
+      'hi': 'नेविगेट',
+      'te': 'నావిగేట్ చేయండి'
+    },
+    'drv_go_to_pickup': {
+      'en': 'GO TO PICKUP',
+      'hi': 'पिकअप पर जाएं',
+      'te': 'పికప్‌కు వెళ్లండి'
+    },
+    'drv_waiting_time': {
+      'en': 'Waiting Time',
+      'hi': 'प्रतीक्षा समय',
+      'te': 'వేచి ఉన్న సమయం'
+    },
     'drv_arrived': {'en': 'ARRIVED', 'hi': 'पहुंच गए', 'te': 'వచ్చారు'},
-    'drv_start_ride': {'en': 'START RIDE', 'hi': 'राइड शुरू करें', 'te': 'రైడ్ ప్రారంభించండి'},
-    'drv_go_to_drop': {'en': 'GO TO DROP', 'hi': 'ड्रॉप पर जाएं', 'te': 'డ్రాప్‌కు వెళ్లండి'},
-    'drv_complete_ride': {'en': 'COMPLETE RIDE', 'hi': 'राइड पूरी करें', 'te': 'రైడ్ పూర్తి చేయండి'},
-    'drv_nav_to_drop': {'en': 'NAVIGATE TO DROP', 'hi': 'ड्रॉप पर नेविगेट करें', 'te': 'డ్రాప్‌కు నావిగేట్ చేయండి'},
-    'drv_nav_to_pickup': {'en': 'NAVIGATE TO PICKUP', 'hi': 'पिकअप पर नेविगेट करें', 'te': 'పికప్‌కు నావిగేట్ చేయండి'},
+    'drv_start_ride': {
+      'en': 'START RIDE',
+      'hi': 'राइड शुरू करें',
+      'te': 'రైడ్ ప్రారంభించండి'
+    },
+    'drv_go_to_drop': {
+      'en': 'GO TO DROP',
+      'hi': 'ड्रॉप पर जाएं',
+      'te': 'డ్రాప్‌కు వెళ్లండి'
+    },
+    'drv_complete_ride': {
+      'en': 'COMPLETE RIDE',
+      'hi': 'राइड पूरी करें',
+      'te': 'రైడ్ పూర్తి చేయండి'
+    },
+    'drv_nav_to_drop': {
+      'en': 'NAVIGATE TO DROP',
+      'hi': 'ड्रॉप पर नेविगेट करें',
+      'te': 'డ్రాప్‌కు నావిగేట్ చేయండి'
+    },
+    'drv_nav_to_pickup': {
+      'en': 'NAVIGATE TO PICKUP',
+      'hi': 'पिकअप पर नेविगेट करें',
+      'te': 'పికప్‌కు నావిగేట్ చేయండి'
+    },
     'drv_passenger': {'en': 'Passenger', 'hi': 'यात्री', 'te': 'ప్రయాణీకుడు'},
-    'drv_unknown_location': {'en': 'Unknown Location', 'hi': 'अज्ञात स्थान', 'te': 'తెలియని స్థానం'},
-    'drv_otp_title': {'en': 'Enter The OTP To Start The Ride', 'hi': 'राइड शुरू करने के लिए OTP दर्ज करें', 'te': 'రైడ్ ప్రారంభించడానికి OTP నమోదు చేయండి'},
-    'drv_enter_otp': {'en': 'Enter OTP', 'hi': 'OTP दर्ज करें', 'te': 'OTP నమోదు చేయండి'},
+    'drv_unknown_location': {
+      'en': 'Unknown Location',
+      'hi': 'अज्ञात स्थान',
+      'te': 'తెలియని స్థానం'
+    },
+    'drv_otp_title': {
+      'en': 'Enter The OTP To Start The Ride',
+      'hi': 'राइड शुरू करने के लिए OTP दर्ज करें',
+      'te': 'రైడ్ ప్రారంభించడానికి OTP నమోదు చేయండి'
+    },
+    'drv_enter_otp': {
+      'en': 'Enter OTP',
+      'hi': 'OTP दर्ज करें',
+      'te': 'OTP నమోదు చేయండి'
+    },
     'drv_ride_otp': {'en': 'Ride OTP', 'hi': 'राइड OTP', 'te': 'రైడ్ OTP'},
     'drv_verify': {'en': 'VERIFY', 'hi': 'सत्यापित करें', 'te': 'ధృవీకరించండి'},
-    'drv_phone_unavailable': {'en': 'Phone number not available.', 'hi': 'फ़ोन नंबर उपलब्ध नहीं।', 'te': 'ఫోన్ నంబర్ అందుబాటులో లేదు.'},
-    'drv_dialer_fail': {'en': 'Could not launch dialer.', 'hi': 'डायलर खोल नहीं सके।', 'te': 'డయలర్ తెరవలేకపోయాం.'},
-    'drv_drop_location': {'en': 'Drop Location', 'hi': 'ड्रॉप स्थान', 'te': 'డ్రాప్ స్థానం'},
-    'drv_ride_completed': {'en': 'Ride Completed', 'hi': 'राइड पूरी हुई', 'te': 'రైడ్ పూర్తయింది'},
-    'drv_received_online': {'en': 'You received it online', 'hi': 'आपने इसे ऑनलाइन प्राप्त किया', 'te': 'మీరు దీన్ని ఆన్‌లైన్‌లో అందుకున్నారు'},
+    'drv_phone_unavailable': {
+      'en': 'Phone number not available.',
+      'hi': 'फ़ोन नंबर उपलब्ध नहीं।',
+      'te': 'ఫోన్ నంబర్ అందుబాటులో లేదు.'
+    },
+    'drv_dialer_fail': {
+      'en': 'Could not launch dialer.',
+      'hi': 'डायलर खोल नहीं सके।',
+      'te': 'డయలర్ తెరవలేకపోయాం.'
+    },
+    'drv_drop_location': {
+      'en': 'Drop Location',
+      'hi': 'ड्रॉप स्थान',
+      'te': 'డ్రాప్ స్థానం'
+    },
+    'drv_ride_completed': {
+      'en': 'Ride Completed',
+      'hi': 'राइड पूरी हुई',
+      'te': 'రైడ్ పూర్తయింది'
+    },
+    'drv_received_online': {
+      'en': 'You received it online',
+      'hi': 'आपने इसे ऑनलाइन प्राप्त किया',
+      'te': 'మీరు దీన్ని ఆన్‌లైన్‌లో అందుకున్నారు'
+    },
     'drv_review': {'en': 'Review', 'hi': 'समीक्षा', 'te': 'సమీక్ష'},
-    'drv_total_fare': {'en': 'Total Fare', 'hi': 'कुल किराया', 'te': 'మొత్తం ఛార్జీ'},
+    'drv_total_fare': {
+      'en': 'Total Fare',
+      'hi': 'कुल किराया',
+      'te': 'మొత్తం ఛార్జీ'
+    },
     'drv_submit': {'en': 'Submit', 'hi': 'जमा करें', 'te': 'సమర్పించండి'},
-    'drv_manage_prefs': {'en': 'Manage your Preferences.', 'hi': 'अपनी प्राथमिकताएं प्रबंधित करें।', 'te': 'మీ ప్రాధాన్యతలను నిర్వహించండి.'},
-    'drv_view_messages': {'en': 'View messages', 'hi': 'संदेश देखें', 'te': 'సందేశాలు చూడండి'},
-    'drv_check_balance': {'en': 'Check balance', 'hi': 'बैलेंस जांचें', 'te': 'బ్యాలెన్స్ తనిఖీ చేయండి'},
-    'drv_edit_info': {'en': 'Edit your info', 'hi': 'अपनी जानकारी संपादित करें', 'te': 'మీ సమాచారాన్ని సవరించండి'},
-    'drv_legal_info': {'en': 'Legal information', 'hi': 'कानूनी जानकारी', 'te': 'చట్టపరమైన సమాచారం'},
-    'drv_how_we_handle': {'en': 'How we handle your data', 'hi': 'हम आपके डेटा को कैसे संभालते हैं', 'te': 'మేము మీ డేటాను ఎలా నిర్వహిస్తాము'},
+    'drv_manage_prefs': {
+      'en': 'Manage your Preferences.',
+      'hi': 'अपनी प्राथमिकताएं प्रबंधित करें।',
+      'te': 'మీ ప్రాధాన్యతలను నిర్వహించండి.'
+    },
+    'drv_view_messages': {
+      'en': 'View messages',
+      'hi': 'संदेश देखें',
+      'te': 'సందేశాలు చూడండి'
+    },
+    'drv_check_balance': {
+      'en': 'Check balance',
+      'hi': 'बैलेंस जांचें',
+      'te': 'బ్యాలెన్స్ తనిఖీ చేయండి'
+    },
+    'drv_edit_info': {
+      'en': 'Edit your info',
+      'hi': 'अपनी जानकारी संपादित करें',
+      'te': 'మీ సమాచారాన్ని సవరించండి'
+    },
+    'drv_legal_info': {
+      'en': 'Legal information',
+      'hi': 'कानूनी जानकारी',
+      'te': 'చట్టపరమైన సమాచారం'
+    },
+    'drv_how_we_handle': {
+      'en': 'How we handle your data',
+      'hi': 'हम आपके डेटा को कैसे संभालते हैं',
+      'te': 'మేము మీ డేటాను ఎలా నిర్వహిస్తాము'
+    },
     'drv_logout_title': {'en': 'Logout', 'hi': 'लॉग आउट', 'te': 'లాగ్ అవుట్'},
-    'drv_logout_confirm': {'en': 'Are you sure you want to logout?', 'hi': 'क्या आप लॉग आउट करना चाहते हैं?', 'te': 'మీరు లాగ్ అవుట్ చేయాలనుకుంటున్నారా?'},
+    'drv_logout_confirm': {
+      'en': 'Are you sure you want to logout?',
+      'hi': 'क्या आप लॉग आउट करना चाहते हैं?',
+      'te': 'మీరు లాగ్ అవుట్ చేయాలనుకుంటున్నారా?'
+    },
     'drv_cancel': {'en': 'Cancel', 'hi': 'रद्द करें', 'te': 'రద్దు చేయండి'},
-    'drv_cancel_ride_confirm': {'en': 'Are you sure you want to cancel this ride?', 'hi': 'क्या आप इस राइड को रद्द करना चाहते हैं?', 'te': 'మీరు ఈ రైడ్‌ను రద్దు చేయాలనుకుంటున్నారా?'},
-    'drv_yes_cancel': {'en': 'Yes, Cancel', 'hi': 'हाँ, रद्द करें', 'te': 'అవును, రద్దు చేయండి'},
-    'drv_ride_cancelled': {'en': 'Ride cancelled', 'hi': 'राइड रद्द हो गई', 'te': 'రైడ్ రద్దు చేయబడింది'},
-    'drv_select_cancel_reason': {'en': 'Select reason for cancellation', 'hi': 'रद्दीकरण का कारण चुनें', 'te': 'రద్దు కారణం ఎంచుకోండి'},
-    'drv_cancel_ride': {'en': 'Cancel Ride', 'hi': 'राइड रद्द करें', 'te': 'రైడ్ రద్దు చేయండి'},
-    'drv_cancel_reason_emergency': {'en': 'Personal emergency', 'hi': 'व्यक्तिगत आपातकाल', 'te': 'వ్యక్తిగత అత్యవసరం'},
-    'drv_cancel_reason_vehicle': {'en': 'Vehicle issues', 'hi': 'वाहन समस्या', 'te': 'వాహన సమస్యలు'},
-    'drv_cancel_reason_passenger_no_show': {'en': 'Passenger no-show', 'hi': 'यात्री नहीं मिला', 'te': 'ప్రయాణీకుడు రాలేదు'},
-    'drv_cancel_reason_wrong_pickup': {'en': 'Incorrect pickup location', 'hi': 'गलत पिकअप स्थान', 'te': 'తప్పు పికప్ స్థానం'},
-    'drv_cancel_reason_long_wait': {'en': 'Long waiting time', 'hi': 'लंबा इंतजार', 'te': 'ఎక్కువ వేచి ఉన్న సమయం'},
-    'drv_cancel_reason_wrong_address': {'en': 'Wrong address', 'hi': 'गलत पता', 'te': 'తప్పు చిరునామా'},
-    'drv_cancel_reason_change_plans': {'en': 'Change of plans', 'hi': 'योजना बदल गई', 'te': 'ప్రణాళికలు మార్చారు'},
+    'drv_cancel_ride_confirm': {
+      'en': 'Are you sure you want to cancel this ride?',
+      'hi': 'क्या आप इस राइड को रद्द करना चाहते हैं?',
+      'te': 'మీరు ఈ రైడ్‌ను రద్దు చేయాలనుకుంటున్నారా?'
+    },
+    'drv_yes_cancel': {
+      'en': 'Yes, Cancel',
+      'hi': 'हाँ, रद्द करें',
+      'te': 'అవును, రద్దు చేయండి'
+    },
+    'drv_ride_cancelled': {
+      'en': 'Ride cancelled',
+      'hi': 'राइड रद्द हो गई',
+      'te': 'రైడ్ రద్దు చేయబడింది'
+    },
+    'drv_select_cancel_reason': {
+      'en': 'Select reason for cancellation',
+      'hi': 'रद्दीकरण का कारण चुनें',
+      'te': 'రద్దు కారణం ఎంచుకోండి'
+    },
+    'drv_cancel_ride': {
+      'en': 'Cancel Ride',
+      'hi': 'राइड रद्द करें',
+      'te': 'రైడ్ రద్దు చేయండి'
+    },
+    'drv_cancel_reason_emergency': {
+      'en': 'Personal emergency',
+      'hi': 'व्यक्तिगत आपातकाल',
+      'te': 'వ్యక్తిగత అత్యవసరం'
+    },
+    'drv_cancel_reason_vehicle': {
+      'en': 'Vehicle issues',
+      'hi': 'वाहन समस्या',
+      'te': 'వాహన సమస్యలు'
+    },
+    'drv_cancel_reason_passenger_no_show': {
+      'en': 'Passenger no-show',
+      'hi': 'यात्री नहीं मिला',
+      'te': 'ప్రయాణీకుడు రాలేదు'
+    },
+    'drv_cancel_reason_wrong_pickup': {
+      'en': 'Incorrect pickup location',
+      'hi': 'गलत पिकअप स्थान',
+      'te': 'తప్పు పికప్ స్థానం'
+    },
+    'drv_cancel_reason_long_wait': {
+      'en': 'Long waiting time',
+      'hi': 'लंबा इंतजार',
+      'te': 'ఎక్కువ వేచి ఉన్న సమయం'
+    },
+    'drv_cancel_reason_wrong_address': {
+      'en': 'Wrong address',
+      'hi': 'गलत पता',
+      'te': 'తప్పు చిరునామా'
+    },
+    'drv_cancel_reason_change_plans': {
+      'en': 'Change of plans',
+      'hi': 'योजना बदल गई',
+      'te': 'ప్రణాళికలు మార్చారు'
+    },
     'drv_cancel_reason_other': {'en': 'Other', 'hi': 'अन्य', 'te': 'ఇతర'},
-    'drv_collect_cash': {'en': 'Collect cash', 'hi': 'नकद लें', 'te': 'నగదు సంపాదించండి'},
-    'drv_from_passenger': {'en': 'from passenger', 'hi': 'यात्री से', 'te': 'ప్రయాణీకుని నుండి'},
-    'drv_received_cash': {'en': "I've received the amount", 'hi': 'मुझे राशि मिल गई', 'te': 'నాకు మొత్తం వచ్చింది'},
-    'drv_privacy_policy': {'en': 'Privacy Policy', 'hi': 'गोपनीयता नीति', 'te': 'గోప్యతా విధానం'},
-    'drv_review_friendly': {'en': 'Friendly', 'hi': 'मैत्रीपूर्ण', 'te': 'స్నేహపూర్వకం'},
+    'drv_collect_cash': {
+      'en': 'Collect cash',
+      'hi': 'नकद लें',
+      'te': 'నగదు సంపాదించండి'
+    },
+    'drv_from_passenger': {
+      'en': 'from passenger',
+      'hi': 'यात्री से',
+      'te': 'ప్రయాణీకుని నుండి'
+    },
+    'drv_received_cash': {
+      'en': "I've received the amount",
+      'hi': 'मुझे राशि मिल गई',
+      'te': 'నాకు మొత్తం వచ్చింది'
+    },
+    'drv_privacy_policy': {
+      'en': 'Privacy Policy',
+      'hi': 'गोपनीयता नीति',
+      'te': 'గోప్యతా విధానం'
+    },
+    'drv_review_friendly': {
+      'en': 'Friendly',
+      'hi': 'मैत्रीपूर्ण',
+      'te': 'స్నేహపూర్వకం'
+    },
     'drv_review_safe': {'en': 'Safe', 'hi': 'सुरक्षित', 'te': 'సురక్షితం'},
     'drv_review_worst': {'en': 'Worst', 'hi': 'सबसे खराब', 'te': 'చెత్త'},
     'drv_review_fast': {'en': 'Fast', 'hi': 'तेज़', 'te': 'వేగంగా'},
     'drv_review_clean': {'en': 'Clean', 'hi': 'साफ', 'te': 'శుభ్రంగా'},
     'drv_voice': {'en': 'Voice', 'hi': 'आवाज़', 'te': 'వాయిస్'},
-    'drv_ride_announcements': {'en': 'Ride announcements', 'hi': 'राइड घोषणाएं', 'te': 'రైడ్ ప్రకటనలు'},
+    'drv_ride_announcements': {
+      'en': 'Ride announcements',
+      'hi': 'राइड घोषणाएं',
+      'te': 'రైడ్ ప్రకటనలు'
+    },
   },
 ].reduce((a, b) => a..addAll(b));

@@ -97,6 +97,47 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
 
+    // 📐 RESPONSIVE SIZING
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 360;
+    final isTablet = size.width >= 600;
+    final isPortrait = size.height > size.width;
+
+    final headerHeight = isPortrait
+        ? (isTablet
+            ? 320.0
+            : isSmallScreen
+                ? 260.0
+                : 300.0)
+        : (isTablet ? 240.0 : 200.0);
+    final scale = isTablet
+        ? 1.15
+        : isSmallScreen
+            ? 0.9
+            : 1.0;
+    final horizontalPadding = isTablet
+        ? 40.0
+        : isSmallScreen
+            ? 16.0
+            : 24.0;
+    final cardPadding = isTablet
+        ? 32.0
+        : isSmallScreen
+            ? 18.0
+            : 24.0;
+    final headerTopGap = isSmallScreen ? 12.0 * scale : 20.0 * scale;
+    final headerBottomGap =
+        (isSmallScreen || !isPortrait) ? 32.0 * scale : 60.0 * scale;
+
+    final headerTitleSize = isSmallScreen ? 26.0 : (isTablet ? 36.0 : 30.0);
+    final headerSubtitleSize = isSmallScreen ? 22.0 : (isTablet ? 30.0 : 26.0);
+    final descriptionSize = isSmallScreen ? 13.0 : (isTablet ? 16.0 : 14.0);
+    final pinTextSize = isSmallScreen ? 20.0 : (isTablet ? 26.0 : 22.0);
+    final pinBoxHeight = isSmallScreen ? 44.0 : (isTablet ? 58.0 : 50.0);
+    final pinBoxWidth = isSmallScreen ? 40.0 : (isTablet ? 52.0 : 45.0);
+    final buttonHeight = isSmallScreen ? 50.0 : (isTablet ? 64.0 : 56.0);
+    final buttonFontSize = isSmallScreen ? 16.0 : (isTablet ? 20.0 : 18.0);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -112,7 +153,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
               // 1️⃣ VIBRANT HEADER
               // ==========================================
               Container(
-                height: 280,
+                height: headerHeight,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -132,37 +173,43 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                     )
                   ],
                 ),
-                child: const SafeArea(
+                child: SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: horizontalPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 20),
-                        Spacer(),
+                        SizedBox(height: headerTopGap),
+                        const Spacer(),
                         Center(
                           child: Text(
-                            'Verification',
+                            FFLocalizations.of(context).getText('duko62qy'),
                             style: TextStyle(
-                              fontSize: 30,
+                              fontSize: headerTitleSize,
                               color: Colors.white70,
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 8 * scale),
                         Center(
                           child: Text(
-                            'Enter the code we sent you.',
+                            FFLocalizations.of(context).getText('otpv0001'),
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: headerSubtitleSize,
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(height: 60),
+                        SizedBox(height: headerBottomGap),
                       ],
                     ),
                   ),
@@ -173,9 +220,11 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
               // 2️⃣ FLOATING CARD
               // ==========================================
               Transform.translate(
-                offset: const Offset(0, -40),
+                offset: Offset(0, -40 * scale),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 16.0 : (isTablet ? 32.0 : 20.0),
+                  ),
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -183,33 +232,33 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: EdgeInsets.all(cardPadding),
                       child: Column(
                         children: [
                           Text(
-                            'Enter the 6-digit OTP sent to\n+91 ${widget.mobile}',
+                            '${FFLocalizations.of(context).getText('otpv0002')}\n+91 ${widget.mobile}',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: descriptionSize,
                               color: Colors.grey[600],
                               height: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 28 * scale),
 
                           // 🔢 PIN CODE FIELD
                           PinCodeTextField(
                             appContext: context,
                             length: 6,
                             textStyle: GoogleFonts.inter(
-                              fontSize: 22,
+                              fontSize: pinTextSize,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
@@ -225,8 +274,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                             pinTheme: PinTheme(
                               shape: PinCodeFieldShape.box,
                               borderRadius: BorderRadius.circular(12),
-                              fieldHeight: 50,
-                              fieldWidth: 45,
+                              fieldHeight: pinBoxHeight,
+                              fieldWidth: pinBoxWidth,
                               borderWidth: 1.5,
                               activeColor: brandPrimary,
                               inactiveColor: Colors.grey[200]!,
@@ -240,12 +289,12 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                             onCompleted: (_) => _handleVerify(),
                           ),
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: 20 * scale),
 
                           // 🚀 VERIFY BUTTON
                           SizedBox(
                             width: double.infinity,
-                            height: 56,
+                            height: buttonHeight,
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleVerify,
                               style: ElevatedButton.styleFrom(
@@ -255,46 +304,50 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                disabledBackgroundColor: brandPrimary.withValues(alpha:0.6),
+                                disabledBackgroundColor:
+                                    brandPrimary.withValues(alpha: 0.6),
                               ),
                               child: _isLoading
                                   ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
                                   : Text(
-                                'Verify & Continue',
-                                style: GoogleFonts.interTight(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                                      FFLocalizations.of(context)
+                                          .getText('otpv0003'),
+                                      style: GoogleFonts.interTight(
+                                        fontSize: buttonFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                             ),
                           ),
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: 20 * scale),
 
                           // 🔄 RESEND OTP WITH TIMER
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Didn't receive code? ",
+                                '${FFLocalizations.of(context).getText('otpv0004')} ',
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                               GestureDetector(
                                 onTap: _canResend ? _handleResendOtp : null,
                                 child: Text(
                                   _canResend
-                                      ? 'Resend'
-                                      : 'Resend in $_timerSeconds s',
+                                      ? FFLocalizations.of(context)
+                                          .getText('otpv0005')
+                                      : '${FFLocalizations.of(context).getText('otpv0006')} $_timerSeconds s',
                                   style: TextStyle(
-                                    color: _canResend ? brandPrimary : Colors.grey,
+                                    color:
+                                        _canResend ? brandPrimary : Colors.grey,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -328,8 +381,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         onCodeSent: (context) async {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('OTP Resent Successfully!'),
+              SnackBar(
+                content: Text(FFLocalizations.of(context).getText('otpv0007')),
                 backgroundColor: Colors.green,
               ),
             );
@@ -342,7 +395,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       if (kDebugMode) debugPrint('Resend Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to resend OTP'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(FFLocalizations.of(context).getText('otpv0008')),
+            backgroundColor: Colors.red,
+          ),
         );
         setState(() => _isLoading = false);
       }
@@ -355,8 +411,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
     if (smsCodeVal.isEmpty || smsCodeVal.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid 6-digit OTP.'),
+        SnackBar(
+          content: Text(FFLocalizations.of(context).getText('otpv0009')),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -392,7 +448,6 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       // 4. Navigate Based on Response
       // Assuming a success status (200-299) means the user exists.
       if (_model.apiResultk3y?.succeeded ?? false) {
-
         // ✅ EXISTING USER -> Go to Home
         FFAppState().isLoggedIn = true;
         FFAppState().isRegistered = true;
@@ -406,9 +461,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         );
 
         FFAppState().accessToken = getJsonField(
-          jsonResponse,
-          r'''$.data.accessToken''',
-        )?.toString() ?? '';
+              jsonResponse,
+              r'''$.data.accessToken''',
+            )?.toString() ??
+            '';
 
         if (mounted) {
           context.goNamedAuth(
@@ -439,7 +495,9 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Verification Failed: ${e.toString()}'),
+            content: Text(
+              '${FFLocalizations.of(context).getText('otpv0010')} ${e.toString()}',
+            ),
             backgroundColor: Colors.red,
           ),
         );

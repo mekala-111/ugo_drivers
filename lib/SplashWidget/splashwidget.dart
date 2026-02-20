@@ -20,7 +20,6 @@ class _SplashWidgetState extends State<SplashWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 1. Check if user is Logged In (OTP Verified)
       if (FFAppState().isLoggedIn) {
-
         // 2. Check if Registration is Complete
         if (FFAppState().isRegistered) {
           // ✅ Logged In & Registered -> Go Home
@@ -38,10 +37,14 @@ class _SplashWidgetState extends State<SplashWidget> {
             }.withoutNulls,
           );
         }
-
       } else {
-        // ❌ Not Logged In -> Go to Login
-        context.goNamed(LoginWidget.routeName);
+        // ❌ Not Logged In -> Go to Language Select if needed
+        final storedLocale = FFLocalizations.getStoredLocale();
+        if (storedLocale == null) {
+          context.goNamed(LanguageSelectWidget.routeName);
+        } else {
+          context.goNamed(LoginWidget.routeName);
+        }
       }
     });
   }
@@ -49,7 +52,8 @@ class _SplashWidgetState extends State<SplashWidget> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.white, // Ensure background isn't black during load
+      backgroundColor:
+          Colors.white, // Ensure background isn't black during load
       body: Center(
         child: CircularProgressIndicator(
           color: AppColors.primary, // Match your brand color

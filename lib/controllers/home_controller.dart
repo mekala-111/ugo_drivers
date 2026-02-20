@@ -92,6 +92,13 @@ class HomeController extends ChangeNotifier {
     );
 
     if (_disposed) return;
+    
+    if (kDebugMode) {
+      debugPrint('🔍 === Driver Profile Response ===');
+      debugPrint('Response Succeeded: ${userDetails.succeeded}');
+      debugPrint('Response JSON: ${userDetails.jsonBody}');
+    }
+    
     if (userDetails.jsonBody != null) {
       final fetchedName = getJsonField(
         userDetails.jsonBody,
@@ -100,8 +107,22 @@ class HomeController extends ChangeNotifier {
       if (fetchedName != 'null' && fetchedName.isNotEmpty) driverName = fetchedName;
 
       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);
+      
+      if (kDebugMode) {
+        debugPrint('🖼️ Raw img value from API: $img');
+        debugPrint('🖼️ img is null: ${img == null}');
+        debugPrint('🖼️ img is empty: ${img?.isEmpty ?? true}');
+      }
+      
       if (img != null && img.isNotEmpty) {
-        profileImageUrl = Config.fullImageUrl(img) ?? img;
+        profileImageUrl = img.startsWith('http') ? img : '${Config.baseUrl}/$img';
+        if (kDebugMode) {
+          debugPrint('✅ Final profileImageUrl: $profileImageUrl');
+        }
+      } else {
+        if (kDebugMode) {
+          debugPrint('❌ No profile image found in response');
+        }
       }
     }
 
