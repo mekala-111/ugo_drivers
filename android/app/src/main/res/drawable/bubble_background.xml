@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="#FFFF6600" />
-    <stroke
-        android:width="3dp"
-        android:color="#FFFFFFFF" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer circle shadow/border -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFFF8E32" />
+        </shape>
+    </item>
+    
+    <!-- Inner circle (main bubble) -->
+    <item android:inset="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#FFFF6600" />
+        </shape>
+    </item>
+</layer-list>
