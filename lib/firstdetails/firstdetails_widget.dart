@@ -236,9 +236,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                   FFAppState().email = _model.textController3.text;
                                   FFAppState().referralCode = _model.textController4.text;
 
-                                  // 3. Navigate
+                                  // 3. Navigate to Address & Emergency step (Uber-style)
                                   context.pushNamed(
-                                    ChooseVehicleWidget.routeName,
+                                    AddressDetailsWidget.routeName,
                                     queryParameters: {
                                       'mobile': serializeParam(widget.mobile, ParamType.int),
                                       'firstname': serializeParam(_model.textController1.text, ParamType.String),

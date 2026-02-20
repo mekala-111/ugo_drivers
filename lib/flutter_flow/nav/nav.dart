@@ -427,6 +427,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
+          name: AddressDetailsWidget.routeName,
+          path: AddressDetailsWidget.routePath,
+          builder: (context, params) => AddressDetailsWidget(
+            mobile: params.getParam('mobile', ParamType.int),
+            firstname: params.getParam('firstname', ParamType.String),
+            lastname: params.getParam('lastname', ParamType.String),
+            email: params.getParam('email', ParamType.String),
+            referalcode: params.getParam('referalcode', ParamType.String),
+          ),
+        ),
+        FFRoute(
           name: PanuploadScreenWidget.routeName,
           path: PanuploadScreenWidget.routePath,
           builder: (context, params) => const PanuploadScreenWidget(),

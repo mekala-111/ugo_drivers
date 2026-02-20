@@ -1,6 +1,7 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/services/document_verification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -418,10 +419,72 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     );
   }
 
-  // 🔹 Logic: Handle Submit / Skip
+  /// Convert date to YYYY-MM-DD for API
+  String _toApiDate(String value) {
+    final v = value.trim();
+    if (v.isEmpty) return v;
+    final m = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(v);
+    if (m != null) {
+      final d = m.group(1)!.padLeft(2, '0');
+      final mo = m.group(2)!.padLeft(2, '0');
+      final y = m.group(3)!;
+      return '$y-$mo-$d';
+    }
+    if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(v)) return v;
+    return v;
+  }
+
+  // 🔹 Logic: Handle Submit / Skip (Uber-style verification)
   Future<void> _handleContinue(bool allDocsUploaded) async {
-    // 1. Confirm Skip if incomplete
-    if (!allDocsUploaded) {
+    if (allDocsUploaded) {
+      // Submit for Verification: run full document verification first
+      final result = DocumentVerificationService.verifyAll();
+      if (!result.isValid) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                SizedBox(width: 12),
+                Text('Verification Required'),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Please fix the following before submitting:',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  ...result.errors.map((e) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('• ', style: TextStyle(color: Colors.red)),
+                        Expanded(child: Text(e, style: const TextStyle(fontSize: 14))),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    } else {
+      // Skip: confirm and run minimum validation
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -441,14 +504,27 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           ],
         ),
       );
-
       if (confirm != true) return;
+
+      final minResult = DocumentVerificationService.verifyMinimum();
+      if (!minResult.isValid) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(minResult.errorSummary),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
     }
 
     setState(() => _isLoading = true);
 
     try {
-      // 2. Prepare JSON Payload - include all collected onboarding data
+      // Prepare JSON Payload - include all collected onboarding data
       final driverJsonData = <String, dynamic>{
         'mobile_number': FFAppState().mobileNo.toString(),
         'first_name': FFAppState().firstName,
@@ -456,18 +532,39 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         'email': FFAppState().email,
         'referal_code': FFAppState().referralCode,
         'fcm_token': fcm_token ?? '',
-        'license_number':FFAppState().licenseNumber,
-        'aadhaar_number':FFAppState().aadharNumber,
-        'pan_number':FFAppState().panNumber
       };
       if (FFAppState().licenseNumber.isNotEmpty) {
         driverJsonData['license_number'] = FFAppState().licenseNumber;
+      }
+      if (FFAppState().licenseExpiryDate.isNotEmpty) {
+        driverJsonData['license_expiry_date'] = _toApiDate(FFAppState().licenseExpiryDate);
       }
       if (FFAppState().aadharNumber.isNotEmpty) {
         driverJsonData['aadhaar_number'] = FFAppState().aadharNumber;
       }
       if (FFAppState().panNumber.isNotEmpty) {
         driverJsonData['pan_number'] = FFAppState().panNumber;
+      }
+      if (FFAppState().dateOfBirth.isNotEmpty) {
+        driverJsonData['date_of_birth'] = _toApiDate(FFAppState().dateOfBirth);
+      }
+      if (FFAppState().address.isNotEmpty) {
+        driverJsonData['address'] = FFAppState().address;
+      }
+      if (FFAppState().city.isNotEmpty) {
+        driverJsonData['city'] = FFAppState().city;
+      }
+      if (FFAppState().state.isNotEmpty) {
+        driverJsonData['state'] = FFAppState().state;
+      }
+      if (FFAppState().postalCode.isNotEmpty) {
+        driverJsonData['postal_code'] = FFAppState().postalCode;
+      }
+      if (FFAppState().emergencyContactName.isNotEmpty) {
+        driverJsonData['emergency_contact_name'] = FFAppState().emergencyContactName;
+      }
+      if (FFAppState().emergencyContactPhone.isNotEmpty) {
+        driverJsonData['emergency_contact_phone'] = FFAppState().emergencyContactPhone;
       }
 
       final vehicleJsonData = <String, dynamic>{

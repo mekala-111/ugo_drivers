@@ -61,6 +61,7 @@ export '/teampage/teampage_widget.dart' show TeampageWidget;
 export '/teamrides/teamrides_widget.dart' show TeamridesWidget;
 export '/team_earnings/team_earnings_widget.dart' show TeamEarningsWidget;
 export '/firstdetails/firstdetails_widget.dart' show FirstdetailsWidget;
+export '/address_details/address_details_widget.dart' show AddressDetailsWidget;
 export '/panupload_screen/panupload_screen_widget.dart'
     show PanuploadScreenWidget;
 export '/vehicle_image/vehicle_image_widget.dart' show VehicleImageWidget;

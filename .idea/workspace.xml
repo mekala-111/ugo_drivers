@@ -4,30 +4,15 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="final audit fix done">
-      <change beforePath="$PROJECT_DIR$/.idea/ugo_drivers.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ugo_drivers.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="responsive audit fix done">
       <change beforePath="$PROJECT_DIR$/lib/app_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app_state.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/active_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/active_ride_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/menu_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/menu_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/new_request_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/new_request_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/start_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/start_ride_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_update.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_update.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/online_toggle.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/online_toggle.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/firstdetails/firstdetails_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/index.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/login/login_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/login/login_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/utils/input_validators.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/input_validators.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771553651535</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="responsive audit fix done">
+      <option name="closed" value="true" />
+      <created>1771580906987</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1771580906987</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -221,7 +214,8 @@
     <MESSAGE value="UI ENHANCEMENT with wallets" />
     <MESSAGE value="UPADTE PACKAGE" />
     <MESSAGE value="final audit fix done" />
-    <option name="LAST_COMMIT_MESSAGE" value="final audit fix done" />
+    <MESSAGE value="responsive audit fix done" />
+    <option name="LAST_COMMIT_MESSAGE" value="responsive audit fix done" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -229,7 +223,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart</url>
-          <line>400</line>
+          <line>406</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">

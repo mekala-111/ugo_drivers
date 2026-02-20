@@ -79,6 +79,27 @@ class FFAppState extends ChangeNotifier {
       _referralCode = prefs.getString('ff_referralCode') ?? '';
     });
     _safeInit(() {
+      _dateOfBirth = prefs.getString('ff_dateOfBirth') ?? '';
+    });
+    _safeInit(() {
+      _address = prefs.getString('ff_address') ?? '';
+    });
+    _safeInit(() {
+      _city = prefs.getString('ff_city') ?? '';
+    });
+    _safeInit(() {
+      _state = prefs.getString('ff_state') ?? '';
+    });
+    _safeInit(() {
+      _postalCode = prefs.getString('ff_postalCode') ?? '';
+    });
+    _safeInit(() {
+      _emergencyContactName = prefs.getString('ff_emergencyContactName') ?? '';
+    });
+    _safeInit(() {
+      _emergencyContactPhone = prefs.getString('ff_emergencyContactPhone') ?? '';
+    });
+    _safeInit(() {
       _fcmToken = prefs.getString('ff_fcmToken') ?? '';
     });
     // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
@@ -105,6 +126,9 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _licenseNumber = prefs.getString('ff_licenseNumber') ?? '';
+    });
+    _safeInit(() {
+      _licenseExpiryDate = prefs.getString('ff_licenseExpiryDate') ?? '';
     });
 
     _safeInit(() {
@@ -321,6 +345,70 @@ class FFAppState extends ChangeNotifier {
   set referralCode(String value) {
     _referralCode = value;
     prefs.setString('ff_referralCode', value);
+    notifyListeners();
+  }
+
+  /// Date of birth (YYYY-MM-DD)
+  String _dateOfBirth = '';
+  String get dateOfBirth => _dateOfBirth;
+  set dateOfBirth(String value) {
+    _dateOfBirth = value;
+    if (value.isEmpty) prefs.remove('ff_dateOfBirth');
+    else prefs.setString('ff_dateOfBirth', value);
+    notifyListeners();
+  }
+
+  String _address = '';
+  String get address => _address;
+  set address(String value) {
+    _address = value;
+    if (value.isEmpty) prefs.remove('ff_address');
+    else prefs.setString('ff_address', value);
+    notifyListeners();
+  }
+
+  String _city = '';
+  String get city => _city;
+  set city(String value) {
+    _city = value;
+    if (value.isEmpty) prefs.remove('ff_city');
+    else prefs.setString('ff_city', value);
+    notifyListeners();
+  }
+
+  String _state = '';
+  String get state => _state;
+  set state(String value) {
+    _state = value;
+    if (value.isEmpty) prefs.remove('ff_state');
+    else prefs.setString('ff_state', value);
+    notifyListeners();
+  }
+
+  String _postalCode = '';
+  String get postalCode => _postalCode;
+  set postalCode(String value) {
+    _postalCode = value;
+    if (value.isEmpty) prefs.remove('ff_postalCode');
+    else prefs.setString('ff_postalCode', value);
+    notifyListeners();
+  }
+
+  String _emergencyContactName = '';
+  String get emergencyContactName => _emergencyContactName;
+  set emergencyContactName(String value) {
+    _emergencyContactName = value;
+    if (value.isEmpty) prefs.remove('ff_emergencyContactName');
+    else prefs.setString('ff_emergencyContactName', value);
+    notifyListeners();
+  }
+
+  String _emergencyContactPhone = '';
+  String get emergencyContactPhone => _emergencyContactPhone;
+  set emergencyContactPhone(String value) {
+    _emergencyContactPhone = value;
+    if (value.isEmpty) prefs.remove('ff_emergencyContactPhone');
+    else prefs.setString('ff_emergencyContactPhone', value);
     notifyListeners();
   }
 
@@ -677,6 +765,19 @@ class FFAppState extends ChangeNotifier {
       prefs.remove('ff_licenseNumber');
     } else {
       prefs.setString('ff_licenseNumber', value);
+    }
+    notifyListeners();
+  }
+
+// License Expiry Date (YYYY-MM-DD or DD/MM/YYYY)
+  String _licenseExpiryDate = '';
+  String get licenseExpiryDate => _licenseExpiryDate;
+  set licenseExpiryDate(String value) {
+    _licenseExpiryDate = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_licenseExpiryDate');
+    } else {
+      prefs.setString('ff_licenseExpiryDate', value);
     }
     notifyListeners();
   }

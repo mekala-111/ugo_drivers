@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
+import '/utils/input_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
@@ -30,6 +31,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
   late DrivingDlModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _licenseNumberController = TextEditingController();
+  final _licenseExpiryController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   // License images
@@ -146,12 +148,16 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
             _validateLicenseNumber(_licenseNumberController.text) == null;
       });
     }
+    if (FFAppState().licenseExpiryDate.isNotEmpty) {
+      _licenseExpiryController.text = FFAppState().licenseExpiryDate;
+    }
   }
 
   @override
   void dispose() {
     _model.dispose();
     _licenseNumberController.dispose();
+    _licenseExpiryController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -933,6 +939,55 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'License Expiry Date',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _licenseExpiryController,
+                              decoration: InputDecoration(
+                                hintText: 'YYYY-MM-DD or DD/MM/YYYY',
+                                hintStyle: TextStyle(color: Colors.grey[400]),
+                                prefixIcon: const Icon(Icons.calendar_today,
+                                    color: AppColors.registrationOrange),
+                                filled: true,
+                                fillColor: AppColors.backgroundLight,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.registrationOrange, width: 2),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Colors.red),
+                                ),
+                              ),
+                              validator: (v) => v != null && v.isNotEmpty
+                                  ? InputValidators.licenseExpiryError(v)
+                                  : null,
+                              onChanged: (value) {
+                                if (value.trim().isNotEmpty) {
+                                  FFAppState().licenseExpiryDate = value.trim();
+                                  FFAppState().update(() {});
+                                }
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -1005,6 +1060,24 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                             return;
                           }
 
+                          final licenseErr =
+                              InputValidators.licenseError(
+                                  _licenseNumberController.text.trim());
+                          if (licenseErr != null) {
+                            _showSnackBar(licenseErr, isError: true);
+                            return;
+                          }
+                          final expiryErr = _licenseExpiryController.text
+                                  .trim()
+                                  .isNotEmpty
+                              ? InputValidators.licenseExpiryError(
+                                  _licenseExpiryController.text.trim())
+                              : null;
+                          if (expiryErr != null) {
+                            _showSnackBar(expiryErr, isError: true);
+                            return;
+                          }
+
                           setState(() => _isSubmitting = true);
 
                           // 2. Save to FFAppState
@@ -1013,6 +1086,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                           FFAppState().licenseBackImage = _backImage;
                           FFAppState().licenseNumber =
                               _licenseNumberController.text.trim().toUpperCase();
+                          FFAppState().licenseExpiryDate =
+                              _licenseExpiryController.text.trim();
                           if (_frontImage?.bytes != null) {
                             FFAppState().licenseFrontBase64 =
                                 base64Encode(_frontImage!.bytes!);
