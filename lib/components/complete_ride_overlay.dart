@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../home/ride_request_model.dart';
@@ -53,13 +54,21 @@ class RideCompleteOverlay extends StatelessWidget {
           children: [
             // ✅ Floating "Drop" Navigation Button
             Padding(
-              padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
-              child: InkWell(
-                onTap: () => _launchMap(ride.dropLat, ride.dropLng),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  decoration: BoxDecoration(
+              padding: EdgeInsets.only(
+                right: Responsive.horizontalPadding(context),
+                bottom: Responsive.verticalSpacing(context),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _launchMap(ride.dropLat, ride.dropLng),
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    height: Responsive.buttonHeight(context, base: 48),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Responsive.horizontalPadding(context) + 8,
+                    ),
+                    decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: const [
@@ -69,20 +78,21 @@ class RideCompleteOverlay extends StatelessWidget {
                           offset: Offset(0, 4))
                     ],
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.navigation, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'DROP',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.navigation, color: Colors.white, size: Responsive.iconSize(context, base: 20)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'DROP',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: Responsive.fontSize(context, 16),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -180,7 +190,12 @@ class CompleteRideCard extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.horizontalPadding(context) + 4,
+              16,
+              Responsive.horizontalPadding(context) + 4,
+              24,
+            ),
             child: Column(
               children: [
                 Row(
@@ -205,8 +220,8 @@ class CompleteRideCard extends StatelessWidget {
                             children: [
                               // Drop Icon Box (Red Theme)
                               Container(
-                                width: 50,
-                                height: 50,
+                                width: Responsive.buttonHeight(context, base: 50),
+                                height: Responsive.buttonHeight(context, base: 50),
                                 decoration: BoxDecoration(
                                   color: ugoRed.withValues(alpha:0.1),
                                   border: Border.all(color: ugoRed, width: 1.5),
@@ -241,7 +256,7 @@ class CompleteRideCard extends StatelessWidget {
                     const SizedBox(width: 12),
 
                     // ✅ Call Button
-                    _buildSquareIconBtn(Icons.call, Colors.green,
+                    _buildSquareIconBtn(context, Icons.call, Colors.green,
                         () => _makePhoneCall(context)),
                   ],
                 ),
@@ -250,14 +265,15 @@ class CompleteRideCard extends StatelessWidget {
                 // Swipe to Complete
                 isLoading
                     ? Container(
-                        height: 55,
+                        height: Responsive.buttonHeight(context, base: 55),
                         alignment: Alignment.center,
                         child: const CircularProgressIndicator(color: ugoRed),
                       )
                     : SlideToAction(
                         text: FFLocalizations.of(context).getText('drv_complete_ride'),
                         outerColor: ugoRed,
-                        onSubmitted: onSwipe ?? () {}),
+                        onSubmitted: onSwipe ?? () {},
+                        height: Responsive.buttonHeight(context, base: 55)),
               ],
             ),
           ),
@@ -331,18 +347,19 @@ class CompleteRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildSquareIconBtn(BuildContext context, IconData icon, Color color, VoidCallback onTap) {
+    final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        width: 48,
-        height: 48,
+        width: sz,
+        height: sz,
         decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black12)),
-        child: Icon(icon, color: color, size: 26),
+        child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 24)),
       ),
     );
   }

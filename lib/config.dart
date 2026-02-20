@@ -8,6 +8,14 @@ class Config {
     return const String.fromEnvironment('API_BASE_URL', defaultValue: defaultUrl);
   }
 
+  /// Build full URL for relative image paths from API (e.g. /uploads/licenses/...)
+  static String? fullImageUrl(String? path) {
+    if (path == null || path.trim().isEmpty) return null;
+    final p = path.trim();
+    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+    return '$baseUrl${p.startsWith('/') ? p : '/$p'}';
+  }
+
   /// Razorpay keys - use dart-define in production. IFSC lookup is free and keyless.
   static String get razorpayKeyId =>
       const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');

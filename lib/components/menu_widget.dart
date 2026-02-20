@@ -1,6 +1,7 @@
 import 'package:ugo_driver/account_support/refer_friend.dart';
 
 import '/backend/api_requests/api_calls.dart';
+import '/constants/responsive.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -46,19 +47,20 @@ class _MenuWidgetState extends State<MenuWidget> {
   String img(String path) =>
       path.startsWith('http') ? path : 'https://ugo-api.icacorp.org/$path';
 
-  Widget tile(
+  Widget tile(BuildContext context,
       {required IconData icon,
         required String title,
         required String sub,
         required String route,
         Color color = Colors.orange}) {
+    final hPad = Responsive.horizontalPadding(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: Responsive.verticalSpacing(context) * 0.75),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: () => context.pushNamed(route),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(Responsive.verticalSpacing(context) + 4),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
@@ -73,26 +75,28 @@ class _MenuWidgetState extends State<MenuWidget> {
           child: Row(
             children: [
               Container(
-                width: 46,
-                height: 46,
+                width: Responsive.buttonHeight(context, base: 46),
+                height: Responsive.buttonHeight(context, base: 46),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha:.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color),
+                child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 24)),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: Responsive.verticalSpacing(context)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
                         style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 4),
+                            fontSize: Responsive.fontSize(context, 16),
+                            fontWeight: FontWeight.w600)),
+                    SizedBox(height: Responsive.verticalSpacing(context) * 0.5),
                     Text(sub,
                         style: GoogleFonts.poppins(
-                            fontSize: 13, color: Colors.grey)),
+                            fontSize: Responsive.fontSize(context, 13),
+                            color: Colors.grey)),
                   ],
                 ),
               ),
@@ -116,7 +120,11 @@ class _MenuWidgetState extends State<MenuWidget> {
           },
           child: Container(
             padding: EdgeInsets.fromLTRB(
-                20, MediaQuery.of(context).padding.top + 16, 20, 20),
+              Responsive.horizontalPadding(context),
+              MediaQuery.of(context).padding.top + Responsive.verticalSpacing(context),
+              Responsive.horizontalPadding(context),
+              Responsive.verticalSpacing(context) + 4,
+            ),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                   colors: [AppColors.primary, AppColors.primaryLightBg]),
@@ -130,8 +138,8 @@ class _MenuWidgetState extends State<MenuWidget> {
             child: Row(
               children: [
                 Container(
-                  width: 70,
-                  height: 70,
+                  width: Responsive.value(context, small: 60.0, medium: 66.0, large: 72.0),
+                  height: Responsive.value(context, small: 60.0, medium: 66.0, large: 72.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
@@ -147,24 +155,25 @@ class _MenuWidgetState extends State<MenuWidget> {
                       alignment: Alignment.center,
                       child: Text(
                         _name.isNotEmpty ? _name[0].toUpperCase() : '?',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 28,
+                          fontSize: Responsive.fontSize(context, 28),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: Responsive.verticalSpacing(context)),
                 Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Welcome Back',
                             style: GoogleFonts.poppins(
-                                color: Colors.white70, fontSize: 14)),
-                        const SizedBox(height: 4),
+                                color: Colors.white70,
+                                fontSize: Responsive.fontSize(context, 14))),
+                        SizedBox(height: Responsive.verticalSpacing(context) * 0.5),
                         Row(children: [
                           Expanded(
                             child: Text(_name,
@@ -172,7 +181,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.poppins(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: Responsive.fontSize(context, 18),
                                     fontWeight: FontWeight.bold)),
                           ),
                           if (_rating.isNotEmpty) ...[
@@ -198,25 +207,25 @@ class _MenuWidgetState extends State<MenuWidget> {
             padding: EdgeInsets.zero,
             children: [
               const SizedBox(height: 10),
-              tile(
+              tile(context,
                   icon: Icons.person_outline,
                   title: 'Account',
                   sub: 'Manage your profile',
                   route: AccountManagementWidget.routeName,
                   color: Colors.blue),
-              tile(
+              tile(context,
                   icon: Icons.account_balance_wallet_outlined,
                   title: 'Earnings',
                   sub: 'History & Bank transfer',
                   route: TeamEarningsWidget.routeName,
                   color: Colors.green),
-              tile(
+              tile(context,
                   icon: Icons.remove_red_eye_outlined,
                   title: 'Incentives',
                   sub: 'Know how you get paid',
                   route: IncentivePageWidget.routeName,
                   color: Colors.purple),
-              tile(
+              tile(context,
                   icon: Icons.headset_mic,
                   title: 'Help',
                   sub: 'Support & Accident Insurance',
@@ -228,14 +237,17 @@ class _MenuWidgetState extends State<MenuWidget> {
 
         /// REFER
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
           child: Row(
             children: [
-              const Icon(Icons.card_giftcard,
-                  color: AppColors.primary, size: 32),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text('Refer friends & earn ₹10 per ride'),
+              Icon(Icons.card_giftcard,
+                  color: AppColors.primary, size: Responsive.iconSize(context, base: 32)),
+              SizedBox(width: Responsive.verticalSpacing(context)),
+              Expanded(
+                child: Text(
+                  'Refer friends & earn ₹10 per ride',
+                  style: TextStyle(fontSize: Responsive.fontSize(context, 14)),
+                ),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -261,8 +273,10 @@ class _MenuWidgetState extends State<MenuWidget> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 26, vertical: 12),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Responsive.horizontalPadding(context) + 10,
+                      vertical: Responsive.buttonHeight(context, base: 48) * 0.25,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

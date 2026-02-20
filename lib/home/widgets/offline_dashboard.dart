@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import 'package:ugo_driver/index.dart';
 
@@ -21,6 +22,8 @@ class OfflineDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pad = Responsive.horizontalPadding(context);
+    final btnH = Responsive.buttonHeight(context, base: 52);
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -31,40 +34,40 @@ class OfflineDashboard extends StatelessWidget {
           Text(
             '$greeting,',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: Responsive.fontSize(context, 22),
               color: Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
           ),
           Text(
             driverName,
-            style: const TextStyle(
-              fontSize: 28,
+            style: TextStyle(
+              fontSize: Responsive.fontSize(context, 28),
               color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: Responsive.verticalSpacing(context) * 2.5),
           Icon(
             Icons.location_off_rounded,
-            size: 80,
+            size: Responsive.value(context, small: 64.0, medium: 72.0, large: 80.0),
             color: Colors.grey[300],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: Responsive.verticalSpacing(context) * 1.5),
           Text(
             FFLocalizations.of(context).getText('drv_offline'),
             style: TextStyle(
-              fontSize: 16,
+              fontSize: Responsive.fontSize(context, 16),
               color: Colors.grey[500],
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: Responsive.verticalSpacing(context) * 3),
           GestureDetector(
             onTap: isDataLoaded ? onGoOnline : null,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 15,
+              padding: EdgeInsets.symmetric(
+                horizontal: pad * 2.5,
+                vertical: btnH * 0.3,
               ),
               decoration: BoxDecoration(
                 color: AppColors.primary,
@@ -84,9 +87,9 @@ class OfflineDashboard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     FFLocalizations.of(context).getText('drv_go_online'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: Responsive.fontSize(context, 18),
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
                     ),

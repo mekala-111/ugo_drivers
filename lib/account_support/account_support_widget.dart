@@ -102,12 +102,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
   // }
 
   String getFullImageUrl(String? imagePath) {
-  if (imagePath == null || imagePath.isEmpty) return '';
-
-  if (imagePath.startsWith('http')) return imagePath;
-
-  return '${app_config.Config.baseUrl}/$imagePath';
-}
+    if (imagePath == null || imagePath.isEmpty) return '';
+    return app_config.Config.fullImageUrl(imagePath) ?? imagePath;
+  }
 
   /// Logout - clear state and navigate to login (Rapido-style)
   Future<void> _logout() async {

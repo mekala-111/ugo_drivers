@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -55,45 +56,54 @@ class RideBottomOverlay extends StatelessWidget {
       children: [
         // ✅ Navigation Button - Pickup when arrived, Drop when started
         Padding(
-          padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
-          child: InkWell(
-            onTap: () {
-              final isStarted = ride.status == RideStatus.started || ride.status == RideStatus.onTrip;
-              _launchMap(
-                isStarted ? ride.dropLat : ride.pickupLat,
-                isStarted ? ride.dropLng : ride.pickupLng,
-              );
-            },
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: const [
-                  BoxShadow(
+          padding: EdgeInsets.only(
+            right: Responsive.horizontalPadding(context),
+            bottom: Responsive.verticalSpacing(context),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                final isStarted = ride.status == RideStatus.started || ride.status == RideStatus.onTrip;
+                _launchMap(
+                  isStarted ? ride.dropLat : ride.pickupLat,
+                  isStarted ? ride.dropLng : ride.pickupLng,
+                );
+              },
+              borderRadius: BorderRadius.circular(30),
+              child: Container(
+                height: Responsive.buttonHeight(context, base: 48),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.horizontalPadding(context) + 8,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: const [
+                    BoxShadow(
                       color: Colors.black26,
                       blurRadius: 8,
-                      offset: Offset(0, 4))
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.navigation, color: Colors.black, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    (ride.status == RideStatus.started || ride.status == RideStatus.onTrip)
-                        ? FFLocalizations.of(context).getText('drv_nav_to_drop')
-                        : FFLocalizations.of(context).getText('drv_nav_to_pickup'),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      offset: Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.navigation, color: Colors.black, size: Responsive.iconSize(context, base: 20)),
+                    const SizedBox(width: 8),
+                    Text(
+                      (ride.status == RideStatus.started || ride.status == RideStatus.onTrip)
+                          ? FFLocalizations.of(context).getText('drv_nav_to_drop')
+                          : FFLocalizations.of(context).getText('drv_nav_to_pickup'),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: Responsive.fontSize(context, 16),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -180,7 +190,12 @@ class StartRideCard extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.horizontalPadding(context) + 4,
+              16,
+              Responsive.horizontalPadding(context) + 4,
+              24,
+            ),
             child: Column(
               children: [
                 // Top Row: User Name & Action Buttons
@@ -201,10 +216,10 @@ class StartRideCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     Row(
                       children: [
-                        _buildSquareIconBtn(Icons.call, Colors.black,
+                        _buildSquareIconBtn(context, Icons.call, Colors.black,
                             Colors.grey[200]!, onCall),
-                        const SizedBox(width: 12),
-                        _buildSquareIconBtn(
+                        SizedBox(width: Responsive.verticalSpacing(context)),
+                        _buildSquareIconBtn(context,
                             Icons.close, Colors.white, ugoRed, onCancel),
                       ],
                     )
@@ -219,8 +234,8 @@ class StartRideCard extends StatelessWidget {
                   children: [
                     // Pickup/Drop Box
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: Responsive.buttonHeight(context, base: 50),
+                      height: Responsive.buttonHeight(context, base: 50),
                       decoration: BoxDecoration(
                         border: Border.all(
                             color: isStarted ? ugoRed : ugoGreen, width: 1.5),
@@ -230,7 +245,8 @@ class StartRideCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.location_on,
-                              color: isStarted ? ugoRed : ugoGreen, size: 20),
+                              color: isStarted ? ugoRed : ugoGreen,
+                              size: Responsive.iconSize(context, base: 20)),
                           Text(
                             isStarted ? FFLocalizations.of(context).getText('drv_drop') : FFLocalizations.of(context).getText('drv_pickup'),
                             style: TextStyle(
@@ -258,6 +274,7 @@ class StartRideCard extends StatelessWidget {
                   text: btnText,
                   outerColor: btnColor,
                   onSubmitted: onSwipe,
+                  height: Responsive.buttonHeight(context, base: 55),
                 ),
               ],
             ),
@@ -316,17 +333,18 @@ class StartRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(
+  Widget _buildSquareIconBtn(BuildContext context,
       IconData icon, Color iconColor, Color bgColor, VoidCallback onPressed) {
+    final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        width: 45,
-        height: 45,
+        width: sz,
+        height: sz,
         decoration: BoxDecoration(
             color: bgColor, borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, color: iconColor, size: 24),
+        child: Icon(icon, color: iconColor, size: Responsive.iconSize(context, base: 24)),
       ),
     );
   }

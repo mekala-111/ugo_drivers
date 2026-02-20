@@ -357,6 +357,8 @@ class UpdateDriverCall {
     String? lastName,
     FFUploadedFile? profileimage,
     FFUploadedFile? licenseimage,
+    FFUploadedFile? licenseFrontImage,
+    FFUploadedFile? licenseBackImage,
     FFUploadedFile? aadhaarimage,
     FFUploadedFile? panimage,
     FFUploadedFile? vehicleImage,
@@ -403,6 +405,12 @@ class UpdateDriverCall {
 
     if (licenseimage != null) {
       params['license_image'] = licenseimage;
+    }
+    if (licenseFrontImage != null) {
+      params['license_front_image'] = licenseFrontImage;
+    }
+    if (licenseBackImage != null) {
+      params['license_back_image'] = licenseBackImage;
     }
 
     if (aadhaarimage != null) {
@@ -512,18 +520,60 @@ class DriverIdfetchCall {
         r'''$.data.profile_image''',
       ));
 
-  /// Get license image URL
-  static String? licenseImage(dynamic response) =>
+  /// Get license image URL (legacy; prefer licenseFrontImage/licenseBackImage)
+  static String? licenseImage(dynamic response) {
+    final v = castToType<String>(getJsonField(response, r'''$.data.license_image'''));
+    if (v != null && v.isNotEmpty) return v;
+    return castToType<String>(getJsonField(response, r'''$.data.license_front_image'''));
+  }
+
+  /// Get license front image URL
+  static String? licenseFrontImage(dynamic response) =>
       castToType<String>(getJsonField(
         response,
-        r'''$.data.license_image''',
+        r'''$.data.license_front_image''',
       ));
 
-  /// Get aadhaar image URL
-  static String? aadhaarImage(dynamic response) =>
+  /// Get license back image URL
+  static String? licenseBackImage(dynamic response) =>
       castToType<String>(getJsonField(
         response,
-        r'''$.data.aadhaar_image''',
+        r'''$.data.license_back_image''',
+      ));
+
+  /// Get license number
+  static String? licenseNumber(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.license_number''',
+      ));
+
+  /// Get license expiry date
+  static String? licenseExpiryDate(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.license_expiry_date''',
+      ));
+
+  /// Get aadhaar image URL (legacy; prefer aadhaarFrontImage/aadhaarBackImage)
+  static String? aadhaarImage(dynamic response) {
+    final v = castToType<String>(getJsonField(response, r'''$.data.aadhaar_image'''));
+    if (v != null && v.isNotEmpty) return v;
+    return castToType<String>(getJsonField(response, r'''$.data.aadhaar_front_image'''));
+  }
+
+  /// Get aadhaar front image URL
+  static String? aadhaarFrontImage(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.aadhaar_front_image''',
+      ));
+
+  /// Get aadhaar back image URL
+  static String? aadhaarBackImage(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.aadhaar_back_image''',
       ));
 
   /// Get PAN image URL
@@ -539,10 +589,32 @@ class DriverIdfetchCall {
         r'''$.data.vehicle_image''',
       ));
 
-  /// Get RC image URL
-  static String? rcImage(dynamic response) => castToType<String>(getJsonField(
+  /// Get RC image URL (legacy; prefer rcFrontImage/rcBackImage)
+  static String? rcImage(dynamic response) {
+    final v = castToType<String>(getJsonField(response, r'''$.data.rc_image'''));
+    if (v != null && v.isNotEmpty) return v;
+    return castToType<String>(getJsonField(response, r'''$.data.rc_front_image'''));
+  }
+
+  /// Get RC front image URL
+  static String? rcFrontImage(dynamic response) =>
+      castToType<String>(getJsonField(
         response,
-        r'''$.data.rc_image''',
+        r'''$.data.rc_front_image''',
+      ));
+
+  /// Get RC back image URL
+  static String? rcBackImage(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.rc_back_image''',
+      ));
+
+  /// Get address proof image URL
+  static String? addressProof(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.data.address_proof''',
       ));
 
   /// Get driver first name

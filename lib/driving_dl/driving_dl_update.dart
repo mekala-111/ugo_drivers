@@ -1,3 +1,4 @@
+import '/backend/api_requests/api_calls.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -42,6 +43,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
 
   bool _isLicenseNumberValid = false;
   bool _isProcessingOCR = false;
+  bool _isSubmitting = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -979,57 +981,89 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
 
                       // Submit Button
                       FFButtonWidget(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            bool hasFrontImage = (_frontImage?.bytes != null) ||
-                                (_frontImageUrl != null &&
-                                    _frontImageUrl!.isNotEmpty);
-                            bool hasBackImage = (_backImage?.bytes != null) ||
-                                (_backImageUrl != null &&
-                                    _backImageUrl!.isNotEmpty);
+                        onPressed: _isSubmitting ? null : () async {
+                          if (!_formKey.currentState!.validate()) return;
 
-                            if (!hasFrontImage) {
-                              _showSnackBar('Please upload front side',
-                                  isError: true);
-                              return;
+                          // 1. Verify driving license is uploaded (front + back + number)
+                          final hasFront = (_frontImage?.bytes != null &&
+                                  _frontImage!.bytes!.isNotEmpty) ||
+                              (_frontImageUrl != null &&
+                                  _frontImageUrl!.isNotEmpty);
+                          final hasBack = (_backImage?.bytes != null &&
+                                  _backImage!.bytes!.isNotEmpty) ||
+                              (_backImageUrl != null &&
+                                  _backImageUrl!.isNotEmpty);
+
+                          if (!hasFront) {
+                            _showSnackBar('Please upload front side of license',
+                                isError: true);
+                            return;
+                          }
+                          if (!hasBack) {
+                            _showSnackBar('Please upload back side of license',
+                                isError: true);
+                            return;
+                          }
+
+                          setState(() => _isSubmitting = true);
+
+                          // 2. Save to FFAppState
+                          FFAppState().imageLicense = _frontImage;
+                          FFAppState().licenseFrontImage = _frontImage;
+                          FFAppState().licenseBackImage = _backImage;
+                          FFAppState().licenseNumber =
+                              _licenseNumberController.text.trim().toUpperCase();
+                          if (_frontImage?.bytes != null) {
+                            FFAppState().licenseFrontBase64 =
+                                base64Encode(_frontImage!.bytes!);
+                          }
+                          if (_backImage?.bytes != null) {
+                            FFAppState().licenseBackBase64 =
+                                base64Encode(_backImage!.bytes!);
+                          }
+                          FFAppState().update(() {});
+
+                          // 3. Send to backend if user is logged in
+                          final driverId = FFAppState().driverid;
+                          final token = FFAppState().accessToken;
+                          if (driverId > 0 && token.isNotEmpty) {
+                            try {
+                              final res = await UpdateDriverCall.call(
+                                id: driverId,
+                                token: token,
+                                licenseimage: _frontImage,
+                                licenseFrontImage: _frontImage,
+                                licenseBackImage: _backImage,
+                              );
+                              if (!mounted) return;
+                              if (res.succeeded) {
+                                _showSnackBar('License verified and sent to backend!');
+                                await Future.delayed(
+                                    const Duration(milliseconds: 500));
+                                context.pop();
+                              } else {
+                                _showSnackBar(
+                                    'Could not update license. Please try again.',
+                                    isError: true);
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                _showSnackBar(
+                                    'Network error. Please try again.',
+                                    isError: true);
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isSubmitting = false);
                             }
-                            if (!hasBackImage) {
-                              _showSnackBar('Please upload back side',
-                                  isError: true);
-                              return;
-                            }
-
-                            // Save all data to correct properties
-                            FFAppState().imageLicense =
-                                _frontImage; // Keep for backwards compatibility
-                            FFAppState().licenseFrontImage =
-                                _frontImage; // New front image property
-                            FFAppState().licenseBackImage =
-                                _backImage; // Back image property
-                            FFAppState().licenseNumber =
-                                _licenseNumberController.text
-                                    .trim()
-                                    .toUpperCase();
-
-                            if (_frontImage?.bytes != null) {
-                              FFAppState().licenseFrontBase64 =
-                                  base64Encode(_frontImage!.bytes!);
-                            }
-                            if (_backImage?.bytes != null) {
-                              FFAppState().licenseBackBase64 =
-                                  base64Encode(_backImage!.bytes!);
-                            }
-
-                            FFAppState().update(() {});
-
-                            print('✅ License data saved');
-                            _showSnackBar('License verification completed!');
-
-                            await Future.delayed(const Duration(milliseconds: 500));
-                            context.pop();
+                          } else {
+                            setState(() => _isSubmitting = false);
+                            _showSnackBar('License saved. Will be sent with registration.');
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
+                            if (mounted) context.pop();
                           }
                         },
-                        text: 'Submit',
+                        text: _isSubmitting ? 'Sending...' : 'Submit',
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,

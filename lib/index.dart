@@ -1,5 +1,6 @@
 // Export constants
 export '/constants/app_colors.dart' show AppColors;
+export '/constants/responsive.dart' show Responsive;
 
 // Export pages
 export '/login/login_widget.dart' show LoginWidget;

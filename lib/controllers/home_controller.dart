@@ -101,7 +101,7 @@ class HomeController extends ChangeNotifier {
 
       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);
       if (img != null && img.isNotEmpty) {
-        profileImageUrl = img.startsWith('http') ? img : '${Config.baseUrl}/$img';
+        profileImageUrl = Config.fullImageUrl(img) ?? img;
       }
     }
 

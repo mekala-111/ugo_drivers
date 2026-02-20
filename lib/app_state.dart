@@ -351,6 +351,14 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Admin vehicle ID from API (used for signup-with-vehicle)
+  int _adminVehicleId = 0;
+  int get adminVehicleId => _adminVehicleId;
+  set adminVehicleId(int value) {
+    _adminVehicleId = value;
+    notifyListeners();
+  }
+
   // ==========================================
   // DRIVING LICENSE IMAGE
   // ==========================================

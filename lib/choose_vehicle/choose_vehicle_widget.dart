@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/config.dart' as app_config;
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -185,21 +186,38 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                             itemBuilder: (context, index) {
                               final item = vehicleList[index];
 
-                              // Safe Name Extraction
+                              // Safe Name and ID extraction
                               String vehicleName = '';
+                              int vehicleId = 0;
+                              String? imagePath;
                               if (item is Map) {
                                 vehicleName = item['name']?.toString() ?? '';
+                                vehicleId = castToType<int>(item['id']) ?? 0;
+                                imagePath = item['image']?.toString();
                               } else {
                                 vehicleName = getJsonField(item, r'$["name"]')?.toString() ?? '';
+                                vehicleId = castToType<int>(getJsonField(item, r'$["id"]')) ?? 0;
+                                imagePath = getJsonField(item, r'$["image"]')?.toString();
                               }
 
                               if (vehicleName.isEmpty) vehicleName = 'Unknown';
+
+                              // Build full image URL (API returns relative path like /uploads/...)
+                              final imageUrl = (imagePath != null &&
+                                      imagePath.isNotEmpty &&
+                                      imagePath != 'null')
+                                  ? (imagePath.startsWith('http')
+                                      ? imagePath
+                                      : '${app_config.Config.baseUrl}$imagePath')
+                                  : null;
 
                               final isSelected =
                                   FFAppState().selectvehicle == vehicleName;
 
                               return _buildVehicleCard(
                                 vehicleName,
+                                vehicleId,
+                                imageUrl,
                                 isSelected,
                                 brandPrimary,
                               );
@@ -280,11 +298,12 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   }
 
   // 🔹 Custom Vehicle Card Widget
-  Widget _buildVehicleCard(String name, bool isSelected, Color brandColor) {
+  Widget _buildVehicleCard(String name, int vehicleId, String? imageUrl, bool isSelected, Color brandColor) {
     return InkWell(
       onTap: () {
         setState(() {
           FFAppState().selectvehicle = name;
+          FFAppState().adminVehicleId = vehicleId;
         });
       },
       borderRadius: BorderRadius.circular(16),
@@ -300,18 +319,31 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
         ),
         child: Row(
           children: [
-            // Icon Box
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: isSelected ? brandColor.withValues(alpha:0.2) : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                _getVehicleIcon(name),
-                size: 32,
-                color: isSelected ? brandColor : Colors.grey.shade500,
+            // Image or Icon Box
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: isSelected ? brandColor.withValues(alpha:0.2) : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              child: imageUrl != null
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Icon(
+                        _getVehicleIcon(name),
+                        size: 32,
+                        color: isSelected ? brandColor : Colors.grey.shade500,
+                      ),
+                    )
+                  : Icon(
+                      _getVehicleIcon(name),
+                      size: 32,
+                      color: isSelected ? brandColor : Colors.grey.shade500,
+                    ),
               ),
             ),
             const SizedBox(width: 16),

@@ -77,12 +77,22 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     int completed = 0;
     int total = 6; // License, Profile, Aadhar, Pan, Vehicle, RC
 
-    if (_isDocumentUploaded(FFAppState().imageLicense)) completed++;
+    final hasLicense = _isDocumentUploaded(FFAppState().imageLicense) ||
+        _isDocumentUploaded(FFAppState().licenseFrontImage) ||
+        _isDocumentUploaded(FFAppState().licenseBackImage);
+    final hasAadhaar = _isDocumentUploaded(FFAppState().aadharImage) ||
+        _isDocumentUploaded(FFAppState().aadhaarFrontImage) ||
+        _isDocumentUploaded(FFAppState().aadhaarBackImage);
+    final hasRC = _isDocumentUploaded(FFAppState().registrationImage) ||
+        _isDocumentUploaded(FFAppState().rcFrontImage) ||
+        _isDocumentUploaded(FFAppState().rcBackImage);
+
+    if (hasLicense) completed++;
     if (_isDocumentUploaded(FFAppState().profilePhoto)) completed++;
-    if (_isDocumentUploaded(FFAppState().aadharImage)) completed++;
+    if (hasAadhaar) completed++;
     if (_isDocumentUploaded(FFAppState().panImage)) completed++;
     if (_isDocumentUploaded(FFAppState().vehicleImage)) completed++;
-    if (_isDocumentUploaded(FFAppState().registrationImage)) completed++;
+    if (hasRC) completed++;
 
     return ((completed / total) * 100).round();
   }
@@ -438,19 +448,31 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     setState(() => _isLoading = true);
 
     try {
-      // 2. Prepare JSON Payload
-      final driverJsonData = {
-        'mobile_number': FFAppState().mobileNo,
+      // 2. Prepare JSON Payload - include all collected onboarding data
+      final driverJsonData = <String, dynamic>{
+        'mobile_number': FFAppState().mobileNo.toString(),
         'first_name': FFAppState().firstName,
         'last_name': FFAppState().lastName,
         'email': FFAppState().email,
         'referal_code': FFAppState().referralCode,
         'fcm_token': fcm_token ?? '',
       };
+      if (FFAppState().licenseNumber.isNotEmpty) {
+        driverJsonData['license_number'] = FFAppState().licenseNumber;
+      }
+      if (FFAppState().aadharNumber.isNotEmpty) {
+        driverJsonData['aadhaar_number'] = FFAppState().aadharNumber;
+      }
+      if (FFAppState().panNumber.isNotEmpty) {
+        driverJsonData['pan_number'] = FFAppState().panNumber;
+      }
 
-      final vehicleJsonData = {
+      final vehicleJsonData = <String, dynamic>{
         'vehicle_type': FFAppState().selectvehicle.isEmpty ? 'auto' : FFAppState().selectvehicle,
       };
+      if (FFAppState().adminVehicleId > 0) {
+        vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
+      }
 
       // 3. API Call
       _model.apiResult7ju = await CreateDriverCall.call(
@@ -473,18 +495,68 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
       // 4. Handle Response
       if (_model.apiResult7ju?.succeeded ?? false) {
-        final driverId = getJsonField(_model.apiResult7ju?.jsonBody, r'''$.data.driver.id''');
-        final accessToken = getJsonField(_model.apiResult7ju?.jsonBody, r'''$.data.access_token''').toString();
+        final jsonBody = _model.apiResult7ju?.jsonBody;
 
-        FFAppState().update(() {
-          FFAppState().isLoggedIn = true;
-          FFAppState().isRegistered = true;
-          FFAppState().driverid = driverId;
-          FFAppState().accessToken = accessToken;
-        });
+        // Extract token (backend may use access_token, accessToken, or token)
+        String? accessToken = getJsonField(jsonBody, r'''$.data.access_token''')?.toString();
+        accessToken ??= getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
+        accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
+        accessToken ??= getJsonField(jsonBody, r'''$.access_token''')?.toString();
+        accessToken ??= getJsonField(jsonBody, r'''$.accessToken''')?.toString();
+        if (accessToken == 'null' || accessToken == null || accessToken.isEmpty) {
+          accessToken = null;
+        }
 
-        if (mounted) {
-          context.pushReplacementNamed(HomeWidget.routeName);
+        // Extract driverId (backend may use data.driver.id or data.id)
+        int? driverId = castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id'''));
+        driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.id'''));
+        driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id'''));
+        driverId ??= 0;
+
+        // If createDriver didn't return a token, fetch via login API (driver now exists)
+        if (accessToken == null || accessToken.isEmpty) {
+          final loginRes = await LoginCall.call(
+            mobile: FFAppState().mobileNo,
+            fcmToken: FFAppState().fcmToken.isNotEmpty ? FFAppState().fcmToken : (fcm_token ?? ''),
+          );
+          if (loginRes.succeeded) {
+            accessToken = getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')?.toString();
+            accessToken ??= getJsonField(loginRes.jsonBody, r'''$.data.access_token''')?.toString();
+            if (driverId == 0) {
+              driverId = castToType<int>(getJsonField(loginRes.jsonBody, r'''$.data.id''')) ?? 0;
+            }
+          }
+        }
+
+        final resolvedDriverId = driverId;
+        if (accessToken != null && accessToken.isNotEmpty && resolvedDriverId > 0) {
+          FFAppState().update(() {
+            FFAppState().isLoggedIn = true;
+            FFAppState().isRegistered = true;
+            FFAppState().driverid = resolvedDriverId;
+            FFAppState().accessToken = accessToken!;
+          });
+
+          if (mounted) {
+            context.pushReplacementNamed(HomeWidget.routeName);
+          }
+        } else {
+          // Token or driverId missing - redirect to login
+          FFAppState().update(() {
+            FFAppState().isLoggedIn = false;
+            FFAppState().isRegistered = true;
+            final id = driverId ?? 0;
+          if (id > 0) FFAppState().driverid = id;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Registration complete. Please sign in to continue.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+            context.pushReplacementNamed(LoginWidget.routeName); // from /index.dart
+          }
         }
       } else {
         // Show Error

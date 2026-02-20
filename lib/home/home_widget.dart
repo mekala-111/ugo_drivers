@@ -21,6 +21,7 @@ import 'widgets/offline_dashboard.dart';
 import 'widgets/ride_map.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/responsive.dart';
 import '../flutter_flow/lat_lng.dart' as latlng;
 
 export 'home_model.dart';
@@ -212,8 +213,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
     return ListenableBuilder(
       listenable: _controller,
       builder: (context, _) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isSmallScreen = screenWidth < 360;
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
         final shouldShowPanels = !['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
@@ -251,7 +252,7 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
               body: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  SizedBox(height: isSmallScreen ? 20 : 32),
+                  SizedBox(height: Responsive.value(context, small: 20.0, medium: 26.0, large: 32.0)),
                   AppHeader(
                     scaffoldKey: scaffoldKey,
                     switchValue: c.isOnline,
@@ -259,8 +260,6 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
                     onToggleOnline: () => c.toggleOnlineStatus(),
                     screenWidth: screenWidth,
                     isSmallScreen: isSmallScreen,
-                    balance: c.todayWallet,
-                    profileImageUrl: c.profileImageUrl.isNotEmpty ? c.profileImageUrl : null,
                     notificationCount: 0,
                   ),
                   Expanded(
@@ -310,7 +309,7 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
                       isLoading: c.isLoadingEarnings,
                       isSmallScreen: isSmallScreen,
                     ),
-                  SizedBox(height: isSmallScreen ? 10 : 15),
+                  SizedBox(height: Responsive.value(context, small: 10.0, medium: 12.0, large: 15.0)),
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 
 /// Online/Offline toggle switch for driver status.
 /// Alias: OnlineStatusToggle for compatibility with spec.
@@ -16,8 +17,9 @@ class OnlineToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pad = Responsive.horizontalPadding(context) * 0.75;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: pad, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(30),
@@ -26,9 +28,10 @@ class OnlineToggle extends StatelessWidget {
         children: [
           Text(
             switchValue ? 'ON' : 'OFF',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: Responsive.fontSize(context, 14),
             ),
           ),
           Switch(

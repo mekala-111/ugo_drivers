@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -52,44 +53,57 @@ class RidePickupOverlay extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Floating "Pickup" Navigation Button
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
-              child: InkWell(
-                onTap: () {
-                  print(
-                      '📍 Navigating to: ${ride.pickupLat}, ${ride.pickupLng}');
-                  _launchMap(ride.pickupLat, ride.pickupLng);
-                },
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
-                          offset: Offset(0, 4))
-                    ],
+            LayoutBuilder(
+              builder: (context, _) {
+                final btnH = Responsive.buttonHeight(context, base: 48);
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: Responsive.horizontalPadding(context),
+                    bottom: Responsive.verticalSpacing(context),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.navigation, color: Colors.white, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        FFLocalizations.of(context).getText('drv_navigate'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        _launchMap(ride.pickupLat, ride.pickupLng);
+                      },
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        height: btnH,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Responsive.horizontalPadding(context) + 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.navigation, color: Colors.white, size: Responsive.iconSize(context, base: 20)),
+                            const SizedBox(width: 8),
+                            Text(
+                              FFLocalizations.of(context).getText('drv_navigate'),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: Responsive.fontSize(context, 16),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
             // The Main Card
             ActiveRideCard(
@@ -182,7 +196,12 @@ class ActiveRideCard extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.horizontalPadding(context),
+              16,
+              Responsive.horizontalPadding(context),
+              24,
+            ),
             child: Column(
               children: [
                 Row(
@@ -205,8 +224,8 @@ class ActiveRideCard extends StatelessWidget {
                             children: [
                               // Icon Box
                               Container(
-                                width: 50,
-                                height: 50,
+                                width: Responsive.buttonHeight(context, base: 50),
+                                height: Responsive.buttonHeight(context, base: 50),
                                 decoration: BoxDecoration(
                                   color: (showPickupBox ? ugoGreen : ugoRed)
                                       .withValues(alpha:0.1),
@@ -221,7 +240,7 @@ class ActiveRideCard extends StatelessWidget {
                                     Icon(Icons.location_on,
                                         color:
                                             showPickupBox ? ugoGreen : ugoRed,
-                                        size: 24),
+                                        size: Responsive.iconSize(context, base: 24)),
                                     Text(
                                       showPickupBox ? FFLocalizations.of(context).getText('drv_pickup') : FFLocalizations.of(context).getText('drv_drop'),
                                       style: TextStyle(
@@ -247,12 +266,12 @@ class ActiveRideCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     Column(
                       children: [
-                        _buildSquareIconBtn(Icons.call, Colors.green, () {
+                        _buildSquareIconBtn(context, Icons.call, Colors.green, () {
                           launchUrl(
                               Uri.parse("tel:${ride.mobileNumber ?? ''}"));
                         }),
-                        const SizedBox(height: 16),
-                        _buildSquareIconBtn(Icons.close, ugoRed, onCancel ?? () {}),
+                        SizedBox(height: Responsive.verticalSpacing(context)),
+                        _buildSquareIconBtn(context, Icons.close, ugoRed, onCancel ?? () {}),
                       ],
                     )
                   ],
@@ -260,7 +279,10 @@ class ActiveRideCard extends StatelessWidget {
                 const SizedBox(height: 24),
                 // Swipe Button
                 SlideToAction(
-                    text: btnText, outerColor: btnColor, onSubmitted: onSwipe),
+                    text: btnText,
+                    outerColor: btnColor,
+                    onSubmitted: onSwipe,
+                    height: Responsive.buttonHeight(context, base: 55)),
               ],
             ),
           ),
@@ -336,17 +358,18 @@ class ActiveRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildSquareIconBtn(BuildContext context, IconData icon, Color color, VoidCallback onTap) {
+    final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 45,
-        height: 45,
+        width: sz,
+        height: sz,
         decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black12)),
-        child: Icon(icon, color: color, size: 26),
+        child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 24)),
       ),
     );
   }

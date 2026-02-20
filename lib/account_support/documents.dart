@@ -74,14 +74,17 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
           setState(() {
             _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
-            _serverDocuments['imageLicense'] = hasDoc(data['license_image']);
-            _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']);
+            _serverDocuments['imageLicense'] = hasDoc(data['license_image']) ||
+                hasDoc(data['license_front_image']) ||
+                hasDoc(data['license_back_image']);
+            _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']) ||
+                hasDoc(data['aadhaar_front_image']) ||
+                hasDoc(data['aadhaar_back_image']);
             _serverDocuments['panImage'] = hasDoc(data['pan_image']);
             _serverDocuments['vehicleImage'] = hasDoc(data['vehicle_image']);
-
-            // Check both front/back or just 'rc_image' depending on API response structure
-            _serverDocuments['registrationImage'] =
-                hasDoc(data['rc_image']) || hasDoc(data['rc_front_image']);
+            _serverDocuments['registrationImage'] = hasDoc(data['rc_image']) ||
+                hasDoc(data['rc_front_image']) ||
+                hasDoc(data['rc_back_image']);
           });
 
         }
