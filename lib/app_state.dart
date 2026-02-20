@@ -169,6 +169,30 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _vehicleColor = prefs.getString('ff_vehicleColor') ?? '';
     });
+    _safeInit(() {
+      _vehicleName = prefs.getString('ff_vehicleName') ?? '';
+    });
+    _safeInit(() {
+      _licensePlate = prefs.getString('ff_licensePlate') ?? '';
+    });
+    _safeInit(() {
+      _registrationDate = prefs.getString('ff_registrationDate') ?? '';
+    });
+    _safeInit(() {
+      _insuranceNumber = prefs.getString('ff_insuranceNumber') ?? '';
+    });
+    _safeInit(() {
+      _insuranceExpiryDate = prefs.getString('ff_insuranceExpiryDate') ?? '';
+    });
+    _safeInit(() {
+      _pollutionExpiryDate = prefs.getString('ff_pollutionExpiryDate') ?? '';
+    });
+    _safeInit(() {
+      _insuranceBase64 = prefs.getString('ff_insuranceBase64') ?? '';
+    });
+    _safeInit(() {
+      _pollutionBase64 = prefs.getString('ff_pollutionBase64') ?? '';
+    });
   }
 
   Future<void> _loadAadharPanFromSecureStorage() async {
@@ -444,6 +468,14 @@ class FFAppState extends ChangeNotifier {
   int get adminVehicleId => _adminVehicleId;
   set adminVehicleId(int value) {
     _adminVehicleId = value;
+    notifyListeners();
+  }
+
+  /// Created vehicle record ID from signup response (data.vehicle.id)
+  int _vehicleId = 0;
+  int get vehicleId => _vehicleId;
+  set vehicleId(int value) {
+    _vehicleId = value;
     notifyListeners();
   }
 
@@ -847,16 +879,73 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-// Vehicle Year (NEW)
+// Vehicle Year
   String _vehicleYear = '';
   String get vehicleYear => _vehicleYear;
   set vehicleYear(String value) {
     _vehicleYear = value;
-    if (value.isEmpty) {
-      prefs.remove('ff_vehicleYear');
-    } else {
-      prefs.setString('ff_vehicleYear', value);
-    }
+    if (value.isEmpty) prefs.remove('ff_vehicleYear');
+    else prefs.setString('ff_vehicleYear', value);
+    notifyListeners();
+  }
+
+// Vehicle Name (vehicles.vehicle_name)
+  String _vehicleName = '';
+  String get vehicleName => _vehicleName;
+  set vehicleName(String value) {
+    _vehicleName = value;
+    if (value.isEmpty) prefs.remove('ff_vehicleName');
+    else prefs.setString('ff_vehicleName', value);
+    notifyListeners();
+  }
+
+// License Plate (vehicles.license_plate)
+  String _licensePlate = '';
+  String get licensePlate => _licensePlate;
+  set licensePlate(String value) {
+    _licensePlate = value;
+    if (value.isEmpty) prefs.remove('ff_licensePlate');
+    else prefs.setString('ff_licensePlate', value);
+    notifyListeners();
+  }
+
+// Registration Date (vehicles.registration_date)
+  String _registrationDate = '';
+  String get registrationDate => _registrationDate;
+  set registrationDate(String value) {
+    _registrationDate = value;
+    if (value.isEmpty) prefs.remove('ff_registrationDate');
+    else prefs.setString('ff_registrationDate', value);
+    notifyListeners();
+  }
+
+// Insurance Number (vehicles.insurance_number)
+  String _insuranceNumber = '';
+  String get insuranceNumber => _insuranceNumber;
+  set insuranceNumber(String value) {
+    _insuranceNumber = value;
+    if (value.isEmpty) prefs.remove('ff_insuranceNumber');
+    else prefs.setString('ff_insuranceNumber', value);
+    notifyListeners();
+  }
+
+// Insurance Expiry Date (vehicles.insurance_expiry_date)
+  String _insuranceExpiryDate = '';
+  String get insuranceExpiryDate => _insuranceExpiryDate;
+  set insuranceExpiryDate(String value) {
+    _insuranceExpiryDate = value;
+    if (value.isEmpty) prefs.remove('ff_insuranceExpiryDate');
+    else prefs.setString('ff_insuranceExpiryDate', value);
+    notifyListeners();
+  }
+
+// Pollution Expiry Date (vehicles.pollution_expiry_date)
+  String _pollutionExpiryDate = '';
+  String get pollutionExpiryDate => _pollutionExpiryDate;
+  set pollutionExpiryDate(String value) {
+    _pollutionExpiryDate = value;
+    if (value.isEmpty) prefs.remove('ff_pollutionExpiryDate');
+    else prefs.setString('ff_pollutionExpiryDate', value);
     notifyListeners();
   }
 
@@ -896,10 +985,34 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _insuranceBase64 = '';
+  String get insuranceBase64 => _insuranceBase64;
+  set insuranceBase64(String value) {
+    _insuranceBase64 = value;
+    if (value.isEmpty) prefs.remove('ff_insuranceBase64');
+    else prefs.setString('ff_insuranceBase64', value);
+    notifyListeners();
+  }
+
   FFUploadedFile? _pollutioncertificateImage;
   FFUploadedFile? get pollutioncertificateImage => _pollutioncertificateImage;
   set pollutioncertificateImage(FFUploadedFile? value) {
     _pollutioncertificateImage = value;
+    notifyListeners();
+  }
+
+  FFUploadedFile? get pollutionImage => _pollutioncertificateImage;
+  set pollutionImage(FFUploadedFile? value) {
+    _pollutioncertificateImage = value;
+    notifyListeners();
+  }
+
+  String _pollutionBase64 = '';
+  String get pollutionBase64 => _pollutionBase64;
+  set pollutionBase64(String value) {
+    _pollutionBase64 = value;
+    if (value.isEmpty) prefs.remove('ff_pollutionBase64');
+    else prefs.setString('ff_pollutionBase64', value);
     notifyListeners();
   }
 
@@ -1020,8 +1133,13 @@ class FFAppState extends ChangeNotifier {
 
   // 🔥 Vehicle / RC
   _vehicleImageUrl = '';
-  // _vehicleImageBase64 = '';
   _vehicleImage = null;
+  _vehicleName = '';
+  _licensePlate = '';
+  _registrationDate = '';
+  _insuranceNumber = '';
+  _insuranceExpiryDate = '';
+  _pollutionExpiryDate = '';
 
   _rcFrontImageUrl = '';
   _rcBackImageUrl = '';
@@ -1029,6 +1147,8 @@ class FFAppState extends ChangeNotifier {
   _rcBackBase64 = '';
   _rcFrontImage = null;
   _rcBackImage = null;
+  _insuranceBase64 = '';
+  _pollutionBase64 = '';
 
   notifyListeners();
 }

@@ -1,8 +1,12 @@
+import '/backend/api_requests/api_calls.dart';
+import '/config.dart' as app_config;
 import '/constants/app_colors.dart';
+import '/constants/vehicle_data.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'vehicle_image_model.dart';
 export 'vehicle_image_model.dart';
 
@@ -25,26 +29,31 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   bool _isVehicleImageValid = false;
 
   String? _selectedVehicleType;
+  int _selectedVehicleTypeId = 0;
   String? _selectedColor;
 
   final TextEditingController _makeController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
+  final TextEditingController _licensePlateController = TextEditingController();
+  final TextEditingController _regNumberController = TextEditingController();
+  final TextEditingController _regDateController = TextEditingController();
+  final TextEditingController _insuranceNumberController = TextEditingController();
+  final TextEditingController _insuranceExpiryController = TextEditingController();
+  final TextEditingController _pollutionExpiryController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  FFUploadedFile? _pollutionImage;
+  FFUploadedFile? _insuranceImage;
 
-  final List<Map<String, dynamic>> vehicleTypes = [
-    {'name': 'Car', 'icon': '🚗', 'color': AppColors.accentIndigo},
-    {'name': 'Bike', 'icon': '🏍️', 'color': AppColors.accentPink},
-    {'name': 'Truck', 'icon': '🚚', 'color': AppColors.accentEmerald},
-    {'name': 'SUV', 'icon': '🚙', 'color': AppColors.accentAmber},
-  ];
+  bool _isPollutionValid = false;
+  bool _isInsuranceValid = false;
 
   final List<Map<String, dynamic>> vehicleColors = [
-    {'name': 'White', 'color': AppColors.white, 'border': Colors.grey[300]},
-    {'name': 'Black', 'color': AppColors.black, 'border': Colors.black},
-    {'name': 'Silver', 'color': AppColors.silver, 'border': Colors.grey[400]},
+    {'name': 'White', 'color': AppColors.white, 'border': AppColors.greyBorder},
+    {'name': 'Black', 'color': AppColors.black, 'border': AppColors.black},
+    {'name': 'Silver', 'color': AppColors.silver, 'border': AppColors.greyMid},
     {'name': 'Red', 'color': AppColors.accentRed, 'border': AppColors.accentRed},
     {'name': 'Blue', 'color': AppColors.accentBlue, 'border': AppColors.accentBlue},
     {'name': 'Grey', 'color': AppColors.greyVehicle, 'border': AppColors.greyVehicle},
@@ -89,8 +98,17 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       });
     }
 
-    if (FFAppState().vehicleType.isNotEmpty) {
-      setState(() => _selectedVehicleType = FFAppState().vehicleType);
+    // Load vehicle type driver already selected (from Choose Vehicle or saved)
+    if (FFAppState().selectvehicle.isNotEmpty) {
+      setState(() {
+        _selectedVehicleType = FFAppState().selectvehicle;
+        _selectedVehicleTypeId = FFAppState().adminVehicleId;
+      });
+    } else if (FFAppState().vehicleType.isNotEmpty) {
+      setState(() {
+        _selectedVehicleType = FFAppState().vehicleType;
+        _selectedVehicleTypeId = FFAppState().adminVehicleId;
+      });
     }
     if (FFAppState().vehicleMake.isNotEmpty) {
       _makeController.text = FFAppState().vehicleMake;
@@ -104,6 +122,49 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     if (FFAppState().vehicleColor.isNotEmpty) {
       setState(() => _selectedColor = FFAppState().vehicleColor);
     }
+    if (FFAppState().licensePlate.isNotEmpty) _licensePlateController.text = FFAppState().licensePlate;
+    if (FFAppState().registrationNumber.isNotEmpty) _regNumberController.text = FFAppState().registrationNumber;
+    if (FFAppState().registrationDate.isNotEmpty) _regDateController.text = FFAppState().registrationDate;
+    if (FFAppState().insuranceNumber.isNotEmpty) _insuranceNumberController.text = FFAppState().insuranceNumber;
+    if (FFAppState().insuranceExpiryDate.isNotEmpty) _insuranceExpiryController.text = FFAppState().insuranceExpiryDate;
+    if (FFAppState().pollutionExpiryDate.isNotEmpty) _pollutionExpiryController.text = FFAppState().pollutionExpiryDate;
+    // Pollution Image
+    if (FFAppState().pollutionBase64.isNotEmpty) {
+      try {
+        Uint8List bytes = base64Decode(FFAppState().pollutionBase64);
+        setState(() {
+          _pollutionImage = FFUploadedFile(bytes: bytes, name: 'pollution.jpg');
+          _isPollutionValid = true;
+        });
+      } catch (e) {
+        print('❌ Pollution decode error: $e');
+      }
+    } else if (FFAppState().pollutioncertificateImage?.bytes != null &&
+        FFAppState().pollutioncertificateImage!.bytes!.isNotEmpty) {
+      setState(() {
+        _pollutionImage = FFAppState().pollutioncertificateImage;
+        _isPollutionValid = true;
+      });
+    }
+
+    // Insurance Image
+    if (FFAppState().insuranceBase64.isNotEmpty) {
+      try {
+        Uint8List bytes = base64Decode(FFAppState().insuranceBase64);
+        setState(() {
+          _insuranceImage = FFUploadedFile(bytes: bytes, name: 'insurance.jpg');
+          _isInsuranceValid = true;
+        });
+      } catch (e) {
+        print('❌ Insurance decode error: $e');
+      }
+    } else if (FFAppState().insuranceImage?.bytes != null &&
+        FFAppState().insuranceImage!.bytes!.isNotEmpty) {
+      setState(() {
+        _insuranceImage = FFAppState().insuranceImage;
+        _isInsuranceValid = true;
+      });
+    }
   }
 
   @override
@@ -113,6 +174,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     _makeController.dispose();
     _modelController.dispose();
     _yearController.dispose();
+    _licensePlateController.dispose();
+    _regNumberController.dispose();
+    _regDateController.dispose();
+    _insuranceNumberController.dispose();
+    _insuranceExpiryController.dispose();
+    _pollutionExpiryController.dispose();
     super.dispose();
   }
 
@@ -123,7 +190,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           children: [
             Icon(
               isError ? Icons.error_outline : Icons.check_circle,
-              color: Colors.white,
+              color: AppColors.white,
               size: 20,
             ),
             const SizedBox(width: 10),
@@ -132,7 +199,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ),
           ],
         ),
-        backgroundColor: isError ? Colors.red[400] : Colors.green[500],
+        backgroundColor: isError ? AppColors.error : AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -151,7 +218,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         key: scaffoldKey,
         backgroundColor: AppColors.backgroundLight,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
@@ -177,66 +244,36 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Vehicle Type
-                    const Text(
-                      'Vehicle Type',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildVehicleTypeGrid(),
-
-                    const SizedBox(height: 24),
-
-                    // Make
-                    _buildSimpleTextField(
-                      controller: _makeController,
-                      label: 'Vehicle Make',
-                      hint: 'e.g., Toyota, Honda',
-                      icon: Icons.directions_car,
-                    ),
+                    // Vehicle Name (dynamic from API or static fallback)
+                    _buildVehicleMakeDropdown(),
 
                     const SizedBox(height: 20),
 
-                    // Model
-                    _buildSimpleTextField(
-                      controller: _modelController,
-                      label: 'Vehicle Model',
-                      hint: 'e.g., Camry, Civic',
-                      icon: Icons.car_rental,
-                    ),
+                    // Vehicle Model (dynamic from API or static fallback)
+                    _buildVehicleModelDropdown(),
 
                     const SizedBox(height: 20),
 
-                    // Year
-                    _buildSimpleTextField(
-                      controller: _yearController,
-                      label: 'Year',
-                      hint: 'e.g., 2023',
-                      icon: Icons.calendar_today,
-                      keyboardType: TextInputType.number,
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Color
-                    const Text(
-                      'Vehicle Color',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+                    const Text('Vehicle Color', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textDark)),
+                    const SizedBox(height: 8),
                     _buildColorGrid(),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _licensePlateController, label: 'License Plate', hint: 'e.g., AP01AB1234', icon: Icons.badge),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _regNumberController, label: 'Registration Number', hint: 'RC number', icon: Icons.description),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _regDateController, label: 'Registration Date', hint: 'YYYY-MM-DD', icon: Icons.calendar_today, keyboardType: TextInputType.datetime),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _insuranceNumberController, label: 'Insurance Number', hint: 'Policy number', icon: Icons.security),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _insuranceExpiryController, label: 'Insurance Expiry', hint: 'YYYY-MM-DD', icon: Icons.event, keyboardType: TextInputType.datetime),
+                    const SizedBox(height: 20),
+                    _buildSimpleTextField(controller: _pollutionExpiryController, label: 'Pollution Certificate Expiry', hint: 'YYYY-MM-DD', icon: Icons.eco, keyboardType: TextInputType.datetime),
 
-                    // Photo Upload
+                    const SizedBox(height: 20),
+
+                    // Photo Upload (screenshot: large white card, icon in circle, Tap to upload photo, Camera or Gallery)
                     const Text(
                       'Vehicle Photo',
                       style: TextStyle(
@@ -247,8 +284,64 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     ),
                     const SizedBox(height: 12),
                     _buildPhotoUpload(hasImage),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Pollution Certificate',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildExtraImageUpload(
+                      image: _pollutionImage,
+                      isValid: _isPollutionValid,
+                      onImageSelected: (file) {
+                        setState(() {
+                          _pollutionImage = file;
+                          _isPollutionValid = true;
+                        });
+
+                        FFAppState().pollutionImage = file;
+                        if (file?.bytes != null) {
+                          FFAppState().pollutionBase64 = base64Encode(file!.bytes!);
+                        }
+                        FFAppState().update(() {});
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Insurance Document',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildExtraImageUpload(
+                      image: _insuranceImage,
+                      isValid: _isInsuranceValid,
+                      onImageSelected: (file) {
+                        setState(() {
+                          _insuranceImage = file;
+                          _isInsuranceValid = true;
+                        });
+
+                        FFAppState().insuranceImage = file;
+                        if (file?.bytes != null) {
+                          FFAppState().insuranceBase64 = base64Encode(file!.bytes!);
+                        }
+                        FFAppState().update(() {});
+                      },
+                    ),
 
                     const SizedBox(height: 32),
+
 
                     // Submit Button
                     _buildSubmitButton(hasImage),
@@ -264,66 +357,391 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
-  Widget _buildVehicleTypeGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1,
-      ),
-      itemCount: vehicleTypes.length,
-      itemBuilder: (context, index) {
-        final type = vehicleTypes[index];
-        bool isSelected = _selectedVehicleType == type['name'];
 
-        return GestureDetector(
-          onTap: () {
-            setState(() => _selectedVehicleType = type['name']);
-            FFAppState().vehicleType = type['name'];
-            FFAppState().update(() {});
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: isSelected ? type['color'] : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSelected ? type['color'] : AppColors.greyBorder,
-                width: 2,
-              ),
-              boxShadow: [
-                if (isSelected)
-                  BoxShadow(
-                    color: type['color'].withValues(alpha:0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  type['icon'],
-                  style: const TextStyle(fontSize: 32),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  type['name'],
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : AppColors.greySlate,
-                  ),
-                ),
-              ],
-            ),
+
+
+
+  Widget _buildExtraImageUpload({
+    required FFUploadedFile? image,
+    required bool isValid,
+    required Function(FFUploadedFile?) onImageSelected,
+  }) {
+    bool hasImage =
+    (image?.bytes != null && image!.bytes!.isNotEmpty);
+
+    return GestureDetector(
+      onTap: () async {
+        final selectedMedia = await selectMediaWithSourceBottomSheet(
+          context: context,
+          allowPhoto: true,
+        );
+
+        if (selectedMedia != null &&
+            selectedMedia.every(
+                    (m) => validateFileFormat(m.storagePath, context))) {
+          final file = FFUploadedFile(
+            name: selectedMedia.first.storagePath.split('/').last,
+            bytes: selectedMedia.first.bytes,
+          );
+
+          onImageSelected(file);
+          _showSnackBar('Photo uploaded successfully! ✓');
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 180,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: hasImage ? AppColors.primary : AppColors.greyBorder,
+            width: 1.5,
           ),
+        ),
+        child: hasImage
+            ? ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Image.memory(
+            image!.bytes!,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        )
+            : Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.sectionOrangeLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.add_photo_alternate, size: 40, color: AppColors.primary),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Tap to upload',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.greySlate,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVehicleTypeFromApi() {
+    return FutureBuilder<ApiCallResponse>(
+      future: ChoosevehicleCall.call(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.greyBorder),
+            ),
+            child: const Center(
+              child: SizedBox(
+                height: 32,
+                width: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                ),
+              ),
+            ),
+          );
+        }
+        if (snapshot.hasError || snapshot.data?.statusCode != 200) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.greyBorder),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off, color: AppColors.greySlate, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Could not load vehicle types',
+                    style: TextStyle(color: AppColors.greySlate, fontSize: 14),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('Retry', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
+          );
+        }
+        final rawList = ChoosevehicleCall.data(snapshot.data!.jsonBody);
+        final list = (rawList is List) ? rawList : [];
+        if (list.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.greyBorder),
+            ),
+            child: Text('No vehicle types available', style: TextStyle(color: AppColors.greySlate, fontSize: 14)),
+          );
+        }
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: list.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = list[index];
+            String name = '';
+            int id = 0;
+            String? imagePath;
+            if (item is Map) {
+              name = item['name']?.toString() ?? '';
+              id = castToType<int>(item['id']) ?? 0;
+              imagePath = item['image']?.toString();
+            } else {
+              name = getJsonField(item, r'$["name"]')?.toString() ?? '';
+              id = castToType<int>(getJsonField(item, r'$["id"]')) ?? 0;
+              imagePath = getJsonField(item, r'$["image"]')?.toString();
+            }
+            if (name.isEmpty) name = 'Unknown';
+            final imageUrl = (imagePath != null && imagePath.isNotEmpty && imagePath != 'null')
+                ? (imagePath.startsWith('http') ? imagePath : '${app_config.Config.baseUrl}${imagePath.startsWith('/') ? imagePath : '/$imagePath'}')
+                : null;
+            final isSelected = (_selectedVehicleType != null && _selectedVehicleType!.toLowerCase() == name.toLowerCase()) || _selectedVehicleTypeId == id;
+            return _buildVehicleTypeCard(name, id, imageUrl, isSelected);
+          },
         );
       },
+    );
+  }
+
+  Widget _buildVehicleTypeCard(String name, int id, String? imageUrl, bool isSelected) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedVehicleType = name;
+          _selectedVehicleTypeId = id;
+        });
+        FFAppState().selectvehicle = name;
+        FFAppState().adminVehicleId = id;
+        FFAppState().vehicleType = name;
+        FFAppState().update(() {});
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.sectionOrangeLight : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.greyBorder,
+            width: isSelected ? 2 : 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.sectionOrangeLight : AppColors.backgroundCard,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: imageUrl != null
+                    ? Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(_getVehicleIcon(name), size: 28, color: isSelected ? AppColors.primary : AppColors.greySlate))
+                    : Icon(_getVehicleIcon(name), size: 28, color: isSelected ? AppColors.primary : AppColors.greySlate),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: isSelected ? AppColors.textDark : AppColors.greySlate,
+                ),
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: isSelected ? AppColors.primary : AppColors.greyBorder,
+              size: 26,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedVehicleTypeChip(String vehicleName) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.sectionOrangeLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary, width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+          const SizedBox(width: 10),
+          Text(
+            'Selected: $vehicleName',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getVehicleIcon(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('auto')) return Icons.local_taxi;
+    if (n.contains('bike') || n.contains('motorcycle')) return Icons.two_wheeler;
+    if (n.contains('car') || n.contains('sedan') || n.contains('suv')) return Icons.directions_car;
+    if (n.contains('truck')) return Icons.local_shipping;
+    return Icons.directions_car_rounded;
+  }
+
+  Widget _buildVehicleMakeDropdown() {
+    return FutureBuilder<ApiCallResponse>(
+      future: GetVehicleMakesCall.call(),
+      builder: (context, snapshot) {
+        List<String> options = VehicleData.defaultMakes;
+        if (snapshot.hasData &&
+            snapshot.data?.statusCode == 200 &&
+            GetVehicleMakesCall.names(snapshot.data!.jsonBody) != null) {
+          final apiList = GetVehicleMakesCall.names(snapshot.data!.jsonBody)!;
+          if (apiList.isNotEmpty) options = apiList;
+        }
+        if (_makeController.text.isNotEmpty && !options.contains(_makeController.text)) {
+          options = [_makeController.text, ...options];
+        }
+        return _buildDropdownField(
+          label: 'Vehicle Name',
+          hint: 'Select make (e.g., Toyota, Honda)',
+          icon: Icons.directions_car,
+          value: _makeController.text.isEmpty ? null : _makeController.text,
+          items: options,
+          onChanged: (v) {
+            setState(() {
+              _makeController.text = v ?? '';
+              FFAppState().vehicleMake = _makeController.text;
+              FFAppState().vehicleName = _makeController.text;
+              FFAppState().update(() {});
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildVehicleModelDropdown() {
+    return FutureBuilder<ApiCallResponse>(
+      key: ValueKey(_makeController.text),
+      future: GetVehicleModelsCall.call(makeName: _makeController.text),
+      builder: (context, snapshot) {
+        List<String> options = VehicleData.defaultModels;
+        if (snapshot.hasData &&
+            snapshot.data?.statusCode == 200 &&
+            GetVehicleModelsCall.names(snapshot.data!.jsonBody) != null) {
+          final apiList = GetVehicleModelsCall.names(snapshot.data!.jsonBody)!;
+          if (apiList.isNotEmpty) options = apiList;
+        }
+        if (_modelController.text.isNotEmpty && !options.contains(_modelController.text)) {
+          options = [_modelController.text, ...options];
+        }
+        return _buildDropdownField(
+          label: 'Vehicle Model',
+          hint: 'Select model (e.g., Camry, Civic)',
+          icon: Icons.car_rental,
+          value: _modelController.text.isEmpty ? null : _modelController.text,
+          items: options,
+          onChanged: (v) {
+            setState(() {
+              _modelController.text = v ?? '';
+              FFAppState().vehicleModel = _modelController.text;
+              FFAppState().update(() {});
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String hint,
+    required IconData icon,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: (value != null && value.isNotEmpty) ? AppColors.primary : AppColors.greyBorder,
+              width: 1.5,
+            ),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: (value != null && value.isNotEmpty && items.contains(value)) ? value : null,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: AppColors.greyLight, fontSize: 15),
+              prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+              suffixIcon: (value != null && value.isNotEmpty)
+                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.greySlate),
+            dropdownColor: AppColors.white,
+            isExpanded: true,
+            items: items.map((s) => DropdownMenuItem<String>(value: s, child: Text(s, style: const TextStyle(fontSize: 15, color: AppColors.textDark)))).toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      ],
     );
   }
 
@@ -348,11 +766,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: controller.text.isNotEmpty ? AppColors.accentIndigo : AppColors.greyBorder,
-              width: 2,
+              color: controller.text.isNotEmpty ? AppColors.primary : AppColors.greyBorder,
+              width: 1.5,
             ),
           ),
           child: TextField(
@@ -369,21 +787,34 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 color: AppColors.greyLight,
                 fontSize: 15,
               ),
-              prefixIcon: Icon(icon, color: AppColors.accentIndigo, size: 20),
+              prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
               suffixIcon: controller.text.isNotEmpty
-                  ? const Icon(Icons.check_circle, color: AppColors.accentEmerald, size: 20)
+                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
                   : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             onChanged: (value) {
               setState(() {});
-              if (label == 'Vehicle Make') {
+              if (label == 'Vehicle Name') {
+                FFAppState().vehicleName = value;
                 FFAppState().vehicleMake = value;
               } else if (label == 'Vehicle Model') {
                 FFAppState().vehicleModel = value;
               } else if (label == 'Year') {
                 FFAppState().vehicleYear = value;
+              } else if (label == 'License Plate') {
+                FFAppState().licensePlate = value;
+              } else if (label == 'Registration Number') {
+                FFAppState().registrationNumber = value;
+              } else if (label == 'Registration Date') {
+                FFAppState().registrationDate = value;
+              } else if (label == 'Insurance Number') {
+                FFAppState().insuranceNumber = value;
+              } else if (label == 'Insurance Expiry') {
+                FFAppState().insuranceExpiryDate = value;
+              } else if (label == 'Pollution Certificate Expiry') {
+                FFAppState().pollutionExpiryDate = value;
               }
               FFAppState().update(() {});
             },
@@ -409,10 +840,10 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.accentIndigo.withValues(alpha:0.1) : Colors.white,
+              color: isSelected ? AppColors.sectionOrangeLight : AppColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? AppColors.accentIndigo : AppColors.greyBorder,
+                color: isSelected ? AppColors.primary : AppColors.greyBorder,
                 width: 2,
               ),
             ),
@@ -437,12 +868,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? AppColors.accentIndigo : AppColors.greySlate,
+                    color: isSelected ? AppColors.primary: AppColors.greySlate,
                   ),
                 ),
                 if (isSelected) ...[
                   const SizedBox(width: 6),
-                  const Icon(Icons.check, size: 16, color: AppColors.accentIndigo),
+                  const Icon(Icons.check, size: 16, color: AppColors.primary),
                 ],
               ],
             ),
@@ -497,11 +928,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
-          color: hasImage ? null : Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: hasImage ? AppColors.accentEmerald : AppColors.greyBorder,
-            width: 2,
+            color: hasImage ? AppColors.primary : AppColors.greyBorder,
+            width: 1.5,
           ),
         ),
         child: Stack(
@@ -522,13 +953,13 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.accentIndigo.withValues(alpha:0.1),
+                        color: AppColors.sectionOrangeLight,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.add_photo_alternate,
                         size: 40,
-                        color: AppColors.accentIndigo,
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -571,17 +1002,17 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.red[400],
+                      color: AppColors.error,
                       shape: BoxShape.circle,
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Colors.black26,
+                          color: AppColors.black.withValues(alpha: 0.26),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 18),
+                    child: const Icon(Icons.close, color: AppColors.white, size: 18),
                   ),
                 ),
               ),
@@ -593,25 +1024,25 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.accentEmerald,
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black26,
+                        color: AppColors.black.withValues(alpha: 0.26),
                         blurRadius: 4,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle, color: Colors.white, size: 16),
+                      Icon(Icons.check_circle, color: AppColors.white, size: 16),
                       SizedBox(width: 4),
                       Text(
                         'Uploaded',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -627,12 +1058,15 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   }
 
   Widget _buildSubmitButton(bool hasImage) {
-    bool isFormValid = _selectedVehicleType != null &&
+    final hasVehicleType = (_selectedVehicleType != null && _selectedVehicleType!.isNotEmpty) ||
+        FFAppState().selectvehicle.isNotEmpty ||
+        FFAppState().vehicleType.isNotEmpty;
+    bool isFormValid = hasVehicleType &&
         _makeController.text.isNotEmpty &&
         _modelController.text.isNotEmpty &&
-        _yearController.text.isNotEmpty &&
-        _selectedColor != null &&
-        hasImage;
+        hasImage &&
+        _pollutionImage != null &&
+        _insuranceImage != null;
 
     return Container(
       width: double.infinity,
@@ -640,7 +1074,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       decoration: BoxDecoration(
         gradient: isFormValid
             ? const LinearGradient(
-          colors: [AppColors.accentIndigo, AppColors.accentPurple],
+          colors: [AppColors.primary, AppColors.primary],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         )
@@ -650,7 +1084,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         boxShadow: isFormValid
             ? [
           BoxShadow(
-            color: AppColors.accentIndigo.withValues(alpha:0.4),
+            color: AppColors.primary.withValues(alpha:0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -663,12 +1097,25 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           borderRadius: BorderRadius.circular(12),
           onTap: isFormValid
               ? () async {
-            FFAppState().vehicleType = _selectedVehicleType!;
-            FFAppState().vehicleYear = _yearController.text;
+            final vType = _selectedVehicleType ?? (FFAppState().selectvehicle.isNotEmpty ? FFAppState().selectvehicle : FFAppState().vehicleType);
+            if (vType.isNotEmpty) {
+              FFAppState().vehicleType = vType;
+              FFAppState().selectvehicle = vType;
+              if (_selectedVehicleTypeId > 0) FFAppState().adminVehicleId = _selectedVehicleTypeId;
+            }
+            FFAppState().vehicleName = _makeController.text;
             FFAppState().vehicleMake = _makeController.text;
             FFAppState().vehicleModel = _modelController.text;
-            FFAppState().vehicleColor = _selectedColor!;
+            FFAppState().vehicleColor = _selectedColor ?? '';
+            FFAppState().licensePlate = _licensePlateController.text;
+            FFAppState().registrationNumber = _regNumberController.text;
+            FFAppState().registrationDate = _regDateController.text;
+            FFAppState().insuranceNumber = _insuranceNumberController.text;
+            FFAppState().insuranceExpiryDate = _insuranceExpiryController.text;
+            FFAppState().pollutionExpiryDate = _pollutionExpiryController.text;
             FFAppState().vehicleImage = _vehicleImage;
+            FFAppState().pollutionImage = _pollutionImage;
+            FFAppState().insuranceImage = _insuranceImage;
 
             if (_vehicleImage?.bytes != null) {
               FFAppState().vehicleBase64 = base64Encode(_vehicleImage!.bytes!);
@@ -682,25 +1129,27 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             context.pop();
           }
               : () {
-            if (_selectedVehicleType == null) {
-              _showSnackBar('Please select vehicle type', isError: true);
+            if (!hasVehicleType) {
+              _showSnackBar('Please select vehicle type first (from Choose Vehicle)', isError: true);
             } else if (_makeController.text.isEmpty) {
-              _showSnackBar('Please enter vehicle make', isError: true);
+              _showSnackBar('Please enter vehicle name', isError: true);
             } else if (_modelController.text.isEmpty) {
               _showSnackBar('Please enter vehicle model', isError: true);
-            } else if (_yearController.text.isEmpty) {
-              _showSnackBar('Please enter year', isError: true);
-            } else if (_selectedColor == null) {
-              _showSnackBar('Please select color', isError: true);
             } else if (!hasImage) {
               _showSnackBar('Please upload vehicle photo', isError: true);
+            }
+            else if (_pollutionImage == null) {
+              _showSnackBar('Please upload pollution photo', isError: true);
+            }
+            else if (_insuranceImage == null) {
+              _showSnackBar('Please upload insurance photo', isError: true);
             }
           },
           child: Center(
             child: Text(
               'Save Vehicle Details',
               style: TextStyle(
-                color: isFormValid ? Colors.white : AppColors.greyLight,
+                color: isFormValid ? AppColors.white : AppColors.greyLight,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,

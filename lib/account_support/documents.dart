@@ -146,6 +146,18 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         panimage: FFAppState().panImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
+        insuranceImage: FFAppState().insuranceImage,
+        pollutionCertificateImage: FFAppState().pollutioncertificateImage,
+        vehicleName: FFAppState().vehicleMake,
+        vehicleModel: FFAppState().vehicleModel,
+        vehicleColor: FFAppState().vehicleColor.isNotEmpty ? FFAppState().vehicleColor : null,
+        licensePlate: FFAppState().licensePlate.isNotEmpty ? FFAppState().licensePlate : null,
+        registrationNumber: FFAppState().registrationNumber.isNotEmpty ? FFAppState().registrationNumber : null,
+        registrationDate: FFAppState().registrationDate.isNotEmpty ? FFAppState().registrationDate : null,
+        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty ? FFAppState().insuranceNumber : null,
+        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty ? FFAppState().insuranceExpiryDate : null,
+        pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty ? FFAppState().pollutionExpiryDate : null,
+        vehicleTypeId: FFAppState().adminVehicleId > 0 ? FFAppState().adminVehicleId : null,
       );
 
       if ((apiResult.succeeded) || apiResult.statusCode == 200) {

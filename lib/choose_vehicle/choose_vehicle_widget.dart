@@ -1,5 +1,6 @@
 import '/backend/api_requests/api_calls.dart';
 import '/config.dart' as app_config;
+import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,6 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // 🎨 APP COLORS
     const Color brandPrimary = AppColors.primary;
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
@@ -297,74 +297,72 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
     );
   }
 
-  // 🔹 Custom Vehicle Card Widget
+  // Uber-style vehicle type card (matches vehicle details screen)
   Widget _buildVehicleCard(String name, int vehicleId, String? imageUrl, bool isSelected, Color brandColor) {
     return InkWell(
       onTap: () {
         setState(() {
           FFAppState().selectvehicle = name;
           FFAppState().adminVehicleId = vehicleId;
+          FFAppState().vehicleType = name;
+          FFAppState().update(() {});
         });
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? brandColor.withValues(alpha:0.08) : Colors.white,
+          color: isSelected ? brandColor.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? brandColor : Colors.grey.shade200,
+            color: isSelected ? brandColor : AppColors.greyBorder,
             width: isSelected ? 2 : 1.5,
           ),
         ),
         child: Row(
           children: [
-            // Image or Icon Box
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: isSelected ? brandColor.withValues(alpha:0.2) : Colors.grey.shade100,
+                  color: isSelected ? brandColor.withValues(alpha: 0.2) : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(
+                          _getVehicleIcon(name),
+                          size: 28,
+                          color: isSelected ? brandColor : Colors.grey.shade500,
+                        ),
+                      )
+                    : Icon(
                         _getVehicleIcon(name),
-                        size: 32,
+                        size: 28,
                         color: isSelected ? brandColor : Colors.grey.shade500,
                       ),
-                    )
-                  : Icon(
-                      _getVehicleIcon(name),
-                      size: 32,
-                      color: isSelected ? brandColor : Colors.grey.shade500,
-                    ),
               ),
             ),
             const SizedBox(width: 16),
-
-            // Name
             Expanded(
               child: Text(
-                name.toUpperCase(),
+                name,
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                  color: isSelected ? Colors.black87 : Colors.grey.shade700,
+                  color: isSelected ? AppColors.textDark : Colors.grey.shade700,
                 ),
               ),
             ),
-
-            // Checkmark
-            if (isSelected)
-              Icon(Icons.check_circle, color: brandColor, size: 28)
-            else
-              Icon(Icons.radio_button_unchecked, color: Colors.grey.shade300, size: 28),
+            Icon(
+              isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: isSelected ? brandColor : Colors.grey.shade300,
+              size: 26,
+            ),
           ],
         ),
       ),

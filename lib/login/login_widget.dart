@@ -1,6 +1,5 @@
-import 'dart:math' as math;
-
 import '/auth/firebase_auth/auth_util.dart';
+import '/constants/responsive.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/gestures.dart';
@@ -54,7 +53,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            FFLocalizations.of(context).getText('login0010'),
+            'Verification Required: Please enter your mobile number to complete registration.',
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.orange,
@@ -77,38 +76,48 @@ class _LoginWidgetState extends State<LoginWidget> {
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
 
-    // 📐 RESPONSIVE SIZING
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    final isTablet = size.width >= 600;
-    final isPortrait = size.height > size.width;
-    
-    final headerHeight = isPortrait 
-        ? (isTablet ? 360.0 : isSmallScreen ? 300.0 : 340.0)
-        : (isTablet ? 280.0 : 200.0);
-    
-    final scale = isTablet ? 1.2 : isSmallScreen ? 0.85 : 1.0;
-    final horizontalPadding = isTablet ? 40.0 : isSmallScreen ? 16.0 : 24.0;
-    final cardPadding = isTablet ? 32.0 : isSmallScreen ? 20.0 : 24.0;
+    // 📐 RESPONSIVE SIZING (screenWidth / screenHeight media queries)
+    final screenW = Responsive.screenWidth(context);
+    final screenH = Responsive.screenHeight(context);
+    final isTablet = Responsive.isLargeScreen(context);
+    final isPortrait = screenH > screenW;
 
-    final availableHeaderHeight =
-      headerHeight - MediaQuery.of(context).padding.top;
-    final headerTextScale = math
-      .min(1.0, availableHeaderHeight / 360.0)
-      .clamp(0.78, 1.0)
-      .toDouble();
+    // Header height: responsive to both width and height
+    final headerHeight = Responsive.valueByHeight(context,
+      at600: isPortrait ? 280.0 : 180.0,
+      at700: isPortrait ? 320.0 : 200.0,
+      at800: isPortrait ? (isTablet ? 360.0 : 340.0) : 220.0,
+      defaultVal: isPortrait ? 340.0 : 200.0,
+    );
 
-    final logoSize =
-      (isSmallScreen ? 80.0 : (isTablet ? 120.0 : 100.0)) * headerTextScale;
-    final headlineFontSize =
-      (isSmallScreen ? 28.0 : (isTablet ? 42.0 : 36.0)) * headerTextScale;
-    final subtitleFontSize =
-      (isSmallScreen ? 22.0 : (isTablet ? 32.0 : 28.0)) * headerTextScale;
-    final phoneFontSize = isSmallScreen ? 16.0 : (isTablet ? 24.0 : 20.0);
-    final buttonHeight = isSmallScreen ? 50.0 : (isTablet ? 64.0 : 58.0);
-    final buttonFontSize = isSmallScreen ? 16.0 : (isTablet ? 20.0 : 18.0);
-    final headerBottomGap =
-      (isSmallScreen || !isPortrait) ? 24.0 * scale : 60.0 * scale;
+    final scale = Responsive.scale(context);
+    final hPad = Responsive.horizontalPadding(context) + (isTablet ? 16.0 : 0.0);
+    final cardPadding = Responsive.valueByWidth(context,
+      at360: 20.0,
+      at600: 28.0,
+      at900: 32.0,
+      defaultVal: 24.0,
+    );
+    final cardHorizontalPad = Responsive.valueByWidth(context,
+      at360: 16.0,
+      at600: 24.0,
+      at900: 40.0,
+      defaultVal: 20.0,
+    );
+
+    final logoSize = Responsive.valueByWidth(context,
+      at360: 80.0,
+      at600: 110.0,
+      at900: 120.0,
+      defaultVal: 100.0,
+    );
+    final headlineFontSize = Responsive.fontSize(context, 36);
+    final subtitleFontSize = Responsive.fontSize(context, 28);
+    final phoneFontSize = Responsive.fontSize(context, 20);
+    final buttonHeight = Responsive.buttonHeight(context, base: 56);
+    final buttonFontSize = Responsive.fontSize(context, 18);
+    // Max card width on tablets (centered layout)
+    final maxCardWidth = Responsive.maxContentWidth(context);
 
     return GestureDetector(
       onTap: () {
@@ -147,7 +156,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    padding: EdgeInsets.symmetric(horizontal: hPad),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -174,32 +183,27 @@ class _LoginWidgetState extends State<LoginWidget> {
                         const Spacer(),
                         Center(
                           child: Text(
-                            FFLocalizations.of(context).getText('login0001'),
+                            'Welcome Partner,',
                             style: GoogleFonts.inter(
                               fontSize: headlineFontSize,
                               color: Colors.white.withValues(alpha:0.9),
                               fontWeight: FontWeight.bold,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         SizedBox(height: 8 * scale),
                         Center(
                           child: Text(
-                            FFLocalizations.of(context).getText('login0002'),
+                            "Let's get you on the road.",
                             style: GoogleFonts.interTight(
                               fontSize: subtitleFontSize,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               height: 1.1,
                             ),
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(height: headerBottomGap),
+                        SizedBox(height: 60 * scale), // Space for card overlap
                       ],
                     ),
                   ),
@@ -210,11 +214,14 @@ class _LoginWidgetState extends State<LoginWidget> {
               // 2️⃣ FLOATING LOGIN CARD
               // ==========================================
               Transform.translate(
-                offset: Offset(0, -40 * scale),
+                offset: Offset(0, Responsive.valueByHeight(context, at600: -32.0, at700: -36.0, at800: -40.0, defaultVal: -40.0) * scale),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 16.0 : (isTablet ? 32.0 : 20.0)),
-                  child: Container(
-                    width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: cardHorizontalPad),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxCardWidth ?? double.infinity),
+                      child: Container(
+                        width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
@@ -232,7 +239,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            FFLocalizations.of(context).getText('login0003'),
+                            'Enter Mobile Number',
                             style: GoogleFonts.inter(
                               fontSize: 14 * scale,
                               fontWeight: FontWeight.w600,
@@ -263,8 +270,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                           color: Colors.orange, size: 20 * scale),
                                       SizedBox(width: 8 * scale),
                                       Text(
-                                        FFLocalizations.of(context)
-                                            .getText('login0012'),
+                                        '+91',
                                         style: GoogleFonts.inter(
                                           fontSize: 18 * scale,
                                           fontWeight: FontWeight.bold,
@@ -276,7 +282,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 ),
                                 Container(
                                   width: 1,
-                                  height: 30,
+                                  height: 24 * scale,
                                   color: Colors.grey[300],
                                 ),
                                 Expanded(
@@ -299,17 +305,15 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       LengthLimitingTextInputFormatter(10),
                                     ],
                                     decoration: InputDecoration(
-                                      hintText: FFLocalizations.of(context)
-                                          .getText('login0004'),
+                                      hintText: 'Mobile Number',
                                       hintStyle: GoogleFonts.inter(
                                         color: Colors.grey[400],
                                         fontSize: phoneFontSize,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       border: InputBorder.none,
-                                      contentPadding:
-                                      EdgeInsets.symmetric(
-                                        horizontal: 16,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: Responsive.horizontalPadding(context),
                                         vertical: 18 * scale,
                                       ),
                                     ),
@@ -347,7 +351,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 ),
                               )
                                   : Text(
-                                FFLocalizations.of(context).getText('login0005'),
+                                'Get OTP',
                                 style: GoogleFonts.interTight(
                                   fontSize: buttonFontSize,
                                   fontWeight: FontWeight.bold,
@@ -372,13 +376,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       height: 1.5,
                                     ),
                                     children: [
+                                      const TextSpan(text: 'By continuing, you agree to our\n'),
                                       TextSpan(
-                                        text: FFLocalizations.of(context)
-                                            .getText('login0006'),
-                                      ),
-                                      TextSpan(
-                                        text: FFLocalizations.of(context)
-                                            .getText('login0007'),
+                                        text: 'Terms of Service',
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w600,
@@ -388,13 +388,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                         recognizer: TapGestureRecognizer()
                                           ..onTap = () => context.pushNamed(TermsConditionsWidget.routeName),
                                       ),
+                                      const TextSpan(text: ' & '),
                                       TextSpan(
-                                        text: FFLocalizations.of(context)
-                                            .getText('login0008'),
-                                      ),
-                                      TextSpan(
-                                        text: FFLocalizations.of(context)
-                                            .getText('login0009'),
+                                        text: 'Privacy Policy',
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w600,
@@ -414,35 +410,50 @@ class _LoginWidgetState extends State<LoginWidget> {
                       ),
                     ),
                   ),
+                    ),
+                  ),
                 ),
               ),
 
               // ==========================================
               // 3️⃣ SOCIAL LOGIN (Subtle Footer)
               // ==========================================
-              SizedBox(height: 10 * scale),
+              SizedBox(height: Responsive.verticalSpacing(context)),
 
               Row(
                 children: [
-                  const Expanded(child: Divider(indent: 40, endIndent: 10)),
-                  Text(
-                    FFLocalizations.of(context).getText('hczr77o0'),
-                    style: GoogleFonts.inter(
-                      fontSize: 12 * scale,
-                      color: Colors.grey[500],
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Divider(
+                      indent: Responsive.valueByWidth(context, at360: 24.0, at600: 48.0, at900: 64.0, defaultVal: 40.0),
+                      endIndent: Responsive.verticalSpacing(context),
                     ),
                   ),
-                  const Expanded(child: Divider(indent: 10, endIndent: 40)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.verticalSpacing(context)),
+                    child: Text(
+                      'Or connect with',
+                      style: GoogleFonts.inter(
+                        fontSize: Responsive.fontSize(context, 12),
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      indent: Responsive.verticalSpacing(context),
+                      endIndent: Responsive.valueByWidth(context, at360: 24.0, at600: 48.0, at900: 64.0, defaultVal: 40.0),
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(height: 20 * scale),
+              SizedBox(height: Responsive.verticalSpacing(context) * 2),
 
               // 🔹 SOCIAL BUTTONS
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _socialButton(
+                  _socialButton(context,
                     icon: FontAwesomeIcons.google,
                     color: AppColors.googleRed,
                     onTap: () async {
@@ -457,8 +468,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                       }
                     },
                   ),
-                  SizedBox(width: 20 * scale),
-                  _socialButton(
+                  SizedBox(width: Responsive.verticalSpacing(context) * 2),
+                  _socialButton(context,
                     icon: Icons.apple,
                     color: Colors.black,
                     onTap: () async {
@@ -475,7 +486,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                   ),
                 ],
               ),
-              SizedBox(height: 40 * scale),
+              SizedBox(height: Responsive.valueByHeight(context, at600: 24.0, at700: 32.0, at800: 40.0, defaultVal: 40.0)),
             ],
           ),
         ),
@@ -491,14 +502,13 @@ class _LoginWidgetState extends State<LoginWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            FFLocalizations.of(context).getText('login0011'),
+            'Please enter a valid 10-digit mobile number.',
             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
           ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: EdgeInsets.all(Responsive.horizontalPadding(context)),
         ),
       );
       return;
@@ -537,39 +547,40 @@ class _LoginWidgetState extends State<LoginWidget> {
     });
   }
 
-  // 🔹 HELPER: Social Button
-  Widget _socialButton(
+  // 🔹 HELPER: Social Button (min 48dp touch target)
+  Widget _socialButton(BuildContext context,
       {required IconData icon,
         required Color color,
         required VoidCallback onTap}) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.width < 360;
-    final isTablet = size.width >= 600;
-    final socialButtonSize = isSmallScreen ? 48.0 : (isTablet ? 64.0 : 55.0);
-    
-    return InkWell(
+    final btnSize = Responsive.buttonHeight(context, base: 56);
+    final iconSize = Responsive.iconSize(context, base: 24);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
         onTap();
       },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: socialButtonSize,
-        height: socialButtonSize,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha:0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Center(
-          child: FaIcon(icon, color: color, size: 24 * (socialButtonSize / 55)),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: btnSize,
+          height: btnSize,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
+          ),
+          child: Center(
+            child: FaIcon(icon, color: color, size: iconSize),
+          ),
         ),
       ),
     );

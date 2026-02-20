@@ -125,6 +125,78 @@ class ChoosevehicleCall {
           .toList();
 }
 
+/// Vehicle makes (brands) - e.g. Toyota, Honda, Maruti
+/// API: GET /api/vehicle-makes or /api/vehicles/makes
+class GetVehicleMakesCall {
+  static Future<ApiCallResponse> call() async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getVehicleMakes',
+      apiUrl: '$_baseUrl/api/vehicle-makes',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: true,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<String>? names(dynamic response) {
+    final data = getJsonField(response, r'$.data', true);
+    if (data is List) {
+      return data
+          .map((e) => e is Map ? (e['name'] ?? e['make'] ?? e['vehicle_make'])?.toString() : e?.toString())
+          .whereType<String>()
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    final arr = getJsonField(response, r'$.data[:].name', true) as List?;
+    return arr?.withoutNulls.map((x) => castToType<String>(x)).withoutNulls.toList();
+  }
+}
+
+/// Vehicle models - e.g. Camry, Civic, Swift
+/// API: GET /api/vehicle-models or /api/vehicle-models?make_id=X
+class GetVehicleModelsCall {
+  static Future<ApiCallResponse> call({int? makeId, String? makeName}) async {
+    var url = '$_baseUrl/api/vehicle-models';
+    if (makeId != null && makeId > 0) {
+      url += '?make_id=$makeId';
+    } else if (makeName != null && makeName.isNotEmpty) {
+      url += '?make=$makeName';
+    }
+    return ApiManager.instance.makeApiCall(
+      callName: 'getVehicleModels',
+      apiUrl: url,
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: true,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<String>? names(dynamic response) {
+    final data = getJsonField(response, r'$.data', true);
+    if (data is List) {
+      return data
+          .map((e) => e is Map ? (e['name'] ?? e['model'] ?? e['vehicle_model'])?.toString() : e?.toString())
+          .whereType<String>()
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    final arr = getJsonField(response, r'$.data[:].name', true) as List?;
+    return arr?.withoutNulls.map((x) => castToType<String>(x)).withoutNulls.toList();
+  }
+}
+
 /// Get all drivers - used for showing available captains (like Rapido).
 /// Filters by is_online & is_active for "available drivers".
 class GetAllDriversCall {
@@ -365,7 +437,16 @@ class UpdateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionCertificateImage,
-    
+    String? vehicleName,
+    String? vehicleModel,
+    String? vehicleColor,
+    String? licensePlate,
+    String? registrationNumber,
+    String? registrationDate,
+    String? insuranceNumber,
+    String? insuranceExpiryDate,
+    String? pollutionExpiryDate,
+    int? vehicleTypeId,
   }) async {
     // Build params dynamically - only include non-null values
     final Map<String, dynamic> params = {};
@@ -436,6 +517,17 @@ class UpdateDriverCall {
     if (pollutionCertificateImage != null) {
       params['pollution_certificate_image'] = pollutionCertificateImage;
     }
+
+    if (vehicleName != null && vehicleName.isNotEmpty) params['vehicle_name'] = vehicleName;
+    if (vehicleModel != null && vehicleModel.isNotEmpty) params['vehicle_model'] = vehicleModel;
+    if (vehicleColor != null && vehicleColor.isNotEmpty) params['vehicle_color'] = vehicleColor;
+    if (licensePlate != null && licensePlate.isNotEmpty) params['license_plate'] = licensePlate;
+    if (registrationNumber != null && registrationNumber.isNotEmpty) params['registration_number'] = registrationNumber;
+    if (registrationDate != null && registrationDate.isNotEmpty) params['registration_date'] = registrationDate;
+    if (insuranceNumber != null && insuranceNumber.isNotEmpty) params['insurance_number'] = insuranceNumber;
+    if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty) params['insurance_expiry_date'] = insuranceExpiryDate;
+    if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty) params['pollution_expiry_date'] = pollutionExpiryDate;
+    if (vehicleTypeId != null && vehicleTypeId > 0) params['vehicle_type_id'] = vehicleTypeId;
 
     print('🚀 UpdateDriver API Request:');
     print('   URL: $_baseUrl/api/drivers/$id');

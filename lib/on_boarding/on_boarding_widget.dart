@@ -320,7 +320,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : () => _handleContinue(allDocsUploaded),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: allDocsUploaded ? AppColors.accentEmerald : brandPrimary,
+                    backgroundColor: brandPrimary,
                     foregroundColor: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -359,10 +359,10 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUploaded ? AppColors.sectionGreenTint : AppColors.backgroundCard,
+          color: isUploaded ? AppColors.sectionOrangeLight : AppColors.backgroundCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isUploaded ? AppColors.accentEmerald : AppColors.divider,
+            color: isUploaded ? AppColors.primary : AppColors.divider,
             width: 1.5,
           ),
         ),
@@ -372,7 +372,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isUploaded ? AppColors.sectionGreenTint : Colors.white,
+                color: isUploaded ? AppColors.sectionOrangeLight : Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isUploaded ? Colors.transparent : Colors.grey.shade300,
@@ -380,7 +380,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
               ),
               child: Icon(
                 isUploaded ? Icons.check : Icons.upload_file,
-                color: isUploaded ? AppColors.accentEmerald : Colors.grey.shade500,
+                color: isUploaded ? AppColors.primary : Colors.grey.shade500,
                 size: 22,
               ),
             ),
@@ -402,7 +402,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     isUploaded ? 'Uploaded' : 'Tap to upload',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: isUploaded ? AppColors.accentEmerald : Colors.grey.shade500,
+                      color: isUploaded ? AppColors.primary : Colors.grey.shade500,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -572,7 +572,17 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       };
       if (FFAppState().adminVehicleId > 0) {
         vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
+        vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
       }
+      if (FFAppState().vehicleMake.isNotEmpty) vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
+      if (FFAppState().vehicleModel.isNotEmpty) vehicleJsonData['vehicle_model'] = FFAppState().vehicleModel;
+      if (FFAppState().vehicleColor.isNotEmpty) vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
+      if (FFAppState().licensePlate.isNotEmpty) vehicleJsonData['license_plate'] = FFAppState().licensePlate;
+      if (FFAppState().registrationNumber.isNotEmpty) vehicleJsonData['registration_number'] = FFAppState().registrationNumber;
+      if (FFAppState().registrationDate.isNotEmpty) vehicleJsonData['registration_date'] = FFAppState().registrationDate;
+      if (FFAppState().insuranceNumber.isNotEmpty) vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
+      if (FFAppState().insuranceExpiryDate.isNotEmpty) vehicleJsonData['insurance_expiry_date'] = FFAppState().insuranceExpiryDate;
+      if (FFAppState().pollutionExpiryDate.isNotEmpty) vehicleJsonData['pollution_expiry_date'] = FFAppState().pollutionExpiryDate;
 
       // 3. API Call
       _model.apiResult7ju = await CreateDriverCall.call(
@@ -588,6 +598,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         rcBackImage: FFAppState().rcBackImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
+        insuranceImage: FFAppState().insuranceImage,
+        pollutionCertificateImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
         fcmToken: fcm_token ?? '',
@@ -613,6 +625,20 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id'''));
         driverId ??= 0;
 
+        // Extract vehicle data from signup response (data.vehicle)
+        final vehicleData = getJsonField(jsonBody, r'''$.data.vehicle''');
+        if (vehicleData != null && vehicleData is Map) {
+          final vId = castToType<int>(vehicleData['id']) ?? 0;
+          final vTypeId = castToType<int>(vehicleData['vehicle_type_id']) ?? 0;
+          final vType = vehicleData['vehicle_type']?.toString() ?? '';
+          if (vId > 0) FFAppState().vehicleId = vId;
+          if (vTypeId > 0) FFAppState().adminVehicleId = vTypeId;
+          if (vType.isNotEmpty) {
+            FFAppState().selectvehicle = vType;
+            FFAppState().vehicleType = vType;
+          }
+        }
+
         // If createDriver didn't return a token, fetch via login API (driver now exists)
         if (accessToken == null || accessToken.isEmpty) {
           final loginRes = await LoginCall.call(
@@ -635,6 +661,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             FFAppState().isRegistered = true;
             FFAppState().driverid = resolvedDriverId;
             FFAppState().accessToken = accessToken!;
+            // Vehicle data from signup response already set above
           });
 
           if (mounted) {
