@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ugo_driver/services/location_geocode_service.dart';
 
 const String _kVoiceEnabledKey = 'ff_voice_enabled';
 
@@ -151,6 +152,47 @@ class VoiceService {
 
   Future<void> newRideRequest() async {
     await speak(_msg('newRideRequest'));
+  }
+
+  /// Rapido Captain style: price + area names (locality) for pickup and drop.
+  /// Call after newRideRequest() for full announcement.
+  Future<void> speakNewRideAddress({
+    required double pickupLat,
+    required double pickupLng,
+    required String pickupAddress,
+    required double dropLat,
+    required double dropLng,
+    required String dropAddress,
+    double? estimatedFare,
+  }) async {
+    if (!_voiceEnabled) return;
+    try {
+      final geocode = LocationGeocodeService();
+      final pickupFuture = (pickupLat != 0 || pickupLng != 0)
+          ? geocode.getPincodeAndLocality(pickupLat, pickupLng)
+          : Future.value((pincode: '', locality: ''));
+      final dropFuture = (dropLat != 0 || dropLng != 0)
+          ? geocode.getPincodeAndLocality(dropLat, dropLng)
+          : Future.value((pincode: '', locality: ''));
+      final pickup = await pickupFuture;
+      final drop = await dropFuture;
+      final pickupArea = pickup.locality.isNotEmpty ? pickup.locality : _shortAddress(pickupAddress);
+      final dropArea = drop.locality.isNotEmpty ? drop.locality : _shortAddress(dropAddress);
+      final fare = estimatedFare?.toInt() ?? 80;
+      final text = 'Fare $fare rupees. Pickup $pickupArea. Drop $dropArea.';
+      await speak(text);
+    } catch (e) {
+      if (kDebugMode) debugPrint('VoiceService: speakNewRideAddress failed: $e');
+      final fare = estimatedFare?.toInt() ?? 80;
+      final fallback = 'Fare $fare rupees. Pickup ${_shortAddress(pickupAddress)}. Drop ${_shortAddress(dropAddress)}.';
+      await speak(fallback);
+    }
+  }
+
+  String _shortAddress(String addr) {
+    if (addr.isEmpty) return 'unknown';
+    final parts = addr.split(',');
+    return parts.first.trim();
   }
 
   Future<void> rideAccepted() async {

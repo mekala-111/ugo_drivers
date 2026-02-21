@@ -4,6 +4,7 @@ import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:ugo_driver/components/rich_address_from_lat_lng.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -259,10 +260,15 @@ class StartRideCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 14),
 
-                    // Rich Address
+                    // Pincode & locality from lat/lon (reverse geocoding)
                     Expanded(
-                      child: _buildRichAddress(
-                          isStarted ? ride.dropAddress : ride.pickupAddress),
+                      child: RichAddressFromLatLng(
+                        lat: isStarted ? ride.dropLat : ride.pickupLat,
+                        lng: isStarted ? ride.dropLng : ride.pickupLng,
+                        fallbackAddress:
+                            isStarted ? ride.dropAddress : ride.pickupAddress,
+                        fallbackLabel: FFLocalizations.of(context).getText('drv_unknown_location'),
+                      ),
                     ),
                   ],
                 ),
@@ -281,55 +287,6 @@ class StartRideCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildRichAddress(String rawAddress) {
-    String pincode = '';
-    String locality = '';
-    String rest = rawAddress;
-
-    final pinMatch = RegExp(r'\b\d{6}\b').firstMatch(rawAddress);
-    if (pinMatch != null) {
-      pincode = pinMatch.group(0)!;
-      rest = rawAddress.replaceAll(pincode, '').trim();
-      if (rest.startsWith(',')) rest = rest.substring(1).trim();
-      if (rest.endsWith(',')) rest = rest.substring(0, rest.length - 1).trim();
-    }
-
-    List<String> parts = rest.split(',');
-    if (parts.isNotEmpty) {
-      locality = parts[0].trim();
-      if (parts.length > 1) {
-        rest = parts.sublist(1).join(', ').trim();
-      } else {
-        rest = '';
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (pincode.isNotEmpty)
-          Text(pincode,
-              style: const TextStyle(
-                  color: ugoOrange, fontWeight: FontWeight.bold, fontSize: 15)),
-        const SizedBox(height: 4),
-        RichText(
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          text: TextSpan(
-            style:
-                const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
-            children: [
-              TextSpan(
-                  text: '$locality, ',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: rest, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

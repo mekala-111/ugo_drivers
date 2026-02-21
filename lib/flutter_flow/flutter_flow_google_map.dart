@@ -122,6 +122,8 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   BitmapDescriptor? _markerDescriptor;
   late LatLng currentMapCenter;
   Set<Marker> _cachedMarkers = {};
+  Set<Circle> _cachedCircles = {};
+  Set<Polyline> _cachedPolylines = {};
 
   void initializeMarkerBitmap() {
     final markerImage = widget.markerImage;
@@ -237,6 +239,8 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
           ),
         )
             .toSet(),
+        circles: _cachedCircles,
+        polylines: _cachedPolylines,
         gestureRecognizers: {
           if (mapHasGesturePreference)
             const Factory<OneSequenceGestureRecognizer>(
@@ -279,6 +283,20 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         .toSet();
     if (!setEquals(newSet, _cachedMarkers)) {
       setState(() => _cachedMarkers = newSet);
+    }
+  }
+
+  /// Replace the set of circles shown on the map (e.g. pickup/drop area highlights).
+  void updateCircles(Set<Circle> circles) {
+    if (!setEquals(circles, _cachedCircles)) {
+      setState(() => _cachedCircles = circles);
+    }
+  }
+
+  /// Replace the polyline shown on the map (e.g. pickup to drop route line).
+  void updatePolylines(Set<Polyline> polylines) {
+    if (!setEquals(polylines, _cachedPolylines)) {
+      setState(() => _cachedPolylines = polylines);
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/services/location_geocode_service.dart';
 import '../home/ride_request_model.dart';
 
 class NewRequestCard extends StatelessWidget {
@@ -29,12 +30,6 @@ class NewRequestCard extends StatelessWidget {
   static const Color ugoRed = AppColors.error;
   static const Color ugoBlue = AppColors.infoDark;
 
-  /// Extract 6-digit pincode from address.
-  static String _extractPincode(String address) {
-    final match = RegExp(r'\b\d{6}\b').firstMatch(address);
-    return match?.group(0) ?? '';
-  }
-
   /// Compute pickup distance from driver to pickup (km).
   static double? _pickupDistanceKm(LatLng? driver, RideRequest ride) {
     if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0) return null;
@@ -58,8 +53,6 @@ class NewRequestCard extends StatelessWidget {
             ? '${ride.distance!.toStringAsFixed(1)}Km'
             : '${(ride.distance! * 1000).round()}m')
         : '--';
-    final pickupPin = _extractPincode(ride.pickupAddress);
-    final dropPin = _extractPincode(ride.dropAddress);
     return Container(
       margin: EdgeInsets.all(margin),
       decoration: BoxDecoration(
@@ -138,17 +131,21 @@ class NewRequestCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildAddressRow(context,
-                    color: ugoRed,
-                    label: FFLocalizations.of(context).getText('drv_drop'),
-                    code: dropPin.isEmpty ? '--' : dropPin,
-                    address: ride.dropAddress),
+                _AddressRowFromLatLng(
+                  lat: ride.dropLat,
+                  lng: ride.dropLng,
+                  address: ride.dropAddress,
+                  color: ugoRed,
+                  label: FFLocalizations.of(context).getText('drv_drop'),
+                ),
                 SizedBox(height: Responsive.verticalSpacing(context)),
-                _buildAddressRow(context,
-                    color: ugoGreen,
-                    label: FFLocalizations.of(context).getText('drv_pickup'),
-                    code: pickupPin.isEmpty ? '--' : pickupPin,
-                    address: ride.pickupAddress),
+                _AddressRowFromLatLng(
+                  lat: ride.pickupLat,
+                  lng: ride.pickupLng,
+                  address: ride.pickupAddress,
+                  color: ugoGreen,
+                  label: FFLocalizations.of(context).getText('drv_pickup'),
+                ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -198,41 +195,6 @@ class NewRequestCard extends StatelessWidget {
         ]);
   }
 
-  Widget _buildAddressRow(BuildContext context,
-      {required Color color,
-      required String label,
-      required String code,
-      required String address}) {
-    final boxSz = Responsive.value(context, small: 42.0, medium: 45.0, large: 48.0);
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-          width: boxSz,
-          height: boxSz,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.withValues(alpha:0.5))),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.location_on, color: color, size: Responsive.iconSize(context, base: 20)),
-            Text(label,
-                style: TextStyle(fontSize: Responsive.fontSize(context, 10), color: Colors.grey))
-          ])),
-      SizedBox(width: Responsive.verticalSpacing(context)),
-      Expanded(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(code,
-            style: TextStyle(
-                color: ugoOrange,
-                fontWeight: FontWeight.bold,
-                fontSize: Responsive.fontSize(context, 14))),
-        Text(address,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.grey[700], fontSize: Responsive.fontSize(context, 13)))
-      ])),
-    ]);
-  }
-
   Widget _buildButton(BuildContext context, String text, Color bg, VoidCallback? onTap) {
     final btnH = Responsive.buttonHeight(context, base: 48);
     return SizedBox(
@@ -251,6 +213,217 @@ class NewRequestCard extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontSize: Responsive.fontSize(context, 15),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Rapido-style: area name highlighted with entrance animations.
+class _AddressRowFromLatLng extends StatefulWidget {
+  final double lat;
+  final double lng;
+  final String address;
+  final Color color;
+  final String label;
+
+  const _AddressRowFromLatLng({
+    required this.lat,
+    required this.lng,
+    required this.address,
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  State<_AddressRowFromLatLng> createState() => _AddressRowFromLatLngState();
+}
+
+class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _fadeAnim;
+  late Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final boxSz = Responsive.value(context, small: 42.0, medium: 45.0, large: 48.0);
+    return FutureBuilder(
+      future: (widget.lat != 0 || widget.lng != 0)
+          ? LocationGeocodeService().getPincodeAndLocality(widget.lat, widget.lng)
+          : Future.value((pincode: '', locality: '')),
+      builder: (context, snapshot) {
+        final code = snapshot.data?.pincode ?? '';
+        final locality = snapshot.data?.locality ?? '';
+        final areaName = locality.isNotEmpty ? locality : widget.address.split(',').firstOrNull?.trim() ?? widget.address;
+        if (snapshot.hasData && !_animController.isAnimating && !_animController.isCompleted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _animController.forward());
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: boxSz,
+              height: boxSz,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: widget.color.withValues(alpha: 0.5)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.location_on, color: widget.color, size: Responsive.iconSize(context, base: 20)),
+                  Text(
+                    widget.label,
+                    style: TextStyle(fontSize: Responsive.fontSize(context, 10), color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: Responsive.verticalSpacing(context)),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: SlideTransition(
+                  position: _slideAnim,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (code.isNotEmpty)
+                        Text(
+                          code,
+                          style: TextStyle(
+                            color: NewRequestCard.ugoOrange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: Responsive.fontSize(context, 13),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      const SizedBox(height: 6),
+                      _HighlightedAreaChip(
+                        areaName: areaName,
+                        color: widget.color,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.address,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: Responsive.fontSize(context, 12),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Rapido-style highlighted area chip with pulse animation.
+class _HighlightedAreaChip extends StatefulWidget {
+  final String areaName;
+  final Color color;
+
+  const _HighlightedAreaChip({
+    required this.areaName,
+    required this.color,
+  });
+
+  @override
+  State<_HighlightedAreaChip> createState() => _HighlightedAreaChipState();
+}
+
+class _HighlightedAreaChipState extends State<_HighlightedAreaChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _pulseAnim,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: widget.color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: widget.color.withValues(alpha: 0.5), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.place, color: widget.color, size: 18),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                widget.areaName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: widget.color,
+                  fontWeight: FontWeight.w800,
+                  fontSize: Responsive.fontSize(context, 15),
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

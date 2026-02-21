@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -150,6 +151,9 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
     void process(Map<String, dynamic> rideData) {
       final status = (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
 
+      // ✅ Driver gets rides only when online
+      if (status == 'SEARCHING' && !_controller.isOnline) return;
+
       if (status == 'CANCELLED' || status == 'REJECTED') {
         _controller.setRideStatus('IDLE');
         final rideId = rideData['id'] != null
@@ -157,6 +161,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
             : null;
         if (rideId != null) _overlayKey.currentState?.removeRideById(rideId);
         _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
+        _mapKey.currentState?.updateCircles(<Circle>{});
+        _mapKey.currentState?.updatePolylines(<Polyline>{});
         return;
       }
 
@@ -172,6 +178,45 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
           markers.add(FlutterFlowMarker('drop_${rr.id}', latlng.LatLng(rr.dropLat, rr.dropLng)));
         }
         _mapKey.currentState?.updateMarkers(markers);
+
+        // ✅ Highlight pickup/drop area like Rapido Captain (~350m radius circles)
+        const radiusMeters = 350.0;
+        final circles = <Circle>{
+          Circle(
+            circleId: CircleId('pickup_circle_${rr.id}'),
+            center: latlng.LatLng(rr.pickupLat, rr.pickupLng).toGoogleMaps(),
+            radius: radiusMeters,
+            fillColor: AppColors.success.withValues(alpha: 0.2),
+            strokeColor: AppColors.success,
+            strokeWidth: 2,
+          ),
+        };
+        if (rr.dropLat != 0 && rr.dropLng != 0) {
+          circles.add(Circle(
+            circleId: CircleId('drop_circle_${rr.id}'),
+            center: latlng.LatLng(rr.dropLat, rr.dropLng).toGoogleMaps(),
+            radius: radiusMeters,
+            fillColor: AppColors.error.withValues(alpha: 0.2),
+            strokeColor: AppColors.error,
+            strokeWidth: 2,
+          ));
+        }
+        _mapKey.currentState?.updateCircles(circles);
+
+        // ✅ Rapido-style line from pickup to drop
+        final polylines = <Polyline>{};
+        if (rr.dropLat != 0 && rr.dropLng != 0) {
+          polylines.add(Polyline(
+            polylineId: PolylineId('route_${rr.id}'),
+            points: [
+              latlng.LatLng(rr.pickupLat, rr.pickupLng).toGoogleMaps(),
+              latlng.LatLng(rr.dropLat, rr.dropLng).toGoogleMaps(),
+            ],
+            color: AppColors.primary,
+            width: 5,
+          ));
+        }
+        _mapKey.currentState?.updatePolylines(polylines);
       } catch (_) {}
     }
 
@@ -190,6 +235,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
     if (!mounted) return;
     _controller.onRideComplete();
     _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
+    _mapKey.currentState?.updateCircles(<Circle>{});
+    _mapKey.currentState?.updatePolylines(<Polyline>{});
   }
 
   String _getGreeting() {
@@ -218,7 +265,6 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
         final isOnline = c.isOnline;
         final shouldShowPanels = !['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
             .contains(c.currentRideStatus.toUpperCase());
-
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -240,8 +286,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
                   content: Text(FFLocalizations.of(context).getText('drv_back_exit')),
                   duration: const Duration(seconds: 2),
                 ));
-              } else if (context.mounted) {
-                Navigator.of(context).pop();
+              } else {
+                SystemNavigator.pop();
               }
             },
             child: Scaffold(
@@ -251,7 +297,7 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
               body: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  SizedBox(height: Responsive.value(context, small: 20.0, medium: 26.0, large: 32.0)),
+                  SizedBox(height: Responsive.value(context, small: 32.0, medium: 32.0, large: 32.0)),
                   AppHeader(
                     scaffoldKey: scaffoldKey,
                     switchValue: c.isOnline,

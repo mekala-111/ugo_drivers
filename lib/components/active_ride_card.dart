@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
+import 'package:ugo_driver/components/rich_address_from_lat_lng.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -252,11 +253,16 @@ class ActiveRideCard extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // Rich Address Display
+                              // Pincode & locality from lat/lon (reverse geocoding)
                               Expanded(
-                                child: _buildRichAddress(context, showPickupBox
-                                    ? ride.pickupAddress
-                                    : ride.dropAddress),
+                                child: RichAddressFromLatLng(
+                                  lat: showPickupBox ? ride.pickupLat : ride.dropLat,
+                                  lng: showPickupBox ? ride.pickupLng : ride.dropLng,
+                                  fallbackAddress: showPickupBox
+                                      ? ride.pickupAddress
+                                      : ride.dropAddress,
+                                  fallbackLabel: FFLocalizations.of(context).getText('drv_unknown_location'),
+                                ),
                               ),
                             ],
                           ),
@@ -288,73 +294,6 @@ class ActiveRideCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  // ✅ RAPIDO-STYLE ADDRESS HIGHLIGHTING
-  Widget _buildRichAddress(BuildContext context, String rawAddress) {
-    String pincode = '';
-    String locality = '';
-    String fullAddressWithoutPin = rawAddress;
-
-    // 1. Extract Pincode (Matches 6 digits like 500081 or 500 081)
-    final pinMatch = RegExp(r'\b\d{3}\s?\d{3}\b').firstMatch(rawAddress);
-
-    if (pinMatch != null) {
-      pincode = pinMatch.group(0)!;
-      // Remove pincode from address string to avoid duplication
-      fullAddressWithoutPin = rawAddress
-          .replaceAll(pincode, '')
-          .replaceAll(RegExp(r',+\s*$'), '')
-          .trim();
-    }
-
-    // 2. Extract Locality (First part of the address)
-    List<String> parts = fullAddressWithoutPin.split(',');
-    if (parts.isNotEmpty) {
-      locality = parts[0].trim();
-      // If the first part is just a house number, maybe take the second part too
-      if (locality.length < 5 && parts.length > 1) {
-        locality = '$locality, ${parts[1].trim()}';
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 🔹 1. Pincode Badge (Top)
-        if (pincode.isNotEmpty)
-          Text(
-            pincode,
-            style: const TextStyle(
-                color: ugoOrange,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                letterSpacing: 0.5),
-          ),
-
-        // 🔹 2. Area Name (Large & Bold)
-        Text(
-          locality.isNotEmpty ? locality : FFLocalizations.of(context).getText('drv_unknown_location'),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-              fontSize: 16, // Large size like Rapido
-              fontWeight: FontWeight.w800, // Extra Bold
-              color: Colors.black87,
-              height: 1.2),
-        ),
-
-        const SizedBox(height: 4),
-
-        // 🔹 3. Full Address (Small & Grey)
-        Text(
-          fullAddressWithoutPin,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 13, color: Colors.grey[600], height: 1.3),
-        ),
-      ],
     );
   }
 

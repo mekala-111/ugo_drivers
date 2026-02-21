@@ -131,6 +131,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           }
         });
       } else {
+        // Driver is on a ride: ignore new ride requests until current ride is completed
+        final activeRideStatuses = [RideStatus.accepted, RideStatus.arrived, RideStatus.started, RideStatus.onTrip];
+        final hasActiveRide = _activeRequests.any((r) => activeRideStatuses.contains(r.status));
+        if (status == RideStatus.searching && hasActiveRide) return;
+
         setState(() {
           final validStatuses = [
             RideStatus.searching,
@@ -143,7 +148,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             _activeRequests.add(updatedRide);
             if (status == RideStatus.searching) {
               _timers[updatedRide.id] = 30;
-              _startAlert();
+              _startAlert(ride: updatedRide);
               _startSearchingPoll(); // Rapido-style: poll to detect when another driver accepts
               RideNotificationService().onNewRideFromSocket(
                 rideId: updatedRide.id,
@@ -196,13 +201,24 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     });
   }
 
-  void _startAlert() async {
+  void _startAlert({RideRequest? ride}) async {
     if (_isAlerting) return;
     _isAlerting = true;
     try {
       await _audioPlayer.stop();
       await VoiceService().newRideRequest();
-      await Future.delayed(const Duration(milliseconds: 2500));
+      if (ride != null && _isAlerting) {
+        await VoiceService().speakNewRideAddress(
+          pickupLat: ride.pickupLat,
+          pickupLng: ride.pickupLng,
+          pickupAddress: ride.pickupAddress,
+          dropLat: ride.dropLat,
+          dropLng: ride.dropLng,
+          dropAddress: ride.dropAddress,
+          estimatedFare: ride.estimatedFare,
+        );
+      }
+      await Future.delayed(const Duration(milliseconds: 800));
       if (!_isAlerting) return;
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));

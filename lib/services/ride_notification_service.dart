@@ -188,6 +188,7 @@ class RideNotificationService {
 
   void _onForegroundMessage(RemoteMessage msg) {
     if (msg.data.containsKey('type') && msg.data['type'] == 'ride_request') {
+      if (FFAppState().activeRideId != 0) return; // Driver on ride: no new requests
       _parseAndShowLocalNotification(msg);
     }
   }
@@ -225,6 +226,7 @@ class RideNotificationService {
     double? estimatedFare,
     double? distance,
   }) async {
+    if (FFAppState().activeRideId != 0) return; // Driver on ride: no new requests
     String displayBody = body;
     if (estimatedFare != null || distance != null) {
       final parts = <String>[];

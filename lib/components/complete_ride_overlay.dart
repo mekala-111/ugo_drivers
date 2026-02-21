@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/components/rich_address_from_lat_lng.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../home/ride_request_model.dart';
 
@@ -244,9 +245,14 @@ class CompleteRideCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 14),
 
-                              // ✅ Rich Address with Pincode Badge
+                              // ✅ Pincode & locality from lat/lon (reverse geocoding)
                               Expanded(
-                                child: _buildRichAddress(context, ride.dropAddress),
+                                child: RichAddressFromLatLng(
+                                  lat: ride.dropLat,
+                                  lng: ride.dropLng,
+                                  fallbackAddress: ride.dropAddress,
+                                  fallbackLabel: FFLocalizations.of(context).getText('drv_drop_location'),
+                                ),
                               ),
                             ],
                           ),
@@ -279,71 +285,6 @@ class CompleteRideCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  // ✅ UGO-STYLE ADDRESS PARSER
-  Widget _buildRichAddress(BuildContext context, String rawAddress) {
-    String pincode = '';
-    String locality = '';
-    String fullAddressWithoutPin = rawAddress;
-
-    // 1. Extract Pincode
-    final pinMatch = RegExp(r'\b\d{6}\b').firstMatch(rawAddress);
-    if (pinMatch != null) {
-      pincode = pinMatch.group(0)!;
-      fullAddressWithoutPin = rawAddress
-          .replaceAll(pincode, '')
-          .replaceAll(RegExp(r',+\s*$'), '')
-          .trim();
-    }
-
-    // 2. Extract Locality (Bold Area Name)
-    List<String> parts = fullAddressWithoutPin.split(',');
-    if (parts.isNotEmpty) {
-      locality = parts[0].trim();
-      // Handle short house numbers by appending street name
-      if (locality.length < 5 && parts.length > 1) {
-        locality = '$locality, ${parts[1].trim()}';
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 🔹 Pincode Badge
-        if (pincode.isNotEmpty)
-          Text(
-            pincode,
-            style: const TextStyle(
-                color: ugoOrange,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                letterSpacing: 0.5),
-          ),
-
-        // 🔹 Bold Area Name
-        Text(
-          locality.isNotEmpty ? locality : FFLocalizations.of(context).getText('drv_drop_location'),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Colors.black87,
-              height: 1.2),
-        ),
-
-        const SizedBox(height: 4),
-
-        // 🔹 Full Address
-        Text(
-          fullAddressWithoutPin,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 13, color: Colors.grey[600], height: 1.3),
-        ),
-      ],
     );
   }
 
