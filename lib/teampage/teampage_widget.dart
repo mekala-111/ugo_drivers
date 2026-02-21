@@ -1,6 +1,6 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
+import '/constants/app_colors.dart';
 import '/backend/api_requests/api_calls.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,8 +40,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
   }
 
   Future<void> _loadReferralData() async {
-    final response = await ReferralDashboardCall.call(
-      driverId: FFAppState().driverid,
+    final response = await DriverMyReferralsCall.call(
       token: FFAppState().accessToken,
     );
 
@@ -132,7 +131,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                     ),
                   ),
 
-                  // Header Info (Referrer)
+                  // Header Info (Summary)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Row(
@@ -142,7 +141,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Referred By',
+                              'Total Referrals',
                               style: GoogleFonts.inter(
                                 color: Colors.white70,
                                 fontSize: 12,
@@ -150,11 +149,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             ),
                             Text(
                               _model.referralData != null
-                                  ? (getJsonField(_model.referralData,
-                                  r'$.driver.referred_by.name')
-                                  ?.toString() ??
-                                  'UGO Admin')
-                                  : 'Loading...',
+                                  ? '${getJsonField(_model.referralData, r'$.data.total_referrals') ?? 0}'
+                                  : '0',
                               style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -176,7 +172,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                   color: Colors.amber, size: 16),
                               const SizedBox(width: 4),
                               Text(
-                                'Team Leader',
+                                'My Team',
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -200,30 +196,28 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           // Total Rides Card
                           Expanded(
                             child: _buildStatCard(
-                              title: 'Total Rides',
+                              title: 'Total Referrals',
                               value: _model.referralData != null
-                                  ? '${(getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.pro_rides_completed') ?? 0) + (getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.normal_rides_completed') ?? 0)}'
+                                  ? '${getJsonField(_model.referralData, r'$.data.total_referrals') ?? 0}'
                                   : '0',
-                              icon: Icons.directions_car_filled,
+                              icon: Icons.people_alt,
                               color: ugoBlue,
                               delay: 100,
-                              onTap: () => context
-                                  .pushNamed(TeamridesWidget.routeName),
+                              onTap: () {},
                             ),
                           ),
                           const SizedBox(width: 16),
                           // Earnings Card
                           Expanded(
                             child: _buildStatCard(
-                              title: 'Earnings',
+                              title: 'Total Earnings',
                               value: _model.referralData != null
-                                  ? '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}'
+                                  ? '₹${getJsonField(_model.referralData, r'$.data.total_earnings') ?? 0}'
                                   : '₹0',
                               icon: Icons.account_balance_wallet,
                               color: ugoGreen,
                               delay: 200,
-                              onTap: () => context
-                                  .pushNamed(TeamEarningsWidget.routeName),
+                              onTap: () {},
                             ),
                           ),
                         ],
@@ -249,7 +243,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Team Performance',
+                            'My Referrals',
                             style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -258,7 +252,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Yesterday's activity",
+                            "Your referred drivers",
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.grey[500],
@@ -356,7 +350,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
   // 🔹 WIDGET: Team List
   Widget _buildTeamList() {
     final referrals = getJsonField(
-        _model.referralData, r'$.yesterday_statistics.referrals') as List?;
+        _model.referralData, r'$.data.referrals') as List?;
 
     if (referrals == null || referrals.isEmpty) {
       return Center(
@@ -365,7 +359,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
           children: [
             Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
             const SizedBox(height: 12),
-            Text('No team members active yesterday',
+            Text('No referrals found',
                 style: GoogleFonts.inter(color: Colors.grey[400])),
           ],
         ),
@@ -379,10 +373,18 @@ class _TeampageWidgetState extends State<TeampageWidget>
       itemBuilder: (context, index) {
         final driver = referrals[index];
         final name = getJsonField(driver, r'$.name')?.toString() ?? 'Unknown';
-        final proRides = getJsonField(driver, r'$.pro_rides_completed') ?? 0;
-        final commission =
-            getJsonField(driver, '\$.commission_earned_by_${FFAppState().driverid}') ??
-                0;
+        final mobile = getJsonField(driver, r'$.mobile_number')?.toString() ?? '';
+        final status = getJsonField(driver, r'$.status')?.toString() ?? 'unknown';
+        final amountPerRide =
+            getJsonField(driver, r'$.amount_per_pro_ride') ?? 0;
+        final createdAt =
+            getJsonField(driver, r'$.created_at')?.toString() ?? '';
+        final createdAtText = createdAt.isNotEmpty
+            ? dateTimeFormat(
+                'MMM d, yyyy',
+                DateTime.tryParse(createdAt) ?? DateTime.now(),
+              )
+            : '-';
 
         // Staggered Animation
         return TweenAnimationBuilder(
@@ -440,11 +442,25 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(Icons.verified,
-                                    size: 14, color: ugoBlue),
+                                Icon(Icons.phone, size: 14, color: ugoBlue),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '$proRides Pro Rides',
+                                  mobile.isNotEmpty ? mobile : 'No phone',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.verified,
+                                    size: 14, color: ugoGreen),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${status.toUpperCase()} • $createdAtText',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.grey[600],
@@ -460,7 +476,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'EARNED',
+                            'PER RIDE',
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -468,7 +484,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             ),
                           ),
                           Text(
-                            '+₹$commission',
+                            '₹$amountPerRide',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
