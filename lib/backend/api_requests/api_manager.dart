@@ -570,7 +570,7 @@ class ApiManager {
     if (result.statusCode == 401) {
       onUnauthenticated?.call();
     }
-
+print('API Call: $callName, URL: $apiUrl, Status: ${result.statusCode} ${result.succeeded ? '✓' : '✗'} ${result.exception != null ? 'Exception: ${result.exception}' : ''} body: ${result.bodyText.length > 100 ? '${result.bodyText.substring(0, 100)}...' : result.bodyText} bodyType: ${result.response!.body} headers: ${result.headers}');
     return result;
   }
 }

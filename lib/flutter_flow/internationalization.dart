@@ -785,6 +785,101 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': '',
       'te': '',
     },
+    'wallet0001': {
+      'en': 'Total Balance',
+      'hi': 'कुल शेष राशि',
+      'te': 'మొత్తం బ్యాలెన్స్',
+    },
+    'wallet0002': {
+      'en': 'Recent Transactions',
+      'hi': 'हाल की लेन-देन',
+      'te': 'ఇటీవలి లావాదేవీలు',
+    },
+    'wallet0003': {
+      'en': 'Ride Earnings',
+      'hi': 'राइड कमाई',
+      'te': 'రైడ్ ఆదాయం',
+    },
+    'wallet0004': {
+      'en': 'Commission Paid',
+      'hi': 'कमीशन भुगतान',
+      'te': 'కమీషన్ చెల్లింపు',
+    },
+    'wallet0005': {
+      'en': 'Incentive Bonus',
+      'hi': 'प्रोत्साहन बोनस',
+      'te': 'ప్రోత్సాహక బోనస్',
+    },
+    'wallet0006': {
+      'en': 'View All Transactions',
+      'hi': 'सभी लेन-देन देखें',
+      'te': 'అన్ని లావాదేవీలు చూడండి',
+    },
+    'wallet0007': {
+      'en': 'Manage',
+      'hi': 'प्रबंधित करें',
+      'te': 'నిర్వహించండి',
+    },
+    'wallet0008': {
+      'en': 'Bank Account',
+      'hi': 'बैंक खाता',
+      'te': 'బ్యాంక్ ఖాతా',
+    },
+    'wallet0009': {
+      'en': 'Manage withdrawal account',
+      'hi': 'निकासी खाता प्रबंधित करें',
+      'te': 'విత్‌డ్రాయల్ ఖాతాను నిర్వహించండి',
+    },
+    'wallet0010': {
+      'en': 'Vouchers & Promos',
+      'hi': 'वाउचर और प्रोमो',
+      'te': 'వోచర్లు & ప్రమోలు',
+    },
+    'wallet0011': {
+      'en': '0 Active vouchers',
+      'hi': '0 सक्रिय वाउचर',
+      'te': '0 క్రియాశీల వోచర్లు',
+    },
+    'wallet0012': {
+      'en': 'Referrals',
+      'hi': 'रेफरल',
+      'te': 'సిఫార్సులు',
+    },
+    'wallet0013': {
+      'en': 'Invite friends & earn',
+      'hi': 'दोस्तों को आमंत्रित करें और कमाएं',
+      'te': 'మిత్రులను ఆహ్వానించి సంపాదించండి',
+    },
+    'wallet0014': {
+      'en': 'Add Money',
+      'hi': 'पैसे जोड़ें',
+      'te': 'డబ్బు జోడించండి',
+    },
+    'wallet0015': {
+      'en': 'Scan',
+      'hi': 'स्कैन करें',
+      'te': 'స్కాన్ చేయండి',
+    },
+    'wallet0016': {
+      'en': 'History',
+      'hi': 'इतिहास',
+      'te': 'చరిత్ర',
+    },
+    'wallet0017': {
+      'en': 'Today, 10:23 AM',
+      'hi': 'आज, 10:23 AM',
+      'te': 'ఈ రోజు, 10:23 AM',
+    },
+    'wallet0018': {
+      'en': 'Today, 09:45 AM',
+      'hi': 'आज, 09:45 AM',
+      'te': 'ఈ రోజు, 09:45 AM',
+    },
+    'wallet0019': {
+      'en': 'Yesterday',
+      'hi': 'कल',
+      'te': 'నిన్న',
+    },
   },
   // auto-book
   {

@@ -19,12 +19,14 @@ class WithdrawWidget extends StatefulWidget {
     this.ifscCode,
     this.accountHolderName,
     this.fundAccountId,
+    this.walletAmount,
   });
 
   final String? bankAccountNumber;
   final String? ifscCode;
   final String? accountHolderName;
   final String? fundAccountId;
+  final String? walletAmount;
 
   static String routeName = 'Withdraw';
   static String routePath = '/withdraw';
@@ -49,7 +51,14 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     super.initState();
     _model = createModel(context, () => WithdrawModel());
 
-    _model.textController1 ??= TextEditingController();
+    if (kDebugMode) {
+      print('💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
+    }
+
+    // Initialize amount text controller with wallet amount if provided
+    _model.textController1 ??= TextEditingController(
+      text: widget.walletAmount ?? '',
+    );
     _model.textFieldFocusNode1 ??= FocusNode();
 
     _model.textController2 ??= TextEditingController();
@@ -151,7 +160,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     final rawAmountText = _model.textController1?.text.trim() ?? '';
     final normalizedAmountText = _normalizeAmount(rawAmountText);
     final amountValue = num.tryParse(normalizedAmountText);
-
+    print('💰 Withdraw amount input: "$rawAmountText" → normalized: "$normalizedAmountText" → parsed: $amountValue');
     if (amountValue == null || amountValue <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

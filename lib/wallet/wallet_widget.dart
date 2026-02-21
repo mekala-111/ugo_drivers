@@ -70,13 +70,14 @@ class _WalletWidgetState extends State<WalletWidget> {
           bankName = BankAccountCall.bankName(response.jsonBody);
           accountHolderName =
               BankAccountCall.accountHolderName(response.jsonBody);
-            fundAccountId = BankAccountCall.fundAccountId(response.jsonBody);
+          fundAccountId = BankAccountCall.fundAccountId(response.jsonBody);
         });
 
         // Do not log bank details
       } else {
         if (kDebugMode) {
-          debugPrint('Bank account fetch failed: status ${response.statusCode}');
+          debugPrint(
+              'Bank account fetch failed: status ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -102,8 +103,8 @@ class _WalletWidgetState extends State<WalletWidget> {
 
       if (response.succeeded) {
         setState(() {
-          walletBalance = GetWalletCall.walletBalance(response.jsonBody)
-              ?.toString();
+          walletBalance =
+              GetWalletCall.walletBalance(response.jsonBody)?.toString();
         });
 
         // Wallet loaded
@@ -140,9 +141,12 @@ class _WalletWidgetState extends State<WalletWidget> {
             : 20.0;
     final contentMaxWidth = isTablet ? 720.0 : double.infinity;
     final headerActions = [
-      _buildHeaderAction(Icons.add, 'Add Money', () {}),
-      _buildHeaderAction(Icons.qr_code_scanner, 'Scan', () {}),
-      _buildHeaderAction(Icons.history, 'History', () {}),
+      _buildHeaderAction(
+          Icons.add, FFLocalizations.of(context).getText('wallet0014'), () {}),
+      _buildHeaderAction(Icons.qr_code_scanner,
+          FFLocalizations.of(context).getText('wallet0015'), () {}),
+      _buildHeaderAction(Icons.history,
+          FFLocalizations.of(context).getText('wallet0016'), () {}),
     ];
 
     return GestureDetector(
@@ -221,7 +225,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                     child: Column(
                       children: [
                         Text(
-                          'Total Balance',
+                          FFLocalizations.of(context).getText('wallet0001'),
                           style: GoogleFonts.inter(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14.0 * scale,
@@ -269,7 +273,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Recent Transactions',
+                          FFLocalizations.of(context).getText('wallet0002'),
                           style: GoogleFonts.inter(
                             fontSize: 18.0 * scale,
                             fontWeight: FontWeight.bold,
@@ -280,22 +284,28 @@ class _WalletWidgetState extends State<WalletWidget> {
 
                         // 🟢 Credit Example (Earnings)
                         _buildTransactionTile(
-                          title: 'Ride Earnings',
-                          date: 'Today, 10:23 AM',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0003'),
+                          date:
+                              FFLocalizations.of(context).getText('wallet0017'),
                           amount: '+ ₹120.00',
                           isCredit: true,
                         ),
                         // 🔴 Debit Example (Commission)
                         _buildTransactionTile(
-                          title: 'Commission Paid',
-                          date: 'Today, 09:45 AM',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0004'),
+                          date:
+                              FFLocalizations.of(context).getText('wallet0018'),
                           amount: '- ₹35.00',
                           isCredit: false,
                         ),
                         // 🟢 Credit Example (Incentive)
                         _buildTransactionTile(
-                          title: 'Incentive Bonus',
-                          date: 'Yesterday',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0005'),
+                          date:
+                              FFLocalizations.of(context).getText('wallet0019'),
                           amount: '+ ₹50.00',
                           isCredit: true,
                         ),
@@ -305,7 +315,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                           child: TextButton(
                             onPressed: () {},
                             child: Text(
-                              'View All Transactions',
+                              FFLocalizations.of(context).getText('wallet0006'),
                               style: TextStyle(
                                 color: ugoOrange,
                                 fontWeight: FontWeight.w600,
@@ -329,7 +339,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Manage',
+                          FFLocalizations.of(context).getText('wallet0007'),
                           style: GoogleFonts.inter(
                             fontSize: 18.0 * scale,
                             fontWeight: FontWeight.bold,
@@ -339,21 +349,25 @@ class _WalletWidgetState extends State<WalletWidget> {
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.account_balance,
-                          title: 'Bank Account',
-                          subtitle: 'Manage withdrawal account',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0008'),
+                          subtitle:
+                              FFLocalizations.of(context).getText('wallet0009'),
                           onTap: () {
                             if (kDebugMode) {
                               // Bank card tapped - do not log details
                             }
 
-                            final hasAccount =
-                                bankAccountNumber != null &&
+                            final hasAccount = bankAccountNumber != null &&
                                 bankAccountNumber!.isNotEmpty;
 
                             if (!mounted) return;
 
                             if (hasAccount) {
                               // Bank account exists - navigate to withdraw page
+                              if (kDebugMode) {
+                                print('💳 Navigating to withdraw with wallet balance: "$walletBalance"');
+                              }
                               context.pushNamedAuth(
                                 WithdrawWidget.routeName,
                                 mounted,
@@ -362,6 +376,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                                   'ifscCode': ifscCode,
                                   'accountHolderName': accountHolderName,
                                   'fundAccountId': fundAccountId,
+                                  'walletAmount': walletBalance,
                                 },
                                 ignoreRedirect: true,
                               );
@@ -378,15 +393,19 @@ class _WalletWidgetState extends State<WalletWidget> {
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.card_giftcard,
-                          title: 'Vouchers & Promos',
-                          subtitle: '0 Active vouchers',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0010'),
+                          subtitle:
+                              FFLocalizations.of(context).getText('wallet0011'),
                           onTap: () {},
                         ),
                         SizedBox(height: 12.0 * scale),
                         _buildMenuCard(
                           icon: Icons.group_add,
-                          title: 'Referrals',
-                          subtitle: 'Invite friends & earn',
+                          title:
+                              FFLocalizations.of(context).getText('wallet0012'),
+                          subtitle:
+                              FFLocalizations.of(context).getText('wallet0013'),
                           onTap: () {},
                         ),
                       ],

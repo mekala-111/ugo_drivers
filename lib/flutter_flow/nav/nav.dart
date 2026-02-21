@@ -182,6 +182,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'fundAccountId',
               ParamType.String,
             ),
+            walletAmount: params.getParam(
+              'walletAmount',
+              ParamType.String,
+            ),
           ),
         ),
         FFRoute(

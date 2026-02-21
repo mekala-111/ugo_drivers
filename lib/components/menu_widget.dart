@@ -37,7 +37,7 @@ class _MenuWidgetState extends State<MenuWidget> {
     if (res.succeeded) {
       setState(() {
         _name =
-        '${DriverIdfetchCall.firstName(res.jsonBody)} ${DriverIdfetchCall.lastName(res.jsonBody)}';
+            '${DriverIdfetchCall.firstName(res.jsonBody)} ${DriverIdfetchCall.lastName(res.jsonBody)}';
         _image = DriverIdfetchCall.profileImage(res.jsonBody) ?? '';
         _rating = DriverIdfetchCall.driverRating(res.jsonBody) ?? '';
       });
@@ -49,13 +49,15 @@ class _MenuWidgetState extends State<MenuWidget> {
 
   Widget tile(BuildContext context,
       {required IconData icon,
-        required String title,
-        required String sub,
-        required String route,
-        Color color = Colors.orange}) {
+      required String title,
+      required String sub,
+      required String route,
+      Color color = Colors.orange}) {
     final hPad = Responsive.horizontalPadding(context);
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: Responsive.verticalSpacing(context) * 0.75),
+      padding: EdgeInsets.symmetric(
+          horizontal: hPad,
+          vertical: Responsive.verticalSpacing(context) * 0.75),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: () => context.pushNamed(route),
@@ -78,10 +80,11 @@ class _MenuWidgetState extends State<MenuWidget> {
                 width: Responsive.buttonHeight(context, base: 46),
                 height: Responsive.buttonHeight(context, base: 46),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:.15),
+                  color: color.withValues(alpha: .15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 24)),
+                child: Icon(icon,
+                    color: color, size: Responsive.iconSize(context, base: 24)),
               ),
               SizedBox(width: Responsive.verticalSpacing(context)),
               Expanded(
@@ -89,11 +92,13 @@ class _MenuWidgetState extends State<MenuWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
+                        maxLines: 2,
                         style: GoogleFonts.poppins(
                             fontSize: Responsive.fontSize(context, 16),
                             fontWeight: FontWeight.w600)),
                     SizedBox(height: Responsive.verticalSpacing(context) * 0.5),
                     Text(sub,
+                        maxLines: 3,
                         style: GoogleFonts.poppins(
                             fontSize: Responsive.fontSize(context, 13),
                             color: Colors.grey)),
@@ -121,7 +126,8 @@ class _MenuWidgetState extends State<MenuWidget> {
           child: Container(
             padding: EdgeInsets.fromLTRB(
               Responsive.horizontalPadding(context),
-              MediaQuery.of(context).padding.top + Responsive.verticalSpacing(context),
+              MediaQuery.of(context).padding.top +
+                  Responsive.verticalSpacing(context),
               Responsive.horizontalPadding(context),
               Responsive.verticalSpacing(context) + 4,
             ),
@@ -130,7 +136,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   colors: [AppColors.primary, AppColors.primaryLightBg]),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.orange.withValues(alpha:.4),
+                    color: Colors.orange.withValues(alpha: .4),
                     blurRadius: 20,
                     offset: const Offset(0, 6))
               ],
@@ -138,8 +144,10 @@ class _MenuWidgetState extends State<MenuWidget> {
             child: Row(
               children: [
                 Container(
-                  width: Responsive.value(context, small: 60.0, medium: 66.0, large: 72.0),
-                  height: Responsive.value(context, small: 60.0, medium: 66.0, large: 72.0),
+                  width: Responsive.value(context,
+                      small: 60.0, medium: 66.0, large: 72.0),
+                  height: Responsive.value(context,
+                      small: 60.0, medium: 66.0, large: 72.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
@@ -147,21 +155,21 @@ class _MenuWidgetState extends State<MenuWidget> {
                   child: ClipOval(
                     child: _image.isNotEmpty
                         ? Image.network(
-                      img(_image),
-                      fit: BoxFit.cover,
-                    )
+                            img(_image),
+                            fit: BoxFit.cover,
+                          )
                         : Container(
-                      color: AppColors.primary,
-                      alignment: Alignment.center,
-                      child: Text(
-                        _name.isNotEmpty ? _name[0].toUpperCase() : '?',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: Responsive.fontSize(context, 28),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                            color: AppColors.primary,
+                            alignment: Alignment.center,
+                            child: Text(
+                              _name.isNotEmpty ? _name[0].toUpperCase() : '?',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: Responsive.fontSize(context, 28),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                   ),
                 ),
                 SizedBox(width: Responsive.verticalSpacing(context)),
@@ -169,11 +177,12 @@ class _MenuWidgetState extends State<MenuWidget> {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Welcome Back',
+                        Text(FFLocalizations.of(context).getText('menu0001'),
                             style: GoogleFonts.poppins(
                                 color: Colors.white70,
                                 fontSize: Responsive.fontSize(context, 14))),
-                        SizedBox(height: Responsive.verticalSpacing(context) * 0.5),
+                        SizedBox(
+                            height: Responsive.verticalSpacing(context) * 0.5),
                         Row(children: [
                           Expanded(
                             child: Text(_name,
@@ -209,27 +218,28 @@ class _MenuWidgetState extends State<MenuWidget> {
               const SizedBox(height: 10),
               tile(context,
                   icon: Icons.person_outline,
-                  title: 'Account',
-                  sub: 'Manage your profile',
+                  title: FFLocalizations.of(context).getText('menu0002'),
+                  sub: FFLocalizations.of(context).getText('menu0003'),
                   route: AccountManagementWidget.routeName,
                   color: Colors.blue),
               tile(context,
                   icon: Icons.account_balance_wallet_outlined,
-                  title: 'Earnings',
-                  sub: 'History & Bank transfer',
+                  title: FFLocalizations.of(context).getText('menu0004'),
+                  sub: FFLocalizations.of(context).getText('menu0005'),
                   route: TeamEarningsWidget.routeName,
                   color: Colors.green),
               tile(context,
                   icon: Icons.remove_red_eye_outlined,
-                  title: 'Incentives',
-                  sub: 'Know how you get paid',
+                  title: FFLocalizations.of(context).getText('menu0006'),
+                  sub: FFLocalizations.of(context).getText('menu0007'),
                   route: IncentivePageWidget.routeName,
                   color: Colors.purple),
               tile(context,
                   icon: Icons.headset_mic,
-                  title: 'Help',
-                  sub: 'Support & Accident Insurance',
-                  route: SupportWidget.routeName, // Ensure this route exists or update it
+                  title: FFLocalizations.of(context).getText('menu0008'),
+                  sub: FFLocalizations.of(context).getText('menu0009'),
+                  route: SupportWidget
+                      .routeName, // Ensure this route exists or update it
                   color: Colors.red),
             ],
           ),
@@ -238,18 +248,15 @@ class _MenuWidgetState extends State<MenuWidget> {
         /// REFER
         Container(
           padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
-          child: Row(
-            children: [
-              Icon(Icons.card_giftcard,
-                  color: AppColors.primary, size: Responsive.iconSize(context, base: 32)),
-              SizedBox(width: Responsive.verticalSpacing(context)),
-              Expanded(
-                child: Text(
-                  'Refer friends & earn ₹10 per ride',
-                  style: TextStyle(fontSize: Responsive.fontSize(context, 14)),
-                ),
-              ),
-              Container(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 360;
+              final textWidget = Text(
+                FFLocalizations.of(context).getText('menu0010'),
+                maxLines: isNarrow ? 4 : 3,
+                style: TextStyle(fontSize: Responsive.fontSize(context, 14)),
+              );
+              final actionButton = Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryLightBg],
@@ -257,7 +264,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orange.withValues(alpha:.4),
+                      color: Colors.orange.withValues(alpha: .4),
                       blurRadius: 12,
                     ),
                   ],
@@ -275,22 +282,53 @@ class _MenuWidgetState extends State<MenuWidget> {
                     shadowColor: Colors.transparent,
                     padding: EdgeInsets.symmetric(
                       horizontal: Responsive.horizontalPadding(context) + 10,
-                      vertical: Responsive.buttonHeight(context, base: 48) * 0.25,
+                      vertical:
+                          Responsive.buttonHeight(context, base: 48) * 0.25,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text(
-                    'Refer Now',
-                    style: TextStyle(
+                  child: Text(
+                    FFLocalizations.of(context).getText('menu0011'),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              )
-            ],
+              );
+
+              if (isNarrow) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.card_giftcard,
+                            color: AppColors.primary,
+                            size: Responsive.iconSize(context, base: 32)),
+                        SizedBox(width: Responsive.verticalSpacing(context)),
+                        Expanded(child: textWidget),
+                      ],
+                    ),
+                    SizedBox(height: Responsive.verticalSpacing(context)),
+                    Align(alignment: Alignment.centerLeft, child: actionButton),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Icon(Icons.card_giftcard,
+                      color: AppColors.primary,
+                      size: Responsive.iconSize(context, base: 32)),
+                  SizedBox(width: Responsive.verticalSpacing(context)),
+                  Expanded(child: textWidget),
+                  actionButton,
+                ],
+              );
+            },
           ),
         )
       ],
