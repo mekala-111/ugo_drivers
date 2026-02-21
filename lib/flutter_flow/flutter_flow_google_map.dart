@@ -59,10 +59,16 @@ class MarkerImage {
 }
 
 class FlutterFlowMarker {
-  const FlutterFlowMarker(this.markerId, this.location, [this.onTap]);
+  const FlutterFlowMarker(
+    this.markerId,
+    this.location, [
+    this.onTap,
+    this.color,
+  ]);
   final String markerId;
   final latlng.LatLng location;
   final Future Function()? onTap;
+  final GoogleMarkerColor? color;
 }
 
 class FlutterFlowGoogleMap extends StatefulWidget {
@@ -219,26 +225,32 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         compassEnabled: widget.showCompass,
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
-        markers: _cachedMarkers.isNotEmpty ? _cachedMarkers : widget.markers
-            .map(
-              (m) => Marker(
-            markerId: MarkerId(m.markerId),
-            position: m.location.toGoogleMaps(),
-            icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
-            onTap: () async {
-              if (widget.centerMapOnMarkerTap) {
-                final controller = await _controller.future;
-                await controller.animateCamera(
-                  CameraUpdate.newLatLng(m.location.toGoogleMaps()),
-                );
-                currentMapCenter = m.location.toGoogleMaps();
-                onCameraIdle();
-              }
-              await m.onTap?.call();
-            },
-          ),
-        )
-            .toSet(),
+        markers: _cachedMarkers.isNotEmpty
+            ? _cachedMarkers
+            : widget.markers
+                .map(
+                  (m) => Marker(
+                    markerId: MarkerId(m.markerId),
+                    position: m.location.toGoogleMaps(),
+                    icon: m.color != null
+                        ? BitmapDescriptor.defaultMarkerWithHue(
+                            googleMarkerColorMap[m.color]!,
+                          )
+                        : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
+                    onTap: () async {
+                      if (widget.centerMapOnMarkerTap) {
+                        final controller = await _controller.future;
+                        await controller.animateCamera(
+                          CameraUpdate.newLatLng(m.location.toGoogleMaps()),
+                        );
+                        currentMapCenter = m.location.toGoogleMaps();
+                        onCameraIdle();
+                      }
+                      await m.onTap?.call();
+                    },
+                  ),
+                )
+                .toSet(),
         circles: _cachedCircles,
         polylines: _cachedPolylines,
         gestureRecognizers: {
@@ -264,22 +276,28 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   /// Replace the set of markers shown on the map without rebuilding the parent.
   void updateMarkers(Iterable<FlutterFlowMarker> markers) {
     final newSet = markers
-        .map((m) => Marker(
-              markerId: MarkerId(m.markerId),
-              position: m.location.toGoogleMaps(),
-              icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
-              onTap: () async {
-                if (widget.centerMapOnMarkerTap) {
-                  final controller = await _controller.future;
-                  await controller.animateCamera(
-                    CameraUpdate.newLatLng(m.location.toGoogleMaps()),
-                  );
-                  currentMapCenter = m.location.toGoogleMaps();
-                  onCameraIdle();
-                }
-                await m.onTap?.call();
-              },
-            ))
+        .map(
+          (m) => Marker(
+            markerId: MarkerId(m.markerId),
+            position: m.location.toGoogleMaps(),
+            icon: m.color != null
+                ? BitmapDescriptor.defaultMarkerWithHue(
+                    googleMarkerColorMap[m.color]!,
+                  )
+                : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
+            onTap: () async {
+              if (widget.centerMapOnMarkerTap) {
+                final controller = await _controller.future;
+                await controller.animateCamera(
+                  CameraUpdate.newLatLng(m.location.toGoogleMaps()),
+                );
+                currentMapCenter = m.location.toGoogleMaps();
+                onCameraIdle();
+              }
+              await m.onTap?.call();
+            },
+          ),
+        )
         .toSet();
     if (!setEquals(newSet, _cachedMarkers)) {
       setState(() => _cachedMarkers = newSet);

@@ -21,4 +21,9 @@ class Config {
       const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');
   static String get razorpayKeySecret =>
       const String.fromEnvironment('RAZORPAY_KEY_SECRET', defaultValue: '');
+
+  /// Google Maps API key for Distance Matrix / Directions.
+  /// Set with: --dart-define=GOOGLE_MAPS_API_KEY=...
+  static String get googleMapsApiKey =>
+      const String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
 }

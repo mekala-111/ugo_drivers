@@ -4,6 +4,7 @@ import 'package:ugo_driver/constants/responsive.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/services/location_geocode_service.dart';
+import 'package:ugo_driver/services/route_distance_service.dart';
 import '../home/ride_request_model.dart';
 
 class NewRequestCard extends StatelessWidget {
@@ -40,19 +41,34 @@ class NewRequestCard extends StatelessWidget {
     return m / 1000;
   }
 
+  /// Compute drop distance from pickup to drop (km).
+  static double? _dropDistanceKm(RideRequest ride) {
+    if (ride.pickupLat == 0 ||
+        ride.pickupLng == 0 ||
+        ride.dropLat == 0 ||
+        ride.dropLng == 0) {
+      return null;
+    }
+    final m = Geolocator.distanceBetween(
+      ride.pickupLat, ride.pickupLng,
+      ride.dropLat, ride.dropLng,
+    );
+    return m / 1000;
+  }
+
+  static String _formatDistance(double? km) {
+    if (km == null) return '--';
+    return km < 1
+        ? '${(km * 1000).round()}m'
+        : '${km.toStringAsFixed(1)}Km';
+  }
+
   @override
   Widget build(BuildContext context) {
     final margin = Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
     final pickupKm = _pickupDistanceKm(driverLocation, ride);
-    final pickupDistStr = pickupKm != null
-        ? '${pickupKm < 1 ? (pickupKm * 1000).round() : pickupKm.toStringAsFixed(1)}${pickupKm < 1 ? 'm' : 'Km'}'
-        : '--';
-    final dropDistStr = ride.distance != null
-        ? (ride.distance! >= 1
-            ? '${ride.distance!.toStringAsFixed(1)}Km'
-            : '${(ride.distance! * 1000).round()}m')
-        : '--';
+    final pickupDistStr = _formatDistance(pickupKm);
     return Container(
       margin: EdgeInsets.all(margin),
       decoration: BoxDecoration(
@@ -125,9 +141,11 @@ class NewRequestCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _buildDistanceInfo(context,
-                        FFLocalizations.of(context).getText('drv_drop_distance'), dropDistStr,
-                        alignRight: true),
+                    _buildDropDistanceInfo(
+                      context,
+                      FFLocalizations.of(context).getText('drv_drop_distance'),
+                      ride,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -150,11 +168,13 @@ class NewRequestCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
+                        flex: 3,
                         child: _buildButton(
                             context,
                             FFLocalizations.of(context).getText('drv_decline'), ugoRed, isLoading ? null : onDecline)),
                     const SizedBox(width: 16),
                     Expanded(
+                        flex: 7,
                         child: isLoading
                             ? const Center(
                                 child: Padding(
@@ -193,6 +213,27 @@ class NewRequestCard extends StatelessWidget {
                   fontSize: Responsive.fontSize(context, 20),
                   fontWeight: FontWeight.bold))
         ]);
+  }
+
+  Widget _buildDropDistanceInfo(
+    BuildContext context,
+    String label,
+    RideRequest ride,
+  ) {
+    final fallbackKm = _dropDistanceKm(ride);
+    return FutureBuilder<double?>(
+      future: RouteDistanceService().getDrivingDistanceKm(
+        originLat: ride.pickupLat,
+        originLng: ride.pickupLng,
+        destLat: ride.dropLat,
+        destLng: ride.dropLng,
+      ),
+      builder: (context, snapshot) {
+        final km = snapshot.data ?? fallbackKm;
+        return _buildDistanceInfo(context, label, _formatDistance(km),
+            alignRight: true);
+      },
+    );
   }
 
   Widget _buildButton(BuildContext context, String text, Color bg, VoidCallback? onTap) {

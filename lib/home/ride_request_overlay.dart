@@ -50,6 +50,27 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   final Set<int> _showOtpOverlay = {};
   final Set<int> _paymentPendingRides = {};
   final Map<int, List<TextEditingController>> _otpControllers = {};
+  final PageController _requestPageController =
+      PageController(viewportFraction: 0.94);
+
+  bool _matchesDriverVehicle(RideRequest ride) {
+    // Prefer admin vehicle id match when available.
+    final driverVehicleId = FFAppState().adminVehicleId;
+    if (driverVehicleId > 0 && ride.vehicleTypeId != null) {
+      return driverVehicleId == ride.vehicleTypeId;
+    }
+
+    // Fallback to string-based vehicle type match.
+    final driverType = (FFAppState().selectvehicle.isNotEmpty
+            ? FFAppState().selectvehicle
+            : FFAppState().vehicleType)
+        .toString()
+        .trim()
+        .toLowerCase();
+    final rideType = (ride.vehicleType ?? '').toString().trim().toLowerCase();
+    if (driverType.isEmpty || rideType.isEmpty) return true; // don't block if missing
+    return driverType == rideType;
+  }
 
   late AudioPlayer _audioPlayer;
   bool _isAlerting = false;
@@ -83,6 +104,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     _tickTimer?.cancel();
     _searchingPollTimer?.cancel();
     _audioPlayer.dispose();
+    _requestPageController.dispose();
     for (var list in _otpControllers.values) {
       for (var c in list) {
         c.dispose();
@@ -135,6 +157,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         final activeRideStatuses = [RideStatus.accepted, RideStatus.arrived, RideStatus.started, RideStatus.onTrip];
         final hasActiveRide = _activeRequests.any((r) => activeRideStatuses.contains(r.status));
         if (status == RideStatus.searching && hasActiveRide) return;
+
+      // Vehicle type filter: only show rides matching driver's vehicle
+      if (status == RideStatus.searching && !_matchesDriverVehicle(updatedRide)) {
+        return;
+      }
 
         setState(() {
           final validStatuses = [
@@ -306,6 +333,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _updateRideStatus(rideId, RideStatus.accepted);
         FFAppState().activeRideId = rideId;
         VoiceService().rideAccepted();
+        // ✅ Uber-style: once one ride is accepted, stop and clear other requests
+        setState(() {
+          _activeRequests.removeWhere(
+              (r) => r.id != rideId && r.status == RideStatus.searching);
+          _timers.removeWhere((key, _) => key != rideId);
+        });
+        _stopAlert();
+        _stopSearchingPoll();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -479,8 +514,18 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     // Guard against a race where the list becomes empty during build.
     if (_activeRequests.isEmpty) return const SizedBox.shrink();
 
-    // capture into a local variable immediately after the emptiness check.
-    final RideRequest ride = _activeRequests.last;
+    final searchingRides =
+        _activeRequests.where((r) => r.status == RideStatus.searching).toList();
+    final activeRide = _activeRequests.firstWhere(
+      (r) =>
+          r.status == RideStatus.accepted ||
+          r.status == RideStatus.arrived ||
+          r.status == RideStatus.started ||
+          r.status == RideStatus.onTrip ||
+          r.status == RideStatus.completed,
+      orElse: () => searchingRides.isNotEmpty ? searchingRides.last : _activeRequests.last,
+    );
+    final RideRequest ride = activeRide;
     final RideStatus status = ride.status;
 
     if (_showOtpOverlay.contains(ride.id)) {
@@ -532,15 +577,48 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
     switch (status) {
       case RideStatus.searching:
+        if (searchingRides.length == 1) {
+          return Positioned(
+            bottom: 0, left: 0, right: 0,
+            child: NewRequestCard(
+              ride: searchingRides.first,
+              remainingTime: _timers[searchingRides.first.id] ?? 0,
+              onAccept: _isAcceptingRide
+                  ? null
+                  : () => _acceptRide(searchingRides.first.id),
+              onDecline:
+                  _isAcceptingRide ? null : () => removeRideById(searchingRides.first.id),
+              driverLocation: widget.driverLocation,
+              isLoading: _isAcceptingRide,
+            ),
+          );
+        }
+        final pageHeight = (MediaQuery.sizeOf(context).height * 0.55)
+            .clamp(380.0, 560.0);
         return Positioned(
           bottom: 0, left: 0, right: 0,
-          child: NewRequestCard(
-            ride: ride,
-            remainingTime: _timers[ride.id] ?? 0,
-            onAccept: _isAcceptingRide ? null : () => _acceptRide(ride.id),
-            onDecline: _isAcceptingRide ? null : () => removeRideById(ride.id),
-            driverLocation: widget.driverLocation,
-            isLoading: _isAcceptingRide,
+          child: SizedBox(
+            height: pageHeight,
+            child: PageView.builder(
+              controller: _requestPageController,
+              itemCount: searchingRides.length,
+              itemBuilder: (context, index) {
+                final r = searchingRides[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: NewRequestCard(
+                    ride: r,
+                    remainingTime: _timers[r.id] ?? 0,
+                    onAccept:
+                        _isAcceptingRide ? null : () => _acceptRide(r.id),
+                    onDecline:
+                        _isAcceptingRide ? null : () => removeRideById(r.id),
+                    driverLocation: widget.driverLocation,
+                    isLoading: _isAcceptingRide,
+                  ),
+                );
+              },
+            ),
           ),
         );
       case RideStatus.accepted:

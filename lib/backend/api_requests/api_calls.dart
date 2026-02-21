@@ -55,6 +55,88 @@ class LoginCall {
       );
 }
 
+class DriverMyReferralsCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverMyReferrals',
+      apiUrl: '$_baseUrl/api/driver/my-referrals',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+
+  static int totalReferrals(dynamic response) =>
+      castToType<int>(getJsonField(response, r'$.data.total_referrals')) ?? 0;
+
+  static double totalEarnings(dynamic response) =>
+      double.tryParse(
+          getJsonField(response, r'$.data.total_earnings')?.toString() ?? '0') ??
+      0.0;
+
+  static List<dynamic> referrals(dynamic response) =>
+      (getJsonField(response, r'$.data.referrals', true) as List?) ?? [];
+}
+
+class DriverLinkReferralCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    String? referralCode,
+    String? referrerMobile,
+    required int referredDriverId,
+  }) async {
+    final body = <String, dynamic>{
+      'referred_driver_id': referredDriverId,
+      if (referralCode != null && referralCode.isNotEmpty)
+        'referral_code': referralCode,
+      if (referrerMobile != null && referrerMobile.isNotEmpty)
+        'referrer_mobile': referrerMobile,
+    };
+
+    final ffApiRequestBody = json.encode(body);
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverLinkReferral',
+      apiUrl: '$_baseUrl/api/driver/referrals/link',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+
+  static dynamic data(dynamic response) => getJsonField(response, r'$.data');
+}
+
 class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(

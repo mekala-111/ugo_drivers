@@ -172,10 +172,20 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
       try {
         final rr = RideRequest.fromJson(rideData);
         final markers = <FlutterFlowMarker>[
-          FlutterFlowMarker('pickup_${rr.id}', latlng.LatLng(rr.pickupLat, rr.pickupLng)),
+          FlutterFlowMarker(
+            'pickup_${rr.id}',
+            latlng.LatLng(rr.pickupLat, rr.pickupLng),
+            null,
+            GoogleMarkerColor.green,
+          ),
         ];
         if (rr.dropLat != 0 && rr.dropLng != 0) {
-          markers.add(FlutterFlowMarker('drop_${rr.id}', latlng.LatLng(rr.dropLat, rr.dropLng)));
+          markers.add(FlutterFlowMarker(
+            'drop_${rr.id}',
+            latlng.LatLng(rr.dropLat, rr.dropLng),
+            null,
+            GoogleMarkerColor.red,
+          ));
         }
         _mapKey.currentState?.updateMarkers(markers);
 
@@ -203,20 +213,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
         }
         _mapKey.currentState?.updateCircles(circles);
 
-        // ✅ Rapido-style line from pickup to drop
-        final polylines = <Polyline>{};
-        if (rr.dropLat != 0 && rr.dropLng != 0) {
-          polylines.add(Polyline(
-            polylineId: PolylineId('route_${rr.id}'),
-            points: [
-              latlng.LatLng(rr.pickupLat, rr.pickupLng).toGoogleMaps(),
-              latlng.LatLng(rr.dropLat, rr.dropLng).toGoogleMaps(),
-            ],
-            color: AppColors.primary,
-            width: 5,
-          ));
-        }
-        _mapKey.currentState?.updatePolylines(polylines);
+        // ✅ No route line; pins only (green pickup, red drop)
+        _mapKey.currentState?.updatePolylines(<Polyline>{});
       } catch (_) {}
     }
 

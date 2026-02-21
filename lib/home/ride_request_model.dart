@@ -25,6 +25,10 @@ class RideRequest {
   final double? finalFare;
   final PaymentMode paymentMode;
 
+  // 🚗 VEHICLE TYPE (to filter rides by driver vehicle)
+  final String? vehicleType;
+  final int? vehicleTypeId;
+
   /// 4-digit OTP for ride start verification (from backend if provided)
 
 
@@ -45,6 +49,8 @@ class RideRequest {
     this.paymentMode = PaymentMode.unknown,
     this.firstName,
     this.mobileNumber,
+    this.vehicleType,
+    this.vehicleTypeId,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
@@ -92,6 +98,14 @@ class RideRequest {
       paymentMode: parsePaymentMode(
         json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'],
       ),
+      vehicleType: json['vehicle_type'] ??
+          json['rideType'] ??
+          json['ride_type'] ??
+          (json['vehicle'] != null ? json['vehicle']['vehicle_type'] : null),
+      vehicleTypeId: _parseToInt(json['vehicle_type_id']) ??
+          _parseToInt(json['vehicleTypeId']) ??
+          _parseToInt(json['admin_vehicle_id']) ??
+          (json['vehicle'] != null ? _parseToInt(json['vehicle']['vehicle_type_id']) : null),
     );
   }
 
@@ -115,6 +129,8 @@ class RideRequest {
     double? finalFare,
     PaymentMode? paymentMode,
     String? otp,
+    String? vehicleType,
+    int? vehicleTypeId,
   }) {
     return RideRequest(
       id: id ?? this.id,
@@ -133,6 +149,8 @@ class RideRequest {
       estimatedFare: estimatedFare ?? this.estimatedFare,
       finalFare: finalFare ?? this.finalFare,
       paymentMode: paymentMode ?? this.paymentMode,
+      vehicleType: vehicleType ?? this.vehicleType,
+      vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
     );
   }
 
@@ -143,6 +161,17 @@ class RideRequest {
     if (value is String) {
       if (value.isEmpty || value == 'null') return null;
       return double.tryParse(value);
+    }
+    return null;
+  }
+
+  static int? _parseToInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) {
+      if (value.isEmpty || value == 'null') return null;
+      return int.tryParse(value);
     }
     return null;
   }
