@@ -51,9 +51,11 @@ class MainActivity: FlutterActivity() {
                 "showRideRequest" -> {
                     val rideId = call.argument<Int>("rideId") ?: 0
                     val fare = call.argument<String>("fare") ?: ""
+                    val pickupDistance = call.argument<String>("pickupDistance") ?: ""
+                    val dropDistance = call.argument<String>("dropDistance") ?: ""
                     val pickup = call.argument<String>("pickup") ?: ""
                     val drop = call.argument<String>("drop") ?: ""
-                    showRideRequest(rideId, fare, pickup, drop)
+                    showRideRequest(rideId, fare, pickupDistance, dropDistance, pickup, drop)
                     result.success("Ride request shown")
                 }
                 "hideRideRequest" -> {
@@ -180,7 +182,14 @@ class MainActivity: FlutterActivity() {
         startService(intent)
     }
 
-    private fun showRideRequest(rideId: Int, fare: String, pickup: String, drop: String) {
+    private fun showRideRequest(
+        rideId: Int,
+        fare: String,
+        pickupDistance: String,
+        dropDistance: String,
+        pickup: String,
+        drop: String
+    ) {
         if (!isServiceRunning(FloatingBubbleService::class.java)) {
             val serviceIntent = Intent(this, FloatingBubbleService::class.java)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -193,6 +202,8 @@ class MainActivity: FlutterActivity() {
         intent.action = "SHOW_RIDE_REQUEST"
         intent.putExtra("ride_id", rideId)
         intent.putExtra("fare", fare)
+        intent.putExtra("pickup_distance", pickupDistance)
+        intent.putExtra("drop_distance", dropDistance)
         intent.putExtra("pickup", pickup)
         intent.putExtra("drop", drop)
         startService(intent)

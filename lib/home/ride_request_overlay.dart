@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/services/voice_service.dart';
 import 'package:ugo_driver/services/ride_notification_service.dart';
@@ -196,9 +197,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           final fare = updatedRide.estimatedFare != null
               ? '₹${updatedRide.estimatedFare!.toStringAsFixed(0)}'
               : 'New Ride';
+          final pickupDistanceText = _formatPickupDistance(updatedRide);
+          final dropDistanceText = _formatDropDistance(updatedRide);
           await FloatingBubbleService.showRideRequest(
             rideId: updatedRide.id,
             fareText: fare,
+            pickupDistanceText: pickupDistanceText,
+            dropDistanceText: dropDistanceText,
             pickupText: updatedRide.pickupAddress,
             dropText: updatedRide.dropAddress,
           );
@@ -229,6 +234,28 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (!_isAppInForeground) {
       FloatingBubbleService.hideRideRequest();
     }
+  }
+
+  String _formatPickupDistance(RideRequest ride) {
+    final driverLoc = widget.driverLocation;
+    if (driverLoc == null || ride.pickupLat == 0 || ride.pickupLng == 0) {
+      return 'Pickup distance --';
+    }
+    final meters = Geolocator.distanceBetween(
+      driverLoc.latitude,
+      driverLoc.longitude,
+      ride.pickupLat,
+      ride.pickupLng,
+    );
+    final km = meters / 1000;
+    return 'Pickup ${km.toStringAsFixed(1)} km';
+  }
+
+  String _formatDropDistance(RideRequest ride) {
+    if (ride.distance == null || ride.distance == 0) {
+      return 'Drop distance --';
+    }
+    return 'Drop ${ride.distance!.toStringAsFixed(1)} km';
   }
 
   void _startTickTimer() {

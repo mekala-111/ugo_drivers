@@ -21,6 +21,8 @@
         android:enableOnBackInvokedCallback="true"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:requestLegacyExternalStorage="true">
 
         <activity

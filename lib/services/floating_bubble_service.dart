@@ -62,6 +62,8 @@ class FloatingBubbleService {
   static Future<String> showRideRequest({
     required int rideId,
     required String fareText,
+    required String pickupDistanceText,
+    required String dropDistanceText,
     required String pickupText,
     required String dropText,
   }) async {
@@ -69,6 +71,8 @@ class FloatingBubbleService {
       final String result = await _channel.invokeMethod('showRideRequest', {
         'rideId': rideId,
         'fare': fareText,
+        'pickupDistance': pickupDistanceText,
+        'dropDistance': dropDistanceText,
         'pickup': pickupText,
         'drop': dropText,
       });

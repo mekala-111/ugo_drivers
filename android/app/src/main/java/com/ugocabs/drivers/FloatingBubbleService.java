@@ -32,6 +32,8 @@ public class FloatingBubbleService extends Service {
     private View bubbleContainer;
     private View rideRequestCard;
     private TextView fareView;
+    private TextView pickupDistanceView;
+    private TextView dropDistanceView;
     private TextView pickupView;
     private TextView dropView;
     private View acceptView;
@@ -82,6 +84,8 @@ public class FloatingBubbleService extends Service {
         bubbleContainer = floatingBubble.findViewById(R.id.bubble_container);
         rideRequestCard = floatingBubble.findViewById(R.id.ride_request_card);
         fareView = floatingBubble.findViewById(R.id.ride_request_fare);
+        pickupDistanceView = floatingBubble.findViewById(R.id.ride_request_pickup_distance);
+        dropDistanceView = floatingBubble.findViewById(R.id.ride_request_drop_distance);
         pickupView = floatingBubble.findViewById(R.id.ride_request_pickup);
         dropView = floatingBubble.findViewById(R.id.ride_request_drop);
         acceptView = floatingBubble.findViewById(R.id.ride_request_accept);
@@ -175,9 +179,11 @@ public class FloatingBubbleService extends Service {
             } else if ("SHOW_RIDE_REQUEST".equals(action)) {
                 currentRideId = intent.getIntExtra("ride_id", 0);
                 String fare = intent.getStringExtra("fare");
+                String pickupDistance = intent.getStringExtra("pickup_distance");
+                String dropDistance = intent.getStringExtra("drop_distance");
                 String pickup = intent.getStringExtra("pickup");
                 String drop = intent.getStringExtra("drop");
-                showRideRequest(fare, pickup, drop);
+                showRideRequest(fare, pickupDistance, dropDistance, pickup, drop);
             } else if ("HIDE_RIDE_REQUEST".equals(action)) {
                 hideRideRequest();
             }
@@ -254,7 +260,7 @@ public class FloatingBubbleService extends Service {
         }
     }
 
-    public void showRideRequest(String fare, String pickup, String drop) {
+    public void showRideRequest(String fare, String pickupDistance, String dropDistance, String pickup, String drop) {
         if (floatingBubble != null && windowManager != null) {
             try {
                 if (floatingBubble.getWindowToken() == null) {
@@ -268,6 +274,12 @@ public class FloatingBubbleService extends Service {
                 }
                 if (fareView != null && fare != null) {
                     fareView.setText(fare);
+                }
+                if (pickupDistanceView != null && pickupDistance != null) {
+                    pickupDistanceView.setText(pickupDistance);
+                }
+                if (dropDistanceView != null && dropDistance != null) {
+                    dropDistanceView.setText(dropDistance);
                 }
                 if (pickupView != null && pickup != null) {
                     pickupView.setText(pickup);

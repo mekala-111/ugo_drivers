@@ -64,6 +64,24 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/ride_request_pickup_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Pickup 0.0 km"
+            android:textColor="#374151"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/ride_request_drop_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Drop 0.0 km"
+            android:textColor="#374151"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/ride_request_pickup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
