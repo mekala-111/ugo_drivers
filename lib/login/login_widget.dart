@@ -53,7 +53,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Verification Required: Please enter your mobile number to complete registration.',
+            FFLocalizations.of(context).getText('login0010'),
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.orange,
@@ -183,7 +183,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         const Spacer(),
                         Center(
                           child: Text(
-                            'Welcome Partner,',
+                            FFLocalizations.of(context).getText('login0001'),
                             style: GoogleFonts.inter(
                               fontSize: headlineFontSize,
                               color: Colors.white.withValues(alpha:0.9),
@@ -194,7 +194,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         SizedBox(height: 8 * scale),
                         Center(
                           child: Text(
-                            "Let's get you on the road.",
+                            FFLocalizations.of(context).getText('login0002'),
                             style: GoogleFonts.interTight(
                               fontSize: subtitleFontSize,
                               color: Colors.white,
@@ -239,7 +239,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Enter Mobile Number',
+                            FFLocalizations.of(context).getText('login0003'),
                             style: GoogleFonts.inter(
                               fontSize: 14 * scale,
                               fontWeight: FontWeight.w600,
@@ -270,7 +270,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                           color: Colors.orange, size: 20 * scale),
                                       SizedBox(width: 8 * scale),
                                       Text(
-                                        '+91',
+                                        FFLocalizations.of(context).getText('login0012'),
                                         style: GoogleFonts.inter(
                                           fontSize: 18 * scale,
                                           fontWeight: FontWeight.bold,
@@ -305,7 +305,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       LengthLimitingTextInputFormatter(10),
                                     ],
                                     decoration: InputDecoration(
-                                      hintText: 'Mobile Number',
+                                      hintText: FFLocalizations.of(context).getText('login0004'),
                                       hintStyle: GoogleFonts.inter(
                                         color: Colors.grey[400],
                                         fontSize: phoneFontSize,
@@ -351,7 +351,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 ),
                               )
                                   : Text(
-                                'Get OTP',
+                                FFLocalizations.of(context).getText('login0005'),
                                 style: GoogleFonts.interTight(
                                   fontSize: buttonFontSize,
                                   fontWeight: FontWeight.bold,
@@ -376,9 +376,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       height: 1.5,
                                     ),
                                     children: [
-                                      const TextSpan(text: 'By continuing, you agree to our\n'),
+                                      TextSpan(text: FFLocalizations.of(context).getText('login0006')),
                                       TextSpan(
-                                        text: 'Terms of Service',
+                                        text: FFLocalizations.of(context).getText('login0007'),
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w600,
@@ -388,9 +388,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                         recognizer: TapGestureRecognizer()
                                           ..onTap = () => context.pushNamed(TermsConditionsWidget.routeName),
                                       ),
-                                      const TextSpan(text: ' & '),
+                                      TextSpan(text: FFLocalizations.of(context).getText('login0008')),
                                       TextSpan(
-                                        text: 'Privacy Policy',
+                                        text: FFLocalizations.of(context).getText('login0009'),
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w600,
@@ -431,7 +431,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: Responsive.verticalSpacing(context)),
                     child: Text(
-                      'Or connect with',
+                      FFLocalizations.of(context).getText('hczr77o0'),
                       style: GoogleFonts.inter(
                         fontSize: Responsive.fontSize(context, 12),
                         color: Colors.grey[500],
@@ -502,7 +502,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid 10-digit mobile number.',
+            FFLocalizations.of(context).getText('login0011'),
             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
           ),
           backgroundColor: Colors.redAccent,

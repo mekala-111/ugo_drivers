@@ -121,19 +121,19 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text(
-          'Are you sure you want to logout? You will need to sign in again to receive ride requests.',
+        title: Text(FFLocalizations.of(context).getText('accsup0016')),
+        content: Text(
+          FFLocalizations.of(context).getText('accsup0017'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(FFLocalizations.of(context).getText('accsup0018')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(backgroundColor: _brandPrimary),
-            child: const Text('Logout'),
+            child: Text(FFLocalizations.of(context).getText('accsup0016')),
           ),
         ],
       ),
@@ -151,20 +151,23 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Account', style: TextStyle(color: AppColors.errorDark, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'This action cannot be undone. All your data including ride history, earnings, and documents will be permanently deleted.\n\nAre you sure you want to delete your account?',
-          style: TextStyle(height: 1.4),
+        title: Text(
+          FFLocalizations.of(context).getText('accsup0019'),
+          style: const TextStyle(color: AppColors.errorDark, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          FFLocalizations.of(context).getText('accsup0020'),
+          style: const TextStyle(height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(FFLocalizations.of(context).getText('accsup0018')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.errorDark),
-            child: const Text('Delete Account'),
+            child: Text(FFLocalizations.of(context).getText('accsup0019')),
           ),
         ],
       ),
@@ -181,17 +184,18 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
         await FFAppState().clearAppState();
         if (!mounted) return;
         context.go(LoginWidget.routePath);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Account deleted successfully'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(FFLocalizations.of(context).getText('accsup0021')),
           backgroundColor: Colors.green,
         ));
       } else {
         setState(() => _isDeletingAccount = false);
         final err = getJsonField(res.jsonBody ?? {}, r'$.error')?.toString() ?? '';
-        final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString() ?? 'Failed to delete account';
+        final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString() ??
+            FFLocalizations.of(context).getText('accsup0022');
         final isFkError = err.toLowerCase().contains('foreign key') || err.toLowerCase().contains('constraint');
         final userMsg = isFkError
-            ? 'Account deletion is not available. Your account has linked data. Please contact support.'
+            ? FFLocalizations.of(context).getText('accsup0023')
             : msg;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(userMsg),
@@ -203,7 +207,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       if (mounted) {
         setState(() => _isDeletingAccount = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text(
+            '${FFLocalizations.of(context).getText('accsup0024')}${e.toString()}',
+          ),
           backgroundColor: Colors.red,
         ));
       }
@@ -212,10 +218,14 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
 
   String getDriverName() {
-    if (driverData == null) return 'Driver Name';
+    if (driverData == null) {
+      return FFLocalizations.of(context).getText('accsup0025');
+    }
     final firstName = driverData!['first_name'] ?? '';
     final lastName = driverData!['last_name'] ?? '';
-    return '$firstName $lastName'.trim().isEmpty ? 'Driver Name' : '$firstName $lastName'.trim();
+    return '$firstName $lastName'.trim().isEmpty
+        ? FFLocalizations.of(context).getText('accsup0025')
+        : '$firstName $lastName'.trim();
   }
 
   @override
@@ -223,14 +233,32 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     const Color bgWhite = Colors.white;
     const Color bgGrey = AppColors.backgroundAlt;
 
+    final media = MediaQuery.of(context);
+    final width = media.size.width;
+    final height = media.size.height;
+    final isSmall = width < 360;
+    final isTablet = width >= 600;
+    final horizontalPadding = isTablet ? 32.0 : (isSmall ? 12.0 : 16.0);
+    final headerHeight = (height * 0.25).clamp(160.0, 220.0);
+    final profileSize = isTablet ? 120.0 : (isSmall ? 96.0 : 110.0);
+    final profileInnerSize = profileSize - 10.0;
+    final profileBottom = isSmall ? -42.0 : -50.0;
+    final titleSize = isTablet ? 22.0 : (isSmall ? 18.0 : 20.0);
+    final nameSize = isTablet ? 22.0 : (isSmall ? 18.0 : 20.0);
+    final buttonHeight = isSmall ? 46.0 : 50.0;
+    final contentMaxWidth = isTablet ? 640.0 : double.infinity;
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: bgWhite,
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: _brandPrimary))
           : SingleChildScrollView(
-        child: Column(
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: contentMaxWidth),
+            child: Column(
+              children: [
             // ==========================================
             // 1️⃣ HEADER SECTION
             // ==========================================
@@ -240,7 +268,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
               children: [
                 // Banner Background
                 Container(
-                  height: 180,
+                  height: headerHeight,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -253,25 +281,28 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                     child: Align(
                       alignment: Alignment.topRight,
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: EdgeInsets.all(isSmall ? 12.0 : 16.0),
                         child: InkWell(
                           onTap: () => context.pushNamed(SupportWidget.routeName),
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmall ? 10 : 12,
+                              vertical: isSmall ? 4 : 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.white, width: 1),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.headset_mic_rounded, color: Colors.white, size: 16),
-                                SizedBox(width: 6),
+                                const Icon(Icons.headset_mic_rounded, color: Colors.white, size: 16),
+                                const SizedBox(width: 6),
                                 Text(
-                                  'Help',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  FFLocalizations.of(context).getText('accsup0001'),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -284,19 +315,23 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
                 // ✅ FIXED: Back Button + "My Profile" Text
                 Positioned(
-                  top: 50,
-                  left: 16,
+                  top: isSmall ? 36 : 50,
+                  left: horizontalPadding,
                   child: Row(
                     children: [
                       InkWell(
                         onTap: () => context.pop(),
-                        child: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: isSmall ? 24 : 28,
+                        ),
                       ),
-                      const SizedBox(width: 16),
-                      const Text(
-                        'My Profile',
+                      SizedBox(width: isSmall ? 10 : 16),
+                      Text(
+                        FFLocalizations.of(context).getText('accsup0002'),
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: titleSize,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -308,7 +343,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                 // Profile Picture (Overlapping)
                 // Profile Picture + Edit Button
                 Positioned(
-  bottom: -50,
+  bottom: profileBottom,
   child: GestureDetector(
     behavior: HitTestBehavior.opaque, // IMPORTANT
     onTap: () async {
@@ -324,15 +359,15 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       }
     },
     child: SizedBox(
-      width: 110,
-      height: 110,
+      width: profileSize,
+      height: profileSize,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
           Container(
-            width: 100,
-            height: 100,
+            width: profileInnerSize,
+            height: profileInnerSize,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -346,7 +381,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(profileInnerSize / 2),
               child: driverData?['profile_image'] != null
                   ? CachedNetworkImage(
                       imageUrl: getFullImageUrl(driverData!['profile_image']),
@@ -363,12 +398,16 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             bottom: 2,
             right: 2,
             child: Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(isSmall ? 5 : 6),
               decoration: const BoxDecoration(
                 color: _brandPrimary,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.edit, size: 18, color: Colors.white),
+              child: Icon(
+                Icons.edit,
+                size: isSmall ? 16 : 18,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -380,13 +419,13 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
               ],
             ),
 
-            const SizedBox(height: 60),
+            SizedBox(height: isSmall ? 52 : 60),
 
             // Name
             Text(
               getDriverName(),
               style: GoogleFonts.interTight(
-                  fontSize: 20,
+                  fontSize: nameSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87
               ),
@@ -398,21 +437,76 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             // 2️⃣ STATS ROW (Rapido Captain style)
             // ==========================================
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+              margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: EdgeInsets.symmetric(
+                vertical: isSmall ? 12 : 16,
+                horizontal: isSmall ? 6 : 8,
+              ),
               decoration: BoxDecoration(
                 color: bgGrey,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildStatItem(driverRating, 'Rating', Icons.star_rounded),
-                  Container(width: 1, height: 36, color: Colors.grey[300]),
-                  _buildStatItem("${driverData?['total_rides_completed'] ?? 0}", 'Trips', Icons.local_taxi_rounded),
-                  Container(width: 1, height: 36, color: Colors.grey[300]),
-                  _buildStatItem(driverYears, 'Years', Icons.calendar_today_rounded),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final stackStats = constraints.maxWidth < 320;
+                  if (stackStats) {
+                    return Column(
+                      children: [
+                        _buildStatItem(
+                          driverRating,
+                          FFLocalizations.of(context).getText('accsup0003'),
+                          Icons.star_rounded,
+                          isSmall: isSmall,
+                          isTablet: isTablet,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildStatItem(
+                          "${driverData?['total_rides_completed'] ?? 0}",
+                          FFLocalizations.of(context).getText('accsup0004'),
+                          Icons.local_taxi_rounded,
+                          isSmall: isSmall,
+                          isTablet: isTablet,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildStatItem(
+                          driverYears,
+                          FFLocalizations.of(context).getText('accsup0005'),
+                          Icons.calendar_today_rounded,
+                          isSmall: isSmall,
+                          isTablet: isTablet,
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStatItem(
+                        driverRating,
+                        FFLocalizations.of(context).getText('accsup0003'),
+                        Icons.star_rounded,
+                        isSmall: isSmall,
+                        isTablet: isTablet,
+                      ),
+                      Container(width: 1, height: 36, color: Colors.grey[300]),
+                      _buildStatItem(
+                        "${driverData?['total_rides_completed'] ?? 0}",
+                        FFLocalizations.of(context).getText('accsup0004'),
+                        Icons.local_taxi_rounded,
+                        isSmall: isSmall,
+                        isTablet: isTablet,
+                      ),
+                      Container(width: 1, height: 36, color: Colors.grey[300]),
+                      _buildStatItem(
+                        driverYears,
+                        FFLocalizations.of(context).getText('accsup0005'),
+                        Icons.calendar_today_rounded,
+                        isSmall: isSmall,
+                        isTablet: isTablet,
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
 
@@ -422,13 +516,13 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             // 3️⃣ MENU LIST (Rapido Captain style)
             // ==========================================
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Column(
                 children: [
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    title: 'Documents',
-                    subtitle: 'RC, DL, PAN & Insurance',
+                    title: FFLocalizations.of(context).getText('accsup0006'),
+                    subtitle: FFLocalizations.of(context).getText('accsup0007'),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const DocumentsScreen()),
@@ -437,8 +531,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.edit_location_alt_outlined,
-                    title: 'Edit Address',
-                    subtitle: 'Update your address',
+                    title: FFLocalizations.of(context).getText('accsup0008'),
+                    subtitle: FFLocalizations.of(context).getText('accsup0009'),
                     onTap: () {
                       if (driverData != null) {
                         Navigator.push(
@@ -456,8 +550,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.card_giftcard_rounded,
-                    title: 'Refer & Earn',
-                    subtitle: 'Invite friends, earn rewards',
+                    title: FFLocalizations.of(context).getText('accsup0010'),
+                    subtitle: FFLocalizations.of(context).getText('accsup0011'),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const ReferFriendWidget()),
@@ -466,15 +560,15 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    title: 'Terms & Conditions',
-                    subtitle: 'Legal information',
+                    title: FFLocalizations.of(context).getText('accsup0012'),
+                    subtitle: FFLocalizations.of(context).getText('accsup0013'),
                     onTap: () => context.pushNamed(TermsConditionsWidget.routeName),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.privacy_tip_outlined,
-                    title: 'Privacy Policy',
-                    subtitle: 'How we handle your data',
+                    title: FFLocalizations.of(context).getText('accsup0014'),
+                    subtitle: FFLocalizations.of(context).getText('accsup0015'),
                     onTap: () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
                   ),
                   const SizedBox(height: 8),
@@ -494,12 +588,12 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             // 4️⃣ ACTION BUTTONS
             // ==========================================
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Column(
                 children: [
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: buttonHeight,
                     child: OutlinedButton.icon(
                       onPressed: _isLoggingOut ? null : _logout,
                       icon: _isLoggingOut
@@ -510,7 +604,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                             )
                           : const Icon(Icons.power_settings_new, color: Colors.black87),
                       label: Text(
-                        _isLoggingOut ? 'Logging out...' : 'Logout',
+                        _isLoggingOut
+                            ? FFLocalizations.of(context).getText('accsup0026')
+                            : FFLocalizations.of(context).getText('accsup0016'),
                         style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
@@ -526,7 +622,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: buttonHeight,
                     child: ElevatedButton.icon(
                       onPressed: _isDeletingAccount ? null : _deleteAccount,
                       icon: _isDeletingAccount
@@ -540,7 +636,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                             )
                           : const Icon(Icons.delete_outline, color: Colors.white),
                       label: Text(
-                        _isDeletingAccount ? 'Deleting...' : 'Delete Account',
+                        _isDeletingAccount
+                            ? FFLocalizations.of(context).getText('accsup0027')
+                            : FFLocalizations.of(context).getText('accsup0019'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -562,18 +660,30 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
           ],
         ),
       ),
+    ),
+        ),
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon) {
+  Widget _buildStatItem(
+    String value,
+    String label,
+    IconData icon, {
+    bool isSmall = false,
+    bool isTablet = false,
+  }) {
+    final valueSize = isTablet ? 22.0 : (isSmall ? 18.0 : 20.0);
+    final labelSize = isTablet ? 13.0 : (isSmall ? 11.0 : 12.0);
+    final iconSize = isTablet ? 24.0 : (isSmall ? 20.0 : 22.0);
+
     return Column(
       children: [
-        Icon(icon, color: _brandPrimary, size: 22),
+        Icon(icon, color: _brandPrimary, size: iconSize),
         const SizedBox(height: 6),
         Text(
           value,
           style: GoogleFonts.poppins(
-            fontSize: 20,
+            fontSize: valueSize,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
@@ -582,7 +692,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
         Text(
           label,
           style: GoogleFonts.poppins(
-            fontSize: 12,
+            fontSize: labelSize,
             fontWeight: FontWeight.w500,
             color: Colors.grey[600],
           ),

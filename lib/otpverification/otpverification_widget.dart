@@ -474,7 +474,9 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
         }
       } else {
         // ❌ NEW USER -> Go to Registration (First Details)
+        FFAppState().isLoggedIn = true;
         FFAppState().isRegistered = false;
+        FFAppState().registrationStep = 0;
 
         if (mounted) {
           // Changed from pushNamedAuth to goNamedAuth to prevent back navigation

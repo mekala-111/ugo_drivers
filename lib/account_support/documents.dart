@@ -126,7 +126,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (_isLoading) return;
 
     if (!_hasNewDocuments()) {
-      _showSnack('Please upload at least one new document to update.',
+      _showSnack(FFLocalizations.of(context).getText('docm0001'),
           isError: true);
       return;
     }
@@ -179,18 +179,20 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           FFAppState().registrationImage = null;
         });
 
-        _showSnack('✓ Documents updated successfully!', isError: false);
+        _showSnack(FFLocalizations.of(context).getText('docm0002'),
+            isError: false);
         await Future.delayed(const Duration(milliseconds: 1000));
         if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
       } else {
         // Error Logic
         String msg =
             getJsonField(apiResult.jsonBody, r'''$.message''')?.toString() ??
-                'Update failed';
+                FFLocalizations.of(context).getText('docm0003');
         _showSnack(msg, isError: true);
       }
     } catch (e) {
-      _showSnack('An error occurred. Please try again.', isError: true);
+      _showSnack(FFLocalizations.of(context).getText('docm0004'),
+          isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -268,8 +270,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              const Text(
-                                'Manage Documents',
+                              Text(
+                                FFLocalizations.of(context)
+                                    .getText('docm0005'),
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -280,9 +283,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           ),
 
                           const SizedBox(height: 40),
-                          const Center(
+                          Center(
                             child: Text(
-                              'Update your Proofs here.',
+                              FFLocalizations.of(context)
+                                  .getText('docm0006'),
                               style: TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
@@ -326,32 +330,33 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader('Personal Documents'),
+                        _buildSectionHeader(
+                          FFLocalizations.of(context).getText('docm0007')),
                       const SizedBox(height: 16),
 
                       _buildStepItem(
-                        'Profile Photo',
+                        FFLocalizations.of(context).getText('docm0008'),
                         'profilePhoto',
                             () => context
                             .pushNamed(FaceVerifyupdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        'Driving License',
+                        FFLocalizations.of(context).getText('docm0009'),
                         'imageLicense',
                             () => context
                             .pushNamed(DrivingDlUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        'Aadhaar Card',
+                        FFLocalizations.of(context).getText('docm0010'),
                         'aadharImage',
                             () => context
                             .pushNamed(AdharUploadUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        'PAN Card',
+                        FFLocalizations.of(context).getText('docm0011'),
                         'panImage',
                             () => context
                             .pushNamed(PanuploadScreenUpdateWidget.routeName),
@@ -361,18 +366,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       Divider(color: Colors.grey.shade100, thickness: 2),
                       const SizedBox(height: 24),
 
-                      _buildSectionHeader('Vehicle Documents'),
+                        _buildSectionHeader(
+                          FFLocalizations.of(context).getText('docm0012')),
                       const SizedBox(height: 16),
 
                       _buildStepItem(
-                        'Vehicle Photo',
+                        FFLocalizations.of(context).getText('docm0013'),
                         'vehicleImage',
                             () => context
                             .pushNamed(VehicleImageUpdateWidget.routeName),
                       ),
                       const SizedBox(height: 12),
                       _buildStepItem(
-                        'RC Book',
+                        FFLocalizations.of(context).getText('docm0014'),
                         'registrationImage',
                             () => context
                             .pushNamed(RegistrationUpdateWidget.routeName),
@@ -405,8 +411,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 color: Colors.white,
                                 strokeWidth: 2.5),
                           )
-                              : const Text(
-                            'Update Documents',
+                              : Text(
+                            FFLocalizations.of(context)
+                                .getText('docm0015'),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -449,7 +456,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     Color borderColor = AppColors.divider;
     Color iconColor = Colors.grey.shade400;
     IconData icon = Icons.upload_file_rounded;
-    String statusText = 'Tap to upload';
+    String statusText = FFLocalizations.of(context).getText('upload0002');
     Color textColor = Colors.grey.shade500;
 
     if (isLocal) {
@@ -457,14 +464,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       borderColor = AppColors.primary.withValues(alpha:0.5);
       iconColor = AppColors.primary;
       icon = Icons.cloud_upload_rounded;
-      statusText = 'Ready to Update';
+      statusText = FFLocalizations.of(context).getText('docm0016');
       textColor = AppColors.primary;
     } else if (isServer) {
       bgColor = AppColors.sectionGreenTint;
       borderColor = AppColors.accentEmerald.withValues(alpha:0.5);
       iconColor = AppColors.accentEmerald;
       icon = Icons.check_circle_rounded;
-      statusText = 'Uploaded';
+      statusText = FFLocalizations.of(context).getText('upload0005');
       textColor = AppColors.accentEmerald;
     }
 

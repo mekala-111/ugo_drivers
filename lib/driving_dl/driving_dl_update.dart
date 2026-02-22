@@ -67,6 +67,15 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
 
     _loadSavedData();
     _debugPrintState();
+
+    _licenseNumberController.addListener(() {
+      FFAppState().licenseNumber =
+          _licenseNumberController.text.trim().toUpperCase();
+    });
+    _licenseExpiryController.addListener(() {
+      FFAppState().licenseExpiryDate =
+          _licenseExpiryController.text.trim();
+    });
   }
 
   void _debugPrintState() {

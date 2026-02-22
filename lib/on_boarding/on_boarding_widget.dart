@@ -45,6 +45,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => OnBoardingModel());
+    // Mark current step for resume functionality
+    FFAppState().registrationStep = 4;
     _initFCM();
   }
 
@@ -159,7 +161,18 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     children: [
                       const SizedBox(height: 16),
                       InkWell(
-                        onTap: () => context.pop(),
+                        onTap: () {
+                          context.goNamed(
+                            ChooseVehicleWidget.routeName,
+                            queryParameters: {
+                              'mobile': serializeParam(widget.mobile, ParamType.int),
+                              'firstname': serializeParam(widget.firstname, ParamType.String),
+                              'lastname': serializeParam(widget.lastname, ParamType.String),
+                              'email': serializeParam(widget.email, ParamType.String),
+                              'referalcode': serializeParam(widget.referalcode, ParamType.String),
+                            }.withoutNulls,
+                          );
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -177,7 +190,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Setup Profile',
+                                FFLocalizations.of(context).getText('ob0001'),
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   color: Colors.white.withValues(alpha:0.9),
@@ -186,7 +199,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '$completionPercentage% Done',
+                                FFLocalizations.of(context)
+                                    .getText('ob0002')
+                                    .replaceAll('%1', completionPercentage.toString()),
                                 style: GoogleFonts.interTight(
                                   fontSize: 32,
                                   color: Colors.white,
@@ -254,7 +269,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Required Documents',
+                          FFLocalizations.of(context).getText('ob0003'),
                           style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -264,37 +279,37 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                         const SizedBox(height: 20),
 
                         _buildDocItem(
-                          'Driving License',
+                          FFLocalizations.of(context).getText('qg68530z'),
                           FFAppState().imageLicense,
                               () => context.pushNamed(DrivingDlWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          'Profile Photo',
+                          FFLocalizations.of(context).getText('k8fnkaky'),
                           FFAppState().profilePhoto,
                               () => context.pushNamed(FaceVerifyWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          'Aadhaar Card',
+                          FFLocalizations.of(context).getText('c0kv9v5c'),
                           FFAppState().aadharImage,
                               () => context.pushNamed(AdharUploadWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          'PAN Card',
+                          FFLocalizations.of(context).getText('ymy7qbgz'),
                           FFAppState().panImage,
                               () => context.pushNamed(PanuploadScreenWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          'Vehicle Photo',
+                          FFLocalizations.of(context).getText('jqs0l5w3'),
                           FFAppState().vehicleImage,
                               () => context.pushNamed(VehicleImageWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
-                          'RC Book',
+                          FFLocalizations.of(context).getText('ipks4vgn'),
                           FFAppState().registrationImage,
                               () => context.pushNamed(RegistrationImageWidget.routeName),
                         ),
@@ -351,7 +366,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                   )
                       : Text(
-                    allDocsUploaded ? 'Submit for Verification' : 'Skip for Now',
+                    allDocsUploaded
+                        ? FFLocalizations.of(context).getText('ob0004')
+                        : FFLocalizations.of(context).getText('ad0016'),
                     style: GoogleFonts.interTight(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -417,7 +434,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    isUploaded ? 'Uploaded' : 'Tap to upload',
+                    isUploaded
+                        ? FFLocalizations.of(context).getText('ob0006')
+                        : FFLocalizations.of(context).getText('ob0007'),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: isUploaded ? AppColors.primary : Colors.grey.shade500,
@@ -461,11 +480,11 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Row(
+            title: Row(
               children: [
                 Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
                 SizedBox(width: 12),
-                Text('Verification Required'),
+                Text(FFLocalizations.of(context).getText('ob0008')),
               ],
             ),
             content: SingleChildScrollView(
@@ -473,9 +492,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Please fix the following before submitting:',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    FFLocalizations.of(context).getText('ob0009'),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
                   ...result.errors.map((e) => Padding(
@@ -494,7 +513,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('OK'),
+                child: Text(FFLocalizations.of(context).getText('drv_ok')),
               ),
             ],
           ),
@@ -506,18 +525,21 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Incomplete Profile'),
-          content: const Text(
-            "You won't be able to go online until all documents are verified. Continue anyway?",
+          title: Text(FFLocalizations.of(context).getText('ob0010')),
+          content: Text(
+            FFLocalizations.of(context).getText('ob0011'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
+              child: Text(FFLocalizations.of(context).getText('drv_cancel')),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Skip', style: TextStyle(color: AppColors.primary)),
+              child: Text(
+                FFLocalizations.of(context).getText('ob0005'),
+                style: const TextStyle(color: AppColors.primary),
+              ),
             ),
           ],
         ),
@@ -690,6 +712,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           FFAppState().update(() {
             FFAppState().isLoggedIn = true;
             FFAppState().isRegistered = true;
+            FFAppState().registrationStep = 4; // Mark registration complete
             FFAppState().driverid = resolvedDriverId;
             FFAppState().accessToken = accessToken!;
             // Vehicle data from signup response already set above
@@ -703,13 +726,14 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           FFAppState().update(() {
             FFAppState().isLoggedIn = false;
             FFAppState().isRegistered = true;
+            FFAppState().registrationStep = 4; // Mark registration complete
             final id = driverId ?? 0;
           if (id > 0) FFAppState().driverid = id;
           });
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Registration complete. Please sign in to continue.'),
+              SnackBar(
+                content: Text(FFLocalizations.of(context).getText('ob0012')),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -761,7 +785,11 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(errorMsg.isEmpty ? 'Registration Failed' : errorMsg),
+              content: Text(
+                errorMsg.isEmpty
+                    ? FFLocalizations.of(context).getText('ob0013')
+                    : errorMsg,
+              ),
               backgroundColor: Colors.red,
             ),
           );

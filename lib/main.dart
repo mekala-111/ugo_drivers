@@ -24,56 +24,55 @@ import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';
 import '/login/login_widget.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  GoRouter.optionURLReflectsImperativeAPIs = true;
-  usePathUrlStrategy();
-  await WakelockPlus.enable();
-  await initFirebase();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    GoRouter.optionURLReflectsImperativeAPIs = true;
+    usePathUrlStrategy();
+    await WakelockPlus.enable();
+    await initFirebase();
 
-  await RideNotificationService().initialize();
-  await VoiceService().initFromStorage();
+    await RideNotificationService().initialize();
+    await VoiceService().initFromStorage();
 
-  await FlutterFlowTheme.initialize();
+    await FlutterFlowTheme.initialize();
 
-  final appState = FFAppState();
-  await appState.initializePersistedState();
+    final appState = FFAppState();
+    await appState.initializePersistedState();
 
-  await FFLocalizations.initialize();
+    await FFLocalizations.initialize();
 
-  await initializeFirebaseAppCheck();
+    await initializeFirebaseAppCheck();
 
-  // Error handling: present + report to Crashlytics
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    if (!kIsWeb) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-    }
-  };
-  if (!kIsWeb) {
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
+    // Error handling: present + report to Crashlytics
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      if (!kIsWeb) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+      }
     };
-  }
+    if (!kIsWeb) {
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
 
-  runZonedGuarded(
-    () => runApp(MultiProvider(
+    runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appState),
         ChangeNotifierProvider(create: (_) => RideState()),
       ],
       child: const MyApp(),
-    )),
-    (Object error, StackTrace stack) {
-      if (!kIsWeb) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
-      }
-      if (kDebugMode) {
-        debugPrint('Uncaught error: $error\n$stack');
-      }
-    },
-  );
+    ));
+  }, (Object error, StackTrace stack) {
+    if (!kIsWeb) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+    }
+    if (kDebugMode) {
+      debugPrint('Uncaught error: $error\n$stack');
+    }
+  });
 }
 
 class MyApp extends StatefulWidget {

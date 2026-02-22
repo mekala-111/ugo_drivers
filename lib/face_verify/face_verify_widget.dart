@@ -187,13 +187,18 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
         print('   Bytes: ${bytes.length}');
         print('   Base64: ${base64Image.length} chars');
 
-        _showSnackBar('Profile photo captured!');
+        _showSnackBar(FFLocalizations.of(context).getText('face0001'));
       } else {
         print('❌ Camera cancelled by user');
       }
     } catch (e) {
       print('❌ Camera error: $e');
-      _showSnackBar('Camera error: ${e.toString()}', isError: true);
+      _showSnackBar(
+        FFLocalizations.of(context)
+            .getText('face0002')
+            .replaceAll('%1', e.toString()),
+        isError: true,
+      );
     }
   }
 
@@ -299,12 +304,13 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Take your profile photo',
+                                      FFLocalizations.of(context)
+                                          .getText('face0003'),
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -321,7 +327,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                         ),
                                         SizedBox(width: 4),
                                         Text(
-                                          'Live camera only - Fraud prevention',
+                                          FFLocalizations.of(context)
+                                              .getText('face0004'),
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.green,
@@ -336,8 +343,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                             ],
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Your profile photo helps others recognize you and builds trust with passengers.',
+                          Text(
+                            FFLocalizations.of(context).getText('face0005'),
                             style: TextStyle(
                               fontSize: 14,
                               color: AppColors.greyMedium,
@@ -371,7 +378,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Security Notice',
+                                  FFLocalizations.of(context)
+                                      .getText('face0006'),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -380,7 +388,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'For fraud prevention, you must take a live photo using your camera. Gallery photos are not allowed.',
+                                  FFLocalizations.of(context)
+                                      .getText('face0007'),
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.green[800],
@@ -413,13 +422,14 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(Icons.tips_and_updates,
                                   color: AppColors.registrationOrange, size: 20),
                               SizedBox(width: 8),
                               Text(
-                                'Photo Guidelines',
+                                FFLocalizations.of(context)
+                                    .getText('face0008'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -428,16 +438,18 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _buildGuideline(
-                              'Make sure your face is clearly visible and well-lit'),
-                          _buildGuideline(
-                              'Remove sunglasses, hats, or anything covering your face'),
-                          _buildGuideline(
-                              'Use front camera and face directly at the camera'),
-                          _buildGuideline('Neutral expression with eyes open'),
-                          _buildGuideline('Avoid blurry or low-quality images'),
-                          _buildGuideline(
-                              '🔒 Live photo required - No saved photos allowed'),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0009')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0010')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0011')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0012')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0013')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('face0014')),
                         ],
                       ),
                     ),
@@ -539,7 +551,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                   },
                                                   errorBuilder: (context, error,
                                                       stackTrace) {
-                                                    return const Column(
+                                                    return Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
@@ -549,10 +561,14 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                             size: 48,
                                                             color: Colors.red),
                                                         SizedBox(height: 8),
-                                                        Text('Failed to load',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .red)),
+                                                      Text(
+                                                        FFLocalizations.of(
+                                                            context)
+                                                          .getText(
+                                                            'upload0006'),
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                            .red)),
                                                       ],
                                                     );
                                                   },
@@ -581,8 +597,9 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                         ),
                                                       ),
                                                       const SizedBox(height: 16),
-                                                      const Text(
-                                                        'Tap to capture',
+                                                      Text(
+                                                        FFLocalizations.of(context)
+                                                            .getText('face0015'),
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
@@ -593,7 +610,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Live camera only',
+                                                        FFLocalizations.of(context)
+                                                            .getText('face0016'),
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color:
@@ -644,8 +662,9 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                 '❌ Profile photo removed from FFAppState');
 
                                             _showSnackBar(
-                                                'Profile photo removed',
-                                                isError: true);
+                                              FFLocalizations.of(context)
+                                                .getText('face0019'),
+                                              isError: true);
                                           },
                                           child: Container(
                                             padding: const EdgeInsets.all(8),
@@ -690,9 +709,11 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      _isProfilePhotoValid
-                                          ? '✓ Photo verified'
-                                          : 'Photo captured',
+                                        _isProfilePhotoValid
+                                          ? FFLocalizations.of(context)
+                                            .getText('face0017')
+                                          : FFLocalizations.of(context)
+                                            .getText('face0018'),
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: _isProfilePhotoValid
@@ -715,7 +736,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                     if (!hasImage)
                       FFButtonWidget(
                         onPressed: _takeCameraPhoto,
-                        text: 'Open Camera',
+                        text: FFLocalizations.of(context).getText('face0020'),
                         icon: const Icon(Icons.camera_front, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,
@@ -762,14 +783,15 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                               print(
                                   '   Base64: ${FFAppState().profilePhotoBase64.length} chars');
 
-                              _showSnackBar(
-                                  'Profile photo saved successfully!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('face0021'));
 
                               // Navigate back
                               await Future.delayed(const Duration(milliseconds: 500));
                               context.pop();
                             },
-                            text: 'Continue',
+                            text:
+                              FFLocalizations.of(context).getText('face0022'),
                             icon: const Icon(Icons.arrow_forward, size: 20),
                             options: FFButtonOptions(
                               width: double.infinity,
@@ -788,9 +810,10 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           TextButton.icon(
                             onPressed: _takeCameraPhoto,
                             icon: const Icon(Icons.refresh, color: AppColors.registrationOrange),
-                            label: const Text(
-                              'Retake Photo',
-                              style: TextStyle(
+                            label: Text(
+                              FFLocalizations.of(context)
+                                  .getText('face0023'),
+                              style: const TextStyle(
                                 color: AppColors.registrationOrange,
                                 fontWeight: FontWeight.w600,
                               ),

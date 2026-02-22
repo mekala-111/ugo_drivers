@@ -66,6 +66,11 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
     _loadSavedData();
     _debugPrintState();
+
+    _registrationNumberController.addListener(() {
+      FFAppState().registrationNumber =
+          _registrationNumberController.text.trim().toUpperCase();
+    });
   }
 
   void _debugPrintState() {
@@ -192,12 +197,14 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         FFAppState().registrationNumber = regNumber;
         FFAppState().update(() {});
 
-        _showSnackBar('✅ Registration Number auto-filled: $regNumber');
+        _showSnackBar(FFLocalizations.of(context)
+          .getText('rc0009')
+          .replaceAll('%1', regNumber));
         print('✅ Registration Number extracted: $regNumber');
       } else {
         _showSnackBar(
-            '⚠️ Could not detect registration number. Please enter manually.',
-            isError: true);
+          FFLocalizations.of(context).getText('rc0010'),
+          isError: true);
         print('❌ No valid registration number found in text');
       }
 
@@ -205,7 +212,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
       await file.delete();
     } catch (e) {
       print('❌ OCR Error: $e');
-      _showSnackBar('OCR failed. Please enter registration number manually.',
+        _showSnackBar(FFLocalizations.of(context).getText('rc0011'),
           isError: true);
     } finally {
       setState(() => _isProcessingOCR = false);
@@ -239,7 +246,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
   String? _validateRegistrationNumber(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter registration number';
+      return FFLocalizations.of(context).getText('rc0012');
     }
 
     String cleanedValue =
@@ -247,11 +254,11 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
     RegExp regRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$');
 
     if (!regRegex.hasMatch(cleanedValue)) {
-      return 'Invalid format (e.g., DL03CW3121)';
+      return FFLocalizations.of(context).getText('rc0013');
     }
 
     if (cleanedValue.length < 9 || cleanedValue.length > 10) {
-      return 'Registration must be 9-10 characters';
+      return FFLocalizations.of(context).getText('rc0014');
     }
 
     return null;
@@ -399,13 +406,17 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Tap to upload $title',
+                                      FFLocalizations.of(context)
+                                        .getText('doc0009')
+                                        .replaceAll('%1', title),
                                       style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text('Camera or Gallery',
+                                    Text(
+                                      FFLocalizations.of(context)
+                                        .getText('upload0004'),
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600])),
@@ -421,14 +432,15 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                         color: Colors.black.withValues(alpha:0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircularProgressIndicator(color: AppColors.registrationOrange),
                             SizedBox(height: 16),
                             Text(
-                              'Reading Registration Number...',
+                              FFLocalizations.of(context)
+                                  .getText('rc0008'),
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -487,7 +499,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isValid ? '✓ Verified and uploaded' : 'Image uploaded',
+                        isValid
+                          ? FFLocalizations.of(context).getText('doc0007')
+                          : FFLocalizations.of(context).getText('doc0008'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isValid ? Colors.green : Colors.orange,
@@ -528,13 +542,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                 const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30.0),
             onPressed: () => context.pop(),
           ),
-          title: const Row(
+          title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.description, color: Colors.white, size: 24),
               SizedBox(width: 8),
               Text(
-                'Vehicle Registration',
+                FFLocalizations.of(context).getText('rc0001'),
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -583,19 +597,21 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                   color: AppColors.registrationOrange, size: 32),
                             ),
                             const SizedBox(width: 16),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Upload RC Document',
+                                    FFLocalizations.of(context)
+                                        .getText('rc0002'),
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Both sides required',
+                                    FFLocalizations.of(context)
+                                        .getText('aad0002'),
                                     style: TextStyle(
                                         fontSize: 13, color: AppColors.greyMedium),
                                   ),
@@ -610,8 +626,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
                       // Front Side
                       _buildImageCard(
-                        title: 'Front Side',
-                        subtitle: 'Registration number visible',
+                        title: FFLocalizations.of(context).getText('doc0001'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('rc0003'),
                         icon: Icons.credit_card,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
@@ -656,7 +673,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     base64Encode(_frontImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                              _showSnackBar('Front side uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0003'));
 
                               // 🔥 AUTO-EXTRACT REGISTRATION NUMBER
                               await _extractRegistrationNumberFromImage(
@@ -674,7 +692,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           FFAppState().rcFrontImageUrl = '';
                           FFAppState().rcFrontBase64 = '';
                           FFAppState().update(() {});
-                          _showSnackBar('Front side removed', isError: true);
+                            _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0005'),
+                              isError: true);
                         },
                       ),
 
@@ -682,8 +702,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
                       // Back Side
                       _buildImageCard(
-                        title: 'Back Side',
-                        subtitle: 'Owner details & address visible',
+                        title: FFLocalizations.of(context).getText('doc0002'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('rc0004'),
                         icon: Icons.contact_page,
                         image: _backImage,
                         imageUrl: _backImageUrl,
@@ -725,7 +746,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     base64Encode(_backImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                              _showSnackBar('Back side uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0004'));
                             }
                           }
                         },
@@ -739,7 +761,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           FFAppState().rcBackImageUrl = '';
                           FFAppState().rcBackBase64 = '';
                           FFAppState().update(() {});
-                          _showSnackBar('Back side removed', isError: true);
+                            _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0006'),
+                              isError: true);
                         },
                       ),
 
@@ -767,7 +791,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 const Icon(Icons.confirmation_number,
                                     color: AppColors.registrationOrange, size: 20),
                                 const SizedBox(width: 8),
-                                const Text('Registration Number',
+                                Text(
+                                  FFLocalizations.of(context)
+                                    .getText('rc0005'),
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
@@ -784,13 +810,15 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                         border: Border.all(
                                             color: Colors.green, width: 1),
                                       ),
-                                      child: const Row(
+                                        child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
                                           SizedBox(width: 4),
-                                          Text('Auto-filled',
+                                          Text(
+                                            FFLocalizations.of(context)
+                                              .getText('dl0007'),
                                               style: TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
@@ -811,7 +839,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 LengthLimitingTextInputFormatter(10),
                               ],
                               decoration: InputDecoration(
-                                hintText: 'DL03CW3121',
+                                hintText: FFLocalizations.of(context)
+                                    .getText('rc0006'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.directions_car,
                                     color: AppColors.registrationOrange),
@@ -864,8 +893,10 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 Expanded(
                                   child: Text(
                                     _registrationNumberController.text.isEmpty
-                                        ? 'Auto-filled from photo or enter manually'
-                                        : 'Registration number verified ✓',
+                                      ? FFLocalizations.of(context)
+                                        .getText('rc0007')
+                                      : FFLocalizations.of(context)
+                                        .getText('rc0015'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: _registrationNumberController
@@ -895,27 +926,32 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
-                                Text('Important Guidelines',
+                              Text(
+                                FFLocalizations.of(context)
+                                  .getText('guide0001'),
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildGuideline('Upload both front and back sides'),
                             _buildGuideline(
-                                'Registration number must be clearly visible'),
-                            _buildGuideline('All four corners should be clear'),
-                            _buildGuideline('Avoid glare and shadows'),
+                              FFLocalizations.of(context).getText('dl0013')),
                             _buildGuideline(
-                                'OCR will auto-fill registration number'),
+                              FFLocalizations.of(context).getText('rc0016')),
                             _buildGuideline(
-                                '✓ Images persist after app restart'),
+                              FFLocalizations.of(context).getText('rc0017')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('guide0003')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('rc0018')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('guide0004')),
                           ],
                         ),
                       ),
@@ -934,12 +970,16 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     _backImageUrl!.isNotEmpty);
 
                             if (!hasFrontImage) {
-                              _showSnackBar('Please upload front side',
+                              _showSnackBar(
+                                  FFLocalizations.of(context)
+                                      .getText('rc0019'),
                                   isError: true);
                               return;
                             }
                             if (!hasBackImage) {
-                              _showSnackBar('Please upload back side',
+                              _showSnackBar(
+                                  FFLocalizations.of(context)
+                                      .getText('rc0020'),
                                   isError: true);
                               return;
                             }
@@ -968,13 +1008,14 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             FFAppState().update(() {});
 
                             print('✅ RC data saved');
-                            _showSnackBar('Registration certificate uploaded!');
+                            _showSnackBar(FFLocalizations.of(context)
+                              .getText('rc0021'));
 
                             await Future.delayed(const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
-                        text: 'Submit',
+                        text: FFLocalizations.of(context).getText('drv_submit'),
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,

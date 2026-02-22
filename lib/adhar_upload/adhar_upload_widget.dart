@@ -65,6 +65,11 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
     // Debug what was loaded
     _debugPrintState();
+
+    _aadhaarController.addListener(() {
+      FFAppState().aadharNumber =
+          _aadhaarController.text.replaceAll(' ', '');
+    });
   }
 
   // Debug function to see what's in FFAppState
@@ -224,25 +229,25 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
   String? _validateAadhaar(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter Aadhaar number';
+      return FFLocalizations.of(context).getText('aad0014');
     }
 
     String cleanedValue = value.replaceAll(' ', '');
 
     if (!RegExp(r'^\d+$').hasMatch(cleanedValue)) {
-      return 'Aadhaar must contain only numbers';
+      return FFLocalizations.of(context).getText('aad0015');
     }
 
     if (cleanedValue.length != 12) {
-      return 'Aadhaar must be 12 digits';
+      return FFLocalizations.of(context).getText('aad0016');
     }
 
     if (cleanedValue[0] == '0' || cleanedValue[0] == '1') {
-      return 'Invalid Aadhaar number';
+      return FFLocalizations.of(context).getText('aad0017');
     }
 
     if (!_validateAadhaarWithVerhoeff(cleanedValue)) {
-      return 'Invalid Aadhaar number';
+      return FFLocalizations.of(context).getText('aad0017');
     }
 
     return null;
@@ -386,14 +391,17 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                   );
                                 },
                                 errorBuilder: (context, error, stackTrace) {
-                                  return const Column(
+                                  return Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.error_outline,
                                           size: 40, color: Colors.red),
                                       SizedBox(height: 8),
-                                      Text('Failed to load image',
-                                          style: TextStyle(color: Colors.red)),
+                                      Text(
+                                        FFLocalizations.of(context)
+                                            .getText('upload0006'),
+                                        style: TextStyle(color: Colors.red),
+                                      ),
                                     ],
                                   );
                                 },
@@ -417,7 +425,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Tap to upload $title',
+                                      FFLocalizations.of(context)
+                                          .getText('doc0009')
+                                          .replaceAll('%1', title),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -426,7 +436,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Camera or Gallery',
+                                      FFLocalizations.of(context)
+                                          .getText('upload0004'),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -452,7 +463,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                       top: 8,
                       right: 8,
                       child: Tooltip(
-                        message: 'Remove image',
+                        message: FFLocalizations.of(context)
+                            .getText('upload0007'),
                         child: GestureDetector(
                           onTap: onRemove,
                           child: Container(
@@ -494,7 +506,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isValid ? '✓ Verified and uploaded' : 'Image uploaded',
+                      isValid
+                          ? FFLocalizations.of(context).getText('doc0007')
+                          : FFLocalizations.of(context).getText('doc0008'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isValid ? Colors.green : Colors.orange,
@@ -607,12 +621,13 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               ),
                             ),
                             const SizedBox(width: 16),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Upload Aadhaar Card',
+                                    FFLocalizations.of(context)
+                                        .getText('aad0001'),
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -621,7 +636,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Both sides required',
+                                    FFLocalizations.of(context)
+                                        .getText('aad0002'),
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: AppColors.greyMedium,
@@ -638,8 +654,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                       // Front Side
                       _buildImageCard(
-                        title: 'Front Side',
-                        subtitle: 'Photo & Aadhaar number visible',
+                        title: FFLocalizations.of(context).getText('doc0001'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('aad0003'),
                         icon: Icons.credit_card,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
@@ -692,7 +709,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               print('✅ Front image saved to FFAppState');
                               print('   Bytes: ${_frontImage?.bytes?.length}');
 
-                              _showSnackBar('Front side uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0003'));
                             }
                           }
                         },
@@ -711,7 +729,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                           print('❌ Front image removed from FFAppState');
 
-                          _showSnackBar('Front side removed', isError: true);
+                            _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0005'),
+                              isError: true);
                         },
                       ),
 
@@ -719,8 +739,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                       // Back Side
                       _buildImageCard(
-                        title: 'Back Side',
-                        subtitle: 'Address details visible',
+                        title: FFLocalizations.of(context).getText('doc0002'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('aad0004'),
                         icon: Icons.contact_mail,
                         image: _backImage,
                         imageUrl: _backImageUrl,
@@ -773,7 +794,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               print('✅ Back image saved to FFAppState');
                               print('   Bytes: ${_backImage?.bytes?.length}');
 
-                              _showSnackBar('Back side uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0004'));
                             }
                           }
                         },
@@ -792,7 +814,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                           print('❌ Back image removed from FFAppState');
 
-                          _showSnackBar('Back side removed', isError: true);
+                            _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0006'),
+                              isError: true);
                         },
                       ),
 
@@ -823,8 +847,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'Aadhaar Number',
+                                Text(
+                                  FFLocalizations.of(context)
+                                      .getText('aad0005'),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -847,7 +872,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                           width: 1,
                                         ),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
@@ -857,7 +882,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                           ),
                                           SizedBox(width: 4),
                                           Text(
-                                            'Saved',
+                                            FFLocalizations.of(context)
+                                                .getText('badge0001'),
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: Colors.green,
@@ -880,7 +906,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                 _AadhaarInputFormatter(),
                               ],
                               decoration: InputDecoration(
-                                hintText: 'XXXX XXXX XXXX',
+                                hintText: FFLocalizations.of(context)
+                                    .getText('aad0006'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(
                                   Icons.credit_card,
@@ -942,8 +969,10 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                 Expanded(
                                   child: Text(
                                     _aadhaarController.text.isEmpty
-                                        ? 'Enter 12-digit Aadhaar number'
-                                        : 'Aadhaar number verified ✓',
+                                      ? FFLocalizations.of(context)
+                                        .getText('aad0007')
+                                      : FFLocalizations.of(context)
+                                        .getText('aad0008'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: _aadhaarController.text.isEmpty
@@ -972,13 +1001,14 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Important Guidelines',
+                                FFLocalizations.of(context)
+                                  .getText('guide0001'),
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600),
@@ -986,15 +1016,18 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildGuideline('Upload both front and back sides'),
                             _buildGuideline(
-                                'All four corners should be visible'),
-                            _buildGuideline('Avoid glare and shadows'),
-                            _buildGuideline('Text should be clearly readable'),
+                              FFLocalizations.of(context).getText('dl0013')),
                             _buildGuideline(
-                                'Verified stamp appears after upload'),
+                              FFLocalizations.of(context).getText('guide0002')),
                             _buildGuideline(
-                                '✓ Images persist after app restart'),
+                              FFLocalizations.of(context).getText('guide0003')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('aad0009')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('aad0010')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('guide0004')),
                           ],
                         ),
                       ),
@@ -1014,12 +1047,16 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                     _backImageUrl!.isNotEmpty);
 
                             if (!hasFrontImage) {
-                              _showSnackBar('Please upload front side',
+                              _showSnackBar(
+                                  FFLocalizations.of(context)
+                                      .getText('aad0011'),
                                   isError: true);
                               return;
                             }
                             if (!hasBackImage) {
-                              _showSnackBar('Please upload back side',
+                              _showSnackBar(
+                                  FFLocalizations.of(context)
+                                      .getText('aad0012'),
                                   isError: true);
                               return;
                             }
@@ -1070,14 +1107,15 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                 '   Back Base64: ${FFAppState().aadharBackBase64.length} chars');
                             print('   Number: ${FFAppState().aadharNumber}');
 
-                            _showSnackBar('Aadhaar verification completed!');
+                            _showSnackBar(FFLocalizations.of(context)
+                              .getText('aad0013'));
 
                             // Navigate back to previous page
                             await Future.delayed(const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
-                        text: 'Submit',
+                        text: FFLocalizations.of(context).getText('drv_submit'),
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,

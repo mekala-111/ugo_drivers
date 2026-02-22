@@ -63,6 +63,15 @@ class FFAppState extends ChangeNotifier {
       _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
     });
     _safeInit(() {
+      _registrationStep = prefs.getInt('ff_registrationStep') ?? _registrationStep;
+    });
+    _safeInit(() {
+      _selectvehicle = prefs.getString('ff_selectvehicle') ?? _selectvehicle;
+    });
+    _safeInit(() {
+      _adminVehicleId = prefs.getInt('ff_adminVehicleId') ?? _adminVehicleId;
+    });
+    _safeInit(() {
       _driverid = prefs.getInt('ff_driverid') ?? _driverid;
     });
     _safeInit(() {
@@ -526,10 +535,29 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Registration step tracking for resume functionality:
+  /// 0: No registration started
+  /// 1: FirstDetails completed
+  /// 2: AddressDetails completed
+  /// 3: ChooseVehicle completed
+  /// 4: OnBoarding (final step)
+  int _registrationStep = 0;
+  int get registrationStep => _registrationStep;
+  set registrationStep(int value) {
+    _registrationStep = value;
+    prefs.setInt('ff_registrationStep', value);
+    notifyListeners();
+  }
+
   String _selectvehicle = '';
   String get selectvehicle => _selectvehicle;
   set selectvehicle(String value) {
     _selectvehicle = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_selectvehicle');
+    } else {
+      prefs.setString('ff_selectvehicle', value);
+    }
     notifyListeners();
   }
 
@@ -538,6 +566,11 @@ class FFAppState extends ChangeNotifier {
   int get adminVehicleId => _adminVehicleId;
   set adminVehicleId(int value) {
     _adminVehicleId = value;
+    if (value == 0) {
+      prefs.remove('ff_adminVehicleId');
+    } else {
+      prefs.setInt('ff_adminVehicleId', value);
+    }
     notifyListeners();
   }
 
@@ -1156,6 +1189,9 @@ class FFAppState extends ChangeNotifier {
   _driverid = 0;
   _isLoggedIn = false;
   _isRegistered = false;
+  _registrationStep = 0;
+  _selectvehicle = '';
+  _adminVehicleId = 0;
 
   // Basic info
   _mobileNo = 0;
@@ -1232,6 +1268,9 @@ class FFAppState extends ChangeNotifier {
   _insuranceBase64 = '';
   _insurancePdf = null;
   _pollutionBase64 = '';
+
+  // Reset registration step
+  _registrationStep = 0;
 
   notifyListeners();
 }

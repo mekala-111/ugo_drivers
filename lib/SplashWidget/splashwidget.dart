@@ -25,17 +25,39 @@ class _SplashWidgetState extends State<SplashWidget> {
           // ✅ Logged In & Registered -> Go Home
           context.goNamed(HomeWidget.routeName);
         } else {
-          // ⚠️ Logged In BUT Not Registered -> Go to First Details
-          // We pass the mobile number stored in AppState so they don't lose context
-          context.goNamed(
-            FirstdetailsWidget.routeName,
-            queryParameters: {
-              'mobile': serializeParam(
-                FFAppState().mobileNo,
-                ParamType.int,
-              ),
-            }.withoutNulls,
-          );
+          // ⚠️ Logged In BUT Not Registered -> Resume from where user stopped
+          final registrationStep = FFAppState().registrationStep;
+          
+          // Route based on current registration step
+          if (registrationStep >= 4) {
+            // Step 4+: OnBoarding (final registration page)
+            context.goNamed(OnBoardingWidget.routeName);
+          } else if (registrationStep >= 3) {
+            // Step 3: ChooseVehicle
+            context.goNamed(ChooseVehicleWidget.routeName);
+          } else if (registrationStep >= 2) {
+            // Step 2: AddressDetails
+            context.goNamed(
+              AddressDetailsWidget.routeName,
+              queryParameters: {
+                'mobile': serializeParam(
+                  FFAppState().mobileNo,
+                  ParamType.int,
+                ),
+              }.withoutNulls,
+            );
+          } else {
+            // Step 0, 1, or unset: Start from FirstDetails
+            context.goNamed(
+              FirstdetailsWidget.routeName,
+              queryParameters: {
+                'mobile': serializeParam(
+                  FFAppState().mobileNo,
+                  ParamType.int,
+                ),
+              }.withoutNulls,
+            );
+          }
         }
       } else {
         // ❌ Not Logged In -> Go to Language Select if needed

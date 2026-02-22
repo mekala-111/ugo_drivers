@@ -32,17 +32,37 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
     super.initState();
     _model = createModel(context, () => FirstdetailsModel());
 
-    _model.textController1 ??= TextEditingController();
+    // Mark current step for resume functionality
+    FFAppState().registrationStep = 1;
+
+    _model.textController1 ??=
+        TextEditingController(text: FFAppState().firstName);
     _model.textFieldFocusNode1 ??= FocusNode();
 
-    _model.textController2 ??= TextEditingController();
+    _model.textController2 ??=
+        TextEditingController(text: FFAppState().lastName);
     _model.textFieldFocusNode2 ??= FocusNode();
 
-    _model.textController3 ??= TextEditingController();
+    _model.textController3 ??=
+        TextEditingController(text: FFAppState().email);
     _model.textFieldFocusNode3 ??= FocusNode();
 
-    _model.textController4 ??= TextEditingController();
+    _model.textController4 ??=
+        TextEditingController(text: FFAppState().referralCode);
     _model.textFieldFocusNode4 ??= FocusNode();
+
+    _model.textController1?.addListener(() {
+      FFAppState().firstName = _model.textController1?.text ?? '';
+    });
+    _model.textController2?.addListener(() {
+      FFAppState().lastName = _model.textController2?.text ?? '';
+    });
+    _model.textController3?.addListener(() {
+      FFAppState().email = _model.textController3?.text ?? '';
+    });
+    _model.textController4?.addListener(() {
+      FFAppState().referralCode = _model.textController4?.text ?? '';
+    });
   }
 
   @override
@@ -57,6 +77,19 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
     const Color brandPrimary = AppColors.primary;
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
+
+    final media = MediaQuery.of(context);
+    final width = media.size.width;
+    final height = media.size.height;
+    final isSmall = width < 360;
+    final isTablet = width >= 600;
+    final horizontalPadding = isTablet ? 48.0 : (isSmall ? 16.0 : 24.0);
+    final headerHeight = (height * 0.3).clamp(220.0, 320.0);
+    final titleSize = isTablet ? 34.0 : (isSmall ? 26.0 : 30.0);
+    final subtitleSize = isTablet ? 26.0 : (isSmall ? 20.0 : 24.0);
+    final cardPadding = isTablet ? 32.0 : 24.0;
+    final buttonHeight = isSmall ? 50.0 : 56.0;
+    final cardMaxWidth = isTablet ? 520.0 : double.infinity;
 
     return GestureDetector(
       onTap: () {
@@ -73,7 +106,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
               // 1️⃣ VIBRANT HEADER
               // ==========================================
               Container(
-                height: 260,
+                height: headerHeight,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -95,18 +128,18 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                 ),
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
+                        SizedBox(height: isSmall ? 12 : 20),
                         const Spacer(),
                         Center(
                           child: Text(
-                            'Partner Profile',
+                            FFLocalizations.of(context).getText('fd0001'),
                             style: GoogleFonts.inter(
-                              fontSize: 30,
-                              color: Colors.white.withValues(alpha:0.9),
+                              fontSize: titleSize,
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -114,16 +147,16 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                         const Spacer(),
                         Center(
                           child: Text(
-                            "Let's get to know you better.",
+                            FFLocalizations.of(context).getText('fd0002'),
                             style: GoogleFonts.interTight(
-                              fontSize: 24,
+                              fontSize: subtitleSize,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               height: 1.1,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 50), // Spacer for card overlap
+                        SizedBox(height: isSmall ? 36 : 50), // Spacer for card overlap
                       ],
                     ),
                   ),
@@ -134,24 +167,25 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
               // 2️⃣ FLOATING FORM CARD
               // ==========================================
               Transform.translate(
-                offset: const Offset(0, -40),
+                offset: Offset(0, isSmall ? -28 : -40),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: Container(
                     width: double.infinity,
+                    constraints: BoxConstraints(maxWidth: cardMaxWidth),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: EdgeInsets.all(cardPadding),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -159,9 +193,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                           children: [
                             Center(
                               child: Text(
-                                'Basic Details',
+                                FFLocalizations.of(context).getText('fd0003'),
                                 style: GoogleFonts.inter(
-                                  fontSize: 24,
+                                  fontSize: isTablet ? 26 : 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black87,
                                 ),
@@ -172,12 +206,12 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             // FIRST NAME
                             _buildTextField(
                               context,
-                              label: 'First Name',
+                              label: FFLocalizations.of(context).getText('oezel2cu'),
                               controller: _model.textController1,
                               focusNode: _model.textFieldFocusNode1,
                               icon: Icons.person_outline,
                               validator: (val) {
-                                if (val == null || val.isEmpty) return 'Required';
+                                if (val == null || val.isEmpty) return FFLocalizations.of(context).getText('fd0004');
                                 return null;
                               },
                             ),
@@ -186,7 +220,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             // LAST NAME
                             _buildTextField(
                               context,
-                              label: 'Last Name',
+                              label: FFLocalizations.of(context).getText('9blspwgp'),
                               controller: _model.textController2,
                               focusNode: _model.textFieldFocusNode2,
                               icon: Icons.person,
@@ -196,23 +230,23 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             // EMAIL
                             _buildTextField(
                               context,
-                              label: 'Email Address',
+                              label: FFLocalizations.of(context).getText('3xyysbhm'),
                               controller: _model.textController3,
                               focusNode: _model.textFieldFocusNode3,
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               validator: (val) {
-                                if (val == null || val.isEmpty) return 'Required';
-                                if (!val.contains('@')) return 'Invalid Email';
+                                if (val == null || val.isEmpty) return FFLocalizations.of(context).getText('fd0004');
+                                if (!val.contains('@')) return FFLocalizations.of(context).getText('fd0005');
                                 return null;
                               },
                             ),
                             const SizedBox(height: 20),
 
-                            // REFERRAL CODE (OPTIONAL)
+                            // REFERRAL CODE
                             _buildTextField(
                               context,
-                              label: 'Got referral code?',
+                              label: FFLocalizations.of(context).getText('fd0006'),
                               controller: _model.textController4,
                               focusNode: _model.textFieldFocusNode4,
                               icon: Icons.confirmation_number_outlined,
@@ -222,7 +256,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             // CONTINUE BUTTON
                             SizedBox(
                               width: double.infinity,
-                              height: 56,
+                              height: buttonHeight,
                               child: ElevatedButton(
                                 onPressed: () async {
                                   // 1. Validate Form
@@ -234,18 +268,20 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                   FFAppState().firstName = _model.textController1.text;
                                   FFAppState().lastName = _model.textController2.text;
                                   FFAppState().email = _model.textController3.text;
-                                  FFAppState().usedReferralCode = _model.textController4.text.trim();
-                                  FFAppState().referralCode = _model.textController4.text.trim();
+                                  FFAppState().referralCode = _model.textController4.text;
 
-                                  // 3. Navigate to Choose Vehicle
+                                  // 3. Update registration step (for resume functionality)
+                                  FFAppState().registrationStep = 1;
+
+                                  // 4. Navigate to Address & Emergency step (Uber-style)
                                   context.pushNamed(
-                                    ChooseVehicleWidget.routeName,
+                                    AddressDetailsWidget.routeName,
                                     queryParameters: {
                                       'mobile': serializeParam(widget.mobile, ParamType.int),
                                       'firstname': serializeParam(_model.textController1.text, ParamType.String),
                                       'lastname': serializeParam(_model.textController2.text, ParamType.String),
                                       'email': serializeParam(_model.textController3.text, ParamType.String),
-                                      'referalcode': serializeParam(_model.textController4.text.trim(), ParamType.String),
+                                      'referalcode': serializeParam(_model.textController4.text, ParamType.String),
                                     }.withoutNulls,
                                   );
                                 },
@@ -258,9 +294,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                   ),
                                 ),
                                 child: Text(
-                                  'Continue',
+                                  FFLocalizations.of(context).getText('xtbkk4x0'),
                                   style: GoogleFonts.interTight(
-                                    fontSize: 18,
+                                    fontSize: isTablet ? 20 : 18,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.5,
                                   ),

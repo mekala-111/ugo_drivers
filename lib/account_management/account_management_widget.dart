@@ -61,9 +61,9 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
 
   Future<void> _showLanguageSelector() async {
     const options = [
-      {'code': 'en', 'label': 'English', 'flag': '🇬🇧'},
-      {'code': 'hi', 'label': 'हिंदी', 'flag': '🇮🇳'},
-      {'code': 'te', 'label': 'తెలుగు', 'flag': '🇮🇳'},
+      {'code': 'en', 'labelKey': 'langsel0004', 'flag': '🇬🇧'},
+      {'code': 'hi', 'labelKey': 'langsel0005', 'flag': '🇮🇳'},
+      {'code': 'te', 'labelKey': 'langsel0006', 'flag': '🇮🇳'},
     ];
     final currentLang = FFLocalizations.of(context).languageCode;
 
@@ -93,11 +93,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
             ),
             const SizedBox(height: 20),
             Text(
-              FFLocalizations.of(context).getVariableText(
-                enText: 'Select Language',
-                hiText: 'भाषा चुनें',
-                teText: 'భాష ఎంచుకోండి',
-              ),
+              FFLocalizations.of(context).getText('am0001'),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -106,11 +102,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
             ),
             const SizedBox(height: 8),
             Text(
-              FFLocalizations.of(context).getVariableText(
-                enText: 'App and voice will use this language',
-                hiText: 'ऐप और वॉयस इस भाषा का उपयोग करेंगे',
-                teText: 'యాప్ మరియు వాయిస్ ఈ భాషను ఉపయోగిస్తాయి',
-              ),
+              FFLocalizations.of(context).getText('am0002'),
               style: TextStyle(fontSize: 13, color: Colors.grey[600]),
             ),
             const SizedBox(height: 20),
@@ -138,7 +130,8 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                       Text(opt['flag']!, style: const TextStyle(fontSize: 24)),
                       const SizedBox(width: 16),
                       Text(
-                        opt['label']!,
+                        FFLocalizations.of(context)
+                            .getText(opt['labelKey'] as String),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -164,15 +157,19 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       VoiceService().setLanguage(selected);
       setAppLanguage(context, selected);
       if (mounted) {
+        final languageNameKey = selected == 'hi'
+            ? 'langsel0005'
+            : selected == 'te'
+                ? 'langsel0006'
+                : 'langsel0004';
+        final languageName =
+            FFLocalizations.of(context).getText(languageNameKey);
+        final message = FFLocalizations.of(context)
+            .getText('am0003')
+            .replaceAll('%1', languageName);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              selected == 'en'
-                  ? 'Language changed to English'
-                  : selected == 'hi'
-                      ? 'भाषा हिंदी में बदल दी गई'
-                      : 'భాష తెలుగుకు మార్చబడింది',
-            ),
+            content: Text(message),
             backgroundColor: AppColors.accentPurple,
             behavior: SnackBarBehavior.floating,
           ),
@@ -316,11 +313,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       },
       {
         'icon': Icons.person_rounded,
-        'title': FFLocalizations.of(context).getVariableText(
-          enText: 'Profile',
-          hiText: 'प्रोफ़ाइल',
-          teText: 'ప్రొఫైల్',
-        ),
+        'title': FFLocalizations.of(context).getText('am0004'),
         'subtitle': FFLocalizations.of(context).getText('drv_edit_info'),
         'color': AppColors.accentAmber,
         'onTap': () => context.pushNamed(AccountSupportWidget.routeName),
@@ -339,16 +332,8 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       },
       {
         'icon': Icons.language_rounded,
-        'title': FFLocalizations.of(context).getVariableText(
-          enText: 'Language',
-          hiText: 'भाषा',
-          teText: 'భాష',
-        ),
-        'subtitle': FFLocalizations.of(context).getVariableText(
-          enText: 'App & voice language',
-          hiText: 'ऐप और वॉयस भाषा',
-          teText: 'యాప్ మరియు వాయిస్ భాష',
-        ),
+        'title': FFLocalizations.of(context).getText('am0005'),
+        'subtitle': FFLocalizations.of(context).getText('am0006'),
         'color': AppColors.accentPurple,
         'onTap': _showLanguageSelector,
       },

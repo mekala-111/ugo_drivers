@@ -59,6 +59,10 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
 
     // Debug
     _debugPrintState();
+
+    _panController.addListener(() {
+      FFAppState().panNumber = _panController.text.trim().toUpperCase();
+    });
   }
 
   void _debugPrintState() {

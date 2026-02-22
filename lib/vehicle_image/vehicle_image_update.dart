@@ -100,6 +100,40 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
     );
     _animationController.forward();
     _loadSavedData();
+
+    _makeController.addListener(() {
+      FFAppState().vehicleMake = _makeController.text.trim();
+    });
+    _modelController.addListener(() {
+      FFAppState().vehicleModel = _modelController.text.trim();
+    });
+    _yearController.addListener(() {
+      FFAppState().vehicleYear = _yearController.text.trim();
+    });
+    _licensePlateController.addListener(() {
+      FFAppState().licensePlate = _licensePlateController.text.trim();
+    });
+    _regNumberController.addListener(() {
+      FFAppState().registrationNumber =
+          _regNumberController.text.trim().toUpperCase();
+    });
+    _regDateController.addListener(() {
+      FFAppState().registrationDate = _regDateController.text.trim();
+    });
+    _insuranceNumberController.addListener(() {
+      FFAppState().insuranceNumber = _insuranceNumberController.text.trim();
+    });
+    _insuranceExpiryController.addListener(() {
+      FFAppState().insuranceExpiryDate =
+          _insuranceExpiryController.text.trim();
+    });
+    _pollutionExpiryController.addListener(() {
+      FFAppState().pollutionExpiryDate =
+          _pollutionExpiryController.text.trim();
+    });
+    _vehicleNameController.addListener(() {
+      FFAppState().vehicleName = _vehicleNameController.text.trim();
+    });
   }
 
   void _loadSavedData() {

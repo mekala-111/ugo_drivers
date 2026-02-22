@@ -69,7 +69,8 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
         final city = RazorpayBankValidationCall.city(response.jsonBody);
 
         setState(() {
-          _model.validatedBankName = bankName ?? 'Unknown Bank';
+          _model.validatedBankName = bankName ??
+              FFLocalizations.of(context).getText('bank0001');
           _model.isValidating = false;
         });
 
@@ -78,22 +79,39 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
           showDialog(
             context: context,
             builder: (dialogContext) => AlertDialog(
-              title: const Text('Bank Verified ✓'),
+              title: Text(
+                FFLocalizations.of(context).getText('bank0002'),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Bank: ${_model.validatedBankName}',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    FFLocalizations.of(context)
+                        .getText('bank0003')
+                        .replaceAll('%1', _model.validatedBankName ?? ''),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   if (branchName != null && branchName != '')
-                    Text('Branch: $branchName'),
-                  if (city != null && city != '') Text('City: $city'),
+                    Text(FFLocalizations.of(context)
+                        .getText('bank0004')
+                        .replaceAll('%1', branchName)),
+                  if (city != null && city != '')
+                    Text(FFLocalizations.of(context)
+                        .getText('bank0005')
+                        .replaceAll('%1', city)),
                   const SizedBox(height: 8),
-                  Text('IFSC: $ifscCode'),
+                  Text(FFLocalizations.of(context)
+                      .getText('bank0006')
+                      .replaceAll('%1', ifscCode)),
                   const SizedBox(height: 8),
-                  Text(
-                      'Account: ****${accountNumber.substring(accountNumber.length - 4)}'),
+                  Text(FFLocalizations.of(context)
+                      .getText('bank0007')
+                      .replaceAll(
+                          '%1',
+                          accountNumber.substring(
+                              accountNumber.length - 4))),
                 ],
               ),
               actions: [
@@ -103,7 +121,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                     // Proceed with bank account submission
                     _submitBankAccount();
                   },
-                  child: const Text('Confirm'),
+                  child: Text(
+                    FFLocalizations.of(context).getText('bank0008'),
+                  ),
                 ),
               ],
             ),
@@ -111,7 +131,8 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
         }
       } else {
         // Get error details from response
-        String errorMessage = 'Invalid IFSC code';
+        String errorMessage =
+            FFLocalizations.of(context).getText('bank0009');
 
         // Try to extract error from response
         final errorDetail = response.jsonBody;
@@ -131,7 +152,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('IFSC Validation Error: $errorMessage'),
+              content: Text(FFLocalizations.of(context)
+                  .getText('bank0010')
+                  .replaceAll('%1', errorMessage)),
               backgroundColor: Colors.red,
             ),
           );
@@ -139,14 +162,16 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
       }
     } catch (e) {
       setState(() {
-        _model.validationError = 'Error: ${e.toString()}';
+        _model.validationError = e.toString();
         _model.isValidating = false;
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${_model.validationError}'),
+            content: Text(FFLocalizations.of(context)
+                .getText('bank0011')
+                .replaceAll('%1', _model.validationError ?? '')),
             backgroundColor: Colors.red,
           ),
         );
@@ -158,8 +183,10 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
     // TODO: Add your logic here to submit the bank account details
     // This could be saving to database or calling another API
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bank account added successfully!'),
+      SnackBar(
+        content: Text(
+          FFLocalizations.of(context).getText('bank0012'),
+        ),
         backgroundColor: Colors.green,
       ),
     );
@@ -342,7 +369,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                               validator: (value) {
                                                 if (value == null ||
                                                     value.trim().isEmpty) {
-                                                  return 'Full name is required.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0013');
                                                 }
                                                 return null;
                                               },
@@ -448,11 +477,15 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 final trimmed =
                                                     value?.trim() ?? '';
                                                 if (trimmed.isEmpty) {
-                                                  return 'Account number is required.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0014');
                                                 }
                                                 if (trimmed.length < 9 ||
                                                     trimmed.length > 18) {
-                                                  return 'Account number must be 9 to 18 digits.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0015');
                                                 }
                                                 return null;
                                               },
@@ -562,10 +595,14 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                     .text
                                                     .trim();
                                                 if (trimmed.isEmpty) {
-                                                  return 'Please confirm account number.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0016');
                                                 }
                                                 if (trimmed != original) {
-                                                  return 'Account numbers do not match.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0017');
                                                 }
                                                 return null;
                                               },
@@ -666,13 +703,17 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                 final trimmed =
                                                     value?.trim() ?? '';
                                                 if (trimmed.isEmpty) {
-                                                  return 'IFSC code is required.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0018');
                                                 }
                                                 final regex = RegExp(
                                                     r'^[A-Z]{4}0[A-Z0-9]{6}$');
                                                 if (!regex.hasMatch(
                                                     trimmed.toUpperCase())) {
-                                                  return 'Enter a valid IFSC code.';
+                                                  return FFLocalizations.of(
+                                                          context)
+                                                      .getText('bank0019');
                                                 }
                                                 return null;
                                               },
@@ -794,7 +835,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                           _validateBankAccount();
                                                         },
                                                   text: _model.isValidating
-                                                      ? 'Validating...'
+                                                      ? FFLocalizations.of(
+                                                          context)
+                                                        .getText('bank0020')
                                                       : FFLocalizations.of(
                                                               context)
                                                           .getText(
@@ -921,7 +964,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                           _validateBankAccount();
                                                         },
                                                   text: _model.isValidating
-                                                      ? 'Validating...'
+                                                      ? FFLocalizations.of(
+                                                          context)
+                                                        .getText('bank0020')
                                                       : FFLocalizations.of(
                                                               context)
                                                           .getText(

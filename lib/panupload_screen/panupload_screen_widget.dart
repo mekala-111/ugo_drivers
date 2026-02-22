@@ -59,6 +59,10 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
     // Debug
     _debugPrintState();
+
+    _panController.addListener(() {
+      FFAppState().panNumber = _panController.text.trim().toUpperCase();
+    });
   }
 
   void _debugPrintState() {
@@ -128,13 +132,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
   // PAN validation
   String? _validatePan(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter PAN number';
+      return FFLocalizations.of(context).getText('pan0017');
     }
 
     String cleanedValue = value.trim().toUpperCase();
 
     if (cleanedValue.length != 10) {
-      return 'PAN must be 10 characters';
+      return FFLocalizations.of(context).getText('pan0018');
     }
 
     // PAN format: ABCDE1234F
@@ -144,7 +148,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
     RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
 
     if (!panRegex.hasMatch(cleanedValue)) {
-      return 'Invalid PAN format (e.g., ABCDE1234F)';
+      return FFLocalizations.of(context).getText('pan0019');
     }
 
     // Fourth character validation (specific rules)
@@ -163,7 +167,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
     ];
 
     if (!validFourthChars.contains(fourthChar)) {
-      return 'Invalid PAN number';
+      return FFLocalizations.of(context).getText('pan0020');
     }
 
     return null;
@@ -307,14 +311,17 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   );
                                 },
                                 errorBuilder: (context, error, stackTrace) {
-                                  return const Column(
+                                  return Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.error_outline,
                                           size: 40, color: Colors.red),
                                       SizedBox(height: 8),
-                                      Text('Failed to load image',
-                                          style: TextStyle(color: Colors.red)),
+                                      Text(
+                                        FFLocalizations.of(context)
+                                            .getText('upload0006'),
+                                        style: TextStyle(color: Colors.red),
+                                      ),
                                     ],
                                   );
                                 },
@@ -338,7 +345,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Tap to upload $title',
+                                      FFLocalizations.of(context)
+                                          .getText('doc0009')
+                                          .replaceAll('%1', title),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -347,7 +356,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Camera or Gallery',
+                                      FFLocalizations.of(context)
+                                          .getText('upload0004'),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -373,7 +383,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                       top: 8,
                       right: 8,
                       child: Tooltip(
-                        message: 'Remove image',
+                        message: FFLocalizations.of(context)
+                            .getText('upload0007'),
                         child: GestureDetector(
                           onTap: onRemove,
                           child: Container(
@@ -415,7 +426,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isValid ? '✓ Verified and uploaded' : 'Image uploaded',
+                      isValid
+                          ? FFLocalizations.of(context).getText('doc0007')
+                          : FFLocalizations.of(context).getText('doc0008'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isValid ? Colors.green : Colors.orange,
@@ -528,12 +541,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               ),
                             ),
                             const SizedBox(width: 16),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Upload PAN Card',
+                                    FFLocalizations.of(context)
+                                        .getText('pan0001'),
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -542,7 +556,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Front side with photo',
+                                    FFLocalizations.of(context)
+                                        .getText('pan0002'),
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: AppColors.greyMedium,
@@ -559,8 +574,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
                       // PAN Card Image
                       _buildImageCard(
-                        title: 'PAN Card',
-                        subtitle: 'Clear photo with all details visible',
+                        title: FFLocalizations.of(context).getText('pan0003'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('pan0004'),
                         icon: Icons.badge,
                         image: _panImage,
                         imageUrl: _panImageUrl,
@@ -615,7 +631,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               print('✅ PAN image saved to FFAppState');
                               print('   Bytes: ${_panImage?.bytes?.length}');
 
-                              _showSnackBar('PAN card uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('pan0005'));
                             }
                           }
                         },
@@ -636,7 +653,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
                           print('❌ PAN image removed from FFAppState');
 
-                          _showSnackBar('PAN card removed', isError: true);
+                            _showSnackBar(
+                              FFLocalizations.of(context).getText('pan0006'),
+                              isError: true);
                         },
                       ),
 
@@ -667,8 +686,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'PAN Number',
+                                Text(
+                                  FFLocalizations.of(context)
+                                      .getText('pan0007'),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -691,7 +711,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                           width: 1,
                                         ),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
@@ -701,7 +721,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                           ),
                                           SizedBox(width: 4),
                                           Text(
-                                            'Saved',
+                                            FFLocalizations.of(context)
+                                                .getText('badge0001'),
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: Colors.green,
@@ -725,7 +746,8 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 _PanInputFormatter(),
                               ],
                               decoration: InputDecoration(
-                                hintText: 'ABCDE1234F',
+                                hintText: FFLocalizations.of(context)
+                                    .getText('pan0008'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(
                                   Icons.badge,
@@ -787,8 +809,10 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 Expanded(
                                   child: Text(
                                     _panController.text.isEmpty
-                                        ? 'Enter 10-character PAN number'
-                                        : 'PAN number verified ✓',
+                                      ? FFLocalizations.of(context)
+                                        .getText('pan0009')
+                                      : FFLocalizations.of(context)
+                                        .getText('pan0010'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: _panController.text.isEmpty
@@ -817,13 +841,14 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Important Guidelines',
+                                FFLocalizations.of(context)
+                                  .getText('guide0001'),
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600),
@@ -831,15 +856,18 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildGuideline('Upload clear photo of PAN card'),
                             _buildGuideline(
-                                'All four corners should be visible'),
+                              FFLocalizations.of(context).getText('pan0011')),
                             _buildGuideline(
-                                'Photo and details must be readable'),
-                            _buildGuideline('Avoid glare and shadows'),
-                            _buildGuideline('PAN number format: ABCDE1234F'),
+                              FFLocalizations.of(context).getText('guide0002')),
                             _buildGuideline(
-                                '✓ Data persists after app restart'),
+                              FFLocalizations.of(context).getText('pan0012')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('guide0003')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('pan0013')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('pan0014')),
                           ],
                         ),
                       ),
@@ -856,7 +884,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                     _panImageUrl!.isNotEmpty);
 
                             if (!hasPanImage) {
-                              _showSnackBar('Please upload PAN card',
+                              _showSnackBar(
+                                  FFLocalizations.of(context)
+                                      .getText('pan0015'),
                                   isError: true);
                               return;
                             }
@@ -888,14 +918,15 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 '   Base64: ${FFAppState().panBase64.length} chars');
                             print('   Number: ${FFAppState().panNumber}');
 
-                            _showSnackBar('PAN verification completed!');
+                            _showSnackBar(FFLocalizations.of(context)
+                              .getText('pan0016'));
 
                             // Navigate back
                             await Future.delayed(const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
-                        text: 'Submit',
+                        text: FFLocalizations.of(context).getText('drv_submit'),
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,

@@ -41,6 +41,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ChooseVehicleModel());
+
+    // Mark current step for resume functionality
+    FFAppState().registrationStep = 3;
   }
 
   @override
@@ -89,35 +92,58 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                   )
                 ],
               ),
-              child: const SafeArea(
+              child: SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 16),
-                      Spacer(),
+                      const SizedBox(height: 16),
+                      InkWell(
+                        onTap: () {
+                          final mobile = widget.mobile ?? FFAppState().mobileNo;
+                          context.goNamed(
+                            AddressDetailsWidget.routeName,
+                            queryParameters: {
+                              'mobile': serializeParam(mobile, ParamType.int),
+                              'firstname': serializeParam(widget.firstname, ParamType.String),
+                              'lastname': serializeParam(widget.lastname, ParamType.String),
+                              'email': serializeParam(widget.email, ParamType.String),
+                              'referalcode': serializeParam(widget.referalcode, ParamType.String),
+                            }.withoutNulls,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.arrow_back, color: Colors.white),
+                        ),
+                      ),
+                      const Spacer(),
                       Center(
                         child: Text(
-                          'Vehicle Type',
-                          style: TextStyle(
+                          FFLocalizations.of(context).getText('cv0001'),
+                          style: const TextStyle(
                             fontSize: 28,
                             color: Colors.white70,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'How do you want to earn?',
-                        style: TextStyle(
+                        FFLocalizations.of(context).getText('cv0002'),
+                        style: const TextStyle(
                           fontSize: 28,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           height: 1.1,
                         ),
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -171,7 +197,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                           if (vehicleList.isEmpty) {
                             return Center(
                               child: Text(
-                                'No vehicles available',
+                                FFLocalizations.of(context).getText('cv0003'),
                                 style: GoogleFonts.inter(color: Colors.grey),
                               ),
                             );
@@ -199,7 +225,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                 imagePath = getJsonField(item, r'$["image"]')?.toString();
                               }
 
-                              if (vehicleName.isEmpty) vehicleName = 'Unknown';
+                              if (vehicleName.isEmpty) {
+                                vehicleName = FFLocalizations.of(context).getText('cv0004');
+                              }
 
                               // Build full image URL (API returns relative path like /uploads/...)
                               final imageUrl = (imagePath != null &&
@@ -252,6 +280,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                   onPressed: FFAppState().selectvehicle.isEmpty
                       ? null
                       : () {
+                    // Update registration step (for resume functionality)
+                    FFAppState().registrationStep = 3;
+                    
                     context.pushNamed(
                       PreferredCityWidget.routeName,
                       extra: const TransitionInfo(
@@ -286,7 +317,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                     disabledBackgroundColor: Colors.grey[300],
                   ),
                   child: Text(
-                    'Continue',
+                    FFLocalizations.of(context).getText('uhrogttt'),
                     style: GoogleFonts.interTight(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -383,14 +414,14 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
           Icon(Icons.cloud_off, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Failed to load vehicles',
+            FFLocalizations.of(context).getText('cv0005'),
             style: GoogleFonts.inter(color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
           TextButton(
             onPressed: () => setState(() {}),
             child: Text(
-              'Retry',
+              FFLocalizations.of(context).getText('cv0006'),
               style: TextStyle(color: color, fontWeight: FontWeight.bold),
             ),
           )

@@ -67,6 +67,15 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
     _loadSavedData();
     _debugPrintState();
+
+    _licenseNumberController.addListener(() {
+      FFAppState().licenseNumber =
+          _licenseNumberController.text.trim().toUpperCase();
+    });
+    _licenseExpiryController.addListener(() {
+      FFAppState().licenseExpiryDate =
+          _licenseExpiryController.text.trim();
+    });
   }
 
   void _debugPrintState() {
@@ -200,11 +209,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
         FFAppState().licenseNumber = dlNumber;
         FFAppState().update(() {});
 
-        _showSnackBar('✅ DL Number auto-filled: $dlNumber');
+        _showSnackBar(FFLocalizations.of(context)
+          .getText('dl0023')
+          .replaceAll('%1', dlNumber));
         print('✅ DL Number extracted: $dlNumber');
       } else {
-        _showSnackBar('⚠️ Could not detect DL number. Please enter manually.',
-            isError: true);
+        _showSnackBar(FFLocalizations.of(context).getText('dl0024'),
+          isError: true);
         print('❌ No valid DL number found in text');
       }
 
@@ -213,7 +224,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       await file.delete();
     } catch (e) {
       print('❌ OCR Error: $e');
-      _showSnackBar('OCR failed. Please enter DL number manually.',
+        _showSnackBar(FFLocalizations.of(context).getText('dl0025'),
           isError: true);
     } finally {
       setState(() => _isProcessingOCR = false);
@@ -266,7 +277,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
   // Driving License Number Validation (India format)
   String? _validateLicenseNumber(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter license number';
+      return FFLocalizations.of(context).getText('dl0027');
     }
 
     String cleanedValue = value.trim().toUpperCase().replaceAll(' ', '');
@@ -275,11 +286,11 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     RegExp dlRegex = RegExp(r'^[A-Z]{2}[0-9]{2}\s?[0-9]{11}$');
 
     if (!dlRegex.hasMatch(cleanedValue)) {
-      return 'Invalid license format (e.g., KA0120200001234)';
+      return FFLocalizations.of(context).getText('dl0028');
     }
 
     if (cleanedValue.length != 15) {
-      return 'License must be 15 characters';
+      return FFLocalizations.of(context).getText('dl0029');
     }
 
     return null;
@@ -314,6 +325,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     FFUploadedFile? image,
     String? imageUrl,
     required bool isValid,
+    required bool isFront,
     required Function() onTap,
     required Function()? onRemove,
   }) {
@@ -412,52 +424,54 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   );
                                 },
                               )
-                            : Center(
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.registrationOrange
-                                            .withValues(alpha: 0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.add_a_photo,
-                                          size: 40, color: AppColors.registrationOrange),
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.registrationOrange
+                                          .withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
                                     ),
-                                    const SizedBox(height: 12),
+                                    child: const Icon(Icons.add_a_photo,
+                                        size: 40, color: AppColors.registrationOrange),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    FFLocalizations.of(context)
+                                      .getText('doc0009')
+                                      .replaceAll('%1', title),
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 4),
                                     Text(
-                                      'Tap to upload $title',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text('Camera or Gallery',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600])),
-                                  ],
-                                ),
-                            ),
+                                      FFLocalizations.of(context)
+                                        .getText('upload0004'),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600])),
+                                ],
+                              ),
                   ),
 
                   // OCR Processing Overlay
-                  if (_isProcessingOCR && title == 'Front Side')
+                  if (_isProcessingOCR && isFront)
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircularProgressIndicator(color: AppColors.registrationOrange),
                             SizedBox(height: 16),
                             Text(
-                              'Reading DL Number...',
+                              FFLocalizations.of(context).getText('dl0026'),
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -516,7 +530,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isValid ? '✓ Verified and uploaded' : 'Image uploaded',
+                      isValid
+                          ? FFLocalizations.of(context).getText('doc0007')
+                          : FFLocalizations.of(context).getText('doc0008'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isValid ? Colors.green : Colors.orange,
@@ -614,12 +630,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   color: AppColors.registrationOrange, size: 32),
                             ),
                             const SizedBox(width: 16),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Upload Driving License',
+                                    FFLocalizations.of(context)
+                                        .getText('dl0001'),
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
@@ -631,7 +648,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                           size: 14, color: Colors.blue),
                                       SizedBox(width: 4),
                                       Text(
-                                        'Auto-fill with OCR',
+                                        FFLocalizations.of(context)
+                                            .getText('dl0002'),
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.blue,
@@ -663,7 +681,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Upload front side to auto-fill DL number',
+                                FFLocalizations.of(context)
+                                    .getText('dl0003'),
                                 style: TextStyle(
                                     fontSize: 13, color: Colors.blue[900]),
                               ),
@@ -676,12 +695,14 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
                       // Front Side
                       _buildImageCard(
-                        title: 'Front Side',
-                        subtitle: 'Photo & License number visible',
+                        title: FFLocalizations.of(context).getText('doc0001'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('dl0004'),
                         icon: Icons.badge,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
                         isValid: _isFrontValid,
+                        isFront: true,
                         onTap: () async {
                           final selectedMedia =
                               await selectMediaWithSourceBottomSheet(
@@ -721,7 +742,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                     base64Encode(_frontImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                              _showSnackBar('Front side uploaded!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0003'));
 
                               // 🔥 AUTO-EXTRACT DL NUMBER
                               await _extractDLNumberFromImage(_frontImage!);
@@ -738,7 +760,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           FFAppState().licenseFrontImageUrl = '';
                           FFAppState().licenseFrontBase64 = '';
                           FFAppState().update(() {});
-                          _showSnackBar('Front side removed', isError: true);
+                          _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0005'),
+                              isError: true);
                         },
                       ),
 
@@ -746,12 +770,14 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
                       // Back Side
                       _buildImageCard(
-                        title: 'Back Side',
-                        subtitle: 'Address & validity details visible',
+                        title: FFLocalizations.of(context).getText('doc0002'),
+                        subtitle: FFLocalizations.of(context)
+                          .getText('dl0005'),
                         icon: Icons.contact_mail,
                         image: _backImage,
                         imageUrl: _backImageUrl,
                         isValid: _isBackValid,
+                        isFront: false,
                         onTap: () async {
                           final selectedMedia =
                               await selectMediaWithSourceBottomSheet(
@@ -789,7 +815,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                     base64Encode(_backImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                              _showSnackBar('Back side uploaded!');
+                              _showSnackBar(FFLocalizations.of(context)
+                                  .getText('doc0004'));
                             }
                           }
                         },
@@ -803,7 +830,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           FFAppState().licenseBackImageUrl = '';
                           FFAppState().licenseBackBase64 = '';
                           FFAppState().update(() {});
-                          _showSnackBar('Back side removed', isError: true);
+                          _showSnackBar(
+                              FFLocalizations.of(context).getText('doc0006'),
+                              isError: true);
                         },
                       ),
 
@@ -831,7 +860,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 const Icon(Icons.badge,
                                     color: AppColors.registrationOrange, size: 20),
                                 const SizedBox(width: 8),
-                                const Text('License Number',
+                                Text(
+                                  FFLocalizations.of(context)
+                                    .getText('dl0006'),
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
@@ -848,13 +879,15 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                         border: Border.all(
                                             color: Colors.green, width: 1),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
                                           SizedBox(width: 4),
-                                          Text('Auto-filled',
+                                            Text(
+                                              FFLocalizations.of(context)
+                                                .getText('dl0007'),
                                               style: TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
@@ -876,7 +909,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 _LicenseInputFormatter(),
                               ],
                               decoration: InputDecoration(
-                                hintText: 'KA01 20200001234',
+                                hintText: FFLocalizations.of(context)
+                                    .getText('dl0008'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.card_membership,
                                     color: AppColors.registrationOrange),
@@ -928,8 +962,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 Expanded(
                                   child: Text(
                                     _licenseNumberController.text.isEmpty
-                                        ? 'Auto-filled from photo or enter manually'
-                                        : 'License number verified ✓',
+                                      ? FFLocalizations.of(context)
+                                        .getText('dl0009')
+                                      : FFLocalizations.of(context)
+                                        .getText('dl0010'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color:
@@ -943,7 +979,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              'License Expiry Date',
+                              FFLocalizations.of(context).getText('dl0011'),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -954,7 +990,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             TextFormField(
                               controller: _licenseExpiryController,
                               decoration: InputDecoration(
-                                hintText: 'YYYY-MM-DD or DD/MM/YYYY',
+                                hintText: FFLocalizations.of(context)
+                                    .getText('dl0012'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.calendar_today,
                                     color: AppColors.registrationOrange),
@@ -1008,28 +1045,32 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
                                 SizedBox(width: 8),
-                                Text('Important Guidelines',
+                              Text(
+                                FFLocalizations.of(context)
+                                  .getText('guide0001'),
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildGuideline('Upload both front and back sides'),
                             _buildGuideline(
-                                'All four corners should be visible'),
+                              FFLocalizations.of(context).getText('dl0013')),
                             _buildGuideline(
-                                'License number must be clearly readable'),
-                            _buildGuideline('Avoid glare and shadows'),
+                              FFLocalizations.of(context).getText('guide0002')),
                             _buildGuideline(
-                                'OCR will auto-fill DL number from photo'),
+                              FFLocalizations.of(context).getText('dl0014')),
                             _buildGuideline(
-                                '✓ Images persist after app restart'),
+                              FFLocalizations.of(context).getText('guide0003')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('dl0015')),
+                            _buildGuideline(
+                              FFLocalizations.of(context).getText('guide0004')),
                           ],
                         ),
                       ),
@@ -1052,12 +1093,14 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   _backImageUrl!.isNotEmpty);
 
                           if (!hasFront) {
-                            _showSnackBar('Please upload front side of license',
+                            _showSnackBar(
+                                FFLocalizations.of(context).getText('dl0016'),
                                 isError: true);
                             return;
                           }
                           if (!hasBack) {
-                            _showSnackBar('Please upload back side of license',
+                            _showSnackBar(
+                                FFLocalizations.of(context).getText('dl0017'),
                                 isError: true);
                             return;
                           }
@@ -1115,19 +1158,22 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               );
                               if (!mounted) return;
                               if (res.succeeded) {
-                                _showSnackBar('License verified and sent to backend!');
+                                _showSnackBar(FFLocalizations.of(context)
+                                    .getText('dl0018'));
                                 await Future.delayed(
                                     const Duration(milliseconds: 500));
                                 context.pop();
                               } else {
                                 _showSnackBar(
-                                    'Could not update license. Please try again.',
+                                    FFLocalizations.of(context)
+                                        .getText('dl0019'),
                                     isError: true);
                               }
                             } catch (e) {
                               if (mounted) {
                                 _showSnackBar(
-                                    'Network error. Please try again.',
+                                    FFLocalizations.of(context)
+                                        .getText('dl0020'),
                                     isError: true);
                               }
                             } finally {
@@ -1135,13 +1181,16 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             }
                           } else {
                             setState(() => _isSubmitting = false);
-                            _showSnackBar('License saved. Will be sent with registration.');
+                            _showSnackBar(FFLocalizations.of(context)
+                                .getText('dl0021'));
                             await Future.delayed(
                                 const Duration(milliseconds: 500));
                             if (mounted) context.pop();
                           }
                         },
-                        text: _isSubmitting ? 'Sending...' : 'Submit',
+                        text: _isSubmitting
+                            ? FFLocalizations.of(context).getText('dl0022')
+                            : FFLocalizations.of(context).getText('drv_submit'),
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
                           width: double.infinity,

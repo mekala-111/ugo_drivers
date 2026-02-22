@@ -66,6 +66,11 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
     _loadSavedData();
     _debugPrintState();
+
+    _registrationNumberController.addListener(() {
+      FFAppState().registrationNumber =
+          _registrationNumberController.text.trim().toUpperCase();
+    });
   }
 
   void _debugPrintState() {

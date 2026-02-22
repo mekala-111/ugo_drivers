@@ -65,6 +65,11 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
 
     // Debug what was loaded
     _debugPrintState();
+
+    _aadhaarController.addListener(() {
+      FFAppState().aadharNumber =
+          _aadhaarController.text.replaceAll(' ', '');
+    });
   }
 
   // Debug function to see what's in FFAppState
