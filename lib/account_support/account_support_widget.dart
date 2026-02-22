@@ -236,6 +236,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     final media = MediaQuery.of(context);
     final width = media.size.width;
     final height = media.size.height;
+    final topInset = media.padding.top;
     final isSmall = width < 360;
     final isTablet = width >= 600;
     final horizontalPadding = isTablet ? 32.0 : (isSmall ? 12.0 : 16.0);
@@ -315,8 +316,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
                 // ✅ FIXED: Back Button + "My Profile" Text
                 Positioned(
-                  top: isSmall ? 36 : 50,
+                  top: topInset + (isSmall ? 8.0 : 12.0),
                   left: horizontalPadding,
+                  right: horizontalPadding,
                   child: Row(
                     children: [
                       InkWell(
@@ -328,7 +330,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                         ),
                       ),
                       SizedBox(width: isSmall ? 10 : 16),
-                      Flexible(
+                      Expanded(
                         child: Text(
                           FFLocalizations.of(context).getText('accsup0002'),
                           maxLines: 1,
@@ -340,6 +342,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                           ),
                         ),
                       ),
+                      SizedBox(width: isSmall ? 72.0 : 96.0),
                     ],
                   ),
                 ),
