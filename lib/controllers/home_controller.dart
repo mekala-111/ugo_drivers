@@ -9,7 +9,8 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:ugo_driver/config.dart';
 import 'package:ugo_driver/home/incentive_model.dart';
 import 'package:ugo_driver/repositories/driver_repository.dart';
-import 'package:ugo_driver/backend/api_requests/api_calls.dart' show DriverIdfetchCall, GetAllDriversCall;
+import 'package:ugo_driver/backend/api_requests/api_calls.dart'
+    show DriverIdfetchCall, GetAllDriversCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -93,30 +94,32 @@ class HomeController extends ChangeNotifier {
     );
 
     if (_disposed) return;
-    
+
     if (kDebugMode) {
       debugPrint('🔍 === Driver Profile Response ===');
       debugPrint('Response Succeeded: ${userDetails.succeeded}');
       debugPrint('Response JSON: ${userDetails.jsonBody}');
     }
-    
+
     if (userDetails.jsonBody != null) {
       final fetchedName = getJsonField(
         userDetails.jsonBody,
         r'''$.data.first_name''',
       ).toString();
-      if (fetchedName != 'null' && fetchedName.isNotEmpty) driverName = fetchedName;
+      if (fetchedName != 'null' && fetchedName.isNotEmpty)
+        driverName = fetchedName;
 
       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);
-      
+
       if (kDebugMode) {
         debugPrint('🖼️ Raw img value from API: $img');
         debugPrint('🖼️ img is null: ${img == null}');
         debugPrint('🖼️ img is empty: ${img?.isEmpty ?? true}');
       }
-      
+
       if (img != null && img.isNotEmpty) {
-        profileImageUrl = img.startsWith('http') ? img : '${Config.baseUrl}/$img';
+        profileImageUrl =
+            img.startsWith('http') ? img : '${Config.baseUrl}/$img';
         if (kDebugMode) {
           debugPrint('✅ Final profileImageUrl: $profileImageUrl');
         }
@@ -177,7 +180,8 @@ class HomeController extends ChangeNotifier {
       );
       if (_disposed) return;
       if (res.succeeded && res.jsonBody != null) {
-        availableDriversCount = GetAllDriversCall.availableDrivers(res.jsonBody).length;
+        availableDriversCount =
+            GetAllDriversCall.availableDrivers(res.jsonBody).length;
         _notify();
       }
     } catch (_) {}
@@ -203,7 +207,8 @@ class HomeController extends ChangeNotifier {
     Position? position;
     try {
       position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
     } catch (e) {
       if (kDebugMode) debugPrint('Geolocator error: $e');
@@ -334,12 +339,14 @@ class HomeController extends ChangeNotifier {
 
     try {
       final initialPosition = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
       _lastSavedPosition = initialPosition;
       await _updateLocationToServer(initialPosition);
       if (_disposed) return;
-      currentUserLocation = LatLng(initialPosition.latitude, initialPosition.longitude);
+      currentUserLocation =
+          LatLng(initialPosition.latitude, initialPosition.longitude);
       _notify();
     } catch (e) {
       if (kDebugMode) debugPrint('Error getting position: $e');
@@ -457,9 +464,11 @@ class HomeController extends ChangeNotifier {
       final driverId = d['driver_id'];
       final myId = FFAppState().driverid;
       if (rideId != null && driverId != null && driverId != myId) {
-        onSocketRideData({'id': rideId, 'driver_id': driverId, 'ride_status': 'ACCEPTED'});
+        onSocketRideData(
+            {'id': rideId, 'driver_id': driverId, 'ride_status': 'ACCEPTED'});
       }
     }
+
     _socket.on('ride_taken', onRideTaken);
     _socket.on('ride_assigned', onRideTaken);
 
@@ -486,7 +495,8 @@ class HomeController extends ChangeNotifier {
 
       if (_disposed) return;
       if (response.succeeded) {
-        final incentivesArray = getJsonField(response.jsonBody, r'''$.data''', true);
+        final incentivesArray =
+            getJsonField(response.jsonBody, r'''$.data''', true);
 
         if (incentivesArray != null && incentivesArray is List) {
           // 🎯 Filter to show ONLY currently running incentives
@@ -496,9 +506,11 @@ class HomeController extends ChangeNotifier {
               .toList();
 
           if (kDebugMode) {
-            debugPrint('📊 Incentives: Total=${incentivesArray.length}, Running=${runningIncentives.length}');
+            debugPrint(
+                '📊 Incentives: Total=${incentivesArray.length}, Running=${runningIncentives.length}');
             for (var i in runningIncentives) {
-              debugPrint('  ✅ ${i['incentive']?['name']} - Progress: ${i['completed_rides']}/${i['target_rides']} rides');
+              debugPrint(
+                  '  ✅ ${i['incentive']?['name']} - Progress: ${i['completed_rides']}/${i['target_rides']} rides');
             }
           }
 
@@ -523,7 +535,8 @@ class HomeController extends ChangeNotifier {
             return IncentiveTier(
               id: item['id'] ?? 0,
               targetRides: item['target_rides'] ?? 0,
-              rewardAmount: double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
+              rewardAmount:
+                  double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
               isLocked: false, // Running incentives are never locked
               description: item['incentive']?['name'],
             );

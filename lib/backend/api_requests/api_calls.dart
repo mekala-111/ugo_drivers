@@ -84,7 +84,8 @@ class DriverMyReferralsCall {
 
   static double totalEarnings(dynamic response) =>
       double.tryParse(
-          getJsonField(response, r'$.data.total_earnings')?.toString() ?? '0') ??
+          getJsonField(response, r'$.data.total_earnings')?.toString() ??
+              '0') ??
       0.0;
 
   static List<dynamic> referrals(dynamic response) =>
@@ -230,13 +231,18 @@ class GetVehicleMakesCall {
     final data = getJsonField(response, r'$.data', true);
     if (data is List) {
       return data
-          .map((e) => e is Map ? (e['name'] ?? e['make'] ?? e['vehicle_make'])?.toString() : e?.toString())
+          .map((e) => e is Map
+              ? (e['name'] ?? e['make'] ?? e['vehicle_make'])?.toString()
+              : e?.toString())
           .whereType<String>()
           .where((s) => s.isNotEmpty)
           .toList();
     }
     final arr = getJsonField(response, r'$.data[:].name', true) as List?;
-    return arr?.withoutNulls.map((x) => castToType<String>(x)).withoutNulls.toList();
+    return arr?.withoutNulls
+        .map((x) => castToType<String>(x))
+        .withoutNulls
+        .toList();
   }
 }
 
@@ -269,13 +275,18 @@ class GetVehicleModelsCall {
     final data = getJsonField(response, r'$.data', true);
     if (data is List) {
       return data
-          .map((e) => e is Map ? (e['name'] ?? e['model'] ?? e['vehicle_model'])?.toString() : e?.toString())
+          .map((e) => e is Map
+              ? (e['name'] ?? e['model'] ?? e['vehicle_model'])?.toString()
+              : e?.toString())
           .whereType<String>()
           .where((s) => s.isNotEmpty)
           .toList();
     }
     final arr = getJsonField(response, r'$.data[:].name', true) as List?;
-    return arr?.withoutNulls.map((x) => castToType<String>(x)).withoutNulls.toList();
+    return arr?.withoutNulls
+        .map((x) => castToType<String>(x))
+        .withoutNulls
+        .toList();
   }
 }
 
@@ -489,6 +500,7 @@ class CompleteRideCall {
     }
     return null;
   }
+
   static String? paymentMode(dynamic response) {
     final d = data(response);
     if (d is Map) {
@@ -549,19 +561,19 @@ class UpdateDriverCall {
     if (fcmToken != null && fcmToken.isNotEmpty) {
       params['fcm_token'] = fcmToken;
     }
-    
+
     if (profileimage != null) {
       params['profile_image'] = profileimage;
     }
-    
+
     if (firstName != null) {
       params['first_name'] = firstName;
     }
-    
+
     if (lastName != null) {
       params['last_name'] = lastName;
     }
-    
+
     // if (email != null) {
     //   params['email'] = email;
     // }
@@ -600,16 +612,26 @@ class UpdateDriverCall {
       params['pollution_certificate_image'] = pollutionCertificateImage;
     }
 
-    if (vehicleName != null && vehicleName.isNotEmpty) params['vehicle_name'] = vehicleName;
-    if (vehicleModel != null && vehicleModel.isNotEmpty) params['vehicle_model'] = vehicleModel;
-    if (vehicleColor != null && vehicleColor.isNotEmpty) params['vehicle_color'] = vehicleColor;
-    if (licensePlate != null && licensePlate.isNotEmpty) params['license_plate'] = licensePlate;
-    if (registrationNumber != null && registrationNumber.isNotEmpty) params['registration_number'] = registrationNumber;
-    if (registrationDate != null && registrationDate.isNotEmpty) params['registration_date'] = registrationDate;
-    if (insuranceNumber != null && insuranceNumber.isNotEmpty) params['insurance_number'] = insuranceNumber;
-    if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty) params['insurance_expiry_date'] = insuranceExpiryDate;
-    if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty) params['pollution_expiry_date'] = pollutionExpiryDate;
-    if (vehicleTypeId != null && vehicleTypeId > 0) params['vehicle_type_id'] = vehicleTypeId;
+    if (vehicleName != null && vehicleName.isNotEmpty)
+      params['vehicle_name'] = vehicleName;
+    if (vehicleModel != null && vehicleModel.isNotEmpty)
+      params['vehicle_model'] = vehicleModel;
+    if (vehicleColor != null && vehicleColor.isNotEmpty)
+      params['vehicle_color'] = vehicleColor;
+    if (licensePlate != null && licensePlate.isNotEmpty)
+      params['license_plate'] = licensePlate;
+    if (registrationNumber != null && registrationNumber.isNotEmpty)
+      params['registration_number'] = registrationNumber;
+    if (registrationDate != null && registrationDate.isNotEmpty)
+      params['registration_date'] = registrationDate;
+    if (insuranceNumber != null && insuranceNumber.isNotEmpty)
+      params['insurance_number'] = insuranceNumber;
+    if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty)
+      params['insurance_expiry_date'] = insuranceExpiryDate;
+    if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty)
+      params['pollution_expiry_date'] = pollutionExpiryDate;
+    if (vehicleTypeId != null && vehicleTypeId > 0)
+      params['vehicle_type_id'] = vehicleTypeId;
 
     print('🚀 UpdateDriver API Request:');
     print('   URL: $_baseUrl/api/drivers/$id');
@@ -696,9 +718,11 @@ class DriverIdfetchCall {
 
   /// Get license image URL (legacy; prefer licenseFrontImage/licenseBackImage)
   static String? licenseImage(dynamic response) {
-    final v = castToType<String>(getJsonField(response, r'''$.data.license_image'''));
+    final v =
+        castToType<String>(getJsonField(response, r'''$.data.license_image'''));
     if (v != null && v.isNotEmpty) return v;
-    return castToType<String>(getJsonField(response, r'''$.data.license_front_image'''));
+    return castToType<String>(
+        getJsonField(response, r'''$.data.license_front_image'''));
   }
 
   /// Get license front image URL
@@ -731,9 +755,11 @@ class DriverIdfetchCall {
 
   /// Get aadhaar image URL (legacy; prefer aadhaarFrontImage/aadhaarBackImage)
   static String? aadhaarImage(dynamic response) {
-    final v = castToType<String>(getJsonField(response, r'''$.data.aadhaar_image'''));
+    final v =
+        castToType<String>(getJsonField(response, r'''$.data.aadhaar_image'''));
     if (v != null && v.isNotEmpty) return v;
-    return castToType<String>(getJsonField(response, r'''$.data.aadhaar_front_image'''));
+    return castToType<String>(
+        getJsonField(response, r'''$.data.aadhaar_front_image'''));
   }
 
   /// Get aadhaar front image URL
@@ -765,9 +791,11 @@ class DriverIdfetchCall {
 
   /// Get RC image URL (legacy; prefer rcFrontImage/rcBackImage)
   static String? rcImage(dynamic response) {
-    final v = castToType<String>(getJsonField(response, r'''$.data.rc_image'''));
+    final v =
+        castToType<String>(getJsonField(response, r'''$.data.rc_image'''));
     if (v != null && v.isNotEmpty) return v;
-    return castToType<String>(getJsonField(response, r'''$.data.rc_front_image'''));
+    return castToType<String>(
+        getJsonField(response, r'''$.data.rc_front_image'''));
   }
 
   /// Get RC front image URL
@@ -1426,6 +1454,7 @@ class RazorpayPayoutCall {
         r'$.message',
       ));
 }
+
 class DriverEarningsCall {
   static Future<ApiCallResponse> call({
     required int driverId,
@@ -1434,8 +1463,7 @@ class DriverEarningsCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'DriverEarnings',
-      apiUrl:
-          '$_baseUrl/api/drivers/earnings/driver/$driverId?period=$period',
+      apiUrl: '$_baseUrl/api/drivers/earnings/driver/$driverId?period=$period',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -1468,8 +1496,6 @@ class DriverEarningsCall {
   static List<dynamic>? rides(dynamic response) =>
       getJsonField(response, r'$.data.rides', true) as List<dynamic>?;
 }
-
-
 
 // 🏦 Add Bank Account API Call (POST)
 class AddBankAccountCall {
@@ -1676,10 +1702,10 @@ class DriverIncentivesCall {
   static Future<ApiCallResponse> call({
     required String token,
     required int driverId,
-    String? date,   // particular date  "2026-02-11"
-    String? type,   // "weekly" | "monthly"
-    String? from,   // range start      "2026-02-01"
-    String? to,     // range end        "2026-02-20"
+    String? date, // particular date  "2026-02-11"
+    String? type, // "weekly" | "monthly"
+    String? from, // range start      "2026-02-01"
+    String? to, // range end        "2026-02-20"
   }) async {
     final Map<String, String> queryParams = {};
     if (date != null) queryParams['date'] = date;
@@ -1688,8 +1714,7 @@ class DriverIncentivesCall {
     if (to != null) queryParams['to'] = to;
 
     final queryString = Uri(queryParameters: queryParams).query;
-    final url =
-        '$_baseUrl/api/driver-incentives/daily-incentives/$driverId'
+    final url = '$_baseUrl/api/driver-incentives/daily-incentives/$driverId'
         '${queryString.isNotEmpty ? '?$queryString' : ''}';
 
     debugPrint('📡 DriverIncentivesCall → $url');
@@ -1739,7 +1764,8 @@ class DriverIncentivesCall {
 
   static double itemRewardAmount(dynamic item) =>
       double.tryParse(
-          getJsonField(item, r'$.reward_amount')?.toString() ?? '0') ?? 0.0;
+          getJsonField(item, r'$.reward_amount')?.toString() ?? '0') ??
+      0.0;
 
   static String itemProgressStatus(dynamic item) =>
       castToType<String>(getJsonField(item, r'$.progress_status')) ?? 'ongoing';
@@ -1748,11 +1774,12 @@ class DriverIncentivesCall {
       itemProgressStatus(item) == 'completed';
 
   static String itemIncentiveName(dynamic item) =>
-      castToType<String>(getJsonField(item, r'$.incentive.name')) ?? 'Incentive';
+      castToType<String>(getJsonField(item, r'$.incentive.name')) ??
+      'Incentive';
 
   static String itemRecurrenceType(dynamic item) =>
-      castToType<String>(
-          getJsonField(item, r'$.incentive.recurrence_type')) ?? '';
+      castToType<String>(getJsonField(item, r'$.incentive.recurrence_type')) ??
+      '';
 
   static String itemStartTime(dynamic item) =>
       castToType<String>(getJsonField(item, r'$.incentive.start_time')) ?? '';
@@ -1777,8 +1804,7 @@ class VehiclePricingCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'vehiclePricing',
-      apiUrl:
-          '$_baseUrl/api/vehicle-types/drivers/$driverId/vehicle-pricing',
+      apiUrl: '$_baseUrl/api/vehicle-types/drivers/$driverId/vehicle-pricing',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -1824,7 +1850,4 @@ class VehiclePricingCall {
 
     return path;
   }
-
-
 }
-
