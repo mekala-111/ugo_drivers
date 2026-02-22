@@ -135,7 +135,7 @@ class CompleteRideCard extends StatelessWidget {
 
     if (phoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available.')),
+        SnackBar(content: Text(FFLocalizations.of(context).getText('ride0007'))),
       );
       return;
     }

@@ -1415,6 +1415,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'फोटो फिर से लें',
       'te': 'ఫోటో మళ్లీ తీసుకోండి',
     },
+    'face0024': {
+      'en': 'Failed to load',
+      'hi': 'लोड करने में विफल',
+      'te': 'లోడ్ చేయడం విఫలమైంది',
+    },
   },
   // registration_certificate
   {
@@ -1708,6 +1713,54 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'Ready to Update',
       'hi': 'अपडेट के लिए तैयार',
       'te': 'అప్డేట్‌కు సిద్ధం',
+    },
+    // Ride Flow
+    'ride0001': {
+      'en': 'Failed to accept ride. Please check your connection.',
+      'hi': 'राइड स्वीकार करने में विफल। कृपया अपना कनेक्शन जांचें।',
+      'te': 'రైడ్‌ను అంగీకరించడం విఫలమైంది. దయచేసి మీ కనెక్షన్‌ను తనిఖీ చేయండి.',
+    },
+    'ride0002': {
+      'en': 'Invalid OTP',
+      'hi': 'अमान्य OTP',
+      'te': 'చెల్లని OTP',
+    },
+    'ride0003': {
+      'en': 'Verification Failed',
+      'hi': 'सत्यापन विफल',
+      'te': 'ధృవీకరణ విఫలమైంది',
+    },
+    'ride0004': {
+      'en': 'Connection error. Please try again.',
+      'hi': 'कनेक्शन त्रुटि। कृपया पुनः प्रयास करें।',
+      'te': 'కనెక్షన్ లోపం. దయచేసి మళ్ళీ ప్రయత్నించండి.',
+    },
+    'ride0005': {
+      'en': 'Failed to complete ride. Please try again.',
+      'hi': 'राइड पूर्ण करने में विफल। कृपया पुनः प्रयास करें।',
+      'te': 'రైడ్ పూర్తి చేయడం విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.',
+    },
+    'ride0006': {
+      'en': 'Fare',
+      'hi': 'किराया',
+      'te': 'ఛార్జీ',
+    },
+    'ride0007': {
+      'en': 'Phone number not available.',
+      'hi': 'फोन नंबर उपलब्ध नहीं है।',
+      'te': 'ఫోన్ నంబర్ అందుబాటులో లేదు.',
+    },
+    // History
+    'hist0001': {
+      'en': 'No past rides yet.',
+      'hi': 'अभी तक कोई पिछली राइड नहीं।',
+      'te': 'ఇంకా గత రైడ్‌లు లేవు.',
+    },
+    // Error Messages
+    'err0001': {
+      'en': 'Try Again',
+      'hi': 'पुनः प्रयास करें',
+      'te': 'మళ్ళీ ప్రయత్నించండి',
     },
   },
   // support

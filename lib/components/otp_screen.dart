@@ -124,13 +124,18 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                               children: [
                                 const Icon(Icons.pin, color: ugoGreen, size: 20),
                                 const SizedBox(width: 8),
-                                Text(
-                                  "${FFLocalizations.of(context).getText('drv_ride_otp')}: ${widget.displayOtp}",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    letterSpacing: 2,
+                                Expanded(
+                                  child: Text(
+                                    "${FFLocalizations.of(context).getText('drv_ride_otp')}: ${widget.displayOtp}",
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      letterSpacing: 2,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -141,11 +146,19 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         const SizedBox(height: 24),
 
                         // 4 OTP Boxes with Enhanced Logic
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(4, (index) {
-                            return _buildOtpBox(index);
-                          }),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            const spacing = 12.0;
+                            final boxSize =
+                                ((constraints.maxWidth - (spacing * 3)) / 4)
+                                    .clamp(40.0, 56.0);
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(4, (index) {
+                                return _buildOtpBox(index, boxSize);
+                              }),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 32),
@@ -195,7 +208,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   }
 
   // Built with Rapido-like Focus Logic
-  Widget _buildOtpBox(int index) {
+  Widget _buildOtpBox(int index, double size) {
     return KeyboardListener(
       focusNode: FocusNode(), // Consumes hardware events
       onKeyEvent: (event) {
@@ -209,8 +222,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         }
       },
       child: SizedBox(
-        width: 50,
-        height: 50,
+        width: size,
+        height: size,
         child: TextField(
           controller: widget.otpControllers[index],
           focusNode: _focusNodes[index],

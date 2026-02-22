@@ -127,7 +127,7 @@ class NewRequestCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.grey[400]!)),
                               child: Column(children: [
-                                Text('Fare',
+                                Text(FFLocalizations.of(context).getText('ride0006'),
                                     style: TextStyle(
                                         color: Colors.grey[400], fontSize: 10)),
                                 Text('₹${ride.estimatedFare?.toInt() ?? 80}',

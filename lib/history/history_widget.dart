@@ -170,7 +170,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                         const SizedBox(height: 16),
                         Expanded(
                           child: _rides.isEmpty
-                              ? const Center(child: Text('No past rides yet.'))
+                              ? Center(child: Text(FFLocalizations.of(context).getText('hist0001')))
                               : ListView.builder(
                                   itemCount: _rides.length,
                                   itemBuilder: (context, index) {

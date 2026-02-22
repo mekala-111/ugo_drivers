@@ -218,6 +218,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     const Color brandPrimary = AppColors.primary;
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final headerHeight = (screenHeight * 0.26).clamp(190.0, 260.0);
+    final contentTop = headerHeight - 60.0;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -230,7 +233,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             Column(
               children: [
                 Container(
-                  height: 240,
+                  height: headerHeight,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -308,7 +311,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
             // 2️⃣ Floating List
             Positioned.fill(
-              top: 180,
+              top: contentTop,
               child: _isFetchingDocuments
                   ? const Center(
                   child: CircularProgressIndicator(color: brandPrimary))

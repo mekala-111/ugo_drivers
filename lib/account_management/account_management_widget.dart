@@ -184,6 +184,9 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
     const Color brandPrimary = AppColors.primary;
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final headerHeight = (screenHeight * 0.28).clamp(210.0, 280.0);
+    final contentTop = headerHeight - 60.0;
 
     return GestureDetector(
       onTap: () {
@@ -199,7 +202,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
             Column(
               children: [
                 Container(
-                  height: 260,
+                  height: headerHeight,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -269,7 +272,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
 
             // 2️⃣ Content Layer
             Positioned.fill(
-              top: 200, // Overlap the header
+              top: contentTop, // Overlap the header
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(

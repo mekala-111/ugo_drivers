@@ -127,9 +127,13 @@ class _LoginWidgetState extends State<LoginWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: bgOffWhite,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  children: [
               // ==========================================
               // 1️⃣ VIBRANT HEADER (Curved Bottom)
               // ==========================================
@@ -487,8 +491,11 @@ class _LoginWidgetState extends State<LoginWidget> {
                 ],
               ),
               SizedBox(height: Responsive.valueByHeight(context, at600: 24.0, at700: 32.0, at800: 40.0, defaultVal: 40.0)),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

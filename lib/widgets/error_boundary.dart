@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
 /// Catches widget tree errors and shows a fallback UI instead of crashing.
 /// Wraps key screens for Play Store resilience.
@@ -110,7 +111,7 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
+                label: Text(FFLocalizations.of(context).getText('err0001')),
               ),
             ],
           ),

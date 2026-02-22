@@ -538,7 +538,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                   },
                                                   errorBuilder: (context, error,
                                                       stackTrace) {
-                                                    return const Column(
+                                                    return Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
@@ -548,7 +548,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                             size: 48,
                                                             color: Colors.red),
                                                         SizedBox(height: 8),
-                                                        Text('Failed to load',
+                                                        Text(FFLocalizations.of(context).getText('face0024'),
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .red)),

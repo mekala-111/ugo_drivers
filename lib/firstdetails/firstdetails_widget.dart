@@ -99,9 +99,13 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: bgOffWhite,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  children: [
               // ==========================================
               // 1️⃣ VIBRANT HEADER
               // ==========================================
@@ -311,8 +315,11 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                 ),
               ),
               const SizedBox(height: 20),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

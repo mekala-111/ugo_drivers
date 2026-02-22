@@ -417,8 +417,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Failed to accept ride. Please check your connection.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(FFLocalizations.of(context).getText('ride0001')),
           backgroundColor: Colors.red,
         ));
       }
@@ -460,7 +460,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         VoiceService().rideStarted();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid OTP')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(FFLocalizations.of(context).getText('ride0002'))));
         }
         for (var c in controllers) {
           c.clear();
@@ -468,7 +468,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Verification Failed')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(FFLocalizations.of(context).getText('ride0003'))));
       }
     }
   }
@@ -526,8 +526,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Connection error. Please try again.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(FFLocalizations.of(context).getText('ride0004')),
           backgroundColor: Colors.red,
         ));
       }
@@ -565,16 +565,16 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         VoiceService().rideCompleted();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Failed to complete ride. Please try again.'),
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(FFLocalizations.of(context).getText('ride0005')),
             backgroundColor: Colors.red,
           ));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Connection error. Please try again.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(FFLocalizations.of(context).getText('ride0004')),
           backgroundColor: Colors.red,
         ));
       }
