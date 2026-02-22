@@ -58,7 +58,8 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                    16.0, 12.0, 16.0, 12.0),
                 child: Container(
                   width: double.infinity,
                   height: 64.0,
@@ -176,9 +177,10 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                       .override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.w500,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .bodySmall
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodySmall
+                                                  .fontStyle,
                                         ),
                                         color: AppColors.greyVehicle,
                                         fontSize: 12.0,

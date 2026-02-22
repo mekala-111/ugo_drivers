@@ -33,10 +33,13 @@ class NewRequestCard extends StatelessWidget {
 
   /// Compute pickup distance from driver to pickup (km).
   static double? _pickupDistanceKm(LatLng? driver, RideRequest ride) {
-    if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0) return null;
+    if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0)
+      return null;
     final m = Geolocator.distanceBetween(
-      driver.latitude, driver.longitude,
-      ride.pickupLat, ride.pickupLng,
+      driver.latitude,
+      driver.longitude,
+      ride.pickupLat,
+      ride.pickupLng,
     );
     return m / 1000;
   }
@@ -50,22 +53,23 @@ class NewRequestCard extends StatelessWidget {
       return null;
     }
     final m = Geolocator.distanceBetween(
-      ride.pickupLat, ride.pickupLng,
-      ride.dropLat, ride.dropLng,
+      ride.pickupLat,
+      ride.pickupLng,
+      ride.dropLat,
+      ride.dropLng,
     );
     return m / 1000;
   }
 
   static String _formatDistance(double? km) {
     if (km == null) return '--';
-    return km < 1
-        ? '${(km * 1000).round()}m'
-        : '${km.toStringAsFixed(1)}Km';
+    return km < 1 ? '${(km * 1000).round()}m' : '${km.toStringAsFixed(1)}Km';
   }
 
   @override
   Widget build(BuildContext context) {
-    final margin = Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
+    final margin =
+        Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
     final isNarrow = MediaQuery.sizeOf(context).width < 360;
     final pickupKm = _pickupDistanceKm(driverLocation, ride);
@@ -84,7 +88,8 @@ class NewRequestCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: pad, vertical: Responsive.verticalSpacing(context)),
+            padding: EdgeInsets.symmetric(
+                horizontal: pad, vertical: Responsive.verticalSpacing(context)),
             decoration: const BoxDecoration(
                 color: ugoGreen,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
@@ -116,12 +121,14 @@ class NewRequestCard extends StatelessWidget {
                         children: [
                           _buildDistanceInfo(
                             context,
-                            FFLocalizations.of(context).getText('drv_pickup_distance'),
+                            FFLocalizations.of(context)
+                                .getText('drv_pickup_distance'),
                             pickupDistStr,
                           ),
                           _buildDropDistanceInfo(
                             context,
-                            FFLocalizations.of(context).getText('drv_drop_distance'),
+                            FFLocalizations.of(context)
+                                .getText('drv_drop_distance'),
                             ride,
                           ),
                         ],
@@ -136,13 +143,15 @@ class NewRequestCard extends StatelessWidget {
                     children: [
                       _buildDistanceInfo(
                         context,
-                        FFLocalizations.of(context).getText('drv_pickup_distance'),
+                        FFLocalizations.of(context)
+                            .getText('drv_pickup_distance'),
                         pickupDistStr,
                       ),
                       Expanded(child: _buildFareBox(context)),
                       _buildDropDistanceInfo(
                         context,
-                        FFLocalizations.of(context).getText('drv_drop_distance'),
+                        FFLocalizations.of(context)
+                            .getText('drv_drop_distance'),
                         ride,
                       ),
                     ],
@@ -170,7 +179,9 @@ class NewRequestCard extends StatelessWidget {
                         flex: 3,
                         child: _buildButton(
                             context,
-                            FFLocalizations.of(context).getText('drv_decline'), ugoRed, isLoading ? null : onDecline)),
+                            FFLocalizations.of(context).getText('drv_decline'),
+                            ugoRed,
+                            isLoading ? null : onDecline)),
                     const SizedBox(width: 16),
                     Expanded(
                         flex: 7,
@@ -188,7 +199,12 @@ class NewRequestCard extends StatelessWidget {
                                   ),
                                 ),
                               )
-                            : _buildButton(context, FFLocalizations.of(context).getText('drv_accept'), ugoGreen, onAccept)),
+                            : _buildButton(
+                                context,
+                                FFLocalizations.of(context)
+                                    .getText('drv_accept'),
+                                ugoGreen,
+                                onAccept)),
                   ],
                 )
               ],
@@ -205,7 +221,10 @@ class NewRequestCard extends StatelessWidget {
         crossAxisAlignment:
             alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey[400], fontSize: Responsive.fontSize(context, 12))),
+          Text(label,
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: Responsive.fontSize(context, 12))),
           Text(value,
               style: TextStyle(
                   color: ugoBlue,
@@ -225,13 +244,12 @@ class NewRequestCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[400]!)),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[400]!)),
             child: Column(children: [
               Text(FFLocalizations.of(context).getText('ride0006'),
-                  style: TextStyle(
-                      color: Colors.grey[400], fontSize: 10)),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 10)),
               Text('₹${ride.estimatedFare?.toInt() ?? 80}',
                   style: const TextStyle(
                       color: ugoBlue,
@@ -265,7 +283,8 @@ class NewRequestCard extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, String text, Color bg, VoidCallback? onTap) {
+  Widget _buildButton(
+      BuildContext context, String text, Color bg, VoidCallback? onTap) {
     final btnH = Responsive.buttonHeight(context, base: 48);
     return SizedBox(
       height: btnH,
@@ -274,7 +293,8 @@ class NewRequestCard extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: bg,
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Text(
           text,
@@ -328,7 +348,8 @@ class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
+    ).animate(
+        CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -339,17 +360,24 @@ class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
 
   @override
   Widget build(BuildContext context) {
-    final boxSz = Responsive.value(context, small: 42.0, medium: 45.0, large: 48.0);
+    final boxSz =
+        Responsive.value(context, small: 42.0, medium: 45.0, large: 48.0);
     return FutureBuilder(
       future: (widget.lat != 0 || widget.lng != 0)
-          ? LocationGeocodeService().getPincodeAndLocality(widget.lat, widget.lng)
+          ? LocationGeocodeService()
+              .getPincodeAndLocality(widget.lat, widget.lng)
           : Future.value((pincode: '', locality: '')),
       builder: (context, snapshot) {
         final code = snapshot.data?.pincode ?? '';
         final locality = snapshot.data?.locality ?? '';
-        final areaName = locality.isNotEmpty ? locality : widget.address.split(',').firstOrNull?.trim() ?? widget.address;
-        if (snapshot.hasData && !_animController.isAnimating && !_animController.isCompleted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => _animController.forward());
+        final areaName = locality.isNotEmpty
+            ? locality
+            : widget.address.split(',').firstOrNull?.trim() ?? widget.address;
+        if (snapshot.hasData &&
+            !_animController.isAnimating &&
+            !_animController.isCompleted) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _animController.forward());
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,10 +392,14 @@ class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_on, color: widget.color, size: Responsive.iconSize(context, base: 20)),
+                  Icon(Icons.location_on,
+                      color: widget.color,
+                      size: Responsive.iconSize(context, base: 20)),
                   Text(
                     widget.label,
-                    style: TextStyle(fontSize: Responsive.fontSize(context, 10), color: Colors.grey),
+                    style: TextStyle(
+                        fontSize: Responsive.fontSize(context, 10),
+                        color: Colors.grey),
                   ),
                 ],
               ),
@@ -466,7 +498,8 @@ class _HighlightedAreaChipState extends State<_HighlightedAreaChip>
         decoration: BoxDecoration(
           color: widget.color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: widget.color.withValues(alpha: 0.5), width: 1.5),
+          border: Border.all(
+              color: widget.color.withValues(alpha: 0.5), width: 1.5),
           boxShadow: [
             BoxShadow(
               color: widget.color.withValues(alpha: 0.2),

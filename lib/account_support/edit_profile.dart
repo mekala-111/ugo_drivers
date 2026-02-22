@@ -31,8 +31,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future pickImage() async {
-    final picked =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (picked == null) return;
 
@@ -47,8 +46,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future saveProfile() async {
-    if (firstNameCtrl.text.trim().isEmpty ||
-        lastNameCtrl.text.trim().isEmpty) {
+    if (firstNameCtrl.text.trim().isEmpty || lastNameCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('First & Last name required')),
       );
@@ -92,120 +90,123 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   const SizedBox(height: 10),
 
-            // PROFILE IMAGE
-            GestureDetector(
-              onTap: pickImage,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-  radius: 55,
-  backgroundColor: brandPrimary.withValues(alpha: 0.1),
-  backgroundImage: profileImage != null
-      ? MemoryImage(profileImage!.bytes!)
-      : (widget.driverData['profile_image'] != null &&
-              widget.driverData['profile_image'].toString().isNotEmpty
-          ? NetworkImage(
-              "https://ugo-api.icacorp.org/${widget.driverData['profile_image']}",
-            )
-          : null) as ImageProvider?,
-  child: profileImage == null &&
-          (widget.driverData['profile_image'] == null ||
-              widget.driverData['profile_image'].toString().isEmpty)
-      ? const Icon(Icons.camera_alt,
-          size: 30, color: brandPrimary)
-      : null,
-),
-
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: brandPrimary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.edit,
-                          size: 16, color: Colors.white),
+                  // PROFILE IMAGE
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 55,
+                          backgroundColor: brandPrimary.withValues(alpha: 0.1),
+                          backgroundImage: profileImage != null
+                              ? MemoryImage(profileImage!.bytes!)
+                              : (widget.driverData['profile_image'] != null &&
+                                      widget.driverData['profile_image']
+                                          .toString()
+                                          .isNotEmpty
+                                  ? NetworkImage(
+                                      "https://ugo-api.icacorp.org/${widget.driverData['profile_image']}",
+                                    )
+                                  : null) as ImageProvider?,
+                          child: profileImage == null &&
+                                  (widget.driverData['profile_image'] == null ||
+                                      widget.driverData['profile_image']
+                                          .toString()
+                                          .isEmpty)
+                              ? const Icon(Icons.camera_alt,
+                                  size: 30, color: brandPrimary)
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: brandPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.edit,
+                                size: 16, color: Colors.white),
+                          ),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // FIRST NAME
-            TextField(
-  controller: firstNameCtrl,
-  decoration: InputDecoration(
-    labelText: 'First Name',
-    prefixIcon: const Icon(Icons.person_outline),
-    filled: true,
-    fillColor: Colors.white,
-    contentPadding:
-        const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: brandPrimary, width: 2),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade300),
-    ),
-  ),
-),
-
-
-            const SizedBox(height: 16),
-
-            // LAST NAME
-            TextField(
-  controller: lastNameCtrl,
-  decoration: InputDecoration(
-    labelText: 'Last Name',
-    prefixIcon: const Icon(Icons.person_outline),
-    filled: true,
-    fillColor: Colors.white,
-    contentPadding:
-        const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: brandPrimary, width: 2),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade300),
-    ),
-  ),
-),
-
-
-            const SizedBox(height: 24),
-
-            // SAVE BUTTON
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: saving ? null : saveProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: brandPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
                   ),
-                  elevation: 4,
-                ),
-                child: saving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Save Changes',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+
+                  const SizedBox(height: 30),
+
+                  // FIRST NAME
+                  TextField(
+                    controller: firstNameCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'First Name',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 18),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                            const BorderSide(color: brandPrimary, width: 2),
                       ),
-              ),
-            ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // LAST NAME
+                  TextField(
+                    controller: lastNameCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Last Name',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 18),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                            const BorderSide(color: brandPrimary, width: 2),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // SAVE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: saving ? null : saveProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: brandPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: saving
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),

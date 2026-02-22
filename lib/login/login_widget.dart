@@ -83,7 +83,8 @@ class _LoginWidgetState extends State<LoginWidget> {
     final isPortrait = screenH > screenW;
 
     // Header height: responsive to both width and height
-    final headerHeight = Responsive.valueByHeight(context,
+    final headerHeight = Responsive.valueByHeight(
+      context,
       at600: isPortrait ? 280.0 : 180.0,
       at700: isPortrait ? 320.0 : 200.0,
       at800: isPortrait ? (isTablet ? 360.0 : 340.0) : 220.0,
@@ -91,21 +92,25 @@ class _LoginWidgetState extends State<LoginWidget> {
     );
 
     final scale = Responsive.scale(context);
-    final hPad = Responsive.horizontalPadding(context) + (isTablet ? 16.0 : 0.0);
-    final cardPadding = Responsive.valueByWidth(context,
+    final hPad =
+        Responsive.horizontalPadding(context) + (isTablet ? 16.0 : 0.0);
+    final cardPadding = Responsive.valueByWidth(
+      context,
       at360: 20.0,
       at600: 28.0,
       at900: 32.0,
       defaultVal: 24.0,
     );
-    final cardHorizontalPad = Responsive.valueByWidth(context,
+    final cardHorizontalPad = Responsive.valueByWidth(
+      context,
       at360: 16.0,
       at600: 24.0,
       at900: 40.0,
       defaultVal: 20.0,
     );
 
-    final logoSize = Responsive.valueByWidth(context,
+    final logoSize = Responsive.valueByWidth(
+      context,
       at360: 80.0,
       at600: 110.0,
       at900: 120.0,
@@ -134,363 +139,428 @@ class _LoginWidgetState extends State<LoginWidget> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
                   children: [
-              // ==========================================
-              // 1️⃣ VIBRANT HEADER (Curved Bottom)
-              // ==========================================
-              Container(
-                height: headerHeight,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [brandGradientStart, brandPrimary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: hPad),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Spacer(),
-                        // App Icon / Logo Placeholder
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              'assets/images/app_launcher_icon.png',
-                              width: logoSize,
-                              height: logoSize,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.local_taxi_rounded,
-                                  color: Colors.white,
-                                  size: logoSize * 0.4,
-                                );
-                              },
-                            ),
-                          ),
+                    // ==========================================
+                    // 1️⃣ VIBRANT HEADER (Curved Bottom)
+                    // ==========================================
+                    Container(
+                      height: headerHeight,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [brandGradientStart, brandPrimary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        const Spacer(),
-                        Center(
-                          child: Text(
-                            FFLocalizations.of(context).getText('login0001'),
-                            style: GoogleFonts.inter(
-                              fontSize: headlineFontSize,
-                              color: Colors.white.withValues(alpha:0.9),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(40),
+                          bottomRight: Radius.circular(40),
                         ),
-                        SizedBox(height: 8 * scale),
-                        Center(
-                          child: Text(
-                            FFLocalizations.of(context).getText('login0002'),
-                            style: GoogleFonts.interTight(
-                              fontSize: subtitleFontSize,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              height: 1.1,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 60 * scale), // Space for card overlap
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // ==========================================
-              // 2️⃣ FLOATING LOGIN CARD
-              // ==========================================
-              Transform.translate(
-                offset: Offset(0, Responsive.valueByHeight(context, at600: -32.0, at700: -36.0, at800: -40.0, defaultVal: -40.0) * scale),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: cardHorizontalPad),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxCardWidth ?? double.infinity),
-                      child: Container(
-                        width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha:0.08),
-                          blurRadius: 20 * scale,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(cardPadding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            FFLocalizations.of(context).getText('login0003'),
-                            style: GoogleFonts.inter(
-                              fontSize: 14 * scale,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          SizedBox(height: 12 * scale),
-
-                          // 📱 PHONE INPUT FIELD
-                          Container(
-                            height: 60 * scale,
-                            decoration: BoxDecoration(
-                              color: AppColors.backgroundCard,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.divider,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.0 * scale),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.flag,
-                                          color: Colors.orange, size: 20 * scale),
-                                      SizedBox(width: 8 * scale),
-                                      Text(
-                                        FFLocalizations.of(context).getText('login0012'),
-                                        style: GoogleFonts.inter(
-                                          fontSize: 18 * scale,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 24 * scale,
-                                  color: Colors.grey[300],
-                                ),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _model.textController,
-                                    focusNode: _model.textFieldFocusNode,
-                                    autofocus: false,
-                                    obscureText: false,
-                                    textInputAction: TextInputAction.done,
-                                    keyboardType: TextInputType.phone,
-                                    cursorColor: brandPrimary,
-                                    style: GoogleFonts.inter(
-                                      fontSize: phoneFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                      letterSpacing: 1.2,
-                                    ),
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(10),
-                                    ],
-                                    decoration: InputDecoration(
-                                      hintText: FFLocalizations.of(context).getText('login0004'),
-                                      hintStyle: GoogleFonts.inter(
-                                        color: Colors.grey[400],
-                                        fontSize: phoneFontSize,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: Responsive.horizontalPadding(context),
-                                        vertical: 18 * scale,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: 32 * scale),
-
-                          // 🚀 ACTION BUTTON (GET OTP)
-                          SizedBox(
-                            width: double.infinity,
-                            height: buttonHeight,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleSendOtp,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: brandPrimary,
-                                foregroundColor: Colors.white,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                disabledBackgroundColor:
-                                brandPrimary.withValues(alpha:0.6),
-                              ),
-                              child: _isLoading
-                                  ? SizedBox(
-                                height: 24 * scale,
-                                width: 24 * scale,
-                                child: const CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                                  : Text(
-                                FFLocalizations.of(context).getText('login0005'),
-                                style: GoogleFonts.interTight(
-                                  fontSize: buttonFontSize,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(height: 24 * scale),
-
-                          // 📄 LEGAL TEXT (tappable)
-                          Center(
-                            child: Builder(
-                              builder: (context) {
-                                return RichText(
-                                  textAlign: TextAlign.center,
-                                  text: TextSpan(
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12 * scale,
-                                      color: Colors.grey[500],
-                                      height: 1.5,
-                                    ),
-                                    children: [
-                                      TextSpan(text: FFLocalizations.of(context).getText('login0006')),
-                                      TextSpan(
-                                        text: FFLocalizations.of(context).getText('login0007'),
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w600,
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 12 * scale,
-                                        ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () => context.pushNamed(TermsConditionsWidget.routeName),
-                                      ),
-                                      TextSpan(text: FFLocalizations.of(context).getText('login0008')),
-                                      TextSpan(
-                                        text: FFLocalizations.of(context).getText('login0009'),
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w600,
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 12 * scale,
-                                        ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          )
                         ],
                       ),
-                    ),
-                  ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ==========================================
-              // 3️⃣ SOCIAL LOGIN (Subtle Footer)
-              // ==========================================
-              SizedBox(height: Responsive.verticalSpacing(context)),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      indent: Responsive.valueByWidth(context, at360: 24.0, at600: 48.0, at900: 64.0, defaultVal: 40.0),
-                      endIndent: Responsive.verticalSpacing(context),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.verticalSpacing(context)),
-                    child: Text(
-                      FFLocalizations.of(context).getText('hczr77o0'),
-                      style: GoogleFonts.inter(
-                        fontSize: Responsive.fontSize(context, 12),
-                        color: Colors.grey[500],
-                        fontWeight: FontWeight.w500,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: hPad),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Spacer(),
+                              // App Icon / Logo Placeholder
+                              Center(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.asset(
+                                    'assets/images/app_launcher_icon.png',
+                                    width: logoSize,
+                                    height: logoSize,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.local_taxi_rounded,
+                                        color: Colors.white,
+                                        size: logoSize * 0.4,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Center(
+                                child: Text(
+                                  FFLocalizations.of(context)
+                                      .getText('login0001'),
+                                  style: GoogleFonts.inter(
+                                    fontSize: headlineFontSize,
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8 * scale),
+                              Center(
+                                child: Text(
+                                  FFLocalizations.of(context)
+                                      .getText('login0002'),
+                                  style: GoogleFonts.interTight(
+                                    fontSize: subtitleFontSize,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                  height: 60 * scale), // Space for card overlap
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      indent: Responsive.verticalSpacing(context),
-                      endIndent: Responsive.valueByWidth(context, at360: 24.0, at600: 48.0, at900: 64.0, defaultVal: 40.0),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: Responsive.verticalSpacing(context) * 2),
 
-              // 🔹 SOCIAL BUTTONS
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _socialButton(context,
-                    icon: FontAwesomeIcons.google,
-                    color: AppColors.googleRed,
-                    onTap: () async {
-                      setState(() => _isLoading = true);
-                      try {
-                        final user = await authManager.signInWithGoogle(context);
-                        if (user != null) {
-                          _handleSocialLoginSuccess(user);
-                        }
-                      } finally {
-                        if (mounted) setState(() => _isLoading = false);
-                      }
-                    },
-                  ),
-                  SizedBox(width: Responsive.verticalSpacing(context) * 2),
-                  _socialButton(context,
-                    icon: Icons.apple,
-                    color: Colors.black,
-                    onTap: () async {
-                      setState(() => _isLoading = true);
-                      try {
-                        final user = await authManager.signInWithApple(context);
-                        if (user != null) {
-                          _handleSocialLoginSuccess(user);
-                        }
-                      } finally {
-                        if (mounted) setState(() => _isLoading = false);
-                      }
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: Responsive.valueByHeight(context, at600: 24.0, at700: 32.0, at800: 40.0, defaultVal: 40.0)),
+                    // ==========================================
+                    // 2️⃣ FLOATING LOGIN CARD
+                    // ==========================================
+                    Transform.translate(
+                      offset: Offset(
+                          0,
+                          Responsive.valueByHeight(context,
+                                  at600: -32.0,
+                                  at700: -36.0,
+                                  at800: -40.0,
+                                  defaultVal: -40.0) *
+                              scale),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: cardHorizontalPad),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: maxCardWidth ?? double.infinity),
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 20 * scale,
+                                    offset: const Offset(0, 12),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(cardPadding),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      FFLocalizations.of(context)
+                                          .getText('login0003'),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14 * scale,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    SizedBox(height: 12 * scale),
+
+                                    // 📱 PHONE INPUT FIELD
+                                    Container(
+                                      height: 60 * scale,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.backgroundCard,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: AppColors.divider,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16.0 * scale),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.flag,
+                                                    color: Colors.orange,
+                                                    size: 20 * scale),
+                                                SizedBox(width: 8 * scale),
+                                                Text(
+                                                  FFLocalizations.of(context)
+                                                      .getText('login0012'),
+                                                  style: GoogleFonts.inter(
+                                                    fontSize: 18 * scale,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            height: 24 * scale,
+                                            color: Colors.grey[300],
+                                          ),
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: _model.textController,
+                                              focusNode:
+                                                  _model.textFieldFocusNode,
+                                              autofocus: false,
+                                              obscureText: false,
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                              keyboardType: TextInputType.phone,
+                                              cursorColor: brandPrimary,
+                                              style: GoogleFonts.inter(
+                                                fontSize: phoneFontSize,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black,
+                                                letterSpacing: 1.2,
+                                              ),
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    10),
+                                              ],
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    FFLocalizations.of(context)
+                                                        .getText('login0004'),
+                                                hintStyle: GoogleFonts.inter(
+                                                  color: Colors.grey[400],
+                                                  fontSize: phoneFontSize,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                border: InputBorder.none,
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                  horizontal: Responsive
+                                                      .horizontalPadding(
+                                                          context),
+                                                  vertical: 18 * scale,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    SizedBox(height: 32 * scale),
+
+                                    // 🚀 ACTION BUTTON (GET OTP)
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: buttonHeight,
+                                      child: ElevatedButton(
+                                        onPressed:
+                                            _isLoading ? null : _handleSendOtp,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: brandPrimary,
+                                          foregroundColor: Colors.white,
+                                          elevation: 4,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          disabledBackgroundColor: brandPrimary
+                                              .withValues(alpha: 0.6),
+                                        ),
+                                        child: _isLoading
+                                            ? SizedBox(
+                                                height: 24 * scale,
+                                                width: 24 * scale,
+                                                child:
+                                                    const CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2.5,
+                                                ),
+                                              )
+                                            : Text(
+                                                FFLocalizations.of(context)
+                                                    .getText('login0005'),
+                                                style: GoogleFonts.interTight(
+                                                  fontSize: buttonFontSize,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+
+                                    SizedBox(height: 24 * scale),
+
+                                    // 📄 LEGAL TEXT (tappable)
+                                    Center(
+                                      child: Builder(
+                                        builder: (context) {
+                                          return RichText(
+                                            textAlign: TextAlign.center,
+                                            text: TextSpan(
+                                              style: GoogleFonts.inter(
+                                                fontSize: 12 * scale,
+                                                color: Colors.grey[500],
+                                                height: 1.5,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                    text: FFLocalizations.of(
+                                                            context)
+                                                        .getText('login0006')),
+                                                TextSpan(
+                                                  text: FFLocalizations.of(
+                                                          context)
+                                                      .getText('login0007'),
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
+                                                    fontWeight: FontWeight.w600,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    fontSize: 12 * scale,
+                                                  ),
+                                                  recognizer: TapGestureRecognizer()
+                                                    ..onTap = () =>
+                                                        context.pushNamed(
+                                                            TermsConditionsWidget
+                                                                .routeName),
+                                                ),
+                                                TextSpan(
+                                                    text: FFLocalizations.of(
+                                                            context)
+                                                        .getText('login0008')),
+                                                TextSpan(
+                                                  text: FFLocalizations.of(
+                                                          context)
+                                                      .getText('login0009'),
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
+                                                    fontWeight: FontWeight.w600,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    fontSize: 12 * scale,
+                                                  ),
+                                                  recognizer: TapGestureRecognizer()
+                                                    ..onTap = () =>
+                                                        context.pushNamed(
+                                                            PrivacyPolicyPageWidget
+                                                                .routeName),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ==========================================
+                    // 3️⃣ SOCIAL LOGIN (Subtle Footer)
+                    // ==========================================
+                    SizedBox(height: Responsive.verticalSpacing(context)),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            indent: Responsive.valueByWidth(context,
+                                at360: 24.0,
+                                at600: 48.0,
+                                at900: 64.0,
+                                defaultVal: 40.0),
+                            endIndent: Responsive.verticalSpacing(context),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: Responsive.verticalSpacing(context)),
+                          child: Text(
+                            FFLocalizations.of(context).getText('hczr77o0'),
+                            style: GoogleFonts.inter(
+                              fontSize: Responsive.fontSize(context, 12),
+                              color: Colors.grey[500],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            indent: Responsive.verticalSpacing(context),
+                            endIndent: Responsive.valueByWidth(context,
+                                at360: 24.0,
+                                at600: 48.0,
+                                at900: 64.0,
+                                defaultVal: 40.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: Responsive.verticalSpacing(context) * 2),
+
+                    // 🔹 SOCIAL BUTTONS
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _socialButton(
+                          context,
+                          icon: FontAwesomeIcons.google,
+                          color: AppColors.googleRed,
+                          onTap: () async {
+                            setState(() => _isLoading = true);
+                            try {
+                              final user =
+                                  await authManager.signInWithGoogle(context);
+                              if (user != null) {
+                                _handleSocialLoginSuccess(user);
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isLoading = false);
+                            }
+                          },
+                        ),
+                        SizedBox(
+                            width: Responsive.verticalSpacing(context) * 2),
+                        _socialButton(
+                          context,
+                          icon: Icons.apple,
+                          color: Colors.black,
+                          onTap: () async {
+                            setState(() => _isLoading = true);
+                            try {
+                              final user =
+                                  await authManager.signInWithApple(context);
+                              if (user != null) {
+                                _handleSocialLoginSuccess(user);
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isLoading = false);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                        height: Responsive.valueByHeight(context,
+                            at600: 24.0,
+                            at700: 32.0,
+                            at800: 40.0,
+                            defaultVal: 40.0)),
                   ],
                 ),
               ),
@@ -514,7 +584,8 @@ class _LoginWidgetState extends State<LoginWidget> {
           ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: EdgeInsets.all(Responsive.horizontalPadding(context)),
         ),
       );
@@ -557,18 +628,18 @@ class _LoginWidgetState extends State<LoginWidget> {
   // 🔹 HELPER: Social Button (min 48dp touch target)
   Widget _socialButton(BuildContext context,
       {required IconData icon,
-        required Color color,
-        required VoidCallback onTap}) {
+      required Color color,
+      required VoidCallback onTap}) {
     final btnSize = Responsive.buttonHeight(context, base: 56);
     final iconSize = Responsive.iconSize(context, base: 24);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: btnSize,

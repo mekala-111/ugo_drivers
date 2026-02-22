@@ -6,6 +6,24 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// ─── Screen Size Helper ───────────────────────────────────────
+class ScreenHelper {
+  static bool isSmallScreen(BuildContext context) =>
+      MediaQuery.of(context).size.width < 600;
+  
+  static bool isMediumScreen(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 600 && MediaQuery.of(context).size.width < 1000;
+  
+  static bool isLargeScreen(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 1000;
+  
+  static double responsivePadding(BuildContext context) =>
+      isSmallScreen(context) ? 12 : 16;
+  
+  static double responsiveFontSize(BuildContext context, double baseSize) =>
+      isSmallScreen(context) ? baseSize * 0.9 : baseSize;
+}
+
 // ==============================================================================
 // MODEL
 // ==============================================================================
@@ -198,6 +216,8 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: AppColors.backgroundAlt,
@@ -211,7 +231,7 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
         title: Text('Incentives',
             style: GoogleFonts.inter(
                 color: AppColors.textDark,
-                fontSize: 20,
+                fontSize: isSmall ? 18 : 20,
                 fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
@@ -223,7 +243,10 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
               indicatorWeight: 4,
               labelColor: Colors.white,
               unselectedLabelColor: Colors.black,
-              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              labelStyle: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: isSmall ? 12 : 14,
+              ),
               tabs: const [
                 Tab(text: 'Daily'),
                 Tab(text: 'Weekly'),
@@ -289,6 +312,7 @@ class _DailyTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
     return Column(
       children: [
         _DateSelectorBar(
@@ -304,11 +328,42 @@ class _DailyTab extends StatelessWidget {
                   onRefresh: () async => onDateSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ScreenHelper.responsivePadding(context)),
                     child: Column(
                       children: [
-                        _sectionDivider('7:00 AM  –  11:59 PM'),
-                        const SizedBox(height: 16),
+                        // 📅 Date header with full date
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(isSmall ? 12 : 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.accentAmber.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.accentAmber.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                DateFormat('EEEE, MMM dd, yyyy').format(dates[selectedIndex]),
+                                style: GoogleFonts.inter(
+                                  fontSize: ScreenHelper.responsiveFontSize(context, 16),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '7:00 AM  –  11:59 PM',
+                                style: GoogleFonts.inter(
+                                  fontSize: ScreenHelper.responsiveFontSize(context, 12),
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                         incentiveList.isNotEmpty
                             ? _IncentiveList(items: incentiveList)
                             : const _EmptyState(
@@ -348,6 +403,7 @@ class _WeeklyTab extends StatelessWidget {
     final label = range != null
         ? '${DateFormat('EEE, MMM d').format(range.start)}  –  ${DateFormat('EEE, MMM d').format(range.end)}'
         : '';
+    final isSmall = ScreenHelper.isSmallScreen(context);
 
     return Column(
       children: [
@@ -364,19 +420,36 @@ class _WeeklyTab extends StatelessWidget {
                   onRefresh: () async => onRangeSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ScreenHelper.responsivePadding(context)),
                     child: Column(
                       children: [
+                        // 📅 Week header
                         if (label.isNotEmpty) ...[
-                          Text(label,
-                              style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15)),
-                          const SizedBox(height: 4),
-                          Text('7:00 AM  –  11:59 PM',
-                              style: GoogleFonts.inter(
-                                  color: Colors.grey)),
-                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(isSmall ? 12 : 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentAmber.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppColors.accentAmber.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(label,
+                                    style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: ScreenHelper.responsiveFontSize(context, 15))),
+                                const SizedBox(height: 4),
+                                Text('7:00 AM  –  11:59 PM',
+                                    style: GoogleFonts.inter(
+                                        color: Colors.grey,
+                                        fontSize: ScreenHelper.responsiveFontSize(context, 12))),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                         ],
                         incentiveList.isNotEmpty
                             ? _IncentiveList(items: incentiveList)
@@ -404,16 +477,19 @@ class _MonthlyTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    final padding = ScreenHelper.responsivePadding(context);
+    
     return isLoading
         ? const _Loader()
         : SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(padding),
             child: Column(
               children: [
                 // Month banner
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  padding: EdgeInsets.symmetric(vertical: isSmall ? 14 : 18),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColors.primaryLight, AppColors.primary],
@@ -427,20 +503,21 @@ class _MonthlyTab extends StatelessWidget {
                       Text(
                         DateFormat('MMMM yyyy').format(DateTime.now()),
                         style: GoogleFonts.inter(
-                            color: Colors.white70, fontSize: 13),
+                            color: Colors.white70,
+                            fontSize: ScreenHelper.responsiveFontSize(context, 13)),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Monthly Incentives',
                         style: GoogleFonts.inter(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: ScreenHelper.responsiveFontSize(context, 20),
                             fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 incentiveList.isNotEmpty
                     ? _IncentiveList(items: incentiveList)
                     : const _EmptyState(
@@ -460,6 +537,9 @@ class _IncentiveList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    final padding = isSmall ? 14 : 20;
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -471,7 +551,7 @@ class _IncentiveList extends StatelessWidget {
               offset: const Offset(0, 4))
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(padding.toDouble()),
       child: Column(
         children: List.generate(items.length, (i) {
           final item = items[i];
@@ -508,6 +588,10 @@ class _IncentiveCard extends StatelessWidget {
     final String endTime =
         DriverIncentivesCall.itemEndTime(item);
 
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    final cardPadding = isSmall ? 10 : 14;
+    final dotSize = isSmall ? 18.0 : 22.0;
+
     const Color orange = AppColors.accentAmber;
     final Color grey = Colors.grey.shade300;
     final double progress = targetRides > 0
@@ -522,8 +606,8 @@ class _IncentiveCard extends StatelessWidget {
           Column(
             children: [
               Container(
-                width: 22,
-                height: 22,
+                width: dotSize,
+                height: dotSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isCompleted ? orange : Colors.white,
@@ -531,8 +615,8 @@ class _IncentiveCard extends StatelessWidget {
                       color: isCompleted ? orange : grey, width: 2.5),
                 ),
                 child: isCompleted
-                    ? const Icon(Icons.check,
-                        size: 13, color: Colors.white)
+                    ? Icon(Icons.check,
+                        size: isSmall ? 10 : 13, color: Colors.white)
                     : null,
               ),
               if (!isLast)
@@ -542,13 +626,13 @@ class _IncentiveCard extends StatelessWidget {
                         color: isCompleted ? orange : grey)),
             ],
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: isSmall ? 10 : 14),
 
           // ── Card content ─────────────────────────────────
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              padding: const EdgeInsets.all(14),
+              margin: EdgeInsets.only(bottom: isSmall ? 16 : 24),
+              padding: EdgeInsets.all(cardPadding.toDouble()),
               decoration: BoxDecoration(
                 color: isCompleted
                     ? Colors.green.withValues(alpha: 0.05)
@@ -567,15 +651,20 @@ class _IncentiveCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(incentiveName,
-                          style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87)),
+                      Expanded(
+                        child: Text(incentiveName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.inter(
+                                fontSize: ScreenHelper.responsiveFontSize(context, 15),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87)),
+                      ),
+                      SizedBox(width: 8),
                       Text(
-                        '₹ ${rewardAmount.toStringAsFixed(0)}',
+                        '₹${rewardAmount.toStringAsFixed(0)}',
                         style: GoogleFonts.inter(
-                            fontSize: 18,
+                            fontSize: ScreenHelper.responsiveFontSize(context, isSmall ? 14 : 18),
                             fontWeight: FontWeight.bold,
                             color: isCompleted
                                 ? Colors.green
@@ -583,37 +672,39 @@ class _IncentiveCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: isSmall ? 4 : 6),
 
                   // Target rides
                   Text(
                     'Complete $targetRides rides',
                     style: GoogleFonts.inter(
-                        fontSize: 13, color: Colors.black54),
+                        fontSize: ScreenHelper.responsiveFontSize(context, 13),
+                        color: Colors.black54),
                   ),
 
                   // Time window
                   if (startTime.isNotEmpty && endTime.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: isSmall ? 1 : 2),
                     Text(
                       '$startTime  –  $endTime',
                       style: GoogleFonts.inter(
-                          fontSize: 11, color: Colors.grey.shade500),
+                          fontSize: ScreenHelper.responsiveFontSize(context, 11),
+                          color: Colors.grey.shade500),
                     ),
                   ],
-                  const SizedBox(height: 10),
+                  SizedBox(height: isSmall ? 6 : 10),
 
                   // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      minHeight: 7,
+                      minHeight: isSmall ? 5 : 7,
                       backgroundColor: Colors.grey.shade200,
                       color: isCompleted ? Colors.green : orange,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: isSmall ? 4 : 6),
 
                   // Progress label + status badge
                   Row(
@@ -622,12 +713,13 @@ class _IncentiveCard extends StatelessWidget {
                       Text(
                         '$completedRides / $targetRides rides',
                         style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: ScreenHelper.responsiveFontSize(context, 12),
                             color: Colors.grey.shade600),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isSmall ? 8 : 10,
+                            vertical: isSmall ? 2 : 3),
                         decoration: BoxDecoration(
                           color: isCompleted
                               ? Colors.green.withValues(alpha: 0.12)
@@ -637,7 +729,7 @@ class _IncentiveCard extends StatelessWidget {
                         child: Text(
                           isCompleted ? '✓ Completed' : '● Ongoing',
                           style: GoogleFonts.inter(
-                              fontSize: 11,
+                              fontSize: ScreenHelper.responsiveFontSize(context, 11),
                               fontWeight: FontWeight.w600,
                               color: isCompleted
                                   ? Colors.green
@@ -671,9 +763,13 @@ class _DateSelectorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    final barHeight = isSmall ? 70.0 : 80.0;
+    final selectedSize = isSmall ? 45.0 : 50.0;
+    
     return Container(
       color: AppColors.accentAmber,
-      height: 80,
+      height: barHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dates.length,
@@ -693,11 +789,11 @@ class _DateSelectorBar extends StatelessWidget {
                 children: [
                   selected
                       ? Container(
-                          width: 50,
-                          height: 54,
+                          width: selectedSize,
+                          height: selectedSize,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(selectedSize / 2),
                             border: Border.all(
                                 color: AppColors.registrationOrange,
                                 width: 2),
@@ -707,12 +803,12 @@ class _DateSelectorBar extends StatelessWidget {
                             children: [
                               Text(dayName,
                                   style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: isSmall ? 9 : 10,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange)),
                               Text(dayNum,
                                   style: GoogleFonts.inter(
-                                      fontSize: 16,
+                                      fontSize: isSmall ? 14 : 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange)),
                             ],
@@ -722,12 +818,12 @@ class _DateSelectorBar extends StatelessWidget {
                           children: [
                             Text(dayName,
                                 style: GoogleFonts.inter(
-                                    fontSize: 10,
+                                    fontSize: isSmall ? 9 : 10,
                                     color: Colors.black87)),
                             const SizedBox(height: 4),
                             Text(dayNum,
                                 style: GoogleFonts.inter(
-                                    fontSize: 14,
+                                    fontSize: isSmall ? 12 : 14,
                                     color: Colors.black87)),
                           ],
                         ),
@@ -756,9 +852,13 @@ class _WeekSelectorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    final barHeight = isSmall ? 70.0 : 80.0;
+    final selectedSize = isSmall ? 50.0 : 56.0;
+    
     return Container(
       color: AppColors.accentAmber,
-      height: 80,
+      height: barHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dateRanges.length,
@@ -778,8 +878,8 @@ class _WeekSelectorBar extends StatelessWidget {
                 children: [
                   selected
                       ? Container(
-                          width: 56,
-                          height: 56,
+                          width: selectedSize,
+                          height: selectedSize,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -792,12 +892,12 @@ class _WeekSelectorBar extends StatelessWidget {
                             children: [
                               Text(month,
                                   style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: isSmall ? 9 : 10,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange)),
                               Text(days,
                                   style: GoogleFonts.inter(
-                                      fontSize: 12,
+                                      fontSize: isSmall ? 10 : 12,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange)),
                             ],
@@ -807,11 +907,11 @@ class _WeekSelectorBar extends StatelessWidget {
                           children: [
                             Text(month,
                                 style: GoogleFonts.inter(
-                                    fontSize: 10,
+                                    fontSize: isSmall ? 9 : 10,
                                     color: Colors.black87)),
                             Text(days,
                                 style: GoogleFonts.inter(
-                                    fontSize: 12,
+                                    fontSize: isSmall ? 10 : 12,
                                     color: Colors.black87)),
                           ],
                         ),
@@ -841,18 +941,21 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: EdgeInsets.all(isSmall ? 30 : 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.info_outline,
-                size: 56, color: Colors.grey.shade300),
-            const SizedBox(height: 12),
+                size: isSmall ? 48 : 56, color: Colors.grey.shade300),
+            SizedBox(height: isSmall ? 10 : 12),
             Text(message,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(color: Colors.grey.shade500)),
+                style: GoogleFonts.inter(
+                    fontSize: ScreenHelper.responsiveFontSize(context, 14),
+                    color: Colors.grey.shade500)),
           ],
         ),
       ),
@@ -860,17 +963,3 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-Widget _sectionDivider(String label) {
-  return Row(
-    children: [
-      Expanded(child: Divider(color: Colors.grey.shade300)),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Text(label,
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold, fontSize: 14)),
-      ),
-      Expanded(child: Divider(color: Colors.grey.shade300)),
-    ],
-  );
-}

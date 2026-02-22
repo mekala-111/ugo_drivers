@@ -113,7 +113,8 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                 onTap: () => Navigator.pop(ctx, code),
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
                     color: isSelected
@@ -121,7 +122,9 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                         : Colors.grey[50],
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isSelected ? AppColors.accentPurple : Colors.transparent,
+                      color: isSelected
+                          ? AppColors.accentPurple
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -134,13 +137,17 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                             .getText(opt['labelKey'] as String),
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? AppColors.accentPurple : AppColors.textDark,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.accentPurple
+                              : AppColors.textDark,
                         ),
                       ),
                       if (isSelected) ...[
                         const Spacer(),
-                        const Icon(Icons.check_circle, color: AppColors.accentPurple, size: 24),
+                        const Icon(Icons.check_circle,
+                            color: AppColors.accentPurple, size: 24),
                       ],
                     ],
                   ),
@@ -229,15 +236,17 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha:0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: Colors.white),
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Text(
-                                FFLocalizations.of(context).getText('87zx8uve' /* Account */),
+                                FFLocalizations.of(context)
+                                    .getText('87zx8uve' /* Account */),
                                 style: const TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -250,7 +259,8 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                           const SizedBox(height: 4),
                           Center(
                             child: Text(
-                              FFLocalizations.of(context).getText('drv_manage_prefs'),
+                              FFLocalizations.of(context)
+                                  .getText('drv_manage_prefs'),
                               style: const TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
@@ -323,15 +333,18 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       },
       {
         'icon': Icons.location_city_rounded,
-        'title': FFLocalizations.of(context).getText('drv_preferred_city_title'),
+        'title':
+            FFLocalizations.of(context).getText('drv_preferred_city_title'),
         'subtitle': FFAppState().preferredCityId > 0
-            ? FFLocalizations.of(context).getText('drv_preferred_city_locked_subtitle')
-            : FFLocalizations.of(context).getText('drv_preferred_city_subtitle'),
+            ? FFLocalizations.of(context)
+                .getText('drv_preferred_city_locked_subtitle')
+            : FFLocalizations.of(context)
+                .getText('drv_preferred_city_subtitle'),
         'color': AppColors.accentEmerald,
         'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PreferredCityWidget()),
-        ),
+              context,
+              MaterialPageRoute(builder: (_) => const PreferredCityWidget()),
+            ),
       },
       {
         'icon': Icons.language_rounded,
@@ -343,13 +356,15 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       {
         'icon': Icons.record_voice_over_rounded,
         'title': FFLocalizations.of(context).getText('drv_voice'),
-        'subtitle': FFLocalizations.of(context).getText('drv_ride_announcements'),
+        'subtitle':
+            FFLocalizations.of(context).getText('drv_ride_announcements'),
         'color': AppColors.accentPink,
         'isSwitch': true,
       },
       {
         'icon': Icons.description_rounded,
-        'title': FFLocalizations.of(context).getText('utfxvwam' /* Terms & Conditions */),
+        'title': FFLocalizations.of(context)
+            .getText('utfxvwam' /* Terms & Conditions */),
         'subtitle': FFLocalizations.of(context).getText('drv_legal_info'),
         'color': AppColors.greySlate,
         'onTap': () => context.pushNamed(TermsConditionsWidget.routeName),
@@ -369,7 +384,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -396,13 +411,15 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                   bottom: isLast ? const Radius.circular(24) : Radius.zero,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: (item['color'] as Color).withValues(alpha:0.1),
+                          color:
+                              (item['color'] as Color).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
@@ -467,5 +484,4 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       ),
     );
   }
-
 }

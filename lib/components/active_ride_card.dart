@@ -88,10 +88,13 @@ class RidePickupOverlay extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.navigation, color: Colors.white, size: Responsive.iconSize(context, base: 20)),
+                            Icon(Icons.navigation,
+                                color: Colors.white,
+                                size: Responsive.iconSize(context, base: 20)),
                             const SizedBox(width: 8),
                             Text(
-                              FFLocalizations.of(context).getText('drv_navigate'),
+                              FFLocalizations.of(context)
+                                  .getText('drv_navigate'),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -154,7 +157,8 @@ class ActiveRideCard extends StatelessWidget {
     bool showPickupBox = true;
 
     if (isArrived) {
-      headerText = "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
+      headerText =
+          "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
       btnText = FFLocalizations.of(context).getText('drv_start_ride');
     } else if (isStarted) {
       headerText = FFLocalizations.of(context).getText('drv_go_to_drop');
@@ -217,7 +221,9 @@ class ActiveRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            ride.firstName ??
+                                FFLocalizations.of(context)
+                                    .getText('drv_passenger'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -231,11 +237,13 @@ class ActiveRideCard extends StatelessWidget {
                             children: [
                               // Icon Box
                               Container(
-                                width: Responsive.buttonHeight(context, base: 50),
-                                height: Responsive.buttonHeight(context, base: 50),
+                                width:
+                                    Responsive.buttonHeight(context, base: 50),
+                                height:
+                                    Responsive.buttonHeight(context, base: 50),
                                 decoration: BoxDecoration(
                                   color: (showPickupBox ? ugoGreen : ugoRed)
-                                      .withValues(alpha:0.1),
+                                      .withValues(alpha: 0.1),
                                   border: Border.all(
                                       color: showPickupBox ? ugoGreen : ugoRed,
                                       width: 1),
@@ -247,9 +255,14 @@ class ActiveRideCard extends StatelessWidget {
                                     Icon(Icons.location_on,
                                         color:
                                             showPickupBox ? ugoGreen : ugoRed,
-                                        size: Responsive.iconSize(context, base: 24)),
+                                        size: Responsive.iconSize(context,
+                                            base: 24)),
                                     Text(
-                                      showPickupBox ? FFLocalizations.of(context).getText('drv_pickup') : FFLocalizations.of(context).getText('drv_drop'),
+                                      showPickupBox
+                                          ? FFLocalizations.of(context)
+                                              .getText('drv_pickup')
+                                          : FFLocalizations.of(context)
+                                              .getText('drv_drop'),
                                       style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[800],
@@ -262,12 +275,17 @@ class ActiveRideCard extends StatelessWidget {
                               // Pincode & locality from lat/lon (reverse geocoding)
                               Expanded(
                                 child: RichAddressFromLatLng(
-                                  lat: showPickupBox ? ride.pickupLat : ride.dropLat,
-                                  lng: showPickupBox ? ride.pickupLng : ride.dropLng,
+                                  lat: showPickupBox
+                                      ? ride.pickupLat
+                                      : ride.dropLat,
+                                  lng: showPickupBox
+                                      ? ride.pickupLng
+                                      : ride.dropLng,
                                   fallbackAddress: showPickupBox
                                       ? ride.pickupAddress
                                       : ride.dropAddress,
-                                  fallbackLabel: FFLocalizations.of(context).getText('drv_unknown_location'),
+                                  fallbackLabel: FFLocalizations.of(context)
+                                      .getText('drv_unknown_location'),
                                 ),
                               ),
                             ],
@@ -278,12 +296,14 @@ class ActiveRideCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     Column(
                       children: [
-                        _buildSquareIconBtn(context, Icons.call, Colors.green, () {
+                        _buildSquareIconBtn(context, Icons.call, Colors.green,
+                            () {
                           launchUrl(
                               Uri.parse("tel:${ride.mobileNumber ?? ''}"));
                         }),
                         SizedBox(height: Responsive.verticalSpacing(context)),
-                        _buildSquareIconBtn(context, Icons.close, ugoRed, onCancel ?? () {}),
+                        _buildSquareIconBtn(
+                            context, Icons.close, ugoRed, onCancel ?? () {}),
                       ],
                     )
                   ],
@@ -303,7 +323,8 @@ class ActiveRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(BuildContext context, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildSquareIconBtn(
+      BuildContext context, IconData icon, Color color, VoidCallback onTap) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
@@ -314,7 +335,8 @@ class ActiveRideCard extends StatelessWidget {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black12)),
-        child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 24)),
+        child: Icon(icon,
+            color: color, size: Responsive.iconSize(context, base: 24)),
       ),
     );
   }

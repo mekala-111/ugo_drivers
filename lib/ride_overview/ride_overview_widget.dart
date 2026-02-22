@@ -97,7 +97,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                    16.0, 16.0, 16.0, 16.0),
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -148,10 +149,12 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                   ),
                                   options: FFButtonOptions(
                                     height: 36.0,
-                                    padding: const EdgeInsetsDirectional.fromSTEB(
-                                        16.0, 8.0, 16.0, 8.0),
-                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 0.0, 0.0),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            16.0, 8.0, 16.0, 8.0),
+                                    iconPadding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 0.0, 0.0, 0.0),
                                     color: FlutterFlowTheme.of(context)
                                         .secondaryBackground,
                                     textStyle: FlutterFlowTheme.of(context)
@@ -159,17 +162,19 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                         .override(
                                           font: GoogleFonts.interTight(
                                             fontWeight: FontWeight.w500,
-                                            fontStyle: FlutterFlowTheme.of(context)
-                                                .titleSmall
-                                                .fontStyle,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .fontStyle,
                                           ),
                                           color: AppColors.greyDark,
                                           fontSize: 14.0,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.w500,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .fontStyle,
                                         ),
                                     elevation: 0.0,
                                     borderSide: const BorderSide(
@@ -196,12 +201,14 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                       .bodyMedium
                                       .override(
                                         font: GoogleFonts.inter(
-                                          fontWeight: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .fontWeight,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .fontStyle,
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
                                         ),
                                         color: AppColors.greyMedium,
                                         fontSize: 14.0,
@@ -226,8 +233,9 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                   height: 36.0,
                                   padding: const EdgeInsetsDirectional.fromSTEB(
                                       16.0, 8.0, 16.0, 8.0),
-                                  iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
+                                  iconPadding:
+                                      const EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 0.0, 0.0, 0.0),
                                   color: FlutterFlowTheme.of(context)
                                       .secondaryBackground,
                                   textStyle: FlutterFlowTheme.of(context)
@@ -235,9 +243,10 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                       .override(
                                         font: GoogleFonts.interTight(
                                           fontWeight: FontWeight.w500,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .fontStyle,
                                         ),
                                         color: AppColors.greyDark,
                                         fontSize: 14.0,
@@ -296,7 +305,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +324,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                               Text(
                                 FFLocalizations.of(context).getText(
                                   'ljppe8um' /* Moto ride with JILLA
-RAJENDRA ... */,
+RAJENDRA ... */
+                                  ,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -438,8 +449,9 @@ RAJENDRA ... */,
                                 height: 36.0,
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     16.0, 8.0, 16.0, 8.0),
-                                iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 8.0, 0.0),
+                                iconPadding:
+                                    const EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 8.0, 0.0),
                                 iconColor: FlutterFlowTheme.of(context).accent1,
                                 color: AppColors.background,
                                 textStyle: FlutterFlowTheme.of(context)
@@ -451,7 +463,8 @@ RAJENDRA ... */,
                                             .titleSmall
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).accent1,
+                                      color:
+                                          FlutterFlowTheme.of(context).accent1,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
@@ -486,8 +499,9 @@ RAJENDRA ... */,
                                 height: 36.0,
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     16.0, 8.0, 16.0, 8.0),
-                                iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 8.0, 0.0),
+                                iconPadding:
+                                    const EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 8.0, 0.0),
                                 iconColor: FlutterFlowTheme.of(context).accent1,
                                 color: AppColors.background,
                                 textStyle: FlutterFlowTheme.of(context)
@@ -499,7 +513,8 @@ RAJENDRA ... */,
                                             .titleSmall
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).accent1,
+                                      color:
+                                          FlutterFlowTheme.of(context).accent1,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
@@ -616,7 +631,8 @@ RAJENDRA ... */,
                 ),
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.start,

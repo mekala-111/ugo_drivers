@@ -468,6 +468,12 @@ class HomeController extends ChangeNotifier {
 
   // ── Incentives & Earnings ──────────────────────────────────────────────────
 
+  /// Fetches driver's active incentives from API and filters to show ONLY currently running ones.
+  /// Running incentives have progress_status == 'ongoing'.
+  /// The ride count is incremented automatically when rides are completed.
+  /// This is called:
+  /// 1. On app initialization
+  /// 2. After each ride completion via onRideComplete()
   Future<void> _fetchIncentiveData() async {
     try {
       isLoadingIncentives = true;
@@ -483,24 +489,42 @@ class HomeController extends ChangeNotifier {
         final incentivesArray = getJsonField(response.jsonBody, r'''$.data''', true);
 
         if (incentivesArray != null && incentivesArray is List) {
+          // 🎯 Filter to show ONLY currently running incentives
+          // Completed or locked incentives are hidden from the main panel
+          final runningIncentives = incentivesArray
+              .where((item) => item['progress_status'] == 'ongoing')
+              .toList();
+
+          if (kDebugMode) {
+            debugPrint('📊 Incentives: Total=${incentivesArray.length}, Running=${runningIncentives.length}');
+            for (var i in runningIncentives) {
+              debugPrint('  ✅ ${i['incentive']?['name']} - Progress: ${i['completed_rides']}/${i['target_rides']} rides');
+            }
+          }
+
+          // Calculate current rides count from running incentives
           currentRides = 0;
-          for (final item in incentivesArray) {
+          for (final item in runningIncentives) {
             final completed = item['completed_rides'] ?? 0;
             if (completed > currentRides) currentRides = completed;
           }
+
+          // Calculate total earned from all running incentives
           totalIncentiveEarned = 0.0;
-          for (final item in incentivesArray) {
+          for (final item in runningIncentives) {
             if (item['progress_status'] == 'completed') {
               final rewardStr = item['reward_amount'] ?? '0';
               totalIncentiveEarned += double.tryParse(rewardStr) ?? 0.0;
             }
           }
-          incentiveTiers = incentivesArray.map<IncentiveTier>((item) {
+
+          // Convert to IncentiveTier objects for UI display
+          incentiveTiers = runningIncentives.map<IncentiveTier>((item) {
             return IncentiveTier(
               id: item['id'] ?? 0,
               targetRides: item['target_rides'] ?? 0,
               rewardAmount: double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
-              isLocked: item['progress_status'] != 'ongoing' && item['progress_status'] != 'completed',
+              isLocked: false, // Running incentives are never locked
               description: item['incentive']?['name'],
             );
           }).toList();

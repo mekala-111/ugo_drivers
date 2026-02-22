@@ -7,6 +7,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 class OtpVerificationSheet extends StatefulWidget {
   final List<TextEditingController> otpControllers;
   final VoidCallback onVerify;
+
   /// Dynamic OTP from ride (shown to driver if passenger shares it - Rapido style)
   final String? displayOtp;
 
@@ -110,10 +111,12 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         ),
 
                         // Dynamic OTP display (Rapido-style - show if backend provides it)
-                        if (widget.displayOtp != null && widget.displayOtp!.isNotEmpty) ...[
+                        if (widget.displayOtp != null &&
+                            widget.displayOtp!.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               color: ugoGreen.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(12),
@@ -122,7 +125,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.pin, color: ugoGreen, size: 20),
+                                const Icon(Icons.pin,
+                                    color: ugoGreen, size: 20),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -182,7 +186,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                               children: [
                                 Center(
                                   child: Text(
-                                    FFLocalizations.of(context).getText('drv_verify'),
+                                    FFLocalizations.of(context)
+                                        .getText('drv_verify'),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -213,7 +218,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
       focusNode: FocusNode(), // Consumes hardware events
       onKeyEvent: (event) {
         // Detect Backspace on Empty Field -> Move Previous
-        if (event is KeyDownEvent) { // Updated from RawKeyDownEvent
+        if (event is KeyDownEvent) {
+          // Updated from RawKeyDownEvent
           if (event.logicalKey == LogicalKeyboardKey.backspace) {
             if (widget.otpControllers[index].text.isEmpty && index > 0) {
               _focusNodes[index - 1].requestFocus();

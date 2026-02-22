@@ -111,7 +111,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           ),
           backgroundColor: ugoOrange,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(16),
         ),
       );
@@ -141,12 +142,14 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
     if (_referralCode.isEmpty) return;
 
     final shareText = _getShareText();
-    final uri = Uri.parse('whatsapp://send?text=${Uri.encodeComponent(shareText)}');
+    final uri =
+        Uri.parse('whatsapp://send?text=${Uri.encodeComponent(shareText)}');
 
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp not installed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('WhatsApp not installed')));
     }
   }
 
@@ -203,7 +206,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                 children: [
                   // Custom App Bar
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
                     child: Row(
                       children: [
                         FlutterFlowIconButton(
@@ -212,7 +216,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                           borderWidth: 1.0,
                           buttonSize: 45.0,
                           fillColor: Colors.white.withValues(alpha: 0.2),
-                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+                          icon: const Icon(Icons.arrow_back_rounded,
+                              color: Colors.white, size: 24.0),
                           onPressed: () => context.pop(),
                         ),
                         Expanded(
@@ -261,104 +266,114 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   // 3️⃣ SCROLLABLE CARD AREA
                   Expanded(
                     child: _isLoading
-                        ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white))
                         : _errorMessage.isNotEmpty
-                        ? _buildErrorView()
-                        : SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            // 🎟️ COUPON CARD
-                            _buildReferralCard(),
+                            ? _buildErrorView()
+                            : SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Column(
+                                    children: [
+                                      // 🎟️ COUPON CARD
+                                      _buildReferralCard(),
 
-                            const SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
-                            // 📢 SOCIAL SHARE BUTTONS
-                            Text(
-                              'Share via',
-                              style: GoogleFonts.inter(
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _socialButton(
-                                  icon: FontAwesomeIcons.whatsapp,
-                                  color: AppColors.accentEmerald,
-                                  label: 'WhatsApp',
-                                  onTap: _shareViaWhatsApp,
-                                ),
-                                const SizedBox(width: 20),
-                                _socialButton(
-                                  icon: FontAwesomeIcons.solidMessage,
-                                  color: AppColors.accentBlue,
-                                  label: 'Message',
-                                  onTap: _shareReferralCode,
-                                ),
-                                const SizedBox(width: 20),
-                                _socialButton(
-                                  icon: Icons.share_rounded,
-                                  color: ugoOrange,
-                                  label: 'More',
-                                  onTap: _shareReferralCode,
-                                ),
-                              ],
-                            ),
+                                      // 📢 SOCIAL SHARE BUTTONS
+                                      Text(
+                                        'Share via',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          _socialButton(
+                                            icon: FontAwesomeIcons.whatsapp,
+                                            color: AppColors.accentEmerald,
+                                            label: 'WhatsApp',
+                                            onTap: _shareViaWhatsApp,
+                                          ),
+                                          const SizedBox(width: 20),
+                                          _socialButton(
+                                            icon: FontAwesomeIcons.solidMessage,
+                                            color: AppColors.accentBlue,
+                                            label: 'Message',
+                                            onTap: _shareReferralCode,
+                                          ),
+                                          const SizedBox(width: 20),
+                                          _socialButton(
+                                            icon: Icons.share_rounded,
+                                            color: ugoOrange,
+                                            label: 'More',
+                                            onTap: _shareReferralCode,
+                                          ),
+                                        ],
+                                      ),
 
-                            const SizedBox(height: 30),
+                                      const SizedBox(height: 30),
 
-                            // ℹ️ HOW IT WORKS
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 5),
-                                  )
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'How it works',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
+                                      // ℹ️ HOW IT WORKS
+                                      Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.05),
+                                              blurRadius: 15,
+                                              offset: const Offset(0, 5),
+                                            )
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'How it works',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            _buildStepRow(
+                                                '1',
+                                                'Invite your friends',
+                                                'Share your code via WhatsApp or SMS.'),
+                                            _buildConnectorLine(),
+                                            _buildStepRow('2', 'They register',
+                                                'They sign up using your referral code.'),
+                                            _buildConnectorLine(),
+
+                                            // ✅ UPDATED STEP 3: Specific amount
+                                            _buildStepRow(
+                                                '3',
+                                                'You earn rewards',
+                                                'Get paid ₹10 for every Pro ride completed by the friends.'),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 40),
+                                    ],
                                   ),
-                                  const SizedBox(height: 20),
-                                  _buildStepRow('1', 'Invite your friends', 'Share your code via WhatsApp or SMS.'),
-                                  _buildConnectorLine(),
-                                  _buildStepRow('2', 'They register', 'They sign up using your referral code.'),
-                                  _buildConnectorLine(),
-
-                                  // ✅ UPDATED STEP 3: Specific amount
-                                  _buildStepRow(
-                                      '3',
-                                      'You earn rewards',
-                                      'Get paid ₹10 for every Pro ride completed by the friends.'
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 40),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -405,11 +420,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   onTap: _copyToClipboard,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
                     decoration: BoxDecoration(
                       color: AppColors.sectionOrangeLight, // Light Orange bg
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: ugoOrange.withValues(alpha: 0.3), width: 1.5),
+                      border: Border.all(
+                          color: ugoOrange.withValues(alpha: 0.3), width: 1.5),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -425,9 +442,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                         ),
                         Row(
                           children: [
-                            Container(width: 1, height: 24, color: ugoOrange.withValues(alpha: 0.3)),
+                            Container(
+                                width: 1,
+                                height: 24,
+                                color: ugoOrange.withValues(alpha: 0.3)),
                             const SizedBox(width: 16),
-                            Icon(Icons.copy_rounded, color: ugoOrange, size: 22),
+                            Icon(Icons.copy_rounded,
+                                color: ugoOrange, size: 22),
                           ],
                         ),
                       ],
@@ -469,7 +490,11 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
   }
 
   // 🔹 WIDGET: Social Button
-  Widget _socialButton({required IconData icon, required Color color, required String label, required VoidCallback onTap}) {
+  Widget _socialButton(
+      {required IconData icon,
+      required Color color,
+      required String label,
+      required VoidCallback onTap}) {
     return Column(
       children: [
         InkWell(
@@ -522,7 +547,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           child: Center(
             child: Text(
               number,
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: ugoOrange),
+              style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold, color: ugoOrange),
             ),
           ),
         ),
@@ -533,7 +559,10 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87),
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.black87),
               ),
               Text(
                 subtitle,

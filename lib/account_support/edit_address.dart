@@ -23,17 +23,17 @@ class EditAddressScreen extends StatefulWidget {
 
 class _EditAddressScreenState extends State<EditAddressScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   late TextEditingController _latitudeController;
   late TextEditingController _longitudeController;
-  
+
   bool isUpdating = false;
   bool isFetchingLocation = false;
 
   @override
   void initState() {
     super.initState();
-    
+
     _latitudeController = TextEditingController(
       text: widget.driverData['current_location_latitude']?.toString() ?? '',
     );
@@ -54,13 +54,13 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     final city = widget.driverData['city'] ?? '';
     final state = widget.driverData['state'] ?? '';
     final postalCode = widget.driverData['postal_code'] ?? '';
-    
+
     List<String> parts = [];
     if (address.isNotEmpty) parts.add(address);
     if (city.isNotEmpty) parts.add(city);
     if (state.isNotEmpty) parts.add(state);
     if (postalCode.isNotEmpty) parts.add(postalCode);
-    
+
     return parts.isEmpty ? 'No address available' : parts.join(', ');
   }
 
@@ -74,7 +74,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         setState(() => isFetchingLocation = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Location services are disabled. Please enable them.'),
+            content:
+                Text('Location services are disabled. Please enable them.'),
             backgroundColor: Colors.orange,
             duration: Duration(seconds: 3),
           ),
@@ -152,7 +153,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       // Parse latitude and longitude
       double? latitude;
       double? longitude;
-      
+
       if (_latitudeController.text.isNotEmpty) {
         latitude = double.tryParse(_latitudeController.text);
       }
@@ -176,10 +177,10 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Call the callback to refresh parent screen
         widget.onUpdate();
-        
+
         // Go back to previous screen
         Navigator.pop(context);
       } else {
@@ -260,7 +261,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(12.0),
                         border: Border.all(
-                          color: FlutterFlowTheme.of(context).primary.withValues(alpha:0.3),
+                          color: FlutterFlowTheme.of(context)
+                              .primary
+                              .withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
@@ -299,9 +302,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 30),
-                    
+
                     // Section Header
                     Row(
                       children: [
@@ -329,15 +332,17 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         color: Colors.grey[600],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Use Current Location Button
                     SizedBox(
                       width: double.infinity,
                       height: 48,
                       child: OutlinedButton.icon(
-                        onPressed: isFetchingLocation || isUpdating ? null : getCurrentLocation,
+                        onPressed: isFetchingLocation || isUpdating
+                            ? null
+                            : getCurrentLocation,
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(
                             color: FlutterFlowTheme.of(context).primary,
@@ -363,7 +368,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                                 size: 20,
                               ),
                         label: Text(
-                          isFetchingLocation ? 'Fetching Location...' : 'Use Current Location',
+                          isFetchingLocation
+                              ? 'Fetching Location...'
+                              : 'Use Current Location',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -372,11 +379,12 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Display Fetched Coordinates
-                    if (_latitudeController.text.isNotEmpty && _longitudeController.text.isNotEmpty)
+                    if (_latitudeController.text.isNotEmpty &&
+                        _longitudeController.text.isNotEmpty)
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16.0),
@@ -384,7 +392,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                           color: AppColors.sectionGreen,
                           borderRadius: BorderRadius.circular(12.0),
                           border: Border.all(
-                            color: Colors.green.withValues(alpha:0.3),
+                            color: Colors.green.withValues(alpha: 0.3),
                             width: 1.5,
                           ),
                         ),
@@ -412,7 +420,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                Icon(Icons.gps_fixed, size: 16, color: Colors.grey[700]),
+                                Icon(Icons.gps_fixed,
+                                    size: 16, color: Colors.grey[700]),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Latitude: ',
@@ -435,7 +444,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(Icons.gps_not_fixed, size: 16, color: Colors.grey[700]),
+                                Icon(Icons.gps_not_fixed,
+                                    size: 16, color: Colors.grey[700]),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Longitude: ',
@@ -458,15 +468,17 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                           ],
                         ),
                       ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     // Update Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: isUpdating || isFetchingLocation ? null : updateDriverLocation,
+                        onPressed: isUpdating || isFetchingLocation
+                            ? null
+                            : updateDriverLocation,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: FlutterFlowTheme.of(context).primary,
                           shape: RoundedRectangleBorder(
@@ -486,7 +498,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.check_circle, size: 20, color: Colors.white),
+                                  const Icon(Icons.check_circle,
+                                      size: 20, color: Colors.white),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Update Location',
@@ -500,17 +513,20 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                               ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Cancel Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: OutlinedButton(
-                        onPressed: isUpdating || isFetchingLocation ? null : () => Navigator.pop(context),
+                        onPressed: isUpdating || isFetchingLocation
+                            ? null
+                            : () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey[400]!, width: 1.5),
+                          side:
+                              BorderSide(color: Colors.grey[400]!, width: 1.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -525,7 +541,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 30),
                   ],
                 ),

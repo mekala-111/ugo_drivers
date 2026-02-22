@@ -1759,6 +1759,15 @@ class DriverIncentivesCall {
 
   static String itemEndTime(dynamic item) =>
       castToType<String>(getJsonField(item, r'$.incentive.end_time')) ?? '';
+
+  // ── Convenience filters ──
+  /// Returns true if the incentive is currently running/active (not completed/locked)
+  static bool itemIsRunning(dynamic item) =>
+      itemProgressStatus(item) == 'ongoing';
+
+  /// Filters a list of incentives to return only currently running ones
+  static List<dynamic> filterRunningIncentives(List<dynamic> incentives) =>
+      incentives.where((item) => itemIsRunning(item)).toList();
 }
 
 class VehiclePricingCall {

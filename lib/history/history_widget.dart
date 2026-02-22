@@ -65,7 +65,9 @@ class _HistoryWidgetState extends State<HistoryWidget> {
         });
       }
     } catch (e) {
-      setState(() { _error = e.toString(); });
+      setState(() {
+        _error = e.toString();
+      });
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -158,7 +160,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                                       font: GoogleFonts.interTight(
                                         fontWeight: FontWeight.normal,
                                       ),
-                                      color: FlutterFlowTheme.of(context).accent1,
+                                      color:
+                                          FlutterFlowTheme.of(context).accent1,
                                       fontSize: 20.0,
                                     ),
                               ),
@@ -178,7 +181,9 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                         const SizedBox(height: 16),
                         Expanded(
                           child: _rides.isEmpty
-                              ? Center(child: Text(FFLocalizations.of(context).getText('hist0001')))
+                              ? Center(
+                                  child: Text(FFLocalizations.of(context)
+                                      .getText('hist0001')))
                               : ListView.builder(
                                   itemCount: _rides.length,
                                   itemBuilder: (context, index) {
@@ -204,9 +209,8 @@ class _HistoryRideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateStr = DateFormat('MMM d, h:mm a').format(ride.date);
-    final pickup = ride.pickupAddress.isNotEmpty
-        ? ride.pickupAddress
-        : 'Pickup';
+    final pickup =
+        ride.pickupAddress.isNotEmpty ? ride.pickupAddress : 'Pickup';
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
@@ -257,39 +261,43 @@ class _HistoryRideCard extends StatelessWidget {
                             pickup,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.interTight(
-                                fontWeight: FontWeight.normal,
-                              ),
-                              color: FlutterFlowTheme.of(context).accent1,
-                              fontSize: 14.0,
-                            ),
+                            style: FlutterFlowTheme.of(context)
+                                .titleMedium
+                                .override(
+                                  font: GoogleFonts.interTight(
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  color: FlutterFlowTheme.of(context).accent1,
+                                  fontSize: 14.0,
+                                ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             dateStr,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: FlutterFlowTheme.of(context).bodySmall.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FontWeight.normal,
-                              ),
-                              color: AppColors.textMuted,
-                              fontSize: 10.0,
-                            ),
+                            style:
+                                FlutterFlowTheme.of(context).bodySmall.override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      color: AppColors.textMuted,
+                                      fontSize: 10.0,
+                                    ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '₹ ${ride.fare.toStringAsFixed(2)}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: FlutterFlowTheme.of(context).bodySmall.override(
-                              font: GoogleFonts.inter(
-                                fontWeight: FontWeight.normal,
-                              ),
-                              color: AppColors.textMuted,
-                              fontSize: 10.0,
-                            ),
+                            style:
+                                FlutterFlowTheme.of(context).bodySmall.override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      color: AppColors.textMuted,
+                                      fontSize: 10.0,
+                                    ),
                           ),
                         ],
                       ),
@@ -304,17 +312,20 @@ class _HistoryRideCard extends StatelessWidget {
                   width: 80.0,
                   height: 30.0,
                   padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 8.0, 16.0, 8.0,
+                    16.0,
+                    8.0,
+                    16.0,
+                    8.0,
                   ),
                   iconPadding: EdgeInsetsDirectional.zero,
                   color: AppColors.greyBorderLight,
                   textStyle: FlutterFlowTheme.of(context).bodySmall.override(
-                    font: GoogleFonts.inter(
-                      fontWeight: FontWeight.normal,
-                    ),
-                    color: FlutterFlowTheme.of(context).accent1,
-                    fontSize: 10.0,
-                  ),
+                        font: GoogleFonts.inter(
+                          fontWeight: FontWeight.normal,
+                        ),
+                        color: FlutterFlowTheme.of(context).accent1,
+                        fontSize: 10.0,
+                      ),
                   elevation: 0.0,
                   borderRadius: BorderRadius.circular(10.0),
                 ),

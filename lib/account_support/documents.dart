@@ -1,4 +1,3 @@
-
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -69,8 +68,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           // Helper to check if string is valid
           bool hasDoc(dynamic path) =>
               path != null &&
-                  path.toString().isNotEmpty &&
-                  path.toString() != 'null';
+              path.toString().isNotEmpty &&
+              path.toString() != 'null';
 
           setState(() {
             _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
@@ -86,10 +85,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 hasDoc(data['rc_front_image']) ||
                 hasDoc(data['rc_back_image']);
           });
-
         }
-      } else {
-      }
+      } else {}
     } finally {
       if (mounted) setState(() => _isFetchingDocuments = false);
     }
@@ -150,14 +147,30 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         pollutionCertificateImage: FFAppState().pollutioncertificateImage,
         vehicleName: FFAppState().vehicleMake,
         vehicleModel: FFAppState().vehicleModel,
-        vehicleColor: FFAppState().vehicleColor.isNotEmpty ? FFAppState().vehicleColor : null,
-        licensePlate: FFAppState().licensePlate.isNotEmpty ? FFAppState().licensePlate : null,
-        registrationNumber: FFAppState().registrationNumber.isNotEmpty ? FFAppState().registrationNumber : null,
-        registrationDate: FFAppState().registrationDate.isNotEmpty ? FFAppState().registrationDate : null,
-        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty ? FFAppState().insuranceNumber : null,
-        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty ? FFAppState().insuranceExpiryDate : null,
-        pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty ? FFAppState().pollutionExpiryDate : null,
-        vehicleTypeId: FFAppState().adminVehicleId > 0 ? FFAppState().adminVehicleId : null,
+        vehicleColor: FFAppState().vehicleColor.isNotEmpty
+            ? FFAppState().vehicleColor
+            : null,
+        licensePlate: FFAppState().licensePlate.isNotEmpty
+            ? FFAppState().licensePlate
+            : null,
+        registrationNumber: FFAppState().registrationNumber.isNotEmpty
+            ? FFAppState().registrationNumber
+            : null,
+        registrationDate: FFAppState().registrationDate.isNotEmpty
+            ? FFAppState().registrationDate
+            : null,
+        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty
+            ? FFAppState().insuranceNumber
+            : null,
+        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty
+            ? FFAppState().insuranceExpiryDate
+            : null,
+        pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty
+            ? FFAppState().pollutionExpiryDate
+            : null,
+        vehicleTypeId: FFAppState().adminVehicleId > 0
+            ? FFAppState().adminVehicleId
+            : null,
       );
 
       if ((apiResult.succeeded) || apiResult.statusCode == 200) {
@@ -265,7 +278,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha:0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(Icons.arrow_back,
@@ -274,8 +287,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               ),
                               const SizedBox(width: 16),
                               Text(
-                                FFLocalizations.of(context)
-                                    .getText('docm0005'),
+                                FFLocalizations.of(context).getText('docm0005'),
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
@@ -288,8 +300,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           const SizedBox(height: 40),
                           Center(
                             child: Text(
-                              FFLocalizations.of(context)
-                                  .getText('docm0006'),
+                              FFLocalizations.of(context).getText('docm0006'),
                               style: TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
@@ -299,7 +310,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                             ),
                           ),
                           const Spacer(),
-
                         ],
                       ),
                     ),
@@ -314,121 +324,121 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               top: contentTop,
               child: _isFetchingDocuments
                   ? const Center(
-                  child: CircularProgressIndicator(color: brandPrimary))
+                      child: CircularProgressIndicator(color: brandPrimary))
                   : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                        _buildSectionHeader(
-                          FFLocalizations.of(context).getText('docm0007')),
-                      const SizedBox(height: 16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(FFLocalizations.of(context)
+                                .getText('docm0007')),
+                            const SizedBox(height: 16),
 
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0008'),
-                        'profilePhoto',
-                            () => context
-                            .pushNamed(FaceVerifyupdateWidget.routeName),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0009'),
-                        'imageLicense',
-                            () => context
-                            .pushNamed(DrivingDlUpdateWidget.routeName),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0010'),
-                        'aadharImage',
-                            () => context
-                            .pushNamed(AdharUploadUpdateWidget.routeName),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0011'),
-                        'panImage',
-                            () => context
-                            .pushNamed(PanuploadScreenUpdateWidget.routeName),
-                      ),
-
-                      const SizedBox(height: 24),
-                      Divider(color: Colors.grey.shade100, thickness: 2),
-                      const SizedBox(height: 24),
-
-                        _buildSectionHeader(
-                          FFLocalizations.of(context).getText('docm0012')),
-                      const SizedBox(height: 16),
-
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0013'),
-                        'vehicleImage',
-                            () => context
-                            .pushNamed(VehicleImageUpdateWidget.routeName),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildStepItem(
-                        FFLocalizations.of(context).getText('docm0014'),
-                        'registrationImage',
-                            () => context
-                            .pushNamed(RegistrationUpdateWidget.routeName),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed:
-                          _isLoading ? null : _handleUpdateDocuments,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: brandPrimary,
-                            foregroundColor: Colors.white,
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0008'),
+                              'profilePhoto',
+                              () => context
+                                  .pushNamed(FaceVerifyupdateWidget.routeName),
                             ),
-                            disabledBackgroundColor:
-                            brandPrimary.withValues(alpha:0.6),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5),
-                          )
-                              : Text(
-                            FFLocalizations.of(context)
-                                .getText('docm0015'),
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
+                            const SizedBox(height: 12),
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0009'),
+                              'imageLicense',
+                              () => context
+                                  .pushNamed(DrivingDlUpdateWidget.routeName),
                             ),
-                          ),
+                            const SizedBox(height: 12),
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0010'),
+                              'aadharImage',
+                              () => context
+                                  .pushNamed(AdharUploadUpdateWidget.routeName),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0011'),
+                              'panImage',
+                              () => context.pushNamed(
+                                  PanuploadScreenUpdateWidget.routeName),
+                            ),
+
+                            const SizedBox(height: 24),
+                            Divider(color: Colors.grey.shade100, thickness: 2),
+                            const SizedBox(height: 24),
+
+                            _buildSectionHeader(FFLocalizations.of(context)
+                                .getText('docm0012')),
+                            const SizedBox(height: 16),
+
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0013'),
+                              'vehicleImage',
+                              () => context.pushNamed(
+                                  VehicleImageUpdateWidget.routeName),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildStepItem(
+                              FFLocalizations.of(context).getText('docm0014'),
+                              'registrationImage',
+                              () => context.pushNamed(
+                                  RegistrationUpdateWidget.routeName),
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            // Submit Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed:
+                                    _isLoading ? null : _handleUpdateDocuments,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: brandPrimary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  disabledBackgroundColor:
+                                      brandPrimary.withValues(alpha: 0.6),
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5),
+                                      )
+                                    : Text(
+                                        FFLocalizations.of(context)
+                                            .getText('docm0015'),
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ),
           ],
         ),
@@ -464,14 +474,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     if (isLocal) {
       bgColor = AppColors.sectionOrangeTint;
-      borderColor = AppColors.primary.withValues(alpha:0.5);
+      borderColor = AppColors.primary.withValues(alpha: 0.5);
       iconColor = AppColors.primary;
       icon = Icons.cloud_upload_rounded;
       statusText = FFLocalizations.of(context).getText('docm0016');
       textColor = AppColors.primary;
     } else if (isServer) {
       bgColor = AppColors.sectionGreenTint;
-      borderColor = AppColors.accentEmerald.withValues(alpha:0.5);
+      borderColor = AppColors.accentEmerald.withValues(alpha: 0.5);
       iconColor = AppColors.accentEmerald;
       icon = Icons.check_circle_rounded;
       statusText = FFLocalizations.of(context).getText('upload0005');

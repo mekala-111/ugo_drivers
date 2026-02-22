@@ -153,217 +153,224 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
                   children: [
-              // ==========================================
-              // 1️⃣ VIBRANT HEADER
-              // ==========================================
-              Container(
-                height: headerHeight,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [brandGradientStart, brandPrimary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: horizontalPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: headerTopGap),
-                        const Spacer(),
-                        Center(
-                          child: Text(
-                            FFLocalizations.of(context).getText('duko62qy'),
-                            style: TextStyle(
-                              fontSize: headerTitleSize,
-                              color: Colors.white70,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                    // ==========================================
+                    // 1️⃣ VIBRANT HEADER
+                    // ==========================================
+                    Container(
+                      height: headerHeight,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [brandGradientStart, brandPrimary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        SizedBox(height: 8 * scale),
-                        Center(
-                          child: Text(
-                            FFLocalizations.of(context).getText('otpv0001'),
-                            style: TextStyle(
-                              fontSize: headerSubtitleSize,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              height: 1.1,
-                            ),
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(40),
+                          bottomRight: Radius.circular(40),
                         ),
-                        SizedBox(height: headerBottomGap),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // ==========================================
-              // 2️⃣ FLOATING CARD
-              // ==========================================
-              Transform.translate(
-                offset: Offset(0, -40 * scale),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isSmallScreen ? 16.0 : (isTablet ? 32.0 : 20.0),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 24,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(cardPadding),
-                      child: Column(
-                        children: [
-                          Text(
-                            '${FFLocalizations.of(context).getText('otpv0002')}\n+91 ${widget.mobile}',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: descriptionSize,
-                              color: Colors.grey[600],
-                              height: 1.5,
-                            ),
-                          ),
-                          SizedBox(height: 28 * scale),
-
-                          // 🔢 PIN CODE FIELD
-                          PinCodeTextField(
-                            appContext: context,
-                            length: 6,
-                            textStyle: GoogleFonts.inter(
-                              fontSize: pinTextSize,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            enableActiveFill: true,
-                            autoFocus: true,
-                            enablePinAutofill: true,
-                            errorTextSpace: 16,
-                            showCursor: true,
-                            cursorColor: brandPrimary,
-                            obscureText: false,
-                            keyboardType: TextInputType.number,
-                            pinTheme: PinTheme(
-                              shape: PinCodeFieldShape.box,
-                              borderRadius: BorderRadius.circular(12),
-                              fieldHeight: pinBoxHeight,
-                              fieldWidth: pinBoxWidth,
-                              borderWidth: 1.5,
-                              activeColor: brandPrimary,
-                              inactiveColor: Colors.grey[200]!,
-                              selectedColor: brandPrimary,
-                              activeFillColor: Colors.white,
-                              selectedFillColor: AppColors.sectionOrange,
-                              inactiveFillColor: AppColors.backgroundCard,
-                            ),
-                            controller: _model.pinCodeController,
-                            onChanged: (_) {},
-                            onCompleted: (_) => _handleVerify(),
-                          ),
-
-                          SizedBox(height: 20 * scale),
-
-                          // 🚀 VERIFY BUTTON
-                          SizedBox(
-                            width: double.infinity,
-                            height: buttonHeight,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleVerify,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: brandPrimary,
-                                foregroundColor: Colors.white,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                disabledBackgroundColor:
-                                    brandPrimary.withValues(alpha: 0.6),
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2.5,
-                                      ),
-                                    )
-                                  : Text(
-                                      FFLocalizations.of(context)
-                                          .getText('otpv0003'),
-                                      style: GoogleFonts.interTight(
-                                        fontSize: buttonFontSize,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                            ),
-                          ),
-
-                          SizedBox(height: 20 * scale),
-
-                          // 🔄 RESEND OTP WITH TIMER
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          )
+                        ],
+                      ),
+                      child: SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                '${FFLocalizations.of(context).getText('otpv0004')} ',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                              GestureDetector(
-                                onTap: _canResend ? _handleResendOtp : null,
+                              SizedBox(height: headerTopGap),
+                              const Spacer(),
+                              Center(
                                 child: Text(
-                                  _canResend
-                                      ? FFLocalizations.of(context)
-                                          .getText('otpv0005')
-                                      : '${FFLocalizations.of(context).getText('otpv0006')} $_timerSeconds s',
+                                  FFLocalizations.of(context)
+                                      .getText('duko62qy'),
                                   style: TextStyle(
-                                    color:
-                                        _canResend ? brandPrimary : Colors.grey,
+                                    fontSize: headerTitleSize,
+                                    color: Colors.white70,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                              ),
+                              SizedBox(height: 8 * scale),
+                              Center(
+                                child: Text(
+                                  FFLocalizations.of(context)
+                                      .getText('otpv0001'),
+                                  style: TextStyle(
+                                    fontSize: headerSubtitleSize,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              SizedBox(height: headerBottomGap),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ==========================================
+                    // 2️⃣ FLOATING CARD
+                    // ==========================================
+                    Transform.translate(
+                      offset: Offset(0, -40 * scale),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              isSmallScreen ? 16.0 : (isTablet ? 32.0 : 20.0),
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
                               ),
                             ],
                           ),
-                        ],
+                          child: Padding(
+                            padding: EdgeInsets.all(cardPadding),
+                            child: Column(
+                              children: [
+                                Text(
+                                  '${FFLocalizations.of(context).getText('otpv0002')}\n+91 ${widget.mobile}',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: descriptionSize,
+                                    color: Colors.grey[600],
+                                    height: 1.5,
+                                  ),
+                                ),
+                                SizedBox(height: 28 * scale),
+
+                                // 🔢 PIN CODE FIELD
+                                PinCodeTextField(
+                                  appContext: context,
+                                  length: 6,
+                                  textStyle: GoogleFonts.inter(
+                                    fontSize: pinTextSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  enableActiveFill: true,
+                                  autoFocus: true,
+                                  enablePinAutofill: true,
+                                  errorTextSpace: 16,
+                                  showCursor: true,
+                                  cursorColor: brandPrimary,
+                                  obscureText: false,
+                                  keyboardType: TextInputType.number,
+                                  pinTheme: PinTheme(
+                                    shape: PinCodeFieldShape.box,
+                                    borderRadius: BorderRadius.circular(12),
+                                    fieldHeight: pinBoxHeight,
+                                    fieldWidth: pinBoxWidth,
+                                    borderWidth: 1.5,
+                                    activeColor: brandPrimary,
+                                    inactiveColor: Colors.grey[200]!,
+                                    selectedColor: brandPrimary,
+                                    activeFillColor: Colors.white,
+                                    selectedFillColor: AppColors.sectionOrange,
+                                    inactiveFillColor: AppColors.backgroundCard,
+                                  ),
+                                  controller: _model.pinCodeController,
+                                  onChanged: (_) {},
+                                  onCompleted: (_) => _handleVerify(),
+                                ),
+
+                                SizedBox(height: 20 * scale),
+
+                                // 🚀 VERIFY BUTTON
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: buttonHeight,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        _isLoading ? null : _handleVerify,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: brandPrimary,
+                                      foregroundColor: Colors.white,
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      disabledBackgroundColor:
+                                          brandPrimary.withValues(alpha: 0.6),
+                                    ),
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2.5,
+                                            ),
+                                          )
+                                        : Text(
+                                            FFLocalizations.of(context)
+                                                .getText('otpv0003'),
+                                            style: GoogleFonts.interTight(
+                                              fontSize: buttonFontSize,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+
+                                SizedBox(height: 20 * scale),
+
+                                // 🔄 RESEND OTP WITH TIMER
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '${FFLocalizations.of(context).getText('otpv0004')} ',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                    GestureDetector(
+                                      onTap:
+                                          _canResend ? _handleResendOtp : null,
+                                      child: Text(
+                                        _canResend
+                                            ? FFLocalizations.of(context)
+                                                .getText('otpv0005')
+                                            : '${FFLocalizations.of(context).getText('otpv0006')} $_timerSeconds s',
+                                        style: TextStyle(
+                                          color: _canResend
+                                              ? brandPrimary
+                                              : Colors.grey,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
                   ],
                 ),
               ),

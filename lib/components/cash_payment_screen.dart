@@ -18,8 +18,7 @@ class CashPaymentScreen extends StatelessWidget {
   static const Color ugoOrange = AppColors.primary;
   static const Color ugoGreen = AppColors.success;
 
-  double get _amount =>
-      ride.finalFare ?? ride.estimatedFare ?? 0.0;
+  double get _amount => ride.finalFare ?? ride.estimatedFare ?? 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,8 @@ class CashPaymentScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 32),
-                  Icon(Icons.payments_outlined, size: 64, color: ugoOrange.withValues(alpha: 0.8)),
+                  Icon(Icons.payments_outlined,
+                      size: 64, color: ugoOrange.withValues(alpha: 0.8)),
                   const SizedBox(height: 24),
                   Text(
                     FFLocalizations.of(context).getText('drv_collect_cash'),
@@ -84,7 +84,8 @@ class CashPaymentScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        FFLocalizations.of(context).getText('drv_received_cash'),
+                        FFLocalizations.of(context)
+                            .getText('drv_received_cash'),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

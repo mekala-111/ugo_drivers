@@ -65,7 +65,8 @@ class RideBottomOverlay extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                final isStarted = ride.status == RideStatus.started || ride.status == RideStatus.onTrip;
+                final isStarted = ride.status == RideStatus.started ||
+                    ride.status == RideStatus.onTrip;
                 _launchMap(
                   isStarted ? ride.dropLat : ride.pickupLat,
                   isStarted ? ride.dropLng : ride.pickupLng,
@@ -91,12 +92,17 @@ class RideBottomOverlay extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.navigation, color: Colors.black, size: Responsive.iconSize(context, base: 20)),
+                    Icon(Icons.navigation,
+                        color: Colors.black,
+                        size: Responsive.iconSize(context, base: 20)),
                     const SizedBox(width: 8),
                     Text(
-                      (ride.status == RideStatus.started || ride.status == RideStatus.onTrip)
-                          ? FFLocalizations.of(context).getText('drv_nav_to_drop')
-                          : FFLocalizations.of(context).getText('drv_nav_to_pickup'),
+                      (ride.status == RideStatus.started ||
+                              ride.status == RideStatus.onTrip)
+                          ? FFLocalizations.of(context)
+                              .getText('drv_nav_to_drop')
+                          : FFLocalizations.of(context)
+                              .getText('drv_nav_to_pickup'),
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -154,7 +160,9 @@ class StartRideCard extends StatelessWidget {
     bool isStarted = ride.status == RideStatus.started;
 
     // Button Logic
-    String btnText = isStarted ? FFLocalizations.of(context).getText('drv_complete_ride') : FFLocalizations.of(context).getText('drv_start_ride');
+    String btnText = isStarted
+        ? FFLocalizations.of(context).getText('drv_complete_ride')
+        : FFLocalizations.of(context).getText('drv_start_ride');
     Color btnColor = isStarted ? ugoRed : ugoGreen;
 
     return Container(
@@ -208,7 +216,9 @@ class StartRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            ride.firstName ??
+                                FFLocalizations.of(context)
+                                    .getText('drv_passenger'),
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -219,11 +229,12 @@ class StartRideCard extends StatelessWidget {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              _buildSquareIconBtn(context, Icons.call, Colors.black,
-                                  Colors.grey[200]!, onCall),
-                              SizedBox(width: Responsive.verticalSpacing(context)),
-                              _buildSquareIconBtn(context,
-                                  Icons.close, Colors.white, ugoRed, onCancel),
+                              _buildSquareIconBtn(context, Icons.call,
+                                  Colors.black, Colors.grey[200]!, onCall),
+                              SizedBox(
+                                  width: Responsive.verticalSpacing(context)),
+                              _buildSquareIconBtn(context, Icons.close,
+                                  Colors.white, ugoRed, onCancel),
                             ],
                           ),
                         ],
@@ -234,7 +245,9 @@ class StartRideCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            ride.firstName ??
+                                FFLocalizations.of(context)
+                                    .getText('drv_passenger'),
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -246,11 +259,12 @@ class StartRideCard extends StatelessWidget {
                         const SizedBox(width: 16),
                         Row(
                           children: [
-                            _buildSquareIconBtn(context, Icons.call, Colors.black,
-                                Colors.grey[200]!, onCall),
-                            SizedBox(width: Responsive.verticalSpacing(context)),
-                            _buildSquareIconBtn(context,
-                                Icons.close, Colors.white, ugoRed, onCancel),
+                            _buildSquareIconBtn(context, Icons.call,
+                                Colors.black, Colors.grey[200]!, onCall),
+                            SizedBox(
+                                width: Responsive.verticalSpacing(context)),
+                            _buildSquareIconBtn(context, Icons.close,
+                                Colors.white, ugoRed, onCancel),
                           ],
                         )
                       ],
@@ -280,7 +294,11 @@ class StartRideCard extends StatelessWidget {
                               color: isStarted ? ugoRed : ugoGreen,
                               size: Responsive.iconSize(context, base: 20)),
                           Text(
-                            isStarted ? FFLocalizations.of(context).getText('drv_drop') : FFLocalizations.of(context).getText('drv_pickup'),
+                            isStarted
+                                ? FFLocalizations.of(context)
+                                    .getText('drv_drop')
+                                : FFLocalizations.of(context)
+                                    .getText('drv_pickup'),
                             style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey[700],
@@ -298,7 +316,8 @@ class StartRideCard extends StatelessWidget {
                         lng: isStarted ? ride.dropLng : ride.pickupLng,
                         fallbackAddress:
                             isStarted ? ride.dropAddress : ride.pickupAddress,
-                        fallbackLabel: FFLocalizations.of(context).getText('drv_unknown_location'),
+                        fallbackLabel: FFLocalizations.of(context)
+                            .getText('drv_unknown_location'),
                       ),
                     ),
                   ],
@@ -321,8 +340,8 @@ class StartRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(BuildContext context,
-      IconData icon, Color iconColor, Color bgColor, VoidCallback onPressed) {
+  Widget _buildSquareIconBtn(BuildContext context, IconData icon,
+      Color iconColor, Color bgColor, VoidCallback onPressed) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onPressed,
@@ -332,7 +351,8 @@ class StartRideCard extends StatelessWidget {
         height: sz,
         decoration: BoxDecoration(
             color: bgColor, borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, color: iconColor, size: Responsive.iconSize(context, base: 24)),
+        child: Icon(icon,
+            color: iconColor, size: Responsive.iconSize(context, base: 24)),
       ),
     );
   }

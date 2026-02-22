@@ -78,7 +78,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
   int _calculateCompletionPercentage() {
     int completed = 0;
-    int total = 8; // License, Profile, Aadhar, Pan, Vehicle, RC, Insurance, Pollution
+    int total =
+        8; // License, Profile, Aadhar, Pan, Vehicle, RC, Insurance, Pollution
 
     final hasLicense = _isDocumentUploaded(FFAppState().imageLicense) ||
         _isDocumentUploaded(FFAppState().licenseFrontImage) ||
@@ -105,7 +106,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
     return ((completed / total) * 100).round();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -167,21 +167,27 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                           context.goNamed(
                             ChooseVehicleWidget.routeName,
                             queryParameters: {
-                              'mobile': serializeParam(widget.mobile, ParamType.int),
-                              'firstname': serializeParam(widget.firstname, ParamType.String),
-                              'lastname': serializeParam(widget.lastname, ParamType.String),
-                              'email': serializeParam(widget.email, ParamType.String),
-                              'referalcode': serializeParam(widget.referalcode, ParamType.String),
+                              'mobile':
+                                  serializeParam(widget.mobile, ParamType.int),
+                              'firstname': serializeParam(
+                                  widget.firstname, ParamType.String),
+                              'lastname': serializeParam(
+                                  widget.lastname, ParamType.String),
+                              'email': serializeParam(
+                                  widget.email, ParamType.String),
+                              'referalcode': serializeParam(
+                                  widget.referalcode, ParamType.String),
                             }.withoutNulls,
                           );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha:0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
+                          child:
+                              const Icon(Icons.arrow_back, color: Colors.white),
                         ),
                       ),
                       const Spacer(),
@@ -195,7 +201,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                                 FFLocalizations.of(context).getText('ob0001'),
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
-                                  color: Colors.white.withValues(alpha:0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -203,7 +209,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                               Text(
                                 FFLocalizations.of(context)
                                     .getText('ob0002')
-                                    .replaceAll('%1', completionPercentage.toString()),
+                                    .replaceAll(
+                                        '%1', completionPercentage.toString()),
                                 style: GoogleFonts.interTight(
                                   fontSize: 32,
                                   color: Colors.white,
@@ -223,7 +230,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                                   value: completionPercentage / 100,
                                   strokeWidth: 6,
                                   backgroundColor: Colors.white24,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                 ),
                                 Center(
                                   child: Text(
@@ -260,7 +269,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       )
@@ -279,53 +288,55 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
                         _buildDocItem(
                           FFLocalizations.of(context).getText('qg68530z'),
                           FFAppState().imageLicense,
-                              () => context.pushNamed(DrivingDlWidget.routeName),
+                          () => context.pushNamed(DrivingDlWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           FFLocalizations.of(context).getText('k8fnkaky'),
                           FFAppState().profilePhoto,
-                              () => context.pushNamed(FaceVerifyWidget.routeName),
+                          () => context.pushNamed(FaceVerifyWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           FFLocalizations.of(context).getText('c0kv9v5c'),
                           FFAppState().aadharImage,
-                              () => context.pushNamed(AdharUploadWidget.routeName),
+                          () => context.pushNamed(AdharUploadWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           FFLocalizations.of(context).getText('ymy7qbgz'),
                           FFAppState().panImage,
-                              () => context.pushNamed(PanuploadScreenWidget.routeName),
+                          () => context
+                              .pushNamed(PanuploadScreenWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           FFLocalizations.of(context).getText('jqs0l5w3'),
                           FFAppState().vehicleImage,
-                              () => context.pushNamed(VehicleImageWidget.routeName),
+                          () => context.pushNamed(VehicleImageWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           FFLocalizations.of(context).getText('ipks4vgn'),
                           FFAppState().registrationImage,
-                              () => context.pushNamed(RegistrationImageWidget.routeName),
+                          () => context
+                              .pushNamed(RegistrationImageWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           'Insurance PDF',
-                          FFAppState().insurancePdf ?? FFAppState().insuranceImage,
-                              () => context.pushNamed(UploadRcWidget.routeName),
+                          FFAppState().insurancePdf ??
+                              FFAppState().insuranceImage,
+                          () => context.pushNamed(UploadRcWidget.routeName),
                         ),
                         const SizedBox(height: 16),
                         _buildDocItem(
                           'Pollution Certificate',
                           FFAppState().pollutioncertificateImage,
-                              () => context.pushNamed(RCUploadWidget.routeName),
+                          () => context.pushNamed(RCUploadWidget.routeName),
                         ),
                       ],
                     ),
@@ -343,7 +354,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   )
@@ -353,7 +364,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : () => _handleContinue(allDocsUploaded),
+                  onPressed: _isLoading
+                      ? null
+                      : () => _handleContinue(allDocsUploaded),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brandPrimary,
                     foregroundColor: Colors.white,
@@ -364,19 +377,21 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                    height: 24, width: 24,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                  )
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2.5),
+                        )
                       : Text(
-                    allDocsUploaded
-                        ? FFLocalizations.of(context).getText('ob0004')
-                        : FFLocalizations.of(context).getText('ad0016'),
-                    style: GoogleFonts.interTight(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+                          allDocsUploaded
+                              ? FFLocalizations.of(context).getText('ob0004')
+                              : FFLocalizations.of(context).getText('ad0016'),
+                          style: GoogleFonts.interTight(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -396,7 +411,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUploaded ? AppColors.sectionOrangeLight : AppColors.backgroundCard,
+          color: isUploaded
+              ? AppColors.sectionOrangeLight
+              : AppColors.backgroundCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isUploaded ? AppColors.primary : AppColors.divider,
@@ -441,7 +458,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                         : FFLocalizations.of(context).getText('ob0007'),
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: isUploaded ? AppColors.primary : Colors.grey.shade500,
+                      color:
+                          isUploaded ? AppColors.primary : Colors.grey.shade500,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -484,7 +502,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           builder: (ctx) => AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.orange, size: 28),
                 SizedBox(width: 12),
                 Text(FFLocalizations.of(context).getText('ob0008')),
               ],
@@ -500,15 +519,18 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                   ),
                   const SizedBox(height: 12),
                   ...result.errors.map((e) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('• ', style: TextStyle(color: Colors.red)),
-                        Expanded(child: Text(e, style: const TextStyle(fontSize: 14))),
-                      ],
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('• ',
+                                style: TextStyle(color: Colors.red)),
+                            Expanded(
+                                child: Text(e,
+                                    style: const TextStyle(fontSize: 14))),
+                          ],
+                        ),
+                      )),
                 ],
               ),
             ),
@@ -576,8 +598,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         'used_referral_code': FFAppState().usedReferralCode.isNotEmpty
             ? FFAppState().usedReferralCode
             : null,
-        'preferred_city_id':
-            FFAppState().preferredCityId > 0 ? FFAppState().preferredCityId : null,
+        'preferred_city_id': FFAppState().preferredCityId > 0
+            ? FFAppState().preferredCityId
+            : null,
         'preferred_earning_mode': FFAppState().preferredEarningMode,
         'vehicle_image': FFAppState().vehicleImage?.name,
         'fcm_token': fcm_token ?? '',
@@ -586,7 +609,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         driverJsonData['license_number'] = FFAppState().licenseNumber;
       }
       if (FFAppState().licenseExpiryDate.isNotEmpty) {
-        driverJsonData['license_expiry_date'] = _toApiDate(FFAppState().licenseExpiryDate);
+        driverJsonData['license_expiry_date'] =
+            _toApiDate(FFAppState().licenseExpiryDate);
       }
       if (FFAppState().aadharNumber.isNotEmpty) {
         driverJsonData['aadhaar_number'] = FFAppState().aadharNumber;
@@ -610,33 +634,47 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         driverJsonData['postal_code'] = FFAppState().postalCode;
       }
       if (FFAppState().emergencyContactName.isNotEmpty) {
-        driverJsonData['emergency_contact_name'] = FFAppState().emergencyContactName;
+        driverJsonData['emergency_contact_name'] =
+            FFAppState().emergencyContactName;
       }
       if (FFAppState().emergencyContactPhone.isNotEmpty) {
-        driverJsonData['emergency_contact_phone'] = FFAppState().emergencyContactPhone;
+        driverJsonData['emergency_contact_phone'] =
+            FFAppState().emergencyContactPhone;
       }
 
       final vehicleJsonData = <String, dynamic>{
-        'vehicle_type': FFAppState().selectvehicle.isEmpty ? 'auto' : FFAppState().selectvehicle,
+        'vehicle_type': FFAppState().selectvehicle.isEmpty
+            ? 'auto'
+            : FFAppState().selectvehicle,
       };
       if (FFAppState().adminVehicleId > 0) {
         vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
         vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
       }
-      if (FFAppState().vehicleMake.isNotEmpty) vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
-      if (FFAppState().vehicleModel.isNotEmpty) vehicleJsonData['vehicle_model'] = FFAppState().vehicleModel;
-      if (FFAppState().vehicleColor.isNotEmpty) vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
-      if (FFAppState().licensePlate.isNotEmpty) vehicleJsonData['license_plate'] = FFAppState().licensePlate;
-      if (FFAppState().registrationNumber.isNotEmpty) vehicleJsonData['registration_number'] = FFAppState().registrationNumber;
-      if (FFAppState().insuranceNumber.isNotEmpty) vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
+      if (FFAppState().vehicleMake.isNotEmpty)
+        vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
+      if (FFAppState().vehicleModel.isNotEmpty)
+        vehicleJsonData['vehicle_model'] = FFAppState().vehicleModel;
+      if (FFAppState().vehicleColor.isNotEmpty)
+        vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
+      if (FFAppState().licensePlate.isNotEmpty)
+        vehicleJsonData['license_plate'] = FFAppState().licensePlate;
+      if (FFAppState().registrationNumber.isNotEmpty)
+        vehicleJsonData['registration_number'] =
+            FFAppState().registrationNumber;
+      if (FFAppState().insuranceNumber.isNotEmpty)
+        vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
       if (FFAppState().registrationDate.isNotEmpty) {
-        vehicleJsonData['registration_date'] = _toApiDate(FFAppState().registrationDate);
+        vehicleJsonData['registration_date'] =
+            _toApiDate(FFAppState().registrationDate);
       }
       if (FFAppState().insuranceExpiryDate.isNotEmpty) {
-        vehicleJsonData['insurance_expiry_date'] = _toApiDate(FFAppState().insuranceExpiryDate);
+        vehicleJsonData['insurance_expiry_date'] =
+            _toApiDate(FFAppState().insuranceExpiryDate);
       }
       if (FFAppState().pollutionExpiryDate.isNotEmpty) {
-        vehicleJsonData['pollution_expiry_date'] = _toApiDate(FFAppState().pollutionExpiryDate);
+        vehicleJsonData['pollution_expiry_date'] =
+            _toApiDate(FFAppState().pollutionExpiryDate);
       }
 
       // 3. API Call
@@ -653,7 +691,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         rcBackImage: FFAppState().rcBackImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
-        insuranceImage: FFAppState().insurancePdf ?? FFAppState().insuranceImage,
+        insuranceImage:
+            FFAppState().insurancePdf ?? FFAppState().insuranceImage,
         pollutionCertificateImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
@@ -665,19 +704,27 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         final jsonBody = _model.apiResult7ju?.jsonBody;
 
         // Extract token (backend may use access_token, accessToken, or token)
-        String? accessToken = getJsonField(jsonBody, r'''$.data.access_token''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
+        String? accessToken =
+            getJsonField(jsonBody, r'''$.data.access_token''')?.toString();
+        accessToken ??=
+            getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
         accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.access_token''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.accessToken''')?.toString();
-        if (accessToken == 'null' || accessToken == null || accessToken.isEmpty) {
+        accessToken ??=
+            getJsonField(jsonBody, r'''$.access_token''')?.toString();
+        accessToken ??=
+            getJsonField(jsonBody, r'''$.accessToken''')?.toString();
+        if (accessToken == 'null' ||
+            accessToken == null ||
+            accessToken.isEmpty) {
           accessToken = null;
         }
 
         // Extract driverId (backend may use data.driver.id or data.id)
-        int? driverId = castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id'''));
+        int? driverId =
+            castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id'''));
         driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.id'''));
-        driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id'''));
+        driverId ??=
+            castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id'''));
         driverId ??= 0;
 
         // Extract vehicle data from signup response (data.vehicle)
@@ -698,19 +745,29 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         if (accessToken == null || accessToken.isEmpty) {
           final loginRes = await LoginCall.call(
             mobile: FFAppState().mobileNo,
-            fcmToken: FFAppState().fcmToken.isNotEmpty ? FFAppState().fcmToken : (fcm_token ?? ''),
+            fcmToken: FFAppState().fcmToken.isNotEmpty
+                ? FFAppState().fcmToken
+                : (fcm_token ?? ''),
           );
           if (loginRes.succeeded) {
-            accessToken = getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')?.toString();
-            accessToken ??= getJsonField(loginRes.jsonBody, r'''$.data.access_token''')?.toString();
+            accessToken =
+                getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')
+                    ?.toString();
+            accessToken ??=
+                getJsonField(loginRes.jsonBody, r'''$.data.access_token''')
+                    ?.toString();
             if (driverId == 0) {
-              driverId = castToType<int>(getJsonField(loginRes.jsonBody, r'''$.data.id''')) ?? 0;
+              driverId = castToType<int>(
+                      getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
+                  0;
             }
           }
         }
 
         final resolvedDriverId = driverId;
-        if (accessToken != null && accessToken.isNotEmpty && resolvedDriverId > 0) {
+        if (accessToken != null &&
+            accessToken.isNotEmpty &&
+            resolvedDriverId > 0) {
           FFAppState().update(() {
             FFAppState().isLoggedIn = true;
             FFAppState().isRegistered = true;
@@ -730,7 +787,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             FFAppState().isRegistered = true;
             FFAppState().registrationStep = 4; // Mark registration complete
             final id = driverId ?? 0;
-          if (id > 0) FFAppState().driverid = id;
+            if (id > 0) FFAppState().driverid = id;
           });
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -739,7 +796,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 backgroundColor: Colors.orange,
               ),
             );
-            context.pushReplacementNamed(LoginWidget.routeName); // from /index.dart
+            context.pushReplacementNamed(
+                LoginWidget.routeName); // from /index.dart
           }
         }
       } else {
@@ -752,8 +810,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         if (statusCode == 409) {
           final loginRes = await LoginCall.call(
             mobile: FFAppState().mobileNo,
-            fcmToken:
-                FFAppState().fcmToken.isNotEmpty ? FFAppState().fcmToken : (fcm_token ?? ''),
+            fcmToken: FFAppState().fcmToken.isNotEmpty
+                ? FFAppState().fcmToken
+                : (fcm_token ?? ''),
           );
           if (loginRes.succeeded) {
             String? accessToken =
@@ -762,13 +821,11 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             accessToken ??=
                 getJsonField(loginRes.jsonBody, r'''$.data.access_token''')
                     ?.toString();
-            final driverId =
-                castToType<int>(getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
-                    0;
+            final driverId = castToType<int>(
+                    getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
+                0;
 
-            if (accessToken != null &&
-                accessToken.isNotEmpty &&
-                driverId > 0) {
+            if (accessToken != null && accessToken.isNotEmpty && driverId > 0) {
               FFAppState().update(() {
                 FFAppState().isLoggedIn = true;
                 FFAppState().isRegistered = true;
