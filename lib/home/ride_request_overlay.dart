@@ -6,6 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/services/voice_service.dart';
 import 'package:ugo_driver/services/ride_notification_service.dart';
+import 'package:ugo_driver/services/floating_bubble_service.dart';
 import 'package:ugo_driver/home/ride_request_model.dart';
 import '../models/ride_status.dart';
 import '../models/payment_mode.dart';
@@ -113,10 +114,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     super.dispose();
   }
 
-  void handleNewRide(Map<String, dynamic> rawData) {
+  Future<void> handleNewRide(Map<String, dynamic> rawData) async {
     try {
       final updatedRide = RideRequest.fromJson(rawData);
       if (!mounted) return;
+      bool shouldShowFloatingRide = false;
 
       final RideStatus status = updatedRide.status;
       final int myDriverId = FFAppState().driverid;
@@ -183,12 +185,24 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 estimatedFare: updatedRide.estimatedFare,
                 distance: updatedRide.distance,
               );
+              shouldShowFloatingRide = !_isAppInForeground;
             }
             if (status != RideStatus.searching) {
               FFAppState().activeRideId = updatedRide.id;
             }
           }
         });
+        if (shouldShowFloatingRide) {
+          final fare = updatedRide.estimatedFare != null
+              ? '₹${updatedRide.estimatedFare!.toStringAsFixed(0)}'
+              : 'New Ride';
+          await FloatingBubbleService.showRideRequest(
+            rideId: updatedRide.id,
+            fareText: fare,
+            pickupText: updatedRide.pickupAddress,
+            dropText: updatedRide.dropAddress,
+          );
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Error parsing ride: $e');
@@ -211,6 +225,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (_activeRequests.isEmpty) _stopAlert();
     if (_activeRequests.every((r) => r.status != RideStatus.searching)) {
       _stopSearchingPoll();
+    }
+    if (!_isAppInForeground) {
+      FloatingBubbleService.hideRideRequest();
     }
   }
 
@@ -313,6 +330,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   /// Public: Fetch ride by ID (e.g. when user taps notification from background).
   Future<void> fetchRideById(int rideId) async {
     await _fetchRideFromBackend(rideId);
+  }
+
+  Future<void> acceptRideFromBubble(int rideId) async {
+    await _acceptRide(rideId);
+  }
+
+  Future<void> declineRideFromBubble(int rideId) async {
+    _ignoreRideRequest(rideId);
   }
 
   Future<void> _fetchRideFromBackend(int rideId) async {
@@ -481,6 +506,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } finally {
       if (mounted) setState(() => _isCancellingRide = false);
+    }
+  }
+
+  void _ignoreRideRequest(int rideId) {
+    if (!mounted) return;
+    removeRideById(rideId);
+    if (_activeRequests.isEmpty) {
+      _stopAlert();
     }
   }
 

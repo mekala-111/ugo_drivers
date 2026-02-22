@@ -1,38 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:background="@drawable/bubble_background">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/bubble_icon"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_gravity="center"
-        android:src="@mipmap/ic_launcher"
-        android:scaleType="centerInside" />
+    <FrameLayout
+        android:id="@+id/bubble_container"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:background="@drawable/bubble_background">
 
-    <TextView
-        android:id="@+id/bubble_title"
-        android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/bubble_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ugo_notification"
+            android:background="@drawable/bubble_circle_mask"
+            android:clipToOutline="true"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/bubble_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="UGO"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/bubble_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Driver"
+            android:textColor="#FFFFFF"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/ride_request_card"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="UGO"
-        android:textColor="#FFFFFF"
-        android:textSize="10sp"
-        android:textStyle="bold"
-        android:maxLines="1"
-        android:visibility="gone" />
+        android:layout_gravity="top|start"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/ride_request_card_bg"
+        android:visibility="gone">
 
-    <TextView
-        android:id="@+id/bubble_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Driver"
-        android:textColor="#FFFFFF"
-        android:textSize="8sp"
-        android:maxLines="1"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/ride_request_fare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textColor="#1D2025"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ride_request_pickup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Pickup"
+            android:textColor="#111827"
+            android:textSize="13sp"
+            android:maxLines="2" />
+
+        <TextView
+            android:id="@+id/ride_request_drop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Drop"
+            android:textColor="#111827"
+            android:textSize="13sp"
+            android:maxLines="2" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/ride_request_decline"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ride_request_decline_bg"
+                android:gravity="center"
+                android:text="Decline"
+                android:textColor="#1D2025"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/ride_request_accept"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ride_request_accept_bg"
+                android:gravity="center"
+                android:text="Accept"
+                android:textColor="#1D2025"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
 
 </FrameLayout>

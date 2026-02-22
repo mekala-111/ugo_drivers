@@ -4,18 +4,23 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="disable QR WHEN USER IS OFLINE&#10; audit fix done">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="fix complete">
+      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/ugocabs/drivers/FloatingBubbleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/com/ugocabs/drivers/FloatingBubbleService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/my_project/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_management/account_management_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app_state.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable/bubble_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/bubble_background.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable/ic_launcher_foreground.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/ic_launcher_foreground.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/layout/floating_bubble.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/layout/floating_bubble.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/account_management/preferred_city_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_management/preferred_city_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/repositories/driver_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/repositories/driver_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/services/ride_notification_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/ride_notification_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/voice_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/voice_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/vehicle_image/vehicle_image_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/vehicle_image/vehicle_image_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +223,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771598117071</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="fix complete">
+      <option name="closed" value="true" />
+      <created>1771746617274</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1771746617274</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -245,7 +258,8 @@
     <MESSAGE value="responsive audit fix done" />
     <MESSAGE value="registation working  audit fix done" />
     <MESSAGE value="disable QR WHEN USER IS OFLINE&#10; audit fix done" />
-    <option name="LAST_COMMIT_MESSAGE" value="disable QR WHEN USER IS OFLINE&#10; audit fix done" />
+    <MESSAGE value="fix complete" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix complete" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">

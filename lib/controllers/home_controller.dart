@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
@@ -319,6 +320,16 @@ class HomeController extends ChangeNotifier {
       _isTrackingLocation = false;
       await onShowPermissionDialog();
       return;
+    }
+
+    if (Platform.isAndroid && permission == LocationPermission.whileInUse) {
+      final upgraded = await Geolocator.requestPermission();
+      if (upgraded == LocationPermission.denied ||
+          upgraded == LocationPermission.deniedForever) {
+        _isTrackingLocation = false;
+        await onShowPermissionDialog();
+        return;
+      }
     }
 
     try {

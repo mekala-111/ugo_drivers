@@ -56,7 +56,6 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
     }
 
     int? requestedCityId = _selectedCityId;
-    String requestedCityName = _selectedCityName;
 
     final selected = await showDialog<bool>(
       context: context,
@@ -82,12 +81,11 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                 }).toList(),
                 onChanged: (val) {
                   if (val == null || val <= 0) return;
-                  final city = _cities.firstWhere(
+                  _cities.firstWhere(
                       (c) => c['id'].toString() == val.toString(),
                       orElse: () => null);
                   setState(() {
                     requestedCityId = val;
-                    requestedCityName = city?['name']?.toString() ?? '';
                   });
                 },
               );

@@ -4516,6 +4516,20 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
           'రైడ్ అభ్యర్థనలు స్వీకరించడానికి, ప్రయాణీకులతో భాగస్వామ్యం చేయడానికి మరియు నావిగేట్ చేయడానికి UGOకు మీ స్థానం అవసరం. మీరు ఆన్‌లైన్‌లో ఉన్నప్పుడు మాత్రమే మీ స్థానం ఉపయోగించబడుతుంది.'
     },
     'drv_not_now': {'en': 'Not Now', 'hi': 'अभी नहीं', 'te': 'ఇప్పుడు కాదు'},
+    'drv_allow': {'en': 'Allow', 'hi': 'अनुमति दें', 'te': 'అనుమతించండి'},
+    'drv_overlay_needed_title': {
+      'en': 'Allow display over other apps',
+      'hi': 'अन्य ऐप्स पर दिखाने की अनुमति दें',
+      'te': 'ఇతర యాప్‌లపై చూపేందుకు అనుమతి ఇవ్వండి'
+    },
+    'drv_overlay_needed_body': {
+      'en':
+          'Enable display over other apps so the ride request bubble can show when you are in another app.',
+      'hi':
+          'जब आप किसी अन्य ऐप में हों तब राइड रिक्वेस्ट बबल दिखाने के लिए इस अनुमति को सक्षम करें।',
+      'te':
+          'మీరు ఇతర యాప్‌లో ఉన్నప్పుడు రైడ్ రిక్వెస్ట్ బబుల్ చూపించడానికి ఈ అనుమతిని ప్రారంభించండి.'
+    },
     'drv_open_settings': {
       'en': 'Open Settings',
       'hi': 'सेटिंग्स खोलें',

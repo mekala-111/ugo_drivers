@@ -48,6 +48,18 @@ class MainActivity: FlutterActivity() {
                     updateBubbleContent(title, subtitle)
                     result.success("Bubble content updated")
                 }
+                "showRideRequest" -> {
+                    val rideId = call.argument<Int>("rideId") ?: 0
+                    val fare = call.argument<String>("fare") ?: ""
+                    val pickup = call.argument<String>("pickup") ?: ""
+                    val drop = call.argument<String>("drop") ?: ""
+                    showRideRequest(rideId, fare, pickup, drop)
+                    result.success("Ride request shown")
+                }
+                "hideRideRequest" -> {
+                    hideRideRequest()
+                    result.success("Ride request hidden")
+                }
                 "checkOverlayPermission" -> {
                     val hasPermission = Settings.canDrawOverlays(this)
                     result.success(hasPermission)
@@ -59,6 +71,7 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        handleRideActionFromIntent(intent)
     }
 
     private fun createNotificationChannels() {
@@ -165,6 +178,46 @@ class MainActivity: FlutterActivity() {
         intent.putExtra("title", title)
         intent.putExtra("subtitle", subtitle)
         startService(intent)
+    }
+
+    private fun showRideRequest(rideId: Int, fare: String, pickup: String, drop: String) {
+        if (!isServiceRunning(FloatingBubbleService::class.java)) {
+            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        }
+        val intent = Intent(this, FloatingBubbleService::class.java)
+        intent.action = "SHOW_RIDE_REQUEST"
+        intent.putExtra("ride_id", rideId)
+        intent.putExtra("fare", fare)
+        intent.putExtra("pickup", pickup)
+        intent.putExtra("drop", drop)
+        startService(intent)
+    }
+
+    private fun hideRideRequest() {
+        if (!isServiceRunning(FloatingBubbleService::class.java)) {
+            return
+        }
+        val intent = Intent(this, FloatingBubbleService::class.java)
+        intent.action = "HIDE_RIDE_REQUEST"
+        startService(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleRideActionFromIntent(intent)
+    }
+
+    private fun handleRideActionFromIntent(intent: Intent?) {
+        if (intent == null) return
+        val action = intent.getStringExtra("ride_action") ?: return
+        val rideId = intent.getIntExtra("ride_id", 0)
+        if (!::methodChannel.isInitialized) return
+        methodChannel.invokeMethod("rideAction", mapOf("action" to action, "rideId" to rideId))
     }
 
     private fun isServiceRunning(serviceClass: Class<*>): Boolean {

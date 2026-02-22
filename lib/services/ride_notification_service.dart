@@ -64,7 +64,7 @@ Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
     priority: Priority.max,
     fullScreenIntent: true,
     category: AndroidNotificationCategory.call,
-    largeIcon: DrawableResourceAndroidBitmap('ic_launcher_round'),
+    largeIcon: DrawableResourceAndroidBitmap('ugo_notification'),
   );
   const iosDetails = DarwinNotificationDetails(
     presentAlert: true,
@@ -284,7 +284,7 @@ class RideNotificationService {
         fullScreenIntent: true,
         visibility: NotificationVisibility.public,
         color: AppColors.primary,
-        largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_round'),
+        largeIcon: const DrawableResourceAndroidBitmap('ugo_notification'),
       );
     } else {
       androidDetails = const AndroidNotificationDetails(_kChannelId, _kChannelName);

@@ -58,6 +58,36 @@ class FloatingBubbleService {
     }
   }
 
+  /// Show a floating ride request card
+  static Future<String> showRideRequest({
+    required int rideId,
+    required String fareText,
+    required String pickupText,
+    required String dropText,
+  }) async {
+    try {
+      final String result = await _channel.invokeMethod('showRideRequest', {
+        'rideId': rideId,
+        'fare': fareText,
+        'pickup': pickupText,
+        'drop': dropText,
+      });
+      return result;
+    } on PlatformException catch (_) {
+      return 'Failed to show ride request';
+    }
+  }
+
+  /// Hide ride request card and return to bubble
+  static Future<String> hideRideRequest() async {
+    try {
+      final String result = await _channel.invokeMethod('hideRideRequest');
+      return result;
+    } on PlatformException catch (_) {
+      return 'Failed to hide ride request';
+    }
+  }
+
   /// Check if overlay permission is granted
   static Future<bool> checkOverlayPermission() async {
     try {

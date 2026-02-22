@@ -403,7 +403,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ? ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: Image.memory(
-            image!.bytes!,
+            image.bytes!,
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,

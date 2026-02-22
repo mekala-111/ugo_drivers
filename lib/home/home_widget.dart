@@ -11,6 +11,7 @@ import '/index.dart';
 import '/providers/ride_provider.dart';
 import '/services/ride_notification_service.dart';
 import '/services/route_polyline_service.dart';
+import '/services/floating_bubble_service.dart';
 import 'home_model.dart';
 import 'ride_request_model.dart';
 import 'ride_request_overlay.dart';
@@ -37,7 +38,8 @@ class HomeWidget extends StatefulWidget {
   State<HomeWidget> createState() => _HomeWidgetState();
 }
 
-class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMixin {
+class _HomeWidgetState extends State<HomeWidget>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   late HomeModel _model;
   late HomeController _controller;
 
@@ -48,6 +50,11 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
   bool _isIncentivePanelExpanded = false;
   DateTime? _lastBackPressed;
   String? _activeRouteKey;
+  bool _isAppInForeground = true;
+  bool _bubbleVisible = false;
+  bool _lastOnlineState = false;
+  final MethodChannel _bubbleChannel =
+      const MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
 
   @override
   bool get wantKeepAlive => true;
@@ -56,6 +63,8 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeModel());
+    WidgetsBinding.instance.addObserver(this);
+    _bubbleChannel.setMethodCallHandler(_handleBubbleMethod);
 
     _controller = HomeController(
       onShowKycDialog: () async {
@@ -125,8 +134,105 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
           .then((loc) => _controller.setUserLocation(loc));
 
       await _controller.init();
+      _lastOnlineState = _controller.isOnline;
+      _controller.addListener(_onControllerChange);
+      _syncFloatingBubble();
       _handlePendingRideFromNotification();
     });
+  }
+
+  Future<void> _handleBubbleMethod(MethodCall call) async {
+    if (call.method != 'rideAction') return;
+    final args = call.arguments;
+    if (args is! Map) return;
+    final action = args['action']?.toString() ?? '';
+    final rideIdRaw = args['rideId'];
+    final rideId = rideIdRaw is int
+        ? rideIdRaw
+        : int.tryParse(rideIdRaw?.toString() ?? '');
+    if (rideId == null || rideId <= 0) return;
+    if (action == 'accept') {
+      await _overlayKey.currentState?.acceptRideFromBubble(rideId);
+    } else if (action == 'decline') {
+      await _overlayKey.currentState?.declineRideFromBubble(rideId);
+    }
+    await FloatingBubbleService.hideRideRequest();
+  }
+
+  void _onControllerChange() {
+    if (!_controller.isOnline && _lastOnlineState) {
+      _lastOnlineState = _controller.isOnline;
+      _hideFloatingBubble();
+      return;
+    }
+    if (_controller.isOnline != _lastOnlineState) {
+      _lastOnlineState = _controller.isOnline;
+    }
+    _syncFloatingBubble();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _isAppInForeground = state == AppLifecycleState.resumed;
+    _syncFloatingBubble();
+  }
+
+  Future<void> _syncFloatingBubble() async {
+    if (!mounted) return;
+    if (!_controller.isOnline || _isAppInForeground) {
+      await _hideFloatingBubble();
+      return;
+    }
+    await _showFloatingBubble();
+  }
+
+  Future<void> _showFloatingBubble() async {
+    if (_bubbleVisible) return;
+    final hasPermission = await FloatingBubbleService.checkOverlayPermission();
+    if (!hasPermission) {
+      if (mounted) {
+        await _showOverlayPermissionDialog();
+      }
+      return;
+    }
+    await FloatingBubbleService.startFloatingBubble();
+    await FloatingBubbleService.showFloatingBubble();
+    _bubbleVisible = true;
+  }
+
+  Future<void> _showOverlayPermissionDialog() async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(FFLocalizations.of(context).getText('drv_overlay_needed_title'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(
+          FFLocalizations.of(context).getText('drv_overlay_needed_body'),
+          style: const TextStyle(height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(FFLocalizations.of(context).getText('drv_not_now')),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await FloatingBubbleService.requestOverlayPermission();
+            },
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+            child: Text(FFLocalizations.of(context).getText('drv_allow')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _hideFloatingBubble() async {
+    if (!_bubbleVisible) return;
+    await FloatingBubbleService.stopFloatingBubble();
+    _bubbleVisible = false;
   }
 
   void _handlePendingRideFromNotification() {
@@ -332,6 +438,10 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _bubbleChannel.setMethodCallHandler(null);
+    _controller.removeListener(_onControllerChange);
+    _hideFloatingBubble();
     _model.dispose();
     _controller.dispose();
     super.dispose();
