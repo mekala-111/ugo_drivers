@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'account_management_model.dart';
 export 'account_management_model.dart';
 import '/services/voice_service.dart';
+import 'preferred_city_widget.dart';
 
 class AccountManagementWidget extends StatefulWidget {
   const AccountManagementWidget({super.key});
@@ -323,6 +324,18 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
         'subtitle': FFLocalizations.of(context).getText('drv_edit_info'),
         'color': AppColors.accentAmber,
         'onTap': () => context.pushNamed(AccountSupportWidget.routeName),
+      },
+      {
+        'icon': Icons.location_city_rounded,
+        'title': FFLocalizations.of(context).getText('drv_preferred_city_title'),
+        'subtitle': FFAppState().preferredCityId > 0
+            ? FFLocalizations.of(context).getText('drv_preferred_city_locked_subtitle')
+            : FFLocalizations.of(context).getText('drv_preferred_city_subtitle'),
+        'color': AppColors.accentEmerald,
+        'onTap': () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PreferredCityWidget()),
+        ),
       },
       {
         'icon': Icons.language_rounded,

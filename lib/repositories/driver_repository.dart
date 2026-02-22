@@ -13,11 +13,24 @@ abstract class DriverRepositoryInterface {
   Future<ApiCallResponse> updateDriver({
     required int id,
     required String token,
-    required bool isonline,
+    bool? isonline,
     double? latitude,
     double? longitude,
     String? fcmToken,
     Map<String, dynamic>? extraParams,
+  });
+  Future<ApiCallResponse> getActiveCities({required String token});
+  Future<ApiCallResponse> setPreferredCity({
+    required String token,
+    required int cityId,
+  });
+  Future<ApiCallResponse> setOnlineStatus({
+    required String token,
+    required bool isOnline,
+  });
+  Future<ApiCallResponse> requestPreferredCityApproval({
+    required String token,
+    required int requestedCityId,
   });
   Future<ApiCallResponse> getVehicleTypes();
   Future<ApiCallResponse> getAllDrivers({String? token});
@@ -60,7 +73,7 @@ class DriverRepository implements DriverRepositoryInterface {
   Future<ApiCallResponse> updateDriver({
     required int id,
     required String token,
-    required bool isonline,
+    bool? isonline,
     double? latitude,
     double? longitude,
     String? fcmToken,
@@ -73,6 +86,34 @@ class DriverRepository implements DriverRepositoryInterface {
         latitude: latitude,
         longitude: longitude,
         fcmToken: fcmToken,
+      );
+
+  @override
+  Future<ApiCallResponse> getActiveCities({required String token}) =>
+      GetCitiesCall.call(token: token, onlyActive: true);
+
+  @override
+  Future<ApiCallResponse> setPreferredCity({
+    required String token,
+    required int cityId,
+  }) =>
+      SetPreferredCityCall.call(token: token, cityId: cityId);
+
+  @override
+  Future<ApiCallResponse> setOnlineStatus({
+    required String token,
+    required bool isOnline,
+  }) =>
+      SetOnlineStatusCall.call(token: token, isOnline: isOnline);
+
+  @override
+  Future<ApiCallResponse> requestPreferredCityApproval({
+    required String token,
+    required int requestedCityId,
+  }) =>
+      RequestPreferredCityApprovalCall.call(
+        token: token,
+        requestedCityId: requestedCityId,
       );
 
   @override

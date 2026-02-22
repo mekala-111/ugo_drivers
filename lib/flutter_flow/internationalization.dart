@@ -4835,5 +4835,86 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'राइड घोषणाएं',
       'te': 'రైడ్ ప్రకటనలు'
     },
+    'drv_preferred_city': {
+      'en': 'Preferred City',
+      'hi': 'पसंदीदा शहर',
+      'te': 'ప్రాధాన్య నగరం'
+    },
+    'drv_preferred_city_title': {
+      'en': 'Preferred City',
+      'hi': 'पसंदीदा शहर',
+      'te': 'ప్రాధాన్య నగరం'
+    },
+    'drv_preferred_city_subtitle': {
+      'en': 'Set your preferred city',
+      'hi': 'अपना पसंदीदा शहर सेट करें',
+      'te': 'మీ ప్రాధాన్య నగరాన్ని సెట్ చేయండి'
+    },
+    'drv_preferred_city_locked_subtitle': {
+      'en': 'Approval required to change',
+      'hi': 'बदलने के लिए अनुमोदन आवश्यक',
+      'te': 'మార్చడానికి అనుమతి అవసరం'
+    },
+    'drv_select_city': {
+      'en': 'Select a city',
+      'hi': 'एक शहर चुनें',
+      'te': 'ఒక నగరాన్ని ఎంచుకోండి'
+    },
+    'drv_no_cities': {
+      'en': 'No active cities available',
+      'hi': 'कोई सक्रिय शहर उपलब्ध नहीं',
+      'te': 'సక్రియ నగరాలు లభ్యం కావు'
+    },
+    'drv_save': {'en': 'Save', 'hi': 'सेव करें', 'te': 'సేవ్'},
+    'drv_city_saved': {
+      'en': 'Preferred city updated',
+      'hi': 'पसंदीदा शहर अपडेट किया गया',
+      'te': 'ప్రాధాన్య నగరం నవీకరించబడింది'
+    },
+    'drv_city_failed': {
+      'en': 'Failed to update preferred city',
+      'hi': 'पसंदीदा शहर अपडेट करने में विफल',
+      'te': 'ప్రాధాన్య నగరాన్ని నవీకరించడంలో విఫలమైంది'
+    },
+    'drv_select_preferred_city': {
+      'en': 'Select your preferred city to go online',
+      'hi': 'ऑनलाइन जाने के लिए अपना पसंदीदा शहर चुनें',
+      'te': 'ఆన్‌లైన్ కావడానికి మీ ప్రాధాన్య నగరాన్ని ఎంచుకోండి'
+    },
+    'drv_preferred_city_locked': {
+      'en': 'Preferred city is locked after initial set. Request admin approval to change it.',
+      'hi': 'पसंदीदा शहर पहली बार सेट होने के बाद लॉक हो जाता है। बदलने के लिए एडमिन अनुमोदन मांगें।',
+      'te': 'ప్రాధాన్య నగరం ఒకసారి సెట్ చేసిన తర్వాత లాక్ అవుతుంది. మార్చడానికి అడ్మిన్ అనుమతి కోరండి.'
+    },
+    'drv_request_approval': {
+      'en': 'Request approval',
+      'hi': 'अनुमोदन का अनुरोध करें',
+      'te': 'అనుమతి కోరండి'
+    },
+    'drv_send_request': {
+      'en': 'Send request',
+      'hi': 'अनुरोध भेजें',
+      'te': 'అభ్యర్థన పంపండి'
+    },
+    'drv_request_sent': {
+      'en': 'Approval request sent',
+      'hi': 'अनुमोदन अनुरोध भेजा गया',
+      'te': 'అనుమతి అభ్యర్థన పంపబడింది'
+    },
+    'drv_request_failed': {
+      'en': 'Failed to send approval request',
+      'hi': 'अनुमोदन अनुरोध भेजने में विफल',
+      'te': 'అనుమతి అభ్యర్థన పంపడంలో విఫలమైంది'
+    },
+    'drv_request_same_city': {
+      'en': 'Selected city is same as current',
+      'hi': 'चयनित शहर वर्तमान जैसा ही है',
+      'te': 'ఎంచుకున్న నగరం ప్రస్తుతం ఉన్నదే'
+    },
+    'drv_go_online_failed': {
+      'en': 'Failed to go online',
+      'hi': 'ऑनलाइन होने में विफल',
+      'te': 'ఆన్‌లైన్ అవ్వడంలో విఫలమైంది'
+    },
   },
 ].reduce((a, b) => a..addAll(b));

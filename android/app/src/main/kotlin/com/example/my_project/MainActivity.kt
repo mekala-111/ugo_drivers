@@ -4,8 +4,11 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.app.ActivityManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
 import android.net.Uri
 import android.provider.Settings
 import androidx.annotation.NonNull
@@ -13,9 +16,12 @@ import androidx.annotation.NonNull
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "com.ugotaxi_rajkumar.driver/floating_bubble"
     private lateinit var methodChannel: MethodChannel
+    private val generalNotificationsChannelId = "general_notifications"
+    private val rideRequestsChannelId = "ride_requests"
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        createNotificationChannels()
 
         methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         methodChannel.setMethodCallHandler { call, result ->
@@ -53,6 +59,40 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    private fun createNotificationChannels() {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) return
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val generalChannel = NotificationChannel(
+            generalNotificationsChannelId,
+            "General Updates",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Earnings, promotions, app updates"
+            setSound(null, null)
+            enableVibration(false)
+        }
+
+        val rideChannel = NotificationChannel(
+            rideRequestsChannelId,
+            "New Ride Requests",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Incoming ride requests - don't miss!"
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 800, 400, 800, 400, 800)
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            setSound(Settings.System.DEFAULT_NOTIFICATION_URI, audioAttributes)
+        }
+
+        manager.createNotificationChannel(generalChannel)
+        manager.createNotificationChannel(rideChannel)
     }
 
     private fun startFloatingBubbleService() {

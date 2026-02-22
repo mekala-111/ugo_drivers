@@ -858,6 +858,134 @@ class DriverIdfetchCall {
       ));
 }
 
+class GetCitiesCall {
+  static Future<ApiCallResponse> call({
+    String? token,
+    bool onlyActive = true,
+  }) async {
+    final query = onlyActive ? '?is_active=true' : '';
+    return ApiManager.instance.makeApiCall(
+      callName: 'getCities',
+      apiUrl: '$_baseUrl/api/drivers/cities$query',
+      callType: ApiCallType.GET,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+
+  static List<dynamic> cities(dynamic response) =>
+      (getJsonField(response, r'$.data', true) as List?) ?? [];
+}
+
+class SetPreferredCityCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int cityId,
+  }) async {
+    final body = json.encode({'preferred_city_id': cityId});
+    return ApiManager.instance.makeApiCall(
+      callName: 'setPreferredCity',
+      apiUrl: '$_baseUrl/api/drivers/preferred-city',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
+class SetOnlineStatusCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required bool isOnline,
+  }) async {
+    final body = json.encode({'is_online': isOnline});
+    return ApiManager.instance.makeApiCall(
+      callName: 'setOnlineStatus',
+      apiUrl: '$_baseUrl/api/drivers/online',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
+class RequestPreferredCityApprovalCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int requestedCityId,
+  }) async {
+    final body = json.encode({'requested_city_id': requestedCityId});
+    return ApiManager.instance.makeApiCall(
+      callName: 'requestPreferredCityApproval',
+      apiUrl: '$_baseUrl/api/drivers/preferred-city/request-approval',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
 class GetWalletCall {
   static Future<ApiCallResponse> call({
     required int driverId,

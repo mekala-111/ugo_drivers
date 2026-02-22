@@ -233,22 +233,36 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     _isAlerting = true;
     try {
       await _audioPlayer.stop();
-      await VoiceService().newRideRequest();
       if (ride != null && _isAlerting) {
-        await VoiceService().speakNewRideAddress(
-          pickupLat: ride.pickupLat,
-          pickupLng: ride.pickupLng,
-          pickupAddress: ride.pickupAddress,
-          dropLat: ride.dropLat,
-          dropLng: ride.dropLng,
-          dropAddress: ride.dropAddress,
-          estimatedFare: ride.estimatedFare,
-        );
+        for (var i = 0; i < 3; i++) {
+          await VoiceService().speakNewRideAddress(
+            pickupLat: ride.pickupLat,
+            pickupLng: ride.pickupLng,
+            pickupAddress: ride.pickupAddress,
+            dropLat: ride.dropLat,
+            dropLng: ride.dropLng,
+            dropAddress: ride.dropAddress,
+            estimatedFare: ride.estimatedFare,
+            repeatCount: 1,
+          );
+          if (!_isAlerting) return;
+          await _playAlertOnce();
+          if (!_isAlerting) return;
+        }
       }
-      await Future.delayed(const Duration(milliseconds: 800));
       if (!_isAlerting) return;
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
+    } catch (_) {}
+  }
+
+  Future<void> _playAlertOnce() async {
+    if (!_isAlerting) return;
+    try {
+      await _audioPlayer.setReleaseMode(ReleaseMode.stop);
+      await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
+      await _audioPlayer.onPlayerComplete.first
+          .timeout(const Duration(seconds: 6), onTimeout: () {});
     } catch (_) {}
   }
 

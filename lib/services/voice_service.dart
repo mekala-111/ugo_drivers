@@ -121,6 +121,9 @@ class VoiceService {
         if (kDebugMode) debugPrint('VoiceService: TTS setLanguage failed: $e');
       }
     }
+    try {
+      await _tts.awaitSpeakCompletion(true);
+    } catch (_) {}
     await _tts.setSpeechRate(0.5);
     await _tts.setVolume(1.0);
     _initialized = true;
@@ -138,6 +141,16 @@ class VoiceService {
       await _tts.speak(text);
     } catch (e) {
       if (kDebugMode) debugPrint('VoiceService: speak failed: $e');
+    }
+  }
+
+  Future<void> _speakRepeated(String text, {int times = 1}) async {
+    if (!_voiceEnabled || text.isEmpty || times <= 0) return;
+    for (var i = 0; i < times; i++) {
+      await speak(text);
+      if (i < times - 1) {
+        await Future.delayed(const Duration(milliseconds: 600));
+      }
     }
   }
 
@@ -164,6 +177,7 @@ class VoiceService {
     required double dropLng,
     required String dropAddress,
     double? estimatedFare,
+    int repeatCount = 1,
   }) async {
     if (!_voiceEnabled) return;
     try {
@@ -178,14 +192,59 @@ class VoiceService {
       final drop = await dropFuture;
       final pickupArea = pickup.locality.isNotEmpty ? pickup.locality : _shortAddress(pickupAddress);
       final dropArea = drop.locality.isNotEmpty ? drop.locality : _shortAddress(dropAddress);
-      final fare = estimatedFare?.toInt() ?? 80;
-      final text = 'Fare $fare rupees. Pickup $pickupArea. Drop $dropArea.';
-      await speak(text);
+      final fare = estimatedFare != null ? estimatedFare.toInt() : null;
+      final text = _formatRideDetailsSpeech(
+        pickupArea: pickupArea,
+        dropArea: dropArea,
+        fare: fare,
+      );
+      await _speakRepeated(text, times: repeatCount);
     } catch (e) {
       if (kDebugMode) debugPrint('VoiceService: speakNewRideAddress failed: $e');
-      final fare = estimatedFare?.toInt() ?? 80;
-      final fallback = 'Fare $fare rupees. Pickup ${_shortAddress(pickupAddress)}. Drop ${_shortAddress(dropAddress)}.';
-      await speak(fallback);
+      final fare = estimatedFare != null ? estimatedFare.toInt() : null;
+      final fallback = _formatRideDetailsSpeech(
+        pickupArea: _shortAddress(pickupAddress),
+        dropArea: _shortAddress(dropAddress),
+        fare: fare,
+      );
+      await _speakRepeated(fallback, times: repeatCount);
+    }
+  }
+
+  String _formatRideDetailsSpeech({
+    required String pickupArea,
+    required String dropArea,
+    int? fare,
+  }) {
+    final hasFare = fare != null && fare > 0;
+    final hasPickup = pickupArea.isNotEmpty;
+    final hasDrop = dropArea.isNotEmpty;
+
+    switch (_language) {
+      case 'hi':
+        if (hasFare && hasPickup && hasDrop) {
+          return 'किराया $fare रुपये। पिकअप $pickupArea. ड्रॉप $dropArea.';
+        }
+        if (hasPickup && hasDrop) {
+          return 'पिकअप $pickupArea. ड्रॉप $dropArea.';
+        }
+        return 'नई राइड रिक्वेस्ट।';
+      case 'te':
+        if (hasFare && hasPickup && hasDrop) {
+          return 'చార్జీ $fare రూపాయలు. పికప్ $pickupArea. డ్రాప్ $dropArea.';
+        }
+        if (hasPickup && hasDrop) {
+          return 'పికప్ $pickupArea. డ్రాప్ $dropArea.';
+        }
+        return 'కొత్త రైడ్ అభ్యర్థన.';
+      default:
+        if (hasFare && hasPickup && hasDrop) {
+          return 'Fare $fare rupees. Pickup $pickupArea. Drop $dropArea.';
+        }
+        if (hasPickup && hasDrop) {
+          return 'Pickup $pickupArea. Drop $dropArea.';
+        }
+        return 'New ride request.';
     }
   }
 

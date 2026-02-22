@@ -126,6 +126,17 @@ class HomeController extends ChangeNotifier {
       }
     }
 
+    final preferredCityId = getJsonField(
+      (userDetails.jsonBody ?? ''),
+      r'''$.data.preferred_city_id''',
+    );
+    if (preferredCityId != null) {
+      final parsed = int.tryParse(preferredCityId.toString());
+      if (parsed != null && parsed > 0) {
+        FFAppState().preferredCityId = parsed;
+      }
+    }
+
     FFAppState().kycStatus = getJsonField(
       (userDetails.jsonBody ?? ''),
       r'''$.data.kyc_status''',
@@ -181,6 +192,13 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
+    if (FFAppState().preferredCityId <= 0) {
+      isOnline = false;
+      _notify();
+      onShowSnackBar('drv_select_preferred_city', isError: true);
+      return;
+    }
+
     Position? position;
     try {
       position = await Geolocator.getCurrentPosition(
@@ -190,13 +208,18 @@ class HomeController extends ChangeNotifier {
       if (kDebugMode) debugPrint('Geolocator error: $e');
     }
 
-    final res = await DriverRepository.instance.updateDriver(
+    await DriverRepository.instance.updateDriver(
       id: FFAppState().driverid,
       token: FFAppState().accessToken,
-      isonline: true,
+      isonline: null,
       latitude: position?.latitude,
       longitude: position?.longitude,
       fcmToken: FFAppState().fcmToken.isNotEmpty ? FFAppState().fcmToken : null,
+    );
+
+    final res = await DriverRepository.instance.setOnlineStatus(
+      token: FFAppState().accessToken,
+      isOnline: true,
     );
 
     if (_disposed) return;
@@ -212,23 +235,39 @@ class HomeController extends ChangeNotifier {
       onShowSnackBar('drv_you_online', isError: false);
     } else {
       isOnline = false;
+      final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString();
+      if (msg != null && msg.isNotEmpty) {
+        onShowSnackBar(msg, isError: true);
+      } else {
+        onShowSnackBar('drv_go_online_failed', isError: true);
+      }
     }
     _notify();
   }
 
   Future<void> goOffline() async {
     _stopLocationTracking();
-    final res = await DriverRepository.instance.updateDriver(
-      id: FFAppState().driverid,
+    final res = await DriverRepository.instance.setOnlineStatus(
       token: FFAppState().accessToken,
-      isonline: false,
-      latitude: null,
-      longitude: null,
+      isOnline: false,
     );
 
     if (!res.succeeded) {
       isOnline = true;
-      onShowSnackBar('drv_failed_offline', isError: true);
+      final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString();
+      if (msg != null && msg.isNotEmpty) {
+        onShowSnackBar(msg, isError: true);
+      } else {
+        onShowSnackBar('drv_failed_offline', isError: true);
+      }
+    } else {
+      await DriverRepository.instance.updateDriver(
+        id: FFAppState().driverid,
+        token: FFAppState().accessToken,
+        isonline: false,
+        latitude: null,
+        longitude: null,
+      );
     }
     _notify();
   }

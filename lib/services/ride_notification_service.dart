@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -7,7 +8,9 @@ import 'package:ugo_driver/flutter_flow/nav/nav.dart';
 import 'package:ugo_driver/home/home_widget.dart';
 
 const String _kChannelId = 'ride_requests';
-const String _kChannelName = 'UGO Ride Requests';
+const String _kChannelName = 'New Ride Requests';
+const String _kGeneralChannelId = 'general_notifications';
+const String _kGeneralChannelName = 'General Updates';
 const int _kRideRequestNotificationId = 9001;
 
 /// Must be top-level for background isolate.
@@ -39,13 +42,15 @@ Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
   const ios = DarwinInitializationSettings();
   await plugin.initialize(const InitializationSettings(android: android, iOS: ios));
 
-  if (Platform.isAndroid) {
-    const channel = AndroidNotificationChannel(
+    if (Platform.isAndroid) {
+    final channel = AndroidNotificationChannel(
       _kChannelId,
       _kChannelName,
-      importance: Importance.max,
+      description: 'Incoming ride requests - don\'t miss!',
+      importance: Importance.high,
       playSound: true,
-      enableVibration: false,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([0, 800, 400, 800, 400, 800]),
     );
     await plugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
@@ -59,6 +64,7 @@ Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
     priority: Priority.max,
     fullScreenIntent: true,
     category: AndroidNotificationCategory.call,
+    largeIcon: DrawableResourceAndroidBitmap('ic_launcher_round'),
   );
   const iosDetails = DarwinNotificationDetails(
     presentAlert: true,
@@ -139,21 +145,35 @@ class RideNotificationService {
     );
 
     if (Platform.isAndroid) {
-      const androidChannel = AndroidNotificationChannel(
+      final androidChannel = AndroidNotificationChannel(
         _kChannelId,
         _kChannelName,
-        description: 'New ride requests - Rapido Captain style',
-        importance: Importance.max,
+        description: 'Incoming ride requests - don\'t miss!',
+        importance: Importance.high,
         playSound: true,
-        enableVibration: false,
+        enableVibration: true,
+        vibrationPattern: Int64List.fromList([0, 800, 400, 800, 400, 800]),
         showBadge: true,
         enableLights: true,
         ledColor: AppColors.primary,
+      );
+      const generalChannel = AndroidNotificationChannel(
+        _kGeneralChannelId,
+        _kGeneralChannelName,
+        description: 'Earnings, promotions, app updates',
+        importance: Importance.low,
+        playSound: false,
+        enableVibration: false,
+        showBadge: true,
       );
       await _local
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(androidChannel);
+      await _local
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(generalChannel);
     }
 
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
@@ -253,16 +273,18 @@ class RideNotificationService {
       androidDetails = AndroidNotificationDetails(
         _kChannelId,
         _kChannelName,
-        channelDescription: 'New ride requests',
-        importance: Importance.max,
-        priority: Priority.max,
+        channelDescription: 'Incoming ride requests - don\'t miss!',
+        importance: Importance.high,
+        priority: Priority.high,
         playSound: true,
-        enableVibration: false,
+        enableVibration: true,
+        vibrationPattern: Int64List.fromList([0, 800, 400, 800, 400, 800]),
         styleInformation: BigTextStyleInformation(body),
         category: AndroidNotificationCategory.call,
         fullScreenIntent: true,
         visibility: NotificationVisibility.public,
         color: AppColors.primary,
+        largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_round'),
       );
     } else {
       androidDetails = const AndroidNotificationDetails(_kChannelId, _kChannelName);

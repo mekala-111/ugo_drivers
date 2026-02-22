@@ -10,6 +10,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/providers/ride_provider.dart';
 import '/services/ride_notification_service.dart';
+import '/services/route_polyline_service.dart';
 import 'home_model.dart';
 import 'ride_request_model.dart';
 import 'ride_request_overlay.dart';
@@ -46,6 +47,7 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
 
   bool _isIncentivePanelExpanded = false;
   DateTime? _lastBackPressed;
+  String? _activeRouteKey;
 
   @override
   bool get wantKeepAlive => true;
@@ -104,9 +106,11 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
       },
       onShowSnackBar: (key, {isError = false}) {
         if (!mounted) return;
+        final localized = FFLocalizations.of(context).getText(key);
+        final message = localized.isNotEmpty ? localized : key;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(FFLocalizations.of(context).getText(key)),
+            content: Text(message),
             backgroundColor: isError ? Colors.red : Colors.green,
             duration: const Duration(seconds: 2),
           ),
@@ -154,32 +158,49 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
       // ✅ Driver gets rides only when online
       if (status == 'SEARCHING' && !_controller.isOnline) return;
 
-      if (status == 'CANCELLED' || status == 'REJECTED') {
+      void clearMap() {
+        _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
+        _mapKey.currentState?.updateCircles(<Circle>{});
+        _mapKey.currentState?.updatePolylines(<Polyline>{});
+        _activeRouteKey = null;
+      }
+
+      if (status == 'CANCELLED' || status == 'REJECTED' || status == 'DECLINED') {
         _controller.setRideStatus('IDLE');
         final rideId = rideData['id'] != null
             ? (rideData['id'] is int ? rideData['id'] as int : int.tryParse(rideData['id'].toString()))
             : null;
         if (rideId != null) _overlayKey.currentState?.removeRideById(rideId);
-        _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
-        _mapKey.currentState?.updateCircles(<Circle>{});
-        _mapKey.currentState?.updatePolylines(<Polyline>{});
+        clearMap();
         return;
       }
 
       _controller.setRideStatus(status);
       Provider.of<RideState>(context, listen: false).updateRide(RideRequest.fromJson(rideData));
       _overlayKey.currentState!.handleNewRide(rideData);
+
+      if (status == 'SEARCHING') {
+        clearMap();
+        return;
+      }
+
       try {
         final rr = RideRequest.fromJson(rideData);
-        final markers = <FlutterFlowMarker>[
-          FlutterFlowMarker(
+        final hasPickup = rr.pickupLat != 0 && rr.pickupLng != 0;
+        final hasDrop = rr.dropLat != 0 && rr.dropLng != 0;
+        final isAccepted = status == 'ACCEPTED' || status == 'ARRIVED';
+        final isStarted = status == 'STARTED' || status == 'ONTRIP';
+
+        final markers = <FlutterFlowMarker>[];
+        if (hasPickup && (isAccepted || isStarted)) {
+          markers.add(FlutterFlowMarker(
             'pickup_${rr.id}',
             latlng.LatLng(rr.pickupLat, rr.pickupLng),
             null,
             GoogleMarkerColor.green,
-          ),
-        ];
-        if (rr.dropLat != 0 && rr.dropLng != 0) {
+          ));
+        }
+        if (hasDrop && isStarted) {
           markers.add(FlutterFlowMarker(
             'drop_${rr.id}',
             latlng.LatLng(rr.dropLat, rr.dropLng),
@@ -191,17 +212,18 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
 
         // ✅ Highlight pickup/drop area like Rapido Captain (~350m radius circles)
         const radiusMeters = 350.0;
-        final circles = <Circle>{
-          Circle(
+        final circles = <Circle>{};
+        if (hasPickup && (isAccepted || isStarted)) {
+          circles.add(Circle(
             circleId: CircleId('pickup_circle_${rr.id}'),
             center: latlng.LatLng(rr.pickupLat, rr.pickupLng).toGoogleMaps(),
             radius: radiusMeters,
             fillColor: AppColors.success.withValues(alpha: 0.2),
             strokeColor: AppColors.success,
             strokeWidth: 2,
-          ),
-        };
-        if (rr.dropLat != 0 && rr.dropLng != 0) {
+          ));
+        }
+        if (hasDrop && isStarted) {
           circles.add(Circle(
             circleId: CircleId('drop_circle_${rr.id}'),
             center: latlng.LatLng(rr.dropLat, rr.dropLng).toGoogleMaps(),
@@ -213,8 +235,12 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
         }
         _mapKey.currentState?.updateCircles(circles);
 
-        // ✅ No route line; pins only (green pickup, red drop)
-        _mapKey.currentState?.updatePolylines(<Polyline>{});
+        if (isAccepted || isStarted) {
+          _updateRoutePolyline(rr: rr, status: status);
+        } else {
+          _mapKey.currentState?.updatePolylines(<Polyline>{});
+          _activeRouteKey = null;
+        }
       } catch (_) {}
     }
 
@@ -235,6 +261,66 @@ class _HomeWidgetState extends State<HomeWidget> with AutomaticKeepAliveClientMi
     _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
     _mapKey.currentState?.updateCircles(<Circle>{});
     _mapKey.currentState?.updatePolylines(<Polyline>{});
+    _activeRouteKey = null;
+  }
+
+  Future<void> _updateRoutePolyline({
+    required RideRequest rr,
+    required String status,
+  }) async {
+    final hasPickup = rr.pickupLat != 0 && rr.pickupLng != 0;
+    final hasDrop = rr.dropLat != 0 && rr.dropLng != 0;
+    final isAccepted = status == 'ACCEPTED' || status == 'ARRIVED';
+    final isStarted = status == 'STARTED' || status == 'ONTRIP';
+
+    if ((!isAccepted && !isStarted) || !hasPickup || (isStarted && !hasDrop)) {
+      _mapKey.currentState?.updatePolylines(<Polyline>{});
+      _activeRouteKey = null;
+      return;
+    }
+
+    final origin = isAccepted
+        ? _controller.currentUserLocation
+        : latlng.LatLng(rr.pickupLat, rr.pickupLng);
+    final destination = isAccepted
+        ? latlng.LatLng(rr.pickupLat, rr.pickupLng)
+        : latlng.LatLng(rr.dropLat, rr.dropLng);
+
+    if (origin == null) {
+      _mapKey.currentState?.updatePolylines(<Polyline>{});
+      _activeRouteKey = null;
+      return;
+    }
+
+    final routeKey = '${rr.id}_${status}_'
+        '${origin.latitude.toStringAsFixed(4)}_${origin.longitude.toStringAsFixed(4)}_'
+        '${destination.latitude.toStringAsFixed(4)}_${destination.longitude.toStringAsFixed(4)}';
+    _activeRouteKey = routeKey;
+
+    final points = await RoutePolylineService().getRoutePoints(
+      originLat: origin.latitude,
+      originLng: origin.longitude,
+      destLat: destination.latitude,
+      destLng: destination.longitude,
+    );
+
+    if (!mounted || _activeRouteKey != routeKey) return;
+
+    if (points == null || points.isEmpty) {
+      _mapKey.currentState?.updatePolylines(<Polyline>{});
+      return;
+    }
+
+    final polylineId = isAccepted
+        ? 'route_driver_pickup_${rr.id}'
+        : 'route_pickup_drop_${rr.id}';
+    final polyline = Polyline(
+      polylineId: PolylineId(polylineId),
+      color: AppColors.primary,
+      width: 5,
+      points: points.map((p) => p.toGoogleMaps()).toList(),
+    );
+    _mapKey.currentState?.updatePolylines({polyline});
   }
 
   String _getGreeting() {

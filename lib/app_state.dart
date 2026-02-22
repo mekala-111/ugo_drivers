@@ -32,6 +32,8 @@ class FFAppState extends ChangeNotifier {
   String _lastName = '';
   String _email = '';
   String _referralCode = '';
+  int _preferredCityId = 0;
+  String _preferredCityName = '';
 
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
@@ -77,6 +79,12 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _referralCode = prefs.getString('ff_referralCode') ?? '';
+    });
+    _safeInit(() {
+      _preferredCityId = prefs.getInt('ff_preferredCityId') ?? 0;
+    });
+    _safeInit(() {
+      _preferredCityName = prefs.getString('ff_preferredCityName') ?? '';
     });
     _safeInit(() {
       _dateOfBirth = prefs.getString('ff_dateOfBirth') ?? '';
@@ -369,6 +377,28 @@ class FFAppState extends ChangeNotifier {
   set referralCode(String value) {
     _referralCode = value;
     prefs.setString('ff_referralCode', value);
+    notifyListeners();
+  }
+
+  int get preferredCityId => _preferredCityId;
+  set preferredCityId(int value) {
+    _preferredCityId = value;
+    if (value <= 0) {
+      prefs.remove('ff_preferredCityId');
+    } else {
+      prefs.setInt('ff_preferredCityId', value);
+    }
+    notifyListeners();
+  }
+
+  String get preferredCityName => _preferredCityName;
+  set preferredCityName(String value) {
+    _preferredCityName = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_preferredCityName');
+    } else {
+      prefs.setString('ff_preferredCityName', value);
+    }
     notifyListeners();
   }
 
@@ -1086,6 +1116,8 @@ class FFAppState extends ChangeNotifier {
   _lastName = '';
   _email = '';
   _referralCode = '';
+  _preferredCityId = 0;
+  _preferredCityName = '';
 
   // Ride
   _activeRideId = 0;
