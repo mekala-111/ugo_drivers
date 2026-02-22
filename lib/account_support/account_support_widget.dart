@@ -328,12 +328,16 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                         ),
                       ),
                       SizedBox(width: isSmall ? 10 : 16),
-                      Text(
-                        FFLocalizations.of(context).getText('accsup0002'),
-                        style: TextStyle(
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Flexible(
+                        child: Text(
+                          FFLocalizations.of(context).getText('accsup0002'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: titleSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -424,6 +428,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             // Name
             Text(
               getDriverName(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.interTight(
                   fontSize: nameSize,
                   fontWeight: FontWeight.bold,
@@ -747,6 +753,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           color: Colors.grey[600],

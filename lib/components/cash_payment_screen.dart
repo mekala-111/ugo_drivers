@@ -33,64 +33,71 @@ class CashPaymentScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            Icon(Icons.payments_outlined, size: 64, color: ugoOrange.withValues(alpha: 0.8)),
-            const SizedBox(height: 24),
-            Text(
-              FFLocalizations.of(context).getText('drv_collect_cash'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '₹${_amount.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: ugoGreen,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              FFLocalizations.of(context).getText('drv_from_passenger'),
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: onCollectConfirmed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ugoGreen,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                children: [
+                  const SizedBox(height: 32),
+                  Icon(Icons.payments_outlined, size: 64, color: ugoOrange.withValues(alpha: 0.8)),
+                  const SizedBox(height: 24),
+                  Text(
+                    FFLocalizations.of(context).getText('drv_collect_cash'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-                child: Text(
-                  FFLocalizations.of(context).getText('drv_received_cash'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  const SizedBox(height: 16),
+                  Text(
+                    '₹${_amount.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: ugoGreen,
+                      letterSpacing: 1,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    FFLocalizations.of(context).getText('drv_from_passenger'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: onCollectConfirmed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ugoGreen,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        FFLocalizations.of(context).getText('drv_received_cash'),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -92,6 +92,8 @@ class RidePickupOverlay extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               FFLocalizations.of(context).getText('drv_navigate'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -188,6 +190,8 @@ class ActiveRideCard extends StatelessWidget {
             child: Text(
               headerText,
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -214,6 +218,8 @@ class ActiveRideCard extends StatelessWidget {
                         children: [
                           Text(
                             ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,

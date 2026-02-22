@@ -82,11 +82,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
 
             // PROFILE IMAGE
             GestureDetector(
@@ -178,7 +182,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 ),
 
 
-            const Spacer(),
+            const SizedBox(height: 24),
 
             // SAVE BUTTON
             SizedBox(
@@ -202,8 +206,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
               ),
             ),
-          ],
-        ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

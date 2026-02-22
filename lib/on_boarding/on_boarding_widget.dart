@@ -113,6 +113,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
     final completionPercentage = _calculateCompletionPercentage();
     final allDocsUploaded = completionPercentage == 100;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final headerHeight = (screenHeight * 0.3).clamp(200.0, 260.0);
 
     // 🎨 APP COLORS
     const Color brandPrimary = AppColors.primary;
@@ -133,7 +135,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             // 1️⃣ VIBRANT HEADER
             // ==========================================
             Container(
-              height: 240,
+              height: headerHeight,
               width: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(

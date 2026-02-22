@@ -81,6 +81,8 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                 FFLocalizations.of(context).getText(
                                   'nqlh5yse' /* 1/18/25, 11:12 AM */,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: FlutterFlowTheme.of(context)
                                     .bodySmall
                                     .override(
@@ -106,6 +108,8 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                                   FFLocalizations.of(context).getText(
                                     'hpgy10eh' /* Hero Glamour */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -129,68 +133,71 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                             ],
                           ),
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              FFLocalizations.of(context).getText(
-                                'dm3vkyld' /* ₹103.00 */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
+                        Flexible(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                FFLocalizations.of(context).getText(
+                                  'dm3vkyld' /* ₹103.00 */,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      font: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w500,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                      color: AppColors.textDark,
+                                      fontSize: 14.0,
+                                      letterSpacing: 0.0,
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontStyle,
                                     ),
-                                    color: AppColors.textDark,
-                                    fontSize: 14.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
+                              ),
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 2.0, 0.0, 0.0),
+                                child: Text(
+                                  FFLocalizations.of(context).getText(
+                                    'e7sn691y' /* CASH */,
                                   ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 2.0, 0.0, 0.0),
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  'e7sn691y' /* CASH */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodySmall
-                                    .override(
-                                      font: GoogleFonts.inter(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodySmall
+                                      .override(
+                                        font: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FlutterFlowTheme.of(context)
+                                              .bodySmall
+                                              .fontStyle,
+                                        ),
+                                        color: AppColors.greyVehicle,
+                                        fontSize: 12.0,
+                                        letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodySmall
                                             .fontStyle,
                                       ),
-                                      color: AppColors.greyVehicle,
-                                      fontSize: 12.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontStyle,
-                                    ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              8.0, 0.0, 8.0, 0.0),
-                          child: Icon(
-                            Icons.chevron_right,
-                            color: AppColors.greyLight,
-                            size: 22.0,
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: AppColors.greyLight,
+                          size: 22.0,
                         ),
                       ],
                     ),

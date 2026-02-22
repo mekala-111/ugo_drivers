@@ -200,31 +200,62 @@ class StartRideCard extends StatelessWidget {
             child: Column(
               children: [
                 // Top Row: User Name & Action Buttons
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
-                        style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Row(
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final stackActions = constraints.maxWidth < 360;
+                    if (stackActions) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              _buildSquareIconBtn(context, Icons.call, Colors.black,
+                                  Colors.grey[200]!, onCall),
+                              SizedBox(width: Responsive.verticalSpacing(context)),
+                              _buildSquareIconBtn(context,
+                                  Icons.close, Colors.white, ugoRed, onCancel),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _buildSquareIconBtn(context, Icons.call, Colors.black,
-                            Colors.grey[200]!, onCall),
-                        SizedBox(width: Responsive.verticalSpacing(context)),
-                        _buildSquareIconBtn(context,
-                            Icons.close, Colors.white, ugoRed, onCancel),
+                        Expanded(
+                          child: Text(
+                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Row(
+                          children: [
+                            _buildSquareIconBtn(context, Icons.call, Colors.black,
+                                Colors.grey[200]!, onCall),
+                            SizedBox(width: Responsive.verticalSpacing(context)),
+                            _buildSquareIconBtn(context,
+                                Icons.close, Colors.white, ugoRed, onCancel),
+                          ],
+                        )
                       ],
-                    )
-                  ],
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 20),

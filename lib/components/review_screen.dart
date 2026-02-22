@@ -41,88 +41,97 @@ class _ReviewScreenState extends State<ReviewScreen> {
           onPressed: widget.onClose,
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 30),
-          Text(FFLocalizations.of(context).getText('drv_received_online'),
-              style: const TextStyle(
-                  color: ugoGreen, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text('₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toInt() ?? 0}',
-              style: const TextStyle(
-                  color: ugoGreen, fontSize: 40, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 30),
-          Text(FFLocalizations.of(context).getText('drv_review'),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-                5,
-                (index) => IconButton(
-                      icon: Icon(
-                          index < _starRating ? Icons.star : Icons.star_border,
-                          color: Colors.grey[400],
-                          size: 40),
-                      onPressed: () => setState(() => _starRating = index + 1),
-                    )),
-          ),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 8,
-            children: _reviewTagKeys
-                .map((key) {
-                  final tag = FFLocalizations.of(context).getText(key);
-                  return ChoiceChip(
-                    label: Text(tag),
-                    selected: _selectedTagKeys.contains(key),
-                    selectedColor: ugoOrange.withValues(alpha:0.2),
-                    backgroundColor: Colors.grey[200],
-                    onSelected: (sel) {
-                      setState(() {
-                        if (sel) {
-                          _selectedTagKeys = [..._selectedTagKeys, key];
-                        } else {
-                          _selectedTagKeys = _selectedTagKeys.where((k) => k != key).toList();
-                        }
-                      });
-                    },
-                  );
-                })
-                .toList(),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey[200]!))),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(FFLocalizations.of(context).getText('drv_total_fare'),
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text("₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toStringAsFixed(2) ?? '0.00'}",
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: widget.onSubmit,
-                    style: ElevatedButton.styleFrom(backgroundColor: ugoOrange),
-                    child: Text(FFLocalizations.of(context).getText('drv_submit'),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold)),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  Text(FFLocalizations.of(context).getText('drv_received_online'),
+                      style: const TextStyle(
+                          color: ugoGreen, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toInt() ?? 0}',
+                      style: const TextStyle(
+                          color: ugoGreen, fontSize: 40, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 30),
+                  Text(FFLocalizations.of(context).getText('drv_review'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                        5,
+                        (index) => IconButton(
+                              icon: Icon(
+                                  index < _starRating ? Icons.star : Icons.star_border,
+                                  color: Colors.grey[400],
+                                  size: 40),
+                              onPressed: () => setState(() => _starRating = index + 1),
+                            )),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 8,
+                    children: _reviewTagKeys
+                        .map((key) {
+                          final tag = FFLocalizations.of(context).getText(key);
+                          return ChoiceChip(
+                            label: Text(tag),
+                            selected: _selectedTagKeys.contains(key),
+                            selectedColor: ugoOrange.withValues(alpha:0.2),
+                            backgroundColor: Colors.grey[200],
+                            onSelected: (sel) {
+                              setState(() {
+                                if (sel) {
+                                  _selectedTagKeys = [..._selectedTagKeys, key];
+                                } else {
+                                  _selectedTagKeys = _selectedTagKeys.where((k) => k != key).toList();
+                                }
+                              });
+                            },
+                          );
+                        })
+                        .toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.grey[200]!))),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(FFLocalizations.of(context).getText('drv_total_fare'),
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text("₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toStringAsFixed(2) ?? '0.00'}",
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: widget.onSubmit,
+                            style: ElevatedButton.styleFrom(backgroundColor: ugoOrange),
+                            child: Text(FFLocalizations.of(context).getText('drv_submit'),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

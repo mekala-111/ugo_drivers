@@ -109,6 +109,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                   FFLocalizations.of(context).getText(
                     'strai6nr' /* GO CODE DESIGNERS */,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: FlutterFlowTheme.of(context).bodyMedium.override(
                         font: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
@@ -173,6 +175,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   FFLocalizations.of(context).getText(
                                     'nzougsbz' /* Go CODE DESIGNERS */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -245,6 +249,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   FFLocalizations.of(context).getText(
                                     '99l2lyka' /* 9885881832 */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -317,6 +323,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   FFLocalizations.of(context).getText(
                                     '3yx1101c' /* Man */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
@@ -390,6 +398,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   FFLocalizations.of(context).getText(
                                     'cqz2gscf' /* Duggiralanaresh1@gmail.com */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -462,6 +472,8 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                                   FFLocalizations.of(context).getText(
                                     'h5ox1a3d' /* English */,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(

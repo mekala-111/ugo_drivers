@@ -106,23 +106,27 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                   context.safePop();
                 },
               ),
-              Text(
-                FFLocalizations.of(context).getText(
-                  'b5u7cma8' /* History */,
-                ),
-                style: FlutterFlowTheme.of(context).titleLarge.override(
-                      font: GoogleFonts.interTight(
+              Expanded(
+                child: Text(
+                  FFLocalizations.of(context).getText(
+                    'b5u7cma8' /* History */,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: FlutterFlowTheme.of(context).titleLarge.override(
+                        font: GoogleFonts.interTight(
+                          fontWeight: FontWeight.w500,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).titleLarge.fontStyle,
+                        ),
+                        color: FlutterFlowTheme.of(context).secondaryBackground,
+                        fontSize: 16.0,
+                        letterSpacing: 0.0,
                         fontWeight: FontWeight.w500,
                         fontStyle:
                             FlutterFlowTheme.of(context).titleLarge.fontStyle,
                       ),
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                      fontSize: 16.0,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w500,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                    ),
+                ),
               ),
             ].divide(const SizedBox(width: 12.0)),
           ),
@@ -143,17 +147,21 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              FFLocalizations.of(context).getText('c0vu40lh'),
-                              style: FlutterFlowTheme.of(context)
-                                  .headlineMedium
-                                  .override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FontWeight.normal,
+                            Expanded(
+                              child: Text(
+                                FFLocalizations.of(context).getText('c0vu40lh'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: FlutterFlowTheme.of(context)
+                                    .headlineMedium
+                                    .override(
+                                      font: GoogleFonts.interTight(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      color: FlutterFlowTheme.of(context).accent1,
+                                      fontSize: 20.0,
                                     ),
-                                    color: FlutterFlowTheme.of(context).accent1,
-                                    fontSize: 20.0,
-                                  ),
+                              ),
                             ),
                             FlutterFlowIconButton(
                               borderRadius: 20.0,
@@ -218,66 +226,76 @@ class _HistoryRideCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Container(
-                    width: 60.0,
-                    height: 60.0,
-                    decoration: BoxDecoration(
-                      color: AppColors.containerGrey,
-                      borderRadius: BorderRadius.circular(8.0),
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Container(
+                      width: 60.0,
+                      height: 60.0,
+                      decoration: BoxDecoration(
+                        color: AppColors.containerGrey,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.asset(
+                          'assets/images/Screenshot_2025-07-01_144141.png',
+                          width: 200.0,
+                          height: 200.0,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.asset(
-                        'assets/images/Screenshot_2025-07-01_144141.png',
-                        width: 200.0,
-                        height: 200.0,
-                        fit: BoxFit.cover,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pickup,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: FlutterFlowTheme.of(context).titleMedium.override(
+                              font: GoogleFonts.interTight(
+                                fontWeight: FontWeight.normal,
+                              ),
+                              color: FlutterFlowTheme.of(context).accent1,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            dateStr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: FlutterFlowTheme.of(context).bodySmall.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.normal,
+                              ),
+                              color: AppColors.textMuted,
+                              fontSize: 10.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '₹ ${ride.fare.toStringAsFixed(2)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: FlutterFlowTheme.of(context).bodySmall.override(
+                              font: GoogleFonts.inter(
+                                fontWeight: FontWeight.normal,
+                              ),
+                              color: AppColors.textMuted,
+                              fontSize: 10.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pickup,
-                        style: FlutterFlowTheme.of(context).titleMedium.override(
-                          font: GoogleFonts.interTight(
-                            fontWeight: FontWeight.normal,
-                          ),
-                          color: FlutterFlowTheme.of(context).accent1,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        dateStr,
-                        style: FlutterFlowTheme.of(context).bodySmall.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FontWeight.normal,
-                          ),
-                          color: AppColors.textMuted,
-                          fontSize: 10.0,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '₹ ${ride.fare.toStringAsFixed(2)}',
-                        style: FlutterFlowTheme.of(context).bodySmall.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FontWeight.normal,
-                          ),
-                          color: AppColors.textMuted,
-                          fontSize: 10.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
               FFButtonWidget(
                 onPressed: () {},

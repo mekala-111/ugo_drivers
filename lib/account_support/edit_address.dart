@@ -288,6 +288,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                           const SizedBox(height: 12),
                           Text(
                             getFullAddress(),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.grey[700],

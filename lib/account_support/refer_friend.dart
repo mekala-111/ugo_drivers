@@ -152,6 +152,11 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final isSmall = media.size.width < 360;
+    final headerHeight = (media.size.height * 0.35).clamp(240.0, 320.0);
+    final heroTitleSize = isSmall ? 26.0 : 32.0;
+    final heroSubtitleSize = isSmall ? 12.0 : 14.0;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -164,7 +169,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
           children: [
             // 1️⃣ VIBRANT HEADER BACKGROUND
             Container(
-              height: 320,
+              height: headerHeight,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -210,11 +215,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
                           onPressed: () => context.pop(),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Refer & Earn',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -233,7 +240,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.interTight(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: heroTitleSize,
                       fontWeight: FontWeight.w800,
                       height: 1.1,
                     ),
@@ -244,7 +251,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 14,
+                      fontSize: heroSubtitleSize,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

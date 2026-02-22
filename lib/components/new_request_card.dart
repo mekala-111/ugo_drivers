@@ -67,6 +67,7 @@ class NewRequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final margin = Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
+    final isNarrow = MediaQuery.sizeOf(context).width < 360;
     final pickupKm = _pickupDistanceKm(driverLocation, ride);
     final pickupDistStr = _formatDistance(pickupKm);
     return Container(
@@ -107,47 +108,45 @@ class NewRequestCard extends StatelessWidget {
             padding: EdgeInsets.all(pad),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDistanceInfo(context, FFLocalizations.of(context).getText('drv_pickup_distance'), pickupDistStr),
-                    Expanded(
-                      child: Stack(
-                        alignment: Alignment.center,
+                if (isNarrow)
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(height: 1, color: Colors.grey[300]),
-                          const Icon(Icons.arrow_forward, size: 16),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 25.0),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey[400]!)),
-                              child: Column(children: [
-                                Text(FFLocalizations.of(context).getText('ride0006'),
-                                    style: TextStyle(
-                                        color: Colors.grey[400], fontSize: 10)),
-                                Text('₹${ride.estimatedFare?.toInt() ?? 80}',
-                                    style: const TextStyle(
-                                        color: ugoBlue,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold)),
-                              ]),
-                            ),
+                          _buildDistanceInfo(
+                            context,
+                            FFLocalizations.of(context).getText('drv_pickup_distance'),
+                            pickupDistStr,
+                          ),
+                          _buildDropDistanceInfo(
+                            context,
+                            FFLocalizations.of(context).getText('drv_drop_distance'),
+                            ride,
                           ),
                         ],
                       ),
-                    ),
-                    _buildDropDistanceInfo(
-                      context,
-                      FFLocalizations.of(context).getText('drv_drop_distance'),
-                      ride,
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 12),
+                      _buildFareBox(context),
+                    ],
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildDistanceInfo(
+                        context,
+                        FFLocalizations.of(context).getText('drv_pickup_distance'),
+                        pickupDistStr,
+                      ),
+                      Expanded(child: _buildFareBox(context)),
+                      _buildDropDistanceInfo(
+                        context,
+                        FFLocalizations.of(context).getText('drv_drop_distance'),
+                        ride,
+                      ),
+                    ],
+                  ),
                 const SizedBox(height: 20),
                 _AddressRowFromLatLng(
                   lat: ride.dropLat,
@@ -213,6 +212,36 @@ class NewRequestCard extends StatelessWidget {
                   fontSize: Responsive.fontSize(context, 20),
                   fontWeight: FontWeight.bold))
         ]);
+  }
+
+  Widget _buildFareBox(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(height: 1, color: Colors.grey[300]),
+        const Icon(Icons.arrow_forward, size: 16),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 25.0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[400]!)),
+            child: Column(children: [
+              Text(FFLocalizations.of(context).getText('ride0006'),
+                  style: TextStyle(
+                      color: Colors.grey[400], fontSize: 10)),
+              Text('₹${ride.estimatedFare?.toInt() ?? 80}',
+                  style: const TextStyle(
+                      color: ugoBlue,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold)),
+            ]),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildDropDistanceInfo(
