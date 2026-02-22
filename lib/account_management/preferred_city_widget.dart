@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/constants/app_colors.dart';
 import '/repositories/driver_repository.dart';
+import '/index.dart';
 
 class PreferredCityWidget extends StatefulWidget {
-  const PreferredCityWidget({super.key});
+  const PreferredCityWidget({super.key, this.isRegistrationFlow = false});
+
+  final bool isRegistrationFlow;
+
+  static String routeName = 'preferredCity';
+  static String routePath = '/preferredCity';
 
   @override
   State<PreferredCityWidget> createState() => _PreferredCityWidgetState();
@@ -28,7 +34,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
     _fetchCities();
   }
 
-  bool get _isLocked => FFAppState().preferredCityId > 0;
+  bool get _isLocked =>
+      !widget.isRegistrationFlow && FFAppState().preferredCityId > 0;
 
   Future<void> _fetchCities() async {
     setState(() => _loading = true);
@@ -138,6 +145,21 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
   Future<void> _saveCity() async {
     if (_selectedCityId == null || _selectedCityId! <= 0) {
       _showSnack('drv_select_preferred_city', isError: true);
+      return;
+    }
+    if (widget.isRegistrationFlow || FFAppState().accessToken.isEmpty) {
+      FFAppState().preferredCityId = _selectedCityId!;
+      FFAppState().preferredCityName = _selectedCityName;
+      if (mounted) {
+        context.pushNamed(
+          PreferredEarningModeWidget.routeName,
+          extra: const TransitionInfo(
+            hasTransition: true,
+            transitionType: PageTransitionType.rightToLeft,
+            duration: Duration(milliseconds: 300),
+          ),
+        );
+      }
       return;
     }
     setState(() => _saving = true);

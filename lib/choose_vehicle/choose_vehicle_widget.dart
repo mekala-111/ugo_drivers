@@ -1,6 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
 import '/config.dart' as app_config;
-import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -254,8 +253,13 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                       ? null
                       : () {
                     context.pushNamed(
-                      OnBoardingWidget.routeName,
-                      queryParameters: {
+                      PreferredCityWidget.routeName,
+                      extra: const TransitionInfo(
+                        hasTransition: true,
+                        transitionType: PageTransitionType.rightToLeft,
+                        duration: Duration(milliseconds: 300),
+                      ),
+                      queryParameters: <String, String?>{
                         'mobile': serializeParam(
                             widget.mobile, ParamType.int),
                         'firstname': serializeParam(
@@ -268,6 +272,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                             widget.referalcode, ParamType.String),
                         'vehicletype': serializeParam(
                             FFAppState().selectvehicle, ParamType.String),
+                        'isRegistrationFlow': serializeParam(true, ParamType.bool),
                       }.withoutNulls,
                     );
                   },

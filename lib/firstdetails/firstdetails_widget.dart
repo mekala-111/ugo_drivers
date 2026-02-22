@@ -209,10 +209,10 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                             ),
                             const SizedBox(height: 20),
 
-                            // REFERRAL CODE
+                            // REFERRAL CODE (OPTIONAL)
                             _buildTextField(
                               context,
-                              label: 'Referral Code',
+                              label: 'Got referral code?',
                               controller: _model.textController4,
                               focusNode: _model.textFieldFocusNode4,
                               icon: Icons.confirmation_number_outlined,
@@ -234,17 +234,18 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                   FFAppState().firstName = _model.textController1.text;
                                   FFAppState().lastName = _model.textController2.text;
                                   FFAppState().email = _model.textController3.text;
-                                  FFAppState().referralCode = _model.textController4.text;
+                                  FFAppState().usedReferralCode = _model.textController4.text.trim();
+                                  FFAppState().referralCode = _model.textController4.text.trim();
 
-                                  // 3. Navigate to Address & Emergency step (Uber-style)
+                                  // 3. Navigate to Choose Vehicle
                                   context.pushNamed(
-                                    AddressDetailsWidget.routeName,
+                                    ChooseVehicleWidget.routeName,
                                     queryParameters: {
                                       'mobile': serializeParam(widget.mobile, ParamType.int),
                                       'firstname': serializeParam(_model.textController1.text, ParamType.String),
                                       'lastname': serializeParam(_model.textController2.text, ParamType.String),
                                       'email': serializeParam(_model.textController3.text, ParamType.String),
-                                      'referalcode': serializeParam(_model.textController4.text, ParamType.String),
+                                      'referalcode': serializeParam(_model.textController4.text.trim(), ParamType.String),
                                     }.withoutNulls,
                                   );
                                 },

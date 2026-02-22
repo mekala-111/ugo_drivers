@@ -10,6 +10,7 @@ import 'package:ugo_driver/account_support/edit_address.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'account_support_model.dart';
 export 'account_support_model.dart';
 
@@ -33,6 +34,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
   bool isLoading = true;
   bool _isLoggingOut = false;
   bool _isDeletingAccount = false;
+  static const String _deleteAccountUrl = 'https://ugotaxi.com/driver-delete-account.html';
 
   // Stats Variables
   String driverRating = '5.0'; // Default to 5.0 to avoid "null"
@@ -104,6 +106,13 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
   String getFullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
     return app_config.Config.fullImageUrl(imagePath) ?? imagePath;
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   /// Logout - clear state and navigate to login (Rapido-style)
@@ -467,6 +476,13 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                     title: 'Privacy Policy',
                     subtitle: 'How we handle your data',
                     onTap: () => context.pushNamed(PrivacyPolicyPageWidget.routeName),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Delete Account Info',
+                    subtitle: 'Steps and data retention',
+                    onTap: () => _launchUrl(_deleteAccountUrl),
                   ),
                 ],
               ),

@@ -1,24 +1,14 @@
 import '/constants/app_colors.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/upload_data.dart';
+import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
+
 import 'insurance_image_model.dart';
 export 'insurance_image_model.dart';
 
-/// Create a page "Registration Certificate Search/Upload":
-/// - Custom AppBar: orange, back arrow, centered "UGQ TAXI".
-///
-/// - Large left-aligned title at top.
-/// - Description text below the title in smaller font.
-/// - Outlined input for "Vehicle registration number" (rounded corners).
-/// - Gray full-width button: "Upload documents instead" (sits right below
-/// input box).
-/// - Orange full-width "Continue" button at bottom with rounded corners.
-/// - Proper padding and spacing as per the PNG for clean layout.
 class UploadRcWidget extends StatefulWidget {
   const UploadRcWidget({super.key});
 
@@ -31,23 +21,78 @@ class UploadRcWidget extends StatefulWidget {
 
 class _UploadRcWidgetState extends State<UploadRcWidget> {
   late UploadRcModel _model;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  FFUploadedFile? _insurancePdf;
+  bool _isValid = false;
+  String _fileName = '';
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => UploadRcModel());
+    _loadSavedFile();
+  }
 
-    _model.textController ??= TextEditingController();
-    _model.textFieldFocusNode ??= FocusNode();
+  void _loadSavedFile() {
+    if (FFAppState().insurancePdf != null &&
+        FFAppState().insurancePdf!.bytes != null) {
+      setState(() {
+        _insurancePdf = FFAppState().insurancePdf;
+        _fileName = _insurancePdf?.name ?? 'insurance.pdf';
+        _isValid = true;
+      });
+    }
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+      ),
+    );
+  }
+
+  Future<void> _pickPdf() async {
+    final selected = await selectFile(allowedExtensions: ['pdf']);
+    if (selected == null) return;
+
+    final file = FFUploadedFile(
+      name: selected.storagePath.split('/').last,
+      bytes: selected.bytes,
+    );
+
+    setState(() {
+      _insurancePdf = file;
+      _fileName = file.name ?? 'insurance.pdf';
+      _isValid = true;
+    });
+
+    FFAppState().insurancePdf = file;
+    FFAppState().insuranceImage = file;
+    FFAppState().insuranceBase64 =
+        file.bytes != null ? base64Encode(file.bytes!) : '';
+    FFAppState().update(() {});
+    _showSnackBar('Insurance PDF uploaded');
+  }
+
+  void _removeFile() {
+    setState(() {
+      _insurancePdf = null;
+      _fileName = '';
+      _isValid = false;
+    });
+    FFAppState().insurancePdf = null;
+    FFAppState().insuranceImage = null;
+    FFAppState().insuranceBase64 = '';
+    FFAppState().update(() {});
   }
 
   @override
@@ -59,276 +104,137 @@ class _UploadRcWidgetState extends State<UploadRcWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: AppColors.backgroundAlt,
         appBar: AppBar(
-          backgroundColor: AppColors.registrationOrange,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderRadius: 20.0,
-            buttonSize: 40.0,
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 24.0,
-            ),
-            onPressed: () {
-              print('IconButton pressed ...');
-            },
+          backgroundColor: AppColors.primary,
+          elevation: 0.0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => context.pop(),
           ),
           title: Text(
-            FFLocalizations.of(context).getText(
-              'iquflyhj' /* UGQ TAXI */,
+            'Insurance PDF',
+            style: GoogleFonts.interTight(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 18.0,
             ),
-            style: FlutterFlowTheme.of(context).titleLarge.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.bold,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                  ),
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                ),
           ),
-          actions: const [],
           centerTitle: true,
-          elevation: 0.0,
         ),
         body: SafeArea(
-          top: true,
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(24.0, 32.0, 24.0, 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
-                  child: Text(
-                    FFLocalizations.of(context).getText(
-                      'pbyekz0w' /* Let’s find your registration c... */,
-                    ),
-                    textAlign: TextAlign.start,
-                    style: FlutterFlowTheme.of(context).headlineLarge.override(
-                          font: GoogleFonts.interTight(
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .headlineLarge
-                                .fontStyle,
-                          ),
-                          fontSize: 28.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .headlineLarge
-                              .fontStyle,
-                        ),
+                Text(
+                  'Upload your insurance document',
+                  style: GoogleFonts.interTight(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 32.0),
-                  child: Text(
-                    FFLocalizations.of(context).getText(
-                      'e8g5muj9' /* Enter your vehicle registratio... */,
-                    ),
-                    textAlign: TextAlign.start,
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          fontSize: 16.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .fontWeight,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                          lineHeight: 1.4,
-                        ),
+                const SizedBox(height: 8),
+                Text(
+                  'PDF files only. Make sure all details are readable.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AppColors.greySlate,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
-                  child: TextFormField(
-                    controller: _model.textController,
-                    focusNode: _model.textFieldFocusNode,
-                    autofocus: false,
-                    textCapitalization: TextCapitalization.characters,
-                    textInputAction: TextInputAction.next,
-                    obscureText: false,
-                    decoration: InputDecoration(
-                      hintText: FFLocalizations.of(context).getText(
-                        'toev289b' /* Enter vehicle registration num... */,
-                      ),
-                      hintStyle: FlutterFlowTheme.of(context)
-                          .bodyMedium
-                          .override(
-                            font: GoogleFonts.inter(
-                              fontWeight: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontWeight,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .fontStyle,
-                            ),
-                            color: FlutterFlowTheme.of(context).secondaryText,
-                            fontSize: 16.0,
-                            letterSpacing: 0.0,
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: FlutterFlowTheme.of(context).alternate,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: AppColors.registrationOrange,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: FlutterFlowTheme.of(context).error,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: FlutterFlowTheme.of(context).error,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      contentPadding: const EdgeInsetsDirectional.fromSTEB(
-                          16.0, 16.0, 16.0, 16.0),
-                    ),
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(
-                            fontWeight: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontWeight,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .fontStyle,
-                          ),
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          fontSize: 16.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .fontWeight,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                        ),
-                    cursorColor: AppColors.registrationOrange,
-                    validator:
-                        _model.textControllerValidator.asValidator(context),
-                    inputFormatters: [
-                      if (!isAndroid && !isiOS)
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          return TextEditingValue(
-                            selection: newValue.selection,
-                            text: newValue.text.toCapitalization(
-                                TextCapitalization.characters),
-                          );
-                        }),
-                    ],
-                  ),
-                ),
-                FFButtonWidget(
-                  onPressed: () {
-                    print('Button pressed ...');
-                  },
-                  text: FFLocalizations.of(context).getText(
-                    'jvl4q2p4' /* Upload documents instead */,
-                  ),
-                  options: FFButtonOptions(
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: _pickPdf,
+                  child: Container(
                     width: double.infinity,
-                    height: 48.0,
-                    padding: const EdgeInsets.all(8.0),
-                    iconPadding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: FlutterFlowTheme.of(context).alternate,
-                    textStyle:
-                        FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.interTight(
-                                fontWeight: FontWeight.w500,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .fontStyle,
-                              ),
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              fontSize: 16.0,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w500,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .fontStyle,
-                            ),
-                    elevation: 0.0,
-                    borderSide: BorderSide(
-                      color: FlutterFlowTheme.of(context).alternate,
-                      width: 1.0,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color:
+                            _isValid ? AppColors.primary : AppColors.greyBorder,
+                        width: 1.5,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                FFButtonWidget(
-                  onPressed: () {
-                    print('Button pressed ...');
-                  },
-                  text: FFLocalizations.of(context).getText(
-                    '25gderrw' /* Continue */,
-                  ),
-                  options: FFButtonOptions(
-                    width: double.infinity,
-                    height: 52.0,
-                    padding: const EdgeInsets.all(8.0),
-                    iconPadding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: AppColors.registrationOrange,
-                    textStyle:
-                        FlutterFlowTheme.of(context).titleMedium.override(
-                              font: GoogleFonts.interTight(
-                                fontWeight: FontWeight.w600,
-                                fontStyle: FlutterFlowTheme.of(context)
-                                    .titleMedium
-                                    .fontStyle,
-                              ),
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              letterSpacing: 0.0,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: AppColors.sectionOrangeLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.picture_as_pdf,
+                            color: AppColors.primary,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            _isValid ? _fileName : 'Tap to upload PDF',
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .fontStyle,
+                              color: AppColors.textDark,
                             ),
-                    elevation: 0.0,
-                    borderSide: const BorderSide(
-                      color: Colors.transparent,
-                      width: 1.0,
+                          ),
+                        ),
+                        if (_isValid)
+                          IconButton(
+                            onPressed: _removeFile,
+                            icon: const Icon(
+                              Icons.close,
+                              color: AppColors.error,
+                            ),
+                          ),
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-              ].divide(const SizedBox(height: 24.0)),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _isValid
+                        ? () {
+                            context.pushNamed(
+                              RCUploadWidget.routeName,
+                              extra: const TransitionInfo(
+                                hasTransition: true,
+                                transitionType: PageTransitionType.rightToLeft,
+                                duration: Duration(milliseconds: 300),
+                              ),
+                            );
+                          }
+                        : () {
+                            _showSnackBar('Please upload insurance PDF',
+                                isError: true);
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: GoogleFonts.interTight(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

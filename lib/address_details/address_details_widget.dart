@@ -2,37 +2,105 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/utils/input_validators.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Uber-style Address & Emergency Contact step.
-/// Optional fields - user can skip, but validated if provided.
-class AddressDetailsWidget extends StatefulWidget {
-  const AddressDetailsWidget({
-    super.key,
-    this.mobile,
-    this.firstname,
-    this.lastname,
-    this.email,
-    this.referalcode,
-    this.vehicletype,
-  });
+// ==========================================
+// 1. REUSABLE VIBRANT INPUT WIDGET
+// ==========================================
+class UgoTextField extends StatelessWidget {
+  final String label;
+  final String hint;
+  final IconData icon;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
 
-  final int? mobile;
-  final String? firstname;
-  final String? lastname;
-  final String? email;
-  final String? referalcode;
-  final String? vehicletype;
-
-  static String routeName = 'address_details';
-  static String routePath = '/addressDetails';
+  const UgoTextField({
+    Key? key,
+    required this.label,
+    required this.hint,
+    required this.icon,
+    required this.controller,
+    this.keyboardType,
+    this.validator,
+    this.inputFormatters,
+  }) : super(key: key);
 
   @override
-  State<AddressDetailsWidget> createState() => _AddressDetailsWidgetState();
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        style: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
+          labelStyle: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 20),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey[200]!, width: 2),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: AppColors.primary, width: 2.5),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.redAccent, width: 2.5),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        ),
+        validator: validator,
+      ),
+    );
+  }
 }
 
-class _AddressDetailsWidgetState extends State<AddressDetailsWidget> {
+// ==========================================
+// 2. MODULAR FORM WIDGET (CAN BE USED IN MODALS OR PAGES)
+// ==========================================
+class AddressEmergencyForm extends StatefulWidget {
+  final Function() onContinue;
+  final Function() onSkip;
+
+  const AddressEmergencyForm({
+    Key? key,
+    required this.onContinue,
+    required this.onSkip,
+  }) : super(key: key);
+
+  @override
+  State<AddressEmergencyForm> createState() => AddressEmergencyFormState();
+}
+
+class AddressEmergencyFormState extends State<AddressEmergencyForm> {
   final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _dobController;
   late TextEditingController _addressController;
   late TextEditingController _cityController;
@@ -65,226 +133,310 @@ class _AddressDetailsWidgetState extends State<AddressDetailsWidget> {
     super.dispose();
   }
 
-  Widget _buildField({
-    required String label,
-    required TextEditingController controller,
-    required IconData icon,
-    TextInputType? keyboardType,
-    String? hint,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, color: Colors.grey[400], size: 22),
-            filled: true,
-            fillColor: AppColors.backgroundCard,
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: AppColors.divider, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          ),
-          validator: validator,
-        ),
-      ],
-    );
+  bool validateAndSave() {
+    if (_formKey.currentState!.validate()) {
+      FFAppState().dateOfBirth = _dobController.text.trim();
+      FFAppState().address = _addressController.text.trim();
+      FFAppState().city = _cityController.text.trim();
+      FFAppState().state = _stateController.text.trim();
+      FFAppState().postalCode = _postalController.text.trim();
+      FFAppState().emergencyContactName = _emergencyNameController.text.trim();
+      FFAppState().emergencyContactPhone = _emergencyPhoneController.text.trim();
+      return true;
+    }
+    return false;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    const Color brandPrimary = AppColors.primary;
-
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundAlt,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+  Widget _buildSectionHeader(String title, String subtitle, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.primary.withOpacity(0.15),
+            radius: 24,
+            child: Icon(icon, color: AppColors.primary, size: 24),
           ),
-          title: Text(
-            'Address & Emergency',
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
+          const SizedBox(width: 16),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Optional - Add for faster KYC verification',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildField(
-                  label: 'Date of Birth',
-                  controller: _dobController,
-                  icon: Icons.calendar_today,
-                  hint: 'YYYY-MM-DD or DD/MM/YYYY',
-                  validator: (v) => v != null && v.isNotEmpty
-                      ? InputValidators.dateOfBirthError(v)
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                _buildField(
-                  label: 'Address',
-                  controller: _addressController,
-                  icon: Icons.location_on_outlined,
-                  hint: 'Street, area',
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildField(
-                        label: 'City',
-                        controller: _cityController,
-                        icon: Icons.location_city,
-                        hint: 'City',
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildField(
-                        label: 'State',
-                        controller: _stateController,
-                        icon: Icons.map_outlined,
-                        hint: 'State',
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildField(
-                  label: 'Postal Code',
-                  controller: _postalController,
-                  icon: Icons.pin_drop,
-                  keyboardType: TextInputType.number,
-                  hint: 'e.g. 500001',
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  'Emergency Contact',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
+                  title,
+                  style: GoogleFonts.interTight(
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildField(
-                  label: 'Contact Name',
-                  controller: _emergencyNameController,
-                  icon: Icons.person_outline,
-                  hint: 'Name',
-                ),
-                const SizedBox(height: 20),
-                _buildField(
-                  label: 'Contact Phone',
-                  controller: _emergencyPhoneController,
-                  icon: Icons.phone_outlined,
-                  keyboardType: TextInputType.phone,
-                  hint: '10-digit number',
-                  validator: (v) => v != null && v.isNotEmpty
-                      ? InputValidators.phoneError(v)
-                      : null,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _saveAndContinue();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: brandPrimary,
-                      foregroundColor: Colors.white,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      'Continue',
-                      style: GoogleFonts.interTight(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton(
-                    onPressed: _saveAndContinue,
-                    child: Text(
-                      'Skip for now',
-                      style: GoogleFonts.inter(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  void _saveAndContinue() {
-    FFAppState().dateOfBirth = _dobController.text.trim();
-    FFAppState().address = _addressController.text.trim();
-    FFAppState().city = _cityController.text.trim();
-    FFAppState().state = _stateController.text.trim();
-    FFAppState().postalCode = _postalController.text.trim();
-    FFAppState().emergencyContactName = _emergencyNameController.text.trim();
-    FFAppState().emergencyContactPhone = _emergencyPhoneController.text.trim();
-    context.pushNamed(
-      ChooseVehicleWidget.routeName,
-      queryParameters: {
-        if (widget.mobile != null) 'mobile': serializeParam(widget.mobile, ParamType.int),
-        if (widget.firstname != null) 'firstname': serializeParam(widget.firstname, ParamType.String),
-        if (widget.lastname != null) 'lastname': serializeParam(widget.lastname, ParamType.String),
-        if (widget.email != null) 'email': serializeParam(widget.email, ParamType.String),
-        if (widget.referalcode != null) 'referalcode': serializeParam(widget.referalcode, ParamType.String),
-      }.withoutNulls,
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Personal Details Section ---
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _buildSectionHeader(
+                  'Personal Info',
+                  'For faster KYC verification',
+                  Icons.person_pin_circle,
+                ),
+                UgoTextField(
+                  label: 'Date of Birth',
+                  hint: 'YYYY-MM-DD',
+                  icon: Icons.calendar_month_rounded,
+                  controller: _dobController,
+                  validator: (v) => v != null && v.isNotEmpty ? InputValidators.dateOfBirthError(v) : null,
+                ),
+                UgoTextField(
+                  label: 'Home Address',
+                  hint: 'Street, area, building',
+                  icon: Icons.home_rounded,
+                  controller: _addressController,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: UgoTextField(
+                        label: 'City',
+                        hint: 'e.g. Mumbai',
+                        icon: Icons.location_city_rounded,
+                        controller: _cityController,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: UgoTextField(
+                        label: 'State',
+                        hint: 'e.g. MH',
+                        icon: Icons.map_rounded,
+                        controller: _stateController,
+                      ),
+                    ),
+                  ],
+                ),
+                UgoTextField(
+                  label: 'Postal Code',
+                  hint: '6-digit PIN',
+                  icon: Icons.pin_drop_rounded,
+                  controller: _postalController,
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // --- Emergency Contact Section ---
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _buildSectionHeader(
+                  'Emergency Contact',
+                  'Who to call in an emergency',
+                  Icons.health_and_safety_rounded,
+                ),
+                UgoTextField(
+                  label: 'Contact Name',
+                  hint: 'Family member or friend',
+                  icon: Icons.badge_rounded,
+                  controller: _emergencyNameController,
+                ),
+                UgoTextField(
+                  label: 'Phone Number',
+                  hint: '10-digit mobile number',
+                  icon: Icons.phone_in_talk_rounded,
+                  controller: _emergencyPhoneController,
+                  keyboardType: TextInputType.phone,
+                  validator: (v) => v != null && v.isNotEmpty ? InputValidators.phoneError(v) : null,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 3. MAIN PAGE SCAFFOLD
+// ==========================================
+class AddressDetailsWidget extends StatelessWidget {
+  const AddressDetailsWidget({
+    super.key,
+    this.mobile,
+    this.firstname,
+    this.lastname,
+    this.email,
+    this.referalcode,
+    this.vehicletype,
+  });
+
+  final int? mobile;
+  final String? firstname;
+  final String? lastname;
+  final String? email;
+  final String? referalcode;
+  final String? vehicletype;
+
+  static String routeName = 'address_details';
+  static String routePath = '/addressDetails';
+
+  @override
+  Widget build(BuildContext context) {
+    // Create a GlobalKey to access the form state
+    final GlobalKey<AddressEmergencyFormState> formKey = GlobalKey<AddressEmergencyFormState>();
+
+    void proceedToNextStep() {
+      context.pushNamed(
+        ChooseVehicleWidget.routeName,
+        queryParameters: {
+          if (mobile != null) 'mobile': serializeParam(mobile, ParamType.int),
+          if (firstname != null) 'firstname': serializeParam(firstname, ParamType.String),
+          if (lastname != null) 'lastname': serializeParam(lastname, ParamType.String),
+          if (email != null) 'email': serializeParam(email, ParamType.String),
+          if (referalcode != null) 'referalcode': serializeParam(referalcode, ParamType.String),
+        }.withoutNulls,
+      );
+    }
+
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundAlt ?? const Color(0xFFF5F7FA), // Soft background makes white cards pop
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(
+            'Step 2 of 3', // Driver friendly progress indicator
+            style: GoogleFonts.interTight(
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+              fontSize: 16,
+            ),
+          ),
+          centerTitle: true,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 120),
+          child: AddressEmergencyForm(
+            key: formKey,
+            onContinue: proceedToNextStep,
+            onSkip: proceedToNextStep,
+          ),
+        ),
+        // STICKY BOTTOM BAR: Driver friendly, button is always accessible
+        bottomSheet: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (formKey.currentState?.validateAndSave() == true) {
+                      proceedToNextStep();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    'Save & Continue',
+                    style: GoogleFonts.interTight(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white, // Ensure high contrast
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: proceedToNextStep,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'I\'ll do this later',
+                    style: GoogleFonts.inter(
+                      color: Colors.grey[600],
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

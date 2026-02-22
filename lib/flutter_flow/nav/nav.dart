@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -76,6 +77,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       // initialLocation: '/',
       initialLocation: SplashWidget.routePath,
       debugLogDiagnostics: true,
+      extraCodec: const TransitionInfoCodec(),
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
       errorBuilder: (context, state) => appStateNotifier.loggedIn
@@ -123,6 +125,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: PrivacyPolicyPageWidget.routeName,
           path: PrivacyPolicyPageWidget.routePath,
           builder: (context, params) => const PrivacyPolicyPageWidget(),
+        ),
+        FFRoute(
+          name: BackgroundLocationNoticeWidget.routeName,
+          path: BackgroundLocationNoticeWidget.routePath,
+          builder: (context, params) => const BackgroundLocationNoticeWidget(),
         ),
         FFRoute(
           name: ServiceoptionsWidget.routeName,
@@ -312,18 +319,35 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             referalcode: params.getParam(
               'referalcode',
-              ParamType.int,
+              ParamType.String,
             ),
           ),
+        ),
+        FFRoute(
+          name: PreferredCityWidget.routeName,
+          path: PreferredCityWidget.routePath,
+          builder: (context, params) => PreferredCityWidget(
+            isRegistrationFlow: params.getParam(
+                  'isRegistrationFlow',
+                  ParamType.bool,
+                ) ??
+                false,
+          ),
+        ),
+        FFRoute(
+          name: PreferredEarningModeWidget.routeName,
+          path: PreferredEarningModeWidget.routePath,
+          builder: (context, params) => const PreferredEarningModeWidget(),
         ),
         FFRoute(
           name: OnBoardingWidget.routeName,
           path: OnBoardingWidget.routePath,
           builder: (context, params) => OnBoardingWidget(
             mobile: params.getParam(
-              'mobile',
-              ParamType.int,
-            ),
+                  'mobile',
+                  ParamType.int,
+                ) ??
+                FFAppState().mobileNo,
             firstname: params.getParam(
               'firstname',
               ParamType.String,
@@ -338,7 +362,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             referalcode: params.getParam(
               'referalcode',
-              ParamType.int,
+              ParamType.String,
             ),
             vehicletype: params.getParam(
               'vehicletype',
@@ -506,6 +530,23 @@ extension NavigationExtensions on BuildContext {
               extra: extra,
             );
 
+  void pushNamedAndRemoveUntil(
+    String name,
+    bool Function(Route<dynamic>) predicate, {
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, String> queryParameters = const <String, String>{},
+    Object? extra,
+    bool ignoreRedirect = false,
+  }) =>
+      GoRouter.of(this).shouldRedirect(ignoreRedirect)
+          ? null
+          : goNamed(
+              name,
+              pathParameters: pathParameters,
+              queryParameters: queryParameters,
+              extra: extra,
+            );
+
   void safePop() {
     // If there is only one route on the stack, navigate to the initial
     // page instead of popping.
@@ -531,8 +572,12 @@ extension GoRouterExtensions on GoRouter {
 }
 
 extension _GoRouterStateExtensions on GoRouterState {
-  Map<String, dynamic> get extraMap =>
-      extra != null ? extra as Map<String, dynamic> : {};
+  Map<String, dynamic> get extraMap {
+    if (extra is TransitionInfo) {
+      return {kTransitionInfoKey: extra};
+    }
+    return extra is Map<String, dynamic> ? extra as Map<String, dynamic> : {};
+  }
   Map<String, dynamic> get allParams => <String, dynamic>{}
     ..addAll(pathParameters)
     ..addAll(uri.queryParameters)
@@ -692,6 +737,57 @@ class TransitionInfo {
 
   static TransitionInfo appDefault() =>
       const TransitionInfo(hasTransition: false);
+}
+
+class TransitionInfoCodec extends Codec<Object?, Object?> {
+  const TransitionInfoCodec();
+
+  @override
+  Converter<Object?, Object?> get decoder => const _TransitionInfoDecoder();
+
+  @override
+  Converter<Object?, Object?> get encoder => const _TransitionInfoEncoder();
+}
+
+class _TransitionInfoEncoder extends Converter<Object?, Object?> {
+  const _TransitionInfoEncoder();
+
+  @override
+  Object? convert(Object? input) {
+    if (input is TransitionInfo) {
+      return {
+        '_type': 'TransitionInfo',
+        'hasTransition': input.hasTransition,
+        'transitionType': input.transitionType.index,
+        'durationMs': input.duration.inMilliseconds,
+        'alignmentX': input.alignment?.x,
+        'alignmentY': input.alignment?.y,
+      };
+    }
+    return input;
+  }
+}
+
+class _TransitionInfoDecoder extends Converter<Object?, Object?> {
+  const _TransitionInfoDecoder();
+
+  @override
+  Object? convert(Object? input) {
+    if (input is Map && input['_type'] == 'TransitionInfo') {
+      final typeIndex = input['transitionType'] as int? ?? 0;
+      final alignmentX = input['alignmentX'] as double?;
+      final alignmentY = input['alignmentY'] as double?;
+      return TransitionInfo(
+        hasTransition: input['hasTransition'] == true,
+        transitionType: PageTransitionType.values[typeIndex],
+        duration: Duration(milliseconds: input['durationMs'] as int? ?? 300),
+        alignment: (alignmentX != null && alignmentY != null)
+            ? Alignment(alignmentX, alignmentY)
+            : null,
+      );
+    }
+    return input;
+  }
 }
 
 class RootPageContext {

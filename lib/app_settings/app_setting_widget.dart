@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ugo_driver/app_settings/emergencycontactscreen.dart';
+import 'package:ugo_driver/app_state.dart';
+import 'package:ugo_driver/services/floating_bubble_service.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
 
 class AppSettingsWidget extends StatefulWidget {
   const AppSettingsWidget({super.key});
@@ -14,6 +18,7 @@ class AppSettingsWidget extends StatefulWidget {
 class _AppSettingsWidgetState extends State<AppSettingsWidget> {
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<FFAppState>();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -32,6 +37,10 @@ class _AppSettingsWidgetState extends State<AppSettingsWidget> {
             _settingsTile(Icons.people_outline, 'Communication'),
             // _settingsTile(Icons.language_outlined, 'App Language'),
             _settingsTile(Icons.display_settings_outlined, 'Display'),
+            _overlayBubbleTile(
+              value: appState.overlayBubbleEnabled,
+              onChanged: (value) => _handleOverlayToggle(context, value),
+            ),
             _settingsTile(Icons.location_on_outlined, 'Follow My Ride'),
             _settingsTile(Icons.emergency_outlined, 'Emergency Contacts',
             onTap: () {
@@ -74,5 +83,60 @@ class _AppSettingsWidgetState extends State<AppSettingsWidget> {
         const Divider(height: 1),
       ],
     );
+  }
+
+  Widget _overlayBubbleTile({
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Column(
+      children: [
+        SwitchListTile(
+          value: value,
+          onChanged: onChanged,
+          activeColor: AppColors.primary,
+          title: const Text(
+            'Floating bubble',
+            style: TextStyle(fontSize: 16),
+          ),
+          subtitle: const Text(
+            'Show a small bubble for quick ride actions when the app is in the background.',
+          ),
+        ),
+        const Divider(height: 1),
+      ],
+    );
+  }
+
+  Future<void> _handleOverlayToggle(BuildContext context, bool value) async {
+    if (value) {
+      final allow = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Enable floating bubble?'),
+          content: const Text(
+            'This lets you respond to ride requests faster when the app is in the background. '
+            'You can turn it off anytime.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Not now'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              child: const Text('Enable'),
+            ),
+          ],
+        ),
+      );
+      if (allow != true) return;
+      final hasPermission = await FloatingBubbleService.checkOverlayPermission();
+      if (!hasPermission) {
+        await FloatingBubbleService.requestOverlayPermission();
+      }
+    }
+    context.read<FFAppState>().overlayBubbleEnabled = value;
   }
 }

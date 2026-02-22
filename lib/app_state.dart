@@ -27,13 +27,22 @@ class FFAppState extends ChangeNotifier {
   set pendingRideIdFromNotification(int value) {
     _pendingRideIdFromNotification = value;
   }
+  bool _overlayBubbleEnabled = false;
+  bool get overlayBubbleEnabled => _overlayBubbleEnabled;
+  set overlayBubbleEnabled(bool value) {
+    _overlayBubbleEnabled = value;
+    prefs.setBool('ff_overlayBubbleEnabled', value);
+    notifyListeners();
+  }
   int _mobileNo = 0;
   String _firstName = '';
   String _lastName = '';
   String _email = '';
   String _referralCode = '';
+  String _usedReferralCode = '';
   int _preferredCityId = 0;
   String _preferredCityName = '';
+  String _preferredEarningMode = '';
 
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
@@ -81,10 +90,16 @@ class FFAppState extends ChangeNotifier {
       _referralCode = prefs.getString('ff_referralCode') ?? '';
     });
     _safeInit(() {
+      _usedReferralCode = prefs.getString('ff_usedReferralCode') ?? '';
+    });
+    _safeInit(() {
       _preferredCityId = prefs.getInt('ff_preferredCityId') ?? 0;
     });
     _safeInit(() {
       _preferredCityName = prefs.getString('ff_preferredCityName') ?? '';
+    });
+    _safeInit(() {
+      _preferredEarningMode = prefs.getString('ff_preferredEarningMode') ?? '';
     });
     _safeInit(() {
       _dateOfBirth = prefs.getString('ff_dateOfBirth') ?? '';
@@ -109,6 +124,9 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _fcmToken = prefs.getString('ff_fcmToken') ?? '';
+    });
+    _safeInit(() {
+      _overlayBubbleEnabled = prefs.getBool('ff_overlayBubbleEnabled') ?? false;
     });
     // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
     await _loadAadharPanFromSecureStorage();
@@ -380,6 +398,17 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String get usedReferralCode => _usedReferralCode;
+  set usedReferralCode(String value) {
+    _usedReferralCode = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_usedReferralCode');
+    } else {
+      prefs.setString('ff_usedReferralCode', value);
+    }
+    notifyListeners();
+  }
+
   int get preferredCityId => _preferredCityId;
   set preferredCityId(int value) {
     _preferredCityId = value;
@@ -398,6 +427,17 @@ class FFAppState extends ChangeNotifier {
       prefs.remove('ff_preferredCityName');
     } else {
       prefs.setString('ff_preferredCityName', value);
+    }
+    notifyListeners();
+  }
+
+  String get preferredEarningMode => _preferredEarningMode;
+  set preferredEarningMode(String value) {
+    _preferredEarningMode = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_preferredEarningMode');
+    } else {
+      prefs.setString('ff_preferredEarningMode', value);
     }
     notifyListeners();
   }
@@ -1015,6 +1055,13 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  FFUploadedFile? _insurancePdf;
+  FFUploadedFile? get insurancePdf => _insurancePdf;
+  set insurancePdf(FFUploadedFile? value) {
+    _insurancePdf = value;
+    notifyListeners();
+  }
+
   String _insuranceBase64 = '';
   String get insuranceBase64 => _insuranceBase64;
   set insuranceBase64(String value) {
@@ -1116,8 +1163,10 @@ class FFAppState extends ChangeNotifier {
   _lastName = '';
   _email = '';
   _referralCode = '';
+  _usedReferralCode = '';
   _preferredCityId = 0;
   _preferredCityName = '';
+  _preferredEarningMode = '';
 
   // Ride
   _activeRideId = 0;
@@ -1172,6 +1221,7 @@ class FFAppState extends ChangeNotifier {
   _insuranceNumber = '';
   _insuranceExpiryDate = '';
   _pollutionExpiryDate = '';
+  _overlayBubbleEnabled = false;
 
   _rcFrontImageUrl = '';
   _rcBackImageUrl = '';
@@ -1180,6 +1230,7 @@ class FFAppState extends ChangeNotifier {
   _rcFrontImage = null;
   _rcBackImage = null;
   _insuranceBase64 = '';
+  _insurancePdf = null;
   _pollutionBase64 = '';
 
   notifyListeners();

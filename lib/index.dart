@@ -12,10 +12,14 @@ export '/terms_conditions/terms_conditions_widget.dart'
     show TermsConditionsWidget;
 export '/privacy_policy_page/privacy_policy_page_widget.dart'
     show PrivacyPolicyPageWidget;
+export '/background_location_notice/background_location_notice_widget.dart'
+    show BackgroundLocationNoticeWidget;
 export '/serviceoptions/serviceoptions_widget.dart' show ServiceoptionsWidget;
 export '/home/home_widget.dart' show HomeWidget;
 export '/account_management/account_management_widget.dart'
     show AccountManagementWidget;
+export '/account_management/preferred_city_widget.dart'
+    show PreferredCityWidget;
 export '/support/support_widget.dart' show SupportWidget;
 export '/wallet/wallet_widget.dart' show WalletWidget;
 
@@ -51,6 +55,8 @@ export '/customer_support/customer_support_widget.dart'
     show CustomerSupportWidget;
 
 export '/choose_vehicle/choose_vehicle_widget.dart' show ChooseVehicleWidget;
+export '/preferred_earning_mode/preferred_earning_mode_widget.dart'
+    show PreferredEarningModeWidget;
 export '/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
 export '/driving_dl/driving_dl_widget.dart' show DrivingDlWidget;
 export '/face_verify/face_verify_widget.dart' show FaceVerifyWidget;

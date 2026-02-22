@@ -76,7 +76,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
   int _calculateCompletionPercentage() {
     int completed = 0;
-    int total = 6; // License, Profile, Aadhar, Pan, Vehicle, RC
+    int total = 8; // License, Profile, Aadhar, Pan, Vehicle, RC, Insurance, Pollution
 
     final hasLicense = _isDocumentUploaded(FFAppState().imageLicense) ||
         _isDocumentUploaded(FFAppState().licenseFrontImage) ||
@@ -87,6 +87,10 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     final hasRC = _isDocumentUploaded(FFAppState().registrationImage) ||
         _isDocumentUploaded(FFAppState().rcFrontImage) ||
         _isDocumentUploaded(FFAppState().rcBackImage);
+    final hasInsurance = _isDocumentUploaded(FFAppState().insurancePdf) ||
+        _isDocumentUploaded(FFAppState().insuranceImage);
+    final hasPollution =
+        _isDocumentUploaded(FFAppState().pollutioncertificateImage);
 
     if (hasLicense) completed++;
     if (_isDocumentUploaded(FFAppState().profilePhoto)) completed++;
@@ -94,6 +98,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     if (_isDocumentUploaded(FFAppState().panImage)) completed++;
     if (_isDocumentUploaded(FFAppState().vehicleImage)) completed++;
     if (hasRC) completed++;
+    if (hasInsurance) completed++;
+    if (hasPollution) completed++;
 
     return ((completed / total) * 100).round();
   }
@@ -204,7 +210,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                                 ),
                                 Center(
                                   child: Text(
-                                    '${(completionPercentage / 16.6).round()}/6',
+                                    '${(completionPercentage / 12.5).round()}/8',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -291,6 +297,18 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                           'RC Book',
                           FFAppState().registrationImage,
                               () => context.pushNamed(RegistrationImageWidget.routeName),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDocItem(
+                          'Insurance PDF',
+                          FFAppState().insurancePdf ?? FFAppState().insuranceImage,
+                              () => context.pushNamed(UploadRcWidget.routeName),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDocItem(
+                          'Pollution Certificate',
+                          FFAppState().pollutioncertificateImage,
+                              () => context.pushNamed(RCUploadWidget.routeName),
                         ),
                       ],
                     ),
@@ -531,6 +549,13 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         'last_name': FFAppState().lastName,
         'email': FFAppState().email,
         'referal_code': FFAppState().referralCode,
+        'used_referral_code': FFAppState().usedReferralCode.isNotEmpty
+            ? FFAppState().usedReferralCode
+            : null,
+        'preferred_city_id':
+            FFAppState().preferredCityId > 0 ? FFAppState().preferredCityId : null,
+        'preferred_earning_mode': FFAppState().preferredEarningMode,
+        'vehicle_image': FFAppState().vehicleImage?.name,
         'fcm_token': fcm_token ?? '',
       };
       if (FFAppState().licenseNumber.isNotEmpty) {
@@ -579,10 +604,16 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
       if (FFAppState().vehicleColor.isNotEmpty) vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
       if (FFAppState().licensePlate.isNotEmpty) vehicleJsonData['license_plate'] = FFAppState().licensePlate;
       if (FFAppState().registrationNumber.isNotEmpty) vehicleJsonData['registration_number'] = FFAppState().registrationNumber;
-      if (FFAppState().registrationDate.isNotEmpty) vehicleJsonData['registration_date'] = FFAppState().registrationDate;
       if (FFAppState().insuranceNumber.isNotEmpty) vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
-      if (FFAppState().insuranceExpiryDate.isNotEmpty) vehicleJsonData['insurance_expiry_date'] = FFAppState().insuranceExpiryDate;
-      if (FFAppState().pollutionExpiryDate.isNotEmpty) vehicleJsonData['pollution_expiry_date'] = FFAppState().pollutionExpiryDate;
+      if (FFAppState().registrationDate.isNotEmpty) {
+        vehicleJsonData['registration_date'] = _toApiDate(FFAppState().registrationDate);
+      }
+      if (FFAppState().insuranceExpiryDate.isNotEmpty) {
+        vehicleJsonData['insurance_expiry_date'] = _toApiDate(FFAppState().insuranceExpiryDate);
+      }
+      if (FFAppState().pollutionExpiryDate.isNotEmpty) {
+        vehicleJsonData['pollution_expiry_date'] = _toApiDate(FFAppState().pollutionExpiryDate);
+      }
 
       // 3. API Call
       _model.apiResult7ju = await CreateDriverCall.call(
@@ -598,7 +629,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         rcBackImage: FFAppState().rcBackImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
-        insuranceImage: FFAppState().insuranceImage,
+        insuranceImage: FFAppState().insurancePdf ?? FFAppState().insuranceImage,
         pollutionCertificateImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
@@ -686,8 +717,47 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           }
         }
       } else {
-        // Show Error
-        final errorMsg = getJsonField(_model.apiResult7ju?.jsonBody, r'''$.message''').toString();
+        // Handle known errors (e.g., driver already exists)
+        final statusCode = _model.apiResult7ju?.statusCode ?? 0;
+        final errorMsg =
+            getJsonField(_model.apiResult7ju?.jsonBody, r'''$.message''')
+                .toString();
+
+        if (statusCode == 409) {
+          final loginRes = await LoginCall.call(
+            mobile: FFAppState().mobileNo,
+            fcmToken:
+                FFAppState().fcmToken.isNotEmpty ? FFAppState().fcmToken : (fcm_token ?? ''),
+          );
+          if (loginRes.succeeded) {
+            String? accessToken =
+                getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')
+                    ?.toString();
+            accessToken ??=
+                getJsonField(loginRes.jsonBody, r'''$.data.access_token''')
+                    ?.toString();
+            final driverId =
+                castToType<int>(getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
+                    0;
+
+            if (accessToken != null &&
+                accessToken.isNotEmpty &&
+                driverId > 0) {
+              FFAppState().update(() {
+                FFAppState().isLoggedIn = true;
+                FFAppState().isRegistered = true;
+                FFAppState().driverid = driverId;
+                FFAppState().accessToken = accessToken!;
+              });
+
+              if (mounted) {
+                context.pushReplacementNamed(HomeWidget.routeName);
+              }
+              return;
+            }
+          }
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

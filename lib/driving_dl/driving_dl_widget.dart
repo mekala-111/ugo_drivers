@@ -412,33 +412,35 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   );
                                 },
                               )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.registrationOrange
-                                          .withValues(alpha: 0.1),
-                                      shape: BoxShape.circle,
+                            : Center(
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.registrationOrange
+                                            .withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.add_a_photo,
+                                          size: 40, color: AppColors.registrationOrange),
                                     ),
-                                    child: const Icon(Icons.add_a_photo,
-                                        size: 40, color: AppColors.registrationOrange),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'Tap to upload $title',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text('Camera or Gallery',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600])),
-                                ],
-                              ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Tap to upload $title',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text('Camera or Gallery',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600])),
+                                  ],
+                                ),
+                            ),
                   ),
 
                   // OCR Processing Overlay

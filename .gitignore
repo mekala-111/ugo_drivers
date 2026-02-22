@@ -1,3 +1,5 @@
 # Project exclude paths
 /.dart_tool/
 /build/
+.DS_Store
+android/key.properties
