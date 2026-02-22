@@ -36,8 +36,6 @@ class AppHeader extends StatelessWidget {
     final headerH = Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
     final hPad = Responsive.horizontalPadding(context);
     final minTap = Responsive.minTouchTarget;
-    final avatarR = Responsive.value(context, small: 16.0, medium: 18.0, large: 20.0);
-
     return Container(
       width: double.infinity,
       height: headerH,
@@ -54,6 +52,19 @@ class AppHeader extends StatelessWidget {
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
+              if (balance != null)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '₹${balance!.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+              else
+                SizedBox(width: minTap, height: minTap),
               if (switchValue)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),

@@ -13,7 +13,7 @@ abstract class DriverRepositoryInterface {
   Future<ApiCallResponse> updateDriver({
     required int id,
     required String token,
-    bool? isonline,
+    required bool? isonline,
     double? latitude,
     double? longitude,
     String? fcmToken,
@@ -73,7 +73,7 @@ class DriverRepository implements DriverRepositoryInterface {
   Future<ApiCallResponse> updateDriver({
     required int id,
     required String token,
-    bool? isonline,
+    required bool? isonline,
     double? latitude,
     double? longitude,
     String? fcmToken,
