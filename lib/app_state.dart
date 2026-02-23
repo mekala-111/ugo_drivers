@@ -1338,4 +1338,3 @@ void _safeInit(Function() initializeField) {
     initializeField();
   } catch (_) {}
 }
-

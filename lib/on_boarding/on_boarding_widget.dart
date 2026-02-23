@@ -699,7 +699,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         registrationImage: FFAppState().registrationImage,
         insuranceImage:
             FFAppState().insurancePdf ?? FFAppState().insuranceImage,
-        pollutionCertificateImage: FFAppState().pollutioncertificateImage,
+       pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
         fcmToken: fcmToken ?? '',

@@ -144,7 +144,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
         insuranceImage: FFAppState().insuranceImage,
-        pollutionCertificateImage: FFAppState().pollutioncertificateImage,
+       pollutionImage: FFAppState().pollutioncertificateImage,
         vehicleName: FFAppState().vehicleMake,
         vehicleModel: FFAppState().vehicleModel,
         vehicleColor: FFAppState().vehicleColor.isNotEmpty

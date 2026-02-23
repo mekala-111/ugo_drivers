@@ -266,6 +266,8 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                           const SizedBox(width: 8),
                           Text(
                             'NAME : $_driverName', // ✅ Dynamic Name
+                             overflow: TextOverflow.ellipsis,
+                             maxLines: 1,
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,

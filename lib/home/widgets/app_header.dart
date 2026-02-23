@@ -15,6 +15,7 @@ class AppHeader extends StatelessWidget {
     required this.isSmallScreen,
     this.profileImageUrl,
     this.notificationCount = 0,
+
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;

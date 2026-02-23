@@ -252,44 +252,63 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
   }
 
   Widget _buildDatePickerStrip() {
-    // Logic to show different UI for Day vs Month could go here
-    // For now, standard Day picker similar to screenshots
-    List<DateTime> dates = List.generate(5, (index) => DateTime.now().subtract(Duration(days: 2 - index)));
+  List<DateTime> dates = List.generate(5, (index) => DateTime.now().subtract(Duration(days: 2 - index)));
 
-    return SizedBox(
-      height: 60,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(icon: const Icon(Icons.arrow_back, color: Colors.blue), onPressed: () {}),
-          ...dates.map((date) {
-            bool isSelected = isSameDay(date, selectedDate);
-            return GestureDetector(
-              onTap: () => setState(() { selectedDate = date; _applyFilters(); }),
-              child: Container(
-                width: 50,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: isSelected ? ugoGreen : lightGreyBg,
-                  borderRadius: BorderRadius.circular(12),
+  return SizedBox(
+    height: 60,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.blue),
+          onPressed: () {},
+        ),
+        Expanded(  // ✅ Fixes overflow
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: dates.map((date) {
+              bool isSelected = isSameDay(date, selectedDate);
+              return GestureDetector(
+                onTap: () => setState(() { selectedDate = date; _applyFilters(); }),
+                child: Container(
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: isSelected ? ugoYellow : lightGreyBg,  // ✅ Yellow instead of green
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateFormat('EEE').format(date),
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: isSelected ? Colors.black : Colors.grey[600],  // ✅ Black text on yellow
+                        ),
+                      ),
+                      Text(
+                        DateFormat('d').format(date),
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.black : Colors.black,  // ✅ Black on yellow
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(DateFormat('EEE').format(date),
-                        style: GoogleFonts.inter(fontSize: 12, color: isSelected ? Colors.white : Colors.grey[600])),
-                    Text(DateFormat('d').format(date),
-                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.black)),
-                  ],
-                ),
-              ),
-            );
-          }),
-          IconButton(icon: const Icon(Icons.arrow_forward, color: Colors.blue), onPressed: () {}),
-        ],
-      ),
-    );
-  }
+              );
+            }).toList(),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.arrow_forward, color: Colors.blue),
+          onPressed: () {},
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildStatsCard() {
     bool isCancelled = statusFilter == 'Cancelled';
@@ -319,7 +338,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               child: Column(
                 children: [
                   Text('₹${totalEarnings.toStringAsFixed(0)}',
-                      style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: ugoTextGreen)),
+                      style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: ugoYellow)),
                   const SizedBox(height: 4),
                   Text(isCancelled ? 'Cancellation Fare' : 'Order Earnings',
                       style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
@@ -397,7 +416,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               const SizedBox(width: 4),
               Text(time, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13)),
               const Spacer(),
-              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoTextGreen)),
+              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoYellow)),
               if (!isCancelled) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.check_circle, size: 16, color: AppColors.successAlt),

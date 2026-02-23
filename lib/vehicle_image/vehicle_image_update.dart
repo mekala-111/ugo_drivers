@@ -1684,7 +1684,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         vehicleImage: _vehicleImage,
                         registrationImage: FFAppState().registrationImage,
                         insuranceImage: _insuranceImage,
-                        pollutionCertificateImage: _pollutionImage,
+                       pollutionImage: _pollutionImage,
                         vehicleName: _makeController.text,
                         vehicleModel: _modelController.text,
                         vehicleColor: _selectedColor,

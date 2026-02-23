@@ -225,8 +225,9 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                       ),
                                       if (!isRead)
                                         Container(
-                                          width: 10.0,
-                                          height: 10.0,
+                                          width: 8.0,
+                                          height: 8.0,
+                                          margin: const EdgeInsets.only(top: 6),
                                           decoration: BoxDecoration(
                                             color: FlutterFlowTheme.of(context)
                                                 .primary,

@@ -223,7 +223,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
         registrationImage: FFAppState().registrationImage,
         insuranceImage:
             FFAppState().insurancePdf ?? FFAppState().insuranceImage,
-        pollutionCertificateImage: FFAppState().pollutioncertificateImage,
+        pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
         fcmToken: FFAppState().fcmToken,

@@ -344,7 +344,7 @@ class CreateDriverCall {
     FFUploadedFile? vehicleImage,
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
-    FFUploadedFile? pollutionCertificateImage,
+    FFUploadedFile? pollutionImage,
     String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
@@ -373,7 +373,7 @@ class CreateDriverCall {
         'vehicle_image': vehicleImage,
         'registration_image': registrationImage,
         'insurance_image': insuranceImage,
-        'pollution_certificate_image': pollutionCertificateImage,
+        'pollution_certificate_image': pollutionImage,
         'fcm_token': fcmToken,
       },
       bodyType: BodyType.MULTIPART,
@@ -530,7 +530,7 @@ class UpdateDriverCall {
     FFUploadedFile? vehicleImage,
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
-    FFUploadedFile? pollutionCertificateImage,
+    FFUploadedFile? pollutionImage,
     String? vehicleName,
     String? vehicleModel,
     String? vehicleColor,
@@ -608,9 +608,9 @@ class UpdateDriverCall {
       params['insurance_image'] = insuranceImage;
     }
 
-    if (pollutionCertificateImage != null) {
-      params['pollution_certificate_image'] = pollutionCertificateImage;
-    }
+    // if (pollutionCertificateImage != null) {
+    //   params['pollution_certificate_image'] = pollutionCertificateImage;
+    // }
 
     if (vehicleName != null && vehicleName.isNotEmpty) {
       params['vehicle_name'] = vehicleName;
