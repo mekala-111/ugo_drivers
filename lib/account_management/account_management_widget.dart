@@ -165,12 +165,11 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
       setAppLanguage(context, selected);
       if (!context.mounted) return;
       final languageNameKey = selected == 'hi'
-            ? 'langsel0005'
-            : selected == 'te'
-                ? 'langsel0006'
-                : 'langsel0004';
-      final languageName =
-          FFLocalizations.of(context).getText(languageNameKey);
+          ? 'langsel0005'
+          : selected == 'te'
+              ? 'langsel0006'
+              : 'langsel0004';
+      final languageName = FFLocalizations.of(context).getText(languageNameKey);
       final message = FFLocalizations.of(context)
           .getText('am0003')
           .replaceAll('%1', languageName);

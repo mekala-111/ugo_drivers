@@ -122,11 +122,15 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         // Dynamic OTP display (Rapido-style - show if backend provides it)
                         if (widget.displayOtp != null &&
                             widget.displayOtp!.isNotEmpty) ...[
-                          SizedBox(height: MediaQuery.sizeOf(context).height * 0.015),
+                          SizedBox(
+                              height:
+                                  MediaQuery.sizeOf(context).height * 0.015),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: MediaQuery.sizeOf(context).width * 0.04,
-                              vertical: MediaQuery.sizeOf(context).height * 0.015,
+                              horizontal:
+                                  MediaQuery.sizeOf(context).width * 0.04,
+                              vertical:
+                                  MediaQuery.sizeOf(context).height * 0.015,
                             ),
                             decoration: BoxDecoration(
                               color: ugoGreen.withValues(alpha: 0.15),
@@ -158,7 +162,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           ),
                         ],
 
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.03),
 
                         // 4 OTP Boxes with Enhanced Logic
                         LayoutBuilder(
@@ -176,7 +181,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           },
                         ),
 
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.04),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.04),
 
                         // Verify Button
                         SizedBox(
