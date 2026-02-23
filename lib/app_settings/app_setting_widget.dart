@@ -34,12 +34,13 @@ class _AppSettingsWidgetState extends State<AppSettingsWidget> {
             _settingsTile(Icons.display_settings_outlined, 'Display'),
             _settingsTile(Icons.location_on_outlined, 'Follow My Ride'),
             _settingsTile(Icons.emergency_outlined, 'Emergency Contacts',
-            onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const EmergencyContactsScreen()),
-    );
-  }),
+                onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const EmergencyContactsScreen()),
+              );
+            }),
             _settingsTile(Icons.speed_outlined, 'Speed limit'),
             // _settingsTile(Icons.share_outlined, 'Emergency Data Sharing'),
             _settingsTile(Icons.check_circle_outline, 'RideCheck'),
@@ -75,5 +76,4 @@ class _AppSettingsWidgetState extends State<AppSettingsWidget> {
       ],
     );
   }
-
 }

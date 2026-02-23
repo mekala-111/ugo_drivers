@@ -52,7 +52,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     _model = createModel(context, () => WithdrawModel());
 
     if (kDebugMode) {
-      debugPrint('💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
+      debugPrint(
+          '💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
     }
 
     // Initialize amount text controller with wallet amount if provided
@@ -160,7 +161,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     final rawAmountText = _model.textController1?.text.trim() ?? '';
     final normalizedAmountText = _normalizeAmount(rawAmountText);
     final amountValue = num.tryParse(normalizedAmountText);
-    debugPrint('💰 Withdraw amount input: "$rawAmountText" → normalized: "$normalizedAmountText" → parsed: $amountValue');
+    debugPrint(
+        '💰 Withdraw amount input: "$rawAmountText" → normalized: "$normalizedAmountText" → parsed: $amountValue');
     if (amountValue == null || amountValue <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -310,7 +312,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                     color: AppColors.background,
                   ),
                   child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding:
+                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,7 +654,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 height: 50,
                                 padding: const EdgeInsets.all(8),
                                 iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    const EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 0, 0),
                                 color: AppColors.greyBg,
                                 textStyle: FlutterFlowTheme.of(context)
                                     .titleSmall
@@ -687,7 +691,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                 height: 50,
                                 padding: const EdgeInsets.all(8),
                                 iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                    const EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 0, 0),
                                 color: AppColors.accentCoral,
                                 textStyle: FlutterFlowTheme.of(context)
                                     .titleSmall

@@ -466,76 +466,71 @@ class _HomeWidgetState extends State<HomeWidget>
               drawer: const Drawer(elevation: 16.0, child: MenuWidget()),
               body: SafeArea(
                 child: Center(
-                  child: Column(
-                    children: [
-                      AppHeader(
-                        scaffoldKey: scaffoldKey,
-                        switchValue: c.isOnline,
-                        isDataLoaded: c.isDataLoaded,
-                        onToggleOnline: () => c.toggleOnlineStatus(),
-                        screenWidth: screenWidth,
-                        isSmallScreen: isSmallScreen,
-                        notificationCount: 3,
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Stack(
-                          children: [
-                            if (isOnline)
-                              RideMapContainer(
-                                mapKey: _mapKey,
-                                controller: _model.googleMapsController,
-                                initialLocation: userLocation,
-                                onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                                mapCenter: _model.googleMapsCenter ?? userLocation,
-                                availableDriversCount: c.availableDriversCount,
-                                showCaptainsPanel: shouldShowPanels,
-                              ),
-                            if (!isOnline)
-                              OfflineDashboard(
-                                driverName: c.driverName,
-                                greeting: _getGreeting(),
-                                isDataLoaded: c.isDataLoaded,
-                                onGoOnline: () => c.toggleOnlineStatus(),
-                              ),
-                            BottomRidePanel(
-                              overlayKey: _overlayKey,
-                              onRideComplete: _onRideComplete,
-                              driverLocation: c.currentUserLocation ?? userLocation,
-                            ),
-                          ],
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.04),
+                        AppHeader(
+                          scaffoldKey: scaffoldKey,
+                          switchValue: c.isOnline,
+                          isDataLoaded: c.isDataLoaded,
+                          onToggleOnline: () => c.toggleOnlineStatus(),
+                          screenWidth: screenWidth,
+                          isSmallScreen: isSmallScreen,
+                          notificationCount: 0,
                         ),
-                      ),
-                      if (shouldShowPanels)
-                        Flexible(
-                          flex: 1,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IncentivePanel(
-                                  isExpanded: _isIncentivePanelExpanded,
-                                  isLoadingIncentives: c.isLoadingIncentives,
-                                  incentiveTiers: c.incentiveTiers,
-                                  currentRides: c.currentRides,
-                                  totalIncentiveEarned: c.totalIncentiveEarned,
-                                  onTap: () => setState(() => _isIncentivePanelExpanded = !_isIncentivePanelExpanded),
-                                  screenWidth: screenWidth,
-                                  isSmallScreen: isSmallScreen,
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              if (isOnline)
+                                RideMapContainer(
+                                  mapKey: _mapKey,
+                                  controller: _model.googleMapsController,
+                                  initialLocation: userLocation,
+                                  onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
+                                  mapCenter: _model.googleMapsCenter ?? userLocation,
+                                  availableDriversCount: c.availableDriversCount,
+                                  showCaptainsPanel: shouldShowPanels,
                                 ),
-                                EarningsSummary(
-                                  todayTotal: c.todayTotal,
-                                  teamEarnings: c.todayWallet,
-                                  ridesToday: c.todayRideCount,
-                                  isLoading: c.isLoadingEarnings,
-                                  isSmallScreen: isSmallScreen,
+                              if (!isOnline)
+                                OfflineDashboard(
+                                  driverName: c.driverName,
+                                  greeting: _getGreeting(),
+                                  isDataLoaded: c.isDataLoaded,
+                                  onGoOnline: () => c.toggleOnlineStatus(),
                                 ),
-                                SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
-                              ],
-                            ),
+                              BottomRidePanel(
+                                overlayKey: _overlayKey,
+                                onRideComplete: _onRideComplete,
+                                driverLocation: c.currentUserLocation ?? userLocation,
+                              ),
+                            ],
                           ),
                         ),
-                    ],
+                        if (shouldShowPanels)
+                          IncentivePanel(
+                            isExpanded: _isIncentivePanelExpanded,
+                            isLoadingIncentives: c.isLoadingIncentives,
+                            incentiveTiers: c.incentiveTiers,
+                            currentRides: c.currentRides,
+                            totalIncentiveEarned: c.totalIncentiveEarned,
+                            onTap: () => setState(() => _isIncentivePanelExpanded = !_isIncentivePanelExpanded),
+                            screenWidth: screenWidth,
+                            isSmallScreen: isSmallScreen,
+                          ),
+                        if (shouldShowPanels)
+                          EarningsSummary(
+                            todayTotal: c.todayTotal,
+                            teamEarnings: c.todayWallet,
+                            ridesToday: c.todayRideCount,
+                            isLoading: c.isLoadingEarnings,
+                            isSmallScreen: isSmallScreen,
+                          ),
+                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
+                      ],
+                    ),
                   ),
                 ),
               ),
