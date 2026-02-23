@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/app_settings/emergencycontactscreen.dart';
-import 'package:ugo_driver/constants/app_colors.dart';
 
 class AppSettingsWidget extends StatefulWidget {
   const AppSettingsWidget({super.key});

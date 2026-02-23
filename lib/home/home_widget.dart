@@ -48,7 +48,6 @@ class _HomeWidgetState extends State<HomeWidget>
   bool _isIncentivePanelExpanded = false;
   DateTime? _lastBackPressed;
   String? _activeRouteKey;
-  bool _isAppInForeground = true;
   bool _bubbleVisible = false;
   bool _lastOnlineState = false;
   final MethodChannel _bubbleChannel =
@@ -196,7 +195,6 @@ class _HomeWidgetState extends State<HomeWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _isAppInForeground = state == AppLifecycleState.resumed;
     _syncFloatingBubble();
   }
 
@@ -204,49 +202,6 @@ class _HomeWidgetState extends State<HomeWidget>
     if (!mounted) return;
     // Floating bubble disabled - always hide
     await _hideFloatingBubble();
-  }
-
-  Future<void> _showFloatingBubble() async {
-    if (_bubbleVisible) return;
-    final hasPermission = await FloatingBubbleService.checkOverlayPermission();
-    if (!hasPermission) {
-      if (mounted) {
-        await _showOverlayPermissionDialog();
-      }
-      return;
-    }
-    await FloatingBubbleService.startFloatingBubble();
-    await FloatingBubbleService.showFloatingBubble();
-    _bubbleVisible = true;
-  }
-
-  Future<void> _showOverlayPermissionDialog() async {
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(FFLocalizations.of(context).getText('drv_overlay_needed_title'),
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(
-          FFLocalizations.of(context).getText('drv_overlay_needed_body'),
-          style: const TextStyle(height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(FFLocalizations.of(context).getText('drv_not_now')),
-          ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              await FloatingBubbleService.requestOverlayPermission();
-            },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            child: Text(FFLocalizations.of(context).getText('drv_allow')),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _hideFloatingBubble() async {
