@@ -41,8 +41,10 @@ class _HomeWidgetState extends State<HomeWidget>
   late HomeModel _model;
   late HomeController _controller;
 
-  final GlobalKey<RideRequestOverlayState> _overlayKey = GlobalKey<RideRequestOverlayState>();
-  final GlobalKey<FlutterFlowGoogleMapState> _mapKey = GlobalKey<FlutterFlowGoogleMapState>();
+  final GlobalKey<RideRequestOverlayState> _overlayKey =
+      GlobalKey<RideRequestOverlayState>();
+  final GlobalKey<FlutterFlowGoogleMapState> _mapKey =
+      GlobalKey<FlutterFlowGoogleMapState>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isIncentivePanelExpanded = false;
@@ -69,7 +71,8 @@ class _HomeWidgetState extends State<HomeWidget>
         await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(FFLocalizations.of(context).getText('drv_kyc_not_approved')),
+            title: Text(
+                FFLocalizations.of(context).getText('drv_kyc_not_approved')),
             content: Text(FFLocalizations.of(context)
                 .getText('drv_kyc_complete')
                 .replaceAll('%1', FFAppState().kycStatus)),
@@ -99,7 +102,8 @@ class _HomeWidgetState extends State<HomeWidget>
               ),
               FilledButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
                 child: const Text('Agree'),
               ),
             ],
@@ -112,7 +116,8 @@ class _HomeWidgetState extends State<HomeWidget>
         await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(FFLocalizations.of(context).getText('drv_location_needed'),
+            title: Text(
+                FFLocalizations.of(context).getText('drv_location_needed'),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             content: Text(
               FFLocalizations.of(context).getText('drv_location_body'),
@@ -128,8 +133,10 @@ class _HomeWidgetState extends State<HomeWidget>
                   Navigator.of(ctx).pop();
                   await Geolocator.openAppSettings();
                 },
-                style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-                child: Text(FFLocalizations.of(context).getText('drv_open_settings')),
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                child: Text(
+                    FFLocalizations.of(context).getText('drv_open_settings')),
               ),
             ],
           ),
@@ -152,7 +159,8 @@ class _HomeWidgetState extends State<HomeWidget>
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      getCurrentUserLocation(defaultLocation: const LatLng(0.0, 0.0), cached: true)
+      getCurrentUserLocation(
+              defaultLocation: const LatLng(0.0, 0.0), cached: true)
           .then((loc) => _controller.setUserLocation(loc));
 
       await _controller.init();
@@ -234,7 +242,8 @@ class _HomeWidgetState extends State<HomeWidget>
     }
 
     void process(Map<String, dynamic> rideData) {
-      final status = (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+      final status =
+          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
 
       // ✅ Driver gets rides only when online
       if (status == 'SEARCHING' && !_controller.isOnline) return;
@@ -246,11 +255,15 @@ class _HomeWidgetState extends State<HomeWidget>
         _activeRouteKey = null;
       }
 
-      if (status == 'CANCELLED' || status == 'REJECTED' || status == 'DECLINED') {
+      if (status == 'CANCELLED' ||
+          status == 'REJECTED' ||
+          status == 'DECLINED') {
         _controller.setRideStatus('IDLE');
         Provider.of<RideState>(context, listen: false).clearRide();
         final rideId = rideData['id'] != null
-            ? (rideData['id'] is int ? rideData['id'] as int : int.tryParse(rideData['id'].toString()))
+            ? (rideData['id'] is int
+                ? rideData['id'] as int
+                : int.tryParse(rideData['id'].toString()))
             : null;
         if (rideId != null) _overlayKey.currentState?.removeRideById(rideId);
         clearMap();
@@ -258,7 +271,8 @@ class _HomeWidgetState extends State<HomeWidget>
       }
 
       _controller.setRideStatus(status);
-      Provider.of<RideState>(context, listen: false).updateRide(RideRequest.fromJson(rideData));
+      Provider.of<RideState>(context, listen: false)
+          .updateRide(RideRequest.fromJson(rideData));
       _overlayKey.currentState!.handleNewRide(rideData);
 
       if (status == 'SEARCHING') {
@@ -407,8 +421,10 @@ class _HomeWidgetState extends State<HomeWidget>
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return FFLocalizations.of(context).getText('drv_good_morning');
-    if (hour < 17) return FFLocalizations.of(context).getText('drv_good_afternoon');
+    if (hour < 12)
+      return FFLocalizations.of(context).getText('drv_good_morning');
+    if (hour < 17)
+      return FFLocalizations.of(context).getText('drv_good_afternoon');
     return FFLocalizations.of(context).getText('drv_good_evening');
   }
 
@@ -433,8 +449,14 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
-        final shouldShowPanels = !['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
-            .contains(c.currentRideStatus.toUpperCase());
+        final shouldShowPanels = ![
+          'ACCEPTED',
+          'ARRIVED',
+          'STARTED',
+          'ONTRIP',
+          'COMPLETED',
+          'FETCHING'
+        ].contains(c.currentRideStatus.toUpperCase());
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -450,10 +472,12 @@ class _HomeWidgetState extends State<HomeWidget>
               if (didPop) return;
               final now = DateTime.now();
               if (_lastBackPressed == null ||
-                  now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
+                  now.difference(_lastBackPressed!) >
+                      const Duration(seconds: 2)) {
                 _lastBackPressed = now;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(FFLocalizations.of(context).getText('drv_back_exit')),
+                  content: Text(
+                      FFLocalizations.of(context).getText('drv_back_exit')),
                   duration: const Duration(seconds: 2),
                 ));
               } else {
@@ -471,7 +495,8 @@ class _HomeWidgetState extends State<HomeWidget>
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.04),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.04),
                         AppHeader(
                           scaffoldKey: scaffoldKey,
                           switchValue: c.isOnline,
@@ -489,9 +514,12 @@ class _HomeWidgetState extends State<HomeWidget>
                                   mapKey: _mapKey,
                                   controller: _model.googleMapsController,
                                   initialLocation: userLocation,
-                                  onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                                  mapCenter: _model.googleMapsCenter ?? userLocation,
-                                  availableDriversCount: c.availableDriversCount,
+                                  onCameraIdle: (latLng) =>
+                                      _model.googleMapsCenter = latLng,
+                                  mapCenter:
+                                      _model.googleMapsCenter ?? userLocation,
+                                  availableDriversCount:
+                                      c.availableDriversCount,
                                   showCaptainsPanel: shouldShowPanels,
                                 ),
                               if (!isOnline)
@@ -504,7 +532,8 @@ class _HomeWidgetState extends State<HomeWidget>
                               BottomRidePanel(
                                 overlayKey: _overlayKey,
                                 onRideComplete: _onRideComplete,
-                                driverLocation: c.currentUserLocation ?? userLocation,
+                                driverLocation:
+                                    c.currentUserLocation ?? userLocation,
                               ),
                             ],
                           ),
@@ -516,7 +545,9 @@ class _HomeWidgetState extends State<HomeWidget>
                             incentiveTiers: c.incentiveTiers,
                             currentRides: c.currentRides,
                             totalIncentiveEarned: c.totalIncentiveEarned,
-                            onTap: () => setState(() => _isIncentivePanelExpanded = !_isIncentivePanelExpanded),
+                            onTap: () => setState(() =>
+                                _isIncentivePanelExpanded =
+                                    !_isIncentivePanelExpanded),
                             screenWidth: screenWidth,
                             isSmallScreen: isSmallScreen,
                           ),
@@ -528,7 +559,8 @@ class _HomeWidgetState extends State<HomeWidget>
                             isLoading: c.isLoadingEarnings,
                             isSmallScreen: isSmallScreen,
                           ),
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.018),
                       ],
                     ),
                   ),

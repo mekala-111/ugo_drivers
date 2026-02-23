@@ -60,7 +60,6 @@ dependencies:
   # FIXED: Specific version to match places
   google_maps_webservice: ^0.0.20-nullsafety.5
 
-
   google_api_headers: 4.5.3
 
   google_maps_flutter: 2.12.2
