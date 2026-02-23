@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import '../incentive_model.dart';
 
@@ -29,6 +30,10 @@ class IncentivePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasIncentives = incentiveTiers.isNotEmpty;
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+    final hPad = w * (isSmallScreen ? 0.035 : 0.04);
+    final vPad = h * (isSmallScreen ? 0.014 : 0.016);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -49,26 +54,24 @@ class IncentivePanel extends StatelessWidget {
           InkWell(
             onTap: onTap,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 12 : 16,
-                vertical: isSmallScreen ? 10 : 12,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     FFLocalizations.of(context).getText('drv_incentives'),
+                    textScaler: MediaQuery.textScalerOf(context),
                     style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 16,
+                      fontSize: Responsive.fontSize(context, isSmallScreen ? 14 : 16),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Row(
                     children: [
                       if (isLoadingIncentives)
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
+                        SizedBox(
+                          width: w * 0.04,
+                          height: w * 0.04,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
@@ -87,10 +90,10 @@ class IncentivePanel extends StatelessWidget {
                             color: hasIncentives ? Colors.black : Colors.grey,
                           ),
                         ),
-                      SizedBox(width: isSmallScreen ? 8 : 12),
+                      SizedBox(width: w * (isSmallScreen ? 0.022 : 0.03)),
                       Icon(
                         isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                        size: isSmallScreen ? 20 : 24,
+                        size: Responsive.iconSize(context, base: isSmallScreen ? 20 : 24),
                       ),
                     ],
                   ),
@@ -100,7 +103,7 @@ class IncentivePanel extends StatelessWidget {
           ),
           if (isExpanded)
             isLoadingIncentives
-                ? _buildLoadingIndicator()
+                ? _buildLoadingIndicator(context)
                 : hasIncentives
                     ? _buildIncentiveProgressBars(context)
                     : _buildComingSoonMessage(context),
@@ -109,9 +112,10 @@ class IncentivePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(BuildContext context) {
+    final size = MediaQuery.sizeOf(context).width * (isSmallScreen ? 0.065 : 0.08);
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      padding: EdgeInsets.all(size),
       child: const CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
       ),
@@ -123,13 +127,10 @@ class IncentivePanel extends StatelessWidget {
         ? incentiveTiers.map((t) => t.targetRides).reduce((a, b) => a > b ? a : b)
         : 0;
 
+    final w = MediaQuery.sizeOf(context).width;
+    final pad = w * (isSmallScreen ? 0.035 : 0.04);
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        isSmallScreen ? 12 : 16,
-        0,
-        isSmallScreen ? 12 : 16,
-        isSmallScreen ? 12 : 16,
-      ),
+      padding: EdgeInsets.fromLTRB(pad, 0, pad, pad),
       child: Column(
         children: [
           Row(
@@ -137,22 +138,24 @@ class IncentivePanel extends StatelessWidget {
             children: [
               Text(
                 '$currentRides/$totalRequiredRides',
+                textScaler: MediaQuery.textScalerOf(context),
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
+                  fontSize: Responsive.fontSize(context, isSmallScreen ? 16 : 18),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 '₹${totalIncentiveEarned.toStringAsFixed(0)}',
+                textScaler: MediaQuery.textScalerOf(context),
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 18,
+                  fontSize: Responsive.fontSize(context, isSmallScreen ? 16 : 18),
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
               ),
             ],
           ),
-          SizedBox(height: isSmallScreen ? 12 : 16),
+          SizedBox(height: MediaQuery.sizeOf(context).height * 0.02),
           ...incentiveTiers.map(
             (tier) => _IncentiveTierBar(
               tier: tier,
@@ -166,30 +169,35 @@ class IncentivePanel extends StatelessWidget {
   }
 
   Widget _buildComingSoonMessage(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+    final pad = w * (isSmallScreen ? 0.065 : 0.08);
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen ? 24 : 32),
+      padding: EdgeInsets.all(pad),
       child: Column(
         children: [
           Icon(
             Icons.star_border_rounded,
-            size: isSmallScreen ? 48 : 64,
+            size: w * (isSmallScreen ? 0.13 : 0.16),
             color: Colors.grey.shade400,
           ),
-          SizedBox(height: isSmallScreen ? 12 : 16),
+          SizedBox(height: h * 0.02),
           Text(
             FFLocalizations.of(context).getText('drv_incentives_soon'),
+            textScaler: MediaQuery.textScalerOf(context),
             style: TextStyle(
-              fontSize: isSmallScreen ? 18 : 20,
+              fontSize: Responsive.fontSize(context, isSmallScreen ? 18 : 20),
               fontWeight: FontWeight.bold,
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: h * 0.01),
           Text(
             FFLocalizations.of(context).getText('drv_incentives_excite'),
             textAlign: TextAlign.center,
+            textScaler: MediaQuery.textScalerOf(context),
             style: TextStyle(
-              fontSize: isSmallScreen ? 13 : 14,
+              fontSize: Responsive.fontSize(context, isSmallScreen ? 13 : 14),
               color: Colors.grey.shade500,
             ),
           ),
@@ -215,8 +223,9 @@ class _IncentiveTierBar extends StatelessWidget {
     final progress = (currentRides / tier.targetRides).clamp(0.0, 1.0);
     final isCompleted = currentRides >= tier.targetRides;
 
+    final h = MediaQuery.sizeOf(context).height;
     return Padding(
-      padding: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.only(bottom: h * 0.02),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -227,14 +236,15 @@ class _IncentiveTierBar extends StatelessWidget {
                 children: [
                   Icon(
                     tier.isLocked ? Icons.lock : Icons.lock_open,
-                    size: isSmallScreen ? 16 : 18,
+                    size: Responsive.iconSize(context, base: isSmallScreen ? 16 : 18),
                     color: tier.isLocked ? Colors.grey : AppColors.primary,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: MediaQuery.sizeOf(context).width * 0.015),
                   Text(
                     '${tier.targetRides} ${FFLocalizations.of(context).getText('drv_rides')}',
+                    textScaler: MediaQuery.textScalerOf(context),
                     style: TextStyle(
-                      fontSize: isSmallScreen ? 13 : 14,
+                      fontSize: Responsive.fontSize(context, isSmallScreen ? 13 : 14),
                       fontWeight: FontWeight.w600,
                       color: tier.isLocked ? Colors.grey : Colors.black87,
                     ),
@@ -243,17 +253,18 @@ class _IncentiveTierBar extends StatelessWidget {
               ),
               Text(
                 '+₹${tier.rewardAmount.toStringAsFixed(0)}',
+                textScaler: MediaQuery.textScalerOf(context),
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 16,
+                  fontSize: Responsive.fontSize(context, isSmallScreen ? 14 : 16),
                   fontWeight: FontWeight.bold,
                   color: isCompleted ? Colors.green : AppColors.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: MediaQuery.sizeOf(context).height * 0.01),
           Container(
-            height: isSmallScreen ? 28 : 32,
+            height: MediaQuery.sizeOf(context).height * (isSmallScreen ? 0.038 : 0.042),
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(isSmallScreen ? 14 : 16),

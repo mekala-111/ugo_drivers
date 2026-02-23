@@ -73,29 +73,28 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
           _licenseNumberController.text.trim().toUpperCase();
     });
     _licenseExpiryController.addListener(() {
-      FFAppState().licenseExpiryDate =
-          _licenseExpiryController.text.trim();
+      FFAppState().licenseExpiryDate = _licenseExpiryController.text.trim();
     });
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 License FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 License FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'Front Image (bytes): ${FFAppState().imageLicense?.bytes?.length ?? 0}');
-    print('Front Image URL: ${FFAppState().licenseFrontImageUrl}');
-    print('Front Base64: ${FFAppState().licenseFrontBase64.length} chars');
-    print(
+    debugPrint('Front Image URL: ${FFAppState().licenseFrontImageUrl}');
+    debugPrint('Front Base64: ${FFAppState().licenseFrontBase64.length} chars');
+    debugPrint(
         'Back Image (bytes): ${FFAppState().licenseBackImage?.bytes?.length ?? 0}');
-    print('Back Image URL: ${FFAppState().licenseBackImageUrl}');
-    print('Back Base64: ${FFAppState().licenseBackBase64.length} chars');
-    print('License Number: ${FFAppState().licenseNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('Back Image URL: ${FFAppState().licenseBackImageUrl}');
+    debugPrint('Back Base64: ${FFAppState().licenseBackBase64.length} chars');
+    debugPrint('License Number: ${FFAppState().licenseNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved license data...');
+    debugPrint('🔄 Loading saved license data...');
 
     // Load front image
     if (FFAppState().licenseFrontBase64.isNotEmpty) {
@@ -106,9 +105,9 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
           _model.uploadedLocalFile_uploadDataQhu = _frontImage!;
           _isFrontValid = true;
         });
-        print('✅ Front image loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ Front image loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding front Base64: $e');
+        debugPrint('❌ Error decoding front Base64: $e');
       }
     } else if (FFAppState().licenseFrontImageUrl.isNotEmpty) {
       setState(() {
@@ -133,7 +132,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
           _isBackValid = true;
         });
       } catch (e) {
-        print('❌ Error decoding back Base64: $e');
+        debugPrint('❌ Error decoding back Base64: $e');
       }
     } else if (FFAppState().licenseBackImageUrl.isNotEmpty) {
       setState(() {
@@ -174,7 +173,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
   // 🔥 OCR - Extract DL Number from Image
   Future<void> _extractDLNumberFromImage(FFUploadedFile image) async {
     if (image.bytes == null || image.bytes!.isEmpty) {
-      print('❌ No image bytes to process');
+      debugPrint('❌ No image bytes to process');
       return;
     }
 
@@ -193,8 +192,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
       final RecognizedText recognizedText =
           await textRecognizer.processImage(inputImage);
 
-      print('📝 OCR Text Extracted:');
-      print(recognizedText.text);
+      debugPrint('📝 OCR Text Extracted:');
+      debugPrint(recognizedText.text);
 
       // Extract DL number using regex
       String? dlNumber = _extractDLNumber(recognizedText.text);
@@ -210,18 +209,18 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
         FFAppState().update(() {});
 
         _showSnackBar('✅ DL Number auto-filled: $dlNumber');
-        print('✅ DL Number extracted: $dlNumber');
+        debugPrint('✅ DL Number extracted: $dlNumber');
       } else {
         _showSnackBar('⚠️ Could not detect DL number. Please enter manually.',
             isError: true);
-        print('❌ No valid DL number found in text');
+        debugPrint('❌ No valid DL number found in text');
       }
 
       // Cleanup
       await textRecognizer.close();
       await file.delete();
     } catch (e) {
-      print('❌ OCR Error: $e');
+      debugPrint('❌ OCR Error: $e');
       _showSnackBar('OCR failed. Please enter DL number manually.',
           isError: true);
     } finally {
@@ -304,7 +303,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
               color: Colors.white,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(fontSize: 14))),
+            Expanded(
+                child: Text(message, style: const TextStyle(fontSize: 14))),
           ],
         ),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
@@ -342,199 +342,210 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
         ],
       ),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.registrationOrange, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style:
-                          const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    Text(subtitle,
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.grey[600])),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
-              width: double.infinity,
-              height: 180.0,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16.0),
-                border: Border.all(
-                  color: isValid
-                      ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
-                  width: 2,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(14.0),
-                    child: image?.bytes != null && image!.bytes!.isNotEmpty
-                        ? Image.memory(
-                            image.bytes!,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.contain,
-                          )
-                        : (imageUrl != null && imageUrl.isNotEmpty)
-                            ? Image.network(
-                                imageUrl,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.contain,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                      color: AppColors.registrationOrange,
-                                    ),
-                                  );
-                                },
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.registrationOrange
-                                          .withValues(alpha: 0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.add_a_photo,
-                                        size: 40, color: AppColors.registrationOrange),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'Tap to upload $title',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text('Camera or Gallery',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600])),
-                                ],
-                              ),
+      child: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AppColors.registrationOrange, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      Text(subtitle,
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    ],
                   ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onTap,
+              child: Container(
+                width: double.infinity,
+                height: 180.0,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppColors.backgroundLight,
+                      AppColors.backgroundMuted
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                    color: isValid
+                        ? Colors.green
+                        : (hasImage
+                            ? AppColors.registrationOrange
+                            : Colors.grey[300]!),
+                    width: 2,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14.0),
+                      child: image?.bytes != null && image!.bytes!.isNotEmpty
+                          ? Image.memory(
+                              image.bytes!,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.contain,
+                            )
+                          : (imageUrl != null && imageUrl.isNotEmpty)
+                              ? Image.network(
+                                  imageUrl,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                        color: AppColors.registrationOrange,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.registrationOrange
+                                              .withValues(alpha: 0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.add_a_photo,
+                                            size: 40,
+                                            color: AppColors.registrationOrange),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'Tap to upload $title',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text('Camera or Gallery',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600])),
+                                    ],
+                                  ),
+                              ),
+                    ),
 
-                  // OCR Processing Overlay
-                  if (_isProcessingOCR && title == 'Front Side')
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(14.0),
-                      ),
-                      child: const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(color: AppColors.registrationOrange),
-                            SizedBox(height: 16),
-                            Text(
-                              'Reading DL Number...',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
+                    // OCR Processing Overlay
+                    if (_isProcessingOCR && title == 'Front Side')
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(14.0),
                         ),
-                      ),
-                    ),
-
-                  if (hasImage && isValid)
-                    Center(
-                      child: CustomPaint(
-                        size: const Size(120, 120),
-                        painter: VerifiedStampPainter(),
-                      ),
-                    ),
-                  if (hasImage)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: onRemove,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                  color: AppColors.registrationOrange),
+                              SizedBox(height: 16),
+                              Text(
+                                'Reading DL Number...',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
-                          child:
-                              const Icon(Icons.close, color: Colors.white, size: 18),
+                        ),
+                      ),
+
+                    if (hasImage && isValid)
+                      Center(
+                        child: CustomPaint(
+                          size: const Size(120, 120),
+                          painter: VerifiedStampPainter(),
+                        ),
+                      ),
+                    if (hasImage)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: onRemove,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.close,
+                                color: Colors.white, size: 18),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (hasImage)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      isValid ? Icons.check_circle : Icons.info_outline,
+                      size: 14,
+                      color: isValid ? Colors.green : Colors.orange,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        isValid ? '✓ Verified and uploaded' : 'Image uploaded',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isValid ? Colors.green : Colors.orange,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
-          if (hasImage)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    isValid ? Icons.check_circle : Icons.info_outline,
-                    size: 14,
-                    color: isValid ? Colors.green : Colors.orange,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      isValid ? '✓ Verified and uploaded' : 'Image uploaded',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isValid ? Colors.green : Colors.orange,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -560,8 +571,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 20.0,
             buttonSize: 40.0,
-            icon:
-                const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 24.0),
             onPressed: () => context.pop(),
           ),
           title: const Row(
@@ -601,24 +612,28 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha: 0.1),
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
                               AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha: 0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha: 0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.card_membership,
-                                  color: AppColors.registrationOrange, size: 32),
+                                  color: AppColors.registrationOrange,
+                                  size: 32),
                             ),
                             const SizedBox(width: 16),
                             const Expanded(
@@ -711,7 +726,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -781,7 +796,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -836,7 +851,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                             Row(
                               children: [
                                 const Icon(Icons.badge,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
                                 const Text('License Number',
                                     style: TextStyle(
@@ -906,11 +922,13 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: _validateLicenseNumber,
@@ -980,11 +998,13 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: (v) => v != null && v.isNotEmpty
@@ -1010,7 +1030,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha: 0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1018,7 +1039,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                             const Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 SizedBox(width: 8),
                                 Text('Important Guidelines',
                                     style: TextStyle(
@@ -1045,108 +1067,117 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
 
                       // Submit Button
                       FFButtonWidget(
-                        onPressed: _isSubmitting ? null : () async {
-                          if (!_formKey.currentState!.validate()) return;
+                        onPressed: _isSubmitting
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
 
-                          // 1. Verify driving license is uploaded (front + back + number)
-                          final hasFront = (_frontImage?.bytes != null &&
-                                  _frontImage!.bytes!.isNotEmpty) ||
-                              (_frontImageUrl != null &&
-                                  _frontImageUrl!.isNotEmpty);
-                          final hasBack = (_backImage?.bytes != null &&
-                                  _backImage!.bytes!.isNotEmpty) ||
-                              (_backImageUrl != null &&
-                                  _backImageUrl!.isNotEmpty);
+                                // 1. Verify driving license is uploaded (front + back + number)
+                                final hasFront = (_frontImage?.bytes != null &&
+                                        _frontImage!.bytes!.isNotEmpty) ||
+                                    (_frontImageUrl != null &&
+                                        _frontImageUrl!.isNotEmpty);
+                                final hasBack = (_backImage?.bytes != null &&
+                                        _backImage!.bytes!.isNotEmpty) ||
+                                    (_backImageUrl != null &&
+                                        _backImageUrl!.isNotEmpty);
 
-                          if (!hasFront) {
-                            _showSnackBar('Please upload front side of license',
-                                isError: true);
-                            return;
-                          }
-                          if (!hasBack) {
-                            _showSnackBar('Please upload back side of license',
-                                isError: true);
-                            return;
-                          }
+                                if (!hasFront) {
+                                  _showSnackBar(
+                                      'Please upload front side of license',
+                                      isError: true);
+                                  return;
+                                }
+                                if (!hasBack) {
+                                  _showSnackBar(
+                                      'Please upload back side of license',
+                                      isError: true);
+                                  return;
+                                }
 
-                          final licenseErr =
-                              InputValidators.licenseError(
-                                  _licenseNumberController.text.trim());
-                          if (licenseErr != null) {
-                            _showSnackBar(licenseErr, isError: true);
-                            return;
-                          }
-                          final expiryErr = _licenseExpiryController.text
-                                  .trim()
-                                  .isNotEmpty
-                              ? InputValidators.licenseExpiryError(
-                                  _licenseExpiryController.text.trim())
-                              : null;
-                          if (expiryErr != null) {
-                            _showSnackBar(expiryErr, isError: true);
-                            return;
-                          }
+                                final licenseErr = InputValidators.licenseError(
+                                    _licenseNumberController.text.trim());
+                                if (licenseErr != null) {
+                                  _showSnackBar(licenseErr, isError: true);
+                                  return;
+                                }
+                                final expiryErr = _licenseExpiryController.text
+                                        .trim()
+                                        .isNotEmpty
+                                    ? InputValidators.licenseExpiryError(
+                                        _licenseExpiryController.text.trim())
+                                    : null;
+                                if (expiryErr != null) {
+                                  _showSnackBar(expiryErr, isError: true);
+                                  return;
+                                }
 
-                          setState(() => _isSubmitting = true);
+                                setState(() => _isSubmitting = true);
 
-                          // 2. Save to FFAppState
-                          FFAppState().imageLicense = _frontImage;
-                          FFAppState().licenseFrontImage = _frontImage;
-                          FFAppState().licenseBackImage = _backImage;
-                          FFAppState().licenseNumber =
-                              _licenseNumberController.text.trim().toUpperCase();
-                          FFAppState().licenseExpiryDate =
-                              _licenseExpiryController.text.trim();
-                          if (_frontImage?.bytes != null) {
-                            FFAppState().licenseFrontBase64 =
-                                base64Encode(_frontImage!.bytes!);
-                          }
-                          if (_backImage?.bytes != null) {
-                            FFAppState().licenseBackBase64 =
-                                base64Encode(_backImage!.bytes!);
-                          }
-                          FFAppState().update(() {});
+                                // 2. Save to FFAppState
+                                FFAppState().imageLicense = _frontImage;
+                                FFAppState().licenseFrontImage = _frontImage;
+                                FFAppState().licenseBackImage = _backImage;
+                                FFAppState().licenseNumber =
+                                    _licenseNumberController.text
+                                        .trim()
+                                        .toUpperCase();
+                                FFAppState().licenseExpiryDate =
+                                    _licenseExpiryController.text.trim();
+                                if (_frontImage?.bytes != null) {
+                                  FFAppState().licenseFrontBase64 =
+                                      base64Encode(_frontImage!.bytes!);
+                                }
+                                if (_backImage?.bytes != null) {
+                                  FFAppState().licenseBackBase64 =
+                                      base64Encode(_backImage!.bytes!);
+                                }
+                                FFAppState().update(() {});
 
-                          // 3. Send to backend if user is logged in
-                          final driverId = FFAppState().driverid;
-                          final token = FFAppState().accessToken;
-                          if (driverId > 0 && token.isNotEmpty) {
-                            try {
-                              final res = await UpdateDriverCall.call(
-                                id: driverId,
-                                token: token,
-                                licenseimage: _frontImage,
-                                licenseFrontImage: _frontImage,
-                                licenseBackImage: _backImage,
-                              );
-                              if (!mounted) return;
-                              if (res.succeeded) {
-                                _showSnackBar('License verified and sent to backend!');
-                                await Future.delayed(
-                                    const Duration(milliseconds: 500));
-                                context.pop();
-                              } else {
-                                _showSnackBar(
-                                    'Could not update license. Please try again.',
-                                    isError: true);
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                _showSnackBar(
-                                    'Network error. Please try again.',
-                                    isError: true);
-                              }
-                            } finally {
-                              if (mounted) setState(() => _isSubmitting = false);
-                            }
-                          } else {
-                            setState(() => _isSubmitting = false);
-                            _showSnackBar('License saved. Will be sent with registration.');
-                            await Future.delayed(
-                                const Duration(milliseconds: 500));
-                            if (mounted) context.pop();
-                          }
-                        },
+                                // 3. Send to backend if user is logged in
+                                final driverId = FFAppState().driverid;
+                                final token = FFAppState().accessToken;
+                                if (driverId > 0 && token.isNotEmpty) {
+                                  try {
+                                    final res = await UpdateDriverCall.call(
+                                      id: driverId,
+                                      token: token,
+                                      licenseimage: _frontImage,
+                                      licenseFrontImage: _frontImage,
+                                      licenseBackImage: _backImage,
+                                    );
+                                    if (!mounted) return;
+                                    if (res.succeeded) {
+                                      _showSnackBar(
+                                          'License verified and sent to backend!');
+                                      await Future.delayed(
+                                          const Duration(milliseconds: 500));
+                                      context.pop();
+                                    } else {
+                                      _showSnackBar(
+                                          'Could not update license. Please try again.',
+                                          isError: true);
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      _showSnackBar(
+                                          'Network error. Please try again.',
+                                          isError: true);
+                                    }
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() => _isSubmitting = false);
+                                    }
+                                  }
+                                } else {
+                                  setState(() => _isSubmitting = false);
+                                  _showSnackBar(
+                                      'License saved. Will be sent with registration.');
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 500));
+                                  if (mounted) context.pop();
+                                }
+                              },
                         text: _isSubmitting ? 'Sending...' : 'Submit',
                         icon: const Icon(Icons.arrow_forward, size: 20),
                         options: FFButtonOptions(
@@ -1179,11 +1210,13 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
               child: Text(text,
-                  style: const TextStyle(fontSize: 13, color: AppColors.greyMedium))),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.greyMedium))),
         ],
       ),
     );

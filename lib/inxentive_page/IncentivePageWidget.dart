@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 
 import '/backend/api_requests/api_calls.dart';
 import '/constants/app_colors.dart';
+// ignore_for_file: file_names
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -671,7 +672,7 @@ class _IncentiveCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87)),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         '₹${rewardAmount.toStringAsFixed(0)}',
                         style: GoogleFonts.inter(

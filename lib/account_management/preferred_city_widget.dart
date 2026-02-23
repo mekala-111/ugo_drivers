@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/constants/app_colors.dart';
 import '/repositories/driver_repository.dart';
 import '/index.dart';
 
@@ -72,7 +71,7 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
           content: StatefulBuilder(
             builder: (context, setState) {
               return DropdownButtonFormField<int>(
-                value: requestedCityId,
+                initialValue: requestedCityId,
                 decoration: InputDecoration(
                   labelText: FFLocalizations.of(context).getText('drv_select_city'),
                 ),
@@ -272,7 +271,7 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                       child: OutlinedButton(
                         onPressed: _requestingApproval ? null : _requestApproval,
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppColors.primary, width: 1.5),
+                          side: const BorderSide(color: AppColors.primary, width: 1.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>UGO-DRIVER</string>
+	<string>ugo_driver</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>UGO-DRIVER</string>
+	<string>ugo_driver</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleLocalizations</key>
@@ -60,7 +60,9 @@
 	<true/>
 
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>In order to search nearby, this app requires access to your current location.</string>
+    <string>UGO Driver needs your location to show nearby ride requests, navigate to pickup and drop points, and share your position with passengers during active rides.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>UGO Driver needs background location to continue tracking your position during active rides when the app is minimized, so passengers can see your live location and estimated arrival.</string>
 	<key>NSCameraUsageDescription</key>
     <string>In order to take a picture or video, this app requires permission to access the camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

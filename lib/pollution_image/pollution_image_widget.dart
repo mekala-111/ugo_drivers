@@ -1,5 +1,4 @@
 import '/backend/api_requests/api_calls.dart';
-import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import '/index.dart';

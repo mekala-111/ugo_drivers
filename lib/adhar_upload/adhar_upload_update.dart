@@ -74,24 +74,24 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
 
   // Debug function to see what's in FFAppState
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'Front Image (bytes): ${FFAppState().aadharImage?.bytes?.length ?? 0}');
-    print('Front Image URL: ${FFAppState().aadharFrontImageUrl}');
-    print('Front Base64: ${FFAppState().aadharFrontBase64.length} chars');
-    print(
+    debugPrint('Front Image URL: ${FFAppState().aadharFrontImageUrl}');
+    debugPrint('Front Base64: ${FFAppState().aadharFrontBase64.length} chars');
+    debugPrint(
         'Back Image (bytes): ${FFAppState().aadharBackImage?.bytes?.length ?? 0}');
-    print('Back Image URL: ${FFAppState().aadharBackImageUrl}');
-    print('Back Base64: ${FFAppState().aadharBackBase64.length} chars');
-    print('Aadhaar Number: ${FFAppState().aadharNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('Back Image URL: ${FFAppState().aadharBackImageUrl}');
+    debugPrint('Back Base64: ${FFAppState().aadharBackBase64.length} chars');
+    debugPrint('Aadhaar Number: ${FFAppState().aadharNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   // Load previously saved images and Aadhaar number
   void _loadSavedData() {
-    print('🔄 Loading saved data...');
+    debugPrint('🔄 Loading saved data...');
 
     // FRONT IMAGE LOADING PRIORITY:
     // 1. Check Base64 (persisted across restarts)
@@ -108,23 +108,23 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
           );
           _isFrontValid = true;
         });
-        print('✅ Front image loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ Front image loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding front Base64: $e');
+        debugPrint('❌ Error decoding front Base64: $e');
       }
     } else if (FFAppState().aadharFrontImageUrl.isNotEmpty) {
       setState(() {
         _frontImageUrl = FFAppState().aadharFrontImageUrl;
         _isFrontValid = true;
       });
-      print('✅ Front image URL loaded: ${FFAppState().aadharFrontImageUrl}');
+      debugPrint('✅ Front image URL loaded: ${FFAppState().aadharFrontImageUrl}');
     } else if (FFAppState().aadharImage?.bytes != null &&
         FFAppState().aadharImage!.bytes!.isNotEmpty) {
       setState(() {
         _frontImage = FFAppState().aadharImage;
         _isFrontValid = true;
       });
-      print('✅ Front image loaded from memory');
+      debugPrint('✅ Front image loaded from memory');
     }
 
     // BACK IMAGE LOADING PRIORITY:
@@ -142,23 +142,23 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
           );
           _isBackValid = true;
         });
-        print('✅ Back image loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ Back image loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding back Base64: $e');
+        debugPrint('❌ Error decoding back Base64: $e');
       }
     } else if (FFAppState().aadharBackImageUrl.isNotEmpty) {
       setState(() {
         _backImageUrl = FFAppState().aadharBackImageUrl;
         _isBackValid = true;
       });
-      print('✅ Back image URL loaded: ${FFAppState().aadharBackImageUrl}');
+      debugPrint('✅ Back image URL loaded: ${FFAppState().aadharBackImageUrl}');
     } else if (FFAppState().aadharBackImage?.bytes != null &&
         FFAppState().aadharBackImage!.bytes!.isNotEmpty) {
       setState(() {
         _backImage = FFAppState().aadharBackImage;
         _isBackValid = true;
       });
-      print('✅ Back image loaded from memory');
+      debugPrint('✅ Back image loaded from memory');
     }
 
     // Load saved Aadhaar number and auto-fill
@@ -168,7 +168,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
         _aadhaarController.text = formattedNumber;
         _isAadhaarValid = _validateAadhaar(formattedNumber) == null;
       });
-      print('✅ Aadhaar number loaded: ${FFAppState().aadharNumber}');
+      debugPrint('✅ Aadhaar number loaded: ${FFAppState().aadharNumber}');
     }
   }
 
@@ -671,7 +671,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error creating uploaded file: $e');
+                              debugPrint('❌ Error creating uploaded file: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -688,14 +688,14 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                                 String base64Image =
                                     base64Encode(_frontImage!.bytes!);
                                 FFAppState().aadharFrontBase64 = base64Image;
-                                print(
+                                debugPrint(
                                     '✅ Front image saved as Base64 (${base64Image.length} chars)');
                               }
 
                               FFAppState().update(() {});
 
-                              print('✅ Front image saved to FFAppState');
-                              print('   Bytes: ${_frontImage?.bytes?.length}');
+                              debugPrint('✅ Front image saved to FFAppState');
+                              debugPrint('   Bytes: ${_frontImage?.bytes?.length}');
 
                               _showSnackBar('Front side uploaded!');
                             }
@@ -714,7 +714,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                           FFAppState().aadharFrontBase64 = '';
                           FFAppState().update(() {});
 
-                          print('❌ Front image removed from FFAppState');
+                          debugPrint('❌ Front image removed from FFAppState');
 
                           _showSnackBar('Front side removed', isError: true);
                         },
@@ -752,7 +752,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error creating uploaded file: $e');
+                              debugPrint('❌ Error creating uploaded file: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -769,14 +769,14 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                                 String base64Image =
                                     base64Encode(_backImage!.bytes!);
                                 FFAppState().aadharBackBase64 = base64Image;
-                                print(
+                                debugPrint(
                                     '✅ Back image saved as Base64 (${base64Image.length} chars)');
                               }
 
                               FFAppState().update(() {});
 
-                              print('✅ Back image saved to FFAppState');
-                              print('   Bytes: ${_backImage?.bytes?.length}');
+                              debugPrint('✅ Back image saved to FFAppState');
+                              debugPrint('   Bytes: ${_backImage?.bytes?.length}');
 
                               _showSnackBar('Back side uploaded!');
                             }
@@ -795,7 +795,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                           FFAppState().aadharBackBase64 = '';
                           FFAppState().update(() {});
 
-                          print('❌ Back image removed from FFAppState');
+                          debugPrint('❌ Back image removed from FFAppState');
 
                           _showSnackBar('Back side removed', isError: true);
                         },
@@ -933,7 +933,7 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
                                   FFAppState().aadharNumber =
                                       value.replaceAll(' ', '');
                                   FFAppState().update(() {});
-                                  print(
+                                  debugPrint(
                                       '💾 Aadhaar saved: ${FFAppState().aadharNumber}');
                                 }
                               },
@@ -1062,18 +1062,18 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
 
                             FFAppState().update(() {});
 
-                            print('✅ All data saved to FFAppState:');
-                            print(
+                            debugPrint('✅ All data saved to FFAppState:');
+                            debugPrint(
                                 '   Front: ${_frontImage?.bytes?.length ?? 0} bytes');
-                            print('   Front URL: ${_frontImageUrl ?? "None"}');
-                            print(
+                            debugPrint('   Front URL: ${_frontImageUrl ?? "None"}');
+                            debugPrint(
                                 '   Front Base64: ${FFAppState().aadharFrontBase64.length} chars');
-                            print(
+                            debugPrint(
                                 '   Back: ${_backImage?.bytes?.length ?? 0} bytes');
-                            print('   Back URL: ${_backImageUrl ?? "None"}');
-                            print(
+                            debugPrint('   Back URL: ${_backImageUrl ?? "None"}');
+                            debugPrint(
                                 '   Back Base64: ${FFAppState().aadharBackBase64.length} chars');
-                            print('   Number: ${FFAppState().aadharNumber}');
+                            debugPrint('   Number: ${FFAppState().aadharNumber}');
 
                             _showSnackBar('Aadhaar verification completed!');
 

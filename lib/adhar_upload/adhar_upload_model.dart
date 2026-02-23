@@ -1,3 +1,4 @@
+// ignore_for_file: non_constant_identifier_names
 import '/flutter_flow/flutter_flow_util.dart';
 import 'adhar_upload_widget.dart' show AdharUploadWidget;
 import 'package:flutter/material.dart';

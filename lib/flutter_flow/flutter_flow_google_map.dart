@@ -299,6 +299,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
           ),
         )
         .toSet();
+    if (!mounted) return;
     if (!setEquals(newSet, _cachedMarkers)) {
       setState(() => _cachedMarkers = newSet);
     }
@@ -306,6 +307,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
 
   /// Replace the set of circles shown on the map (e.g. pickup/drop area highlights).
   void updateCircles(Set<Circle> circles) {
+    if (!mounted) return;
     if (!setEquals(circles, _cachedCircles)) {
       setState(() => _cachedCircles = circles);
     }
@@ -313,6 +315,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
 
   /// Replace the polyline shown on the map (e.g. pickup to drop route line).
   void updatePolylines(Set<Polyline> polylines) {
+    if (!mounted) return;
     if (!setEquals(polylines, _cachedPolylines)) {
       setState(() => _cachedPolylines = polylines);
     }

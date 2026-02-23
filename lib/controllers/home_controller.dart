@@ -15,12 +15,15 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
 import '../flutter_flow/flutter_flow_util.dart';
 
 const double _locationUpdateThreshold = 50.0;
+const double _notifyDistanceThreshold = 100.0;
+const Duration _notifyTimeThreshold = Duration(seconds: 2);
 
 /// Holds all Home screen logic: fetch, socket, location, earnings.
 /// HomeWidget listens and delegates UI via callbacks.
 class HomeController extends ChangeNotifier {
   HomeController({
     required this.onShowKycDialog,
+    required this.onShowLocationDisclosure,
     required this.onShowPermissionDialog,
     required this.onShowSnackBar,
     required this.onSocketRideData,
@@ -28,6 +31,7 @@ class HomeController extends ChangeNotifier {
   });
 
   final Future<void> Function() onShowKycDialog;
+  final Future<bool> Function() onShowLocationDisclosure;
   final Future<void> Function() onShowPermissionDialog;
   final void Function(String messageKey, {bool isError}) onShowSnackBar;
   final void Function(dynamic data) onSocketRideData;
@@ -36,6 +40,8 @@ class HomeController extends ChangeNotifier {
   late io.Socket _socket;
   StreamSubscription<Position>? _locationSub;
   Position? _lastSavedPosition;
+  DateTime? _lastNotifyTime;
+  Position? _lastNotifyPosition;
   bool _isTrackingLocation = false;
   Timer? _availableDriversTimer;
   bool _socketInitialized = false;
@@ -106,8 +112,9 @@ class HomeController extends ChangeNotifier {
         userDetails.jsonBody,
         r'''$.data.first_name''',
       ).toString();
-      if (fetchedName != 'null' && fetchedName.isNotEmpty)
+      if (fetchedName != 'null' && fetchedName.isNotEmpty) {
         driverName = fetchedName;
+      }
 
       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);
 
@@ -275,6 +282,7 @@ class HomeController extends ChangeNotifier {
         longitude: null,
       );
     }
+    if (_disposed) return;
     _notify();
   }
 
@@ -307,6 +315,12 @@ class HomeController extends ChangeNotifier {
 
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      _isTrackingLocation = false;
+      return;
+    }
+
+    final agreed = await onShowLocationDisclosure();
+    if (!agreed) {
       _isTrackingLocation = false;
       return;
     }
@@ -361,11 +375,16 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> _handleLocationUpdate(Position newPosition) async {
+    final hasActiveRide = ['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP']
+        .contains(currentRideStatus.toUpperCase());
+
     if (_lastSavedPosition == null) {
       _lastSavedPosition = newPosition;
       await _updateLocationToServer(newPosition);
       if (_disposed) return;
       currentUserLocation = LatLng(newPosition.latitude, newPosition.longitude);
+      _lastNotifyTime = DateTime.now();
+      _lastNotifyPosition = newPosition;
       _notify();
       return;
     }
@@ -384,7 +403,25 @@ class HomeController extends ChangeNotifier {
 
     if (_disposed) return;
     currentUserLocation = LatLng(newPosition.latitude, newPosition.longitude);
-    _notify();
+
+    if (hasActiveRide) {
+      _notify();
+    } else {
+      final shouldNotify = _lastNotifyTime == null ||
+          _lastNotifyPosition == null ||
+          DateTime.now().difference(_lastNotifyTime!) >= _notifyTimeThreshold ||
+          Geolocator.distanceBetween(
+            _lastNotifyPosition!.latitude,
+            _lastNotifyPosition!.longitude,
+            newPosition.latitude,
+            newPosition.longitude,
+          ) >= _notifyDistanceThreshold;
+      if (shouldNotify) {
+        _lastNotifyTime = DateTime.now();
+        _lastNotifyPosition = newPosition;
+        _notify();
+      }
+    }
   }
 
   Future<void> _updateLocationToServer(Position position) async {
@@ -406,6 +443,8 @@ class HomeController extends ChangeNotifier {
     _locationSub = null;
     _isTrackingLocation = false;
     _lastSavedPosition = null;
+    _lastNotifyTime = null;
+    _lastNotifyPosition = null;
     _availableDriversTimer?.cancel();
     _availableDriversTimer = null;
   }

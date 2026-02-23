@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:flutter/services.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 
@@ -48,9 +49,9 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   @override
   Widget build(BuildContext context) {
     // This Padding adjusts the view when the keyboard is open, pushing the sheet up.
+    final viewInsets = MediaQuery.viewInsetsOf(context);
     return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: viewInsets.bottom),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -76,7 +77,9 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                   // Green Header Bar
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(
+                      vertical: MediaQuery.sizeOf(context).height * 0.018,
+                    ),
                     decoration: const BoxDecoration(
                       color: ugoGreen,
                       borderRadius: BorderRadius.only(
@@ -96,15 +99,21 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                   ),
 
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                    padding: EdgeInsets.fromLTRB(
+                      MediaQuery.sizeOf(context).width * 0.06,
+                      MediaQuery.sizeOf(context).height * 0.03,
+                      MediaQuery.sizeOf(context).width * 0.06,
+                      MediaQuery.sizeOf(context).height * 0.04,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // "Enter OTP" Title
                         Text(
                           FFLocalizations.of(context).getText('drv_enter_otp'),
-                          style: const TextStyle(
-                            fontSize: 18,
+                          textScaler: MediaQuery.textScalerOf(context),
+                          style: TextStyle(
+                            fontSize: Responsive.fontSize(context, 18),
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -113,12 +122,14 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         // Dynamic OTP display (Rapido-style - show if backend provides it)
                         if (widget.displayOtp != null &&
                             widget.displayOtp!.isNotEmpty) ...[
-                          const SizedBox(height: 12),
+                          SizedBox(height: MediaQuery.sizeOf(context).height * 0.015),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: MediaQuery.sizeOf(context).width * 0.04,
+                              vertical: MediaQuery.sizeOf(context).height * 0.015,
+                            ),
                             decoration: BoxDecoration(
-                              color: ugoGreen.withOpacity(0.15),
+                              color: ugoGreen.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: ugoGreen, width: 1),
                             ),
@@ -147,7 +158,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           ),
                         ],
 
-                        const SizedBox(height: 24),
+                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
 
                         // 4 OTP Boxes with Enhanced Logic
                         LayoutBuilder(
@@ -165,12 +176,12 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           },
                         ),
 
-                        const SizedBox(height: 32),
+                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.04),
 
                         // Verify Button
                         SizedBox(
                           width: double.infinity,
-                          height: 55,
+                          height: MediaQuery.sizeOf(context).height * 0.068,
                           child: ElevatedButton(
                             onPressed: widget.onVerify,
                             style: ElevatedButton.styleFrom(

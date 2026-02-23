@@ -52,7 +52,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     _model = createModel(context, () => WithdrawModel());
 
     if (kDebugMode) {
-      print('💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
+      debugPrint('💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
     }
 
     // Initialize amount text controller with wallet amount if provided
@@ -103,8 +103,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
 
       if (!response.succeeded) {
         if (kDebugMode) {
-          print('❌ Failed to fetch bank account for withdraw');
-          print('   Status: ${response.statusCode}');
+          debugPrint('❌ Failed to fetch bank account for withdraw');
+          debugPrint('   Status: ${response.statusCode}');
         }
         return;
       }
@@ -126,7 +126,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
       });
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error fetching bank account: $e');
+        debugPrint('❌ Error fetching bank account: $e');
       }
     }
   }
@@ -160,7 +160,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     final rawAmountText = _model.textController1?.text.trim() ?? '';
     final normalizedAmountText = _normalizeAmount(rawAmountText);
     final amountValue = num.tryParse(normalizedAmountText);
-    print('💰 Withdraw amount input: "$rawAmountText" → normalized: "$normalizedAmountText" → parsed: $amountValue');
+    debugPrint('💰 Withdraw amount input: "$rawAmountText" → normalized: "$normalizedAmountText" → parsed: $amountValue');
     if (amountValue == null || amountValue <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

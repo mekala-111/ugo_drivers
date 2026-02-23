@@ -221,9 +221,10 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                     focusNode: _model.textFieldFocusNode1,
                                     icon: Icons.person_outline,
                                     validator: (val) {
-                                      if (val == null || val.isEmpty)
+                                      if (val == null || val.isEmpty) {
                                         return FFLocalizations.of(context)
                                             .getText('fd0004');
+                                      }
                                       return null;
                                     },
                                   ),
@@ -250,12 +251,14 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                     icon: Icons.email_outlined,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: (val) {
-                                      if (val == null || val.isEmpty)
+                                      if (val == null || val.isEmpty) {
                                         return FFLocalizations.of(context)
                                             .getText('fd0004');
-                                      if (!val.contains('@'))
+                                      }
+                                      if (!val.contains('@')) {
                                         return FFLocalizations.of(context)
                                             .getText('fd0005');
+                                      }
                                       return null;
                                     },
                                   ),

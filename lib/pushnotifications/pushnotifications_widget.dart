@@ -61,7 +61,7 @@ class _PushnotificationsWidgetState extends State<PushnotificationsWidget> {
                 size: 24.0,
               ),
               onPressed: () {
-                print('IconButton pressed ...');
+                debugPrint('IconButton pressed ...');
               },
             ),
           ),

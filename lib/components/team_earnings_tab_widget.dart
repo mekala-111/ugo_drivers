@@ -38,8 +38,7 @@ class _TeamEarningsTabWidgetState extends State<TeamEarningsTabWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
+    return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
           Padding(
@@ -2374,7 +2373,7 @@ class _TeamEarningsTabWidgetState extends State<TeamEarningsTabWidget> {
             ),
           ),
         ].divide(const SizedBox(height: 24.0)),
-      ),
-    );
+      );
+
   }
 }

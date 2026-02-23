@@ -33,8 +33,9 @@ class NewRequestCard extends StatelessWidget {
 
   /// Compute pickup distance from driver to pickup (km).
   static double? _pickupDistanceKm(LatLng? driver, RideRequest ride) {
-    if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0)
+    if (driver == null || ride.pickupLat == 0 || ride.pickupLng == 0) {
       return null;
+    }
     final m = Geolocator.distanceBetween(
       driver.latitude,
       driver.longitude,
@@ -62,7 +63,9 @@ class NewRequestCard extends StatelessWidget {
   }
 
   static String _formatDistance(double? km) {
-    if (km == null) return '--';
+    if (km == null) {
+      return '--';
+    }
     return km < 1 ? '${(km * 1000).round()}m' : '${km.toStringAsFixed(1)}Km';
   }
 
@@ -133,7 +136,7 @@ class NewRequestCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: MediaQuery.sizeOf(context).height * 0.015),
                       _buildFareBox(context),
                     ],
                   )
@@ -156,7 +159,7 @@ class NewRequestCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                const SizedBox(height: 20),
+                SizedBox(height: MediaQuery.sizeOf(context).height * 0.025),
                 _AddressRowFromLatLng(
                   lat: ride.dropLat,
                   lng: ride.dropLng,
@@ -172,7 +175,7 @@ class NewRequestCard extends StatelessWidget {
                   color: ugoGreen,
                   label: FFLocalizations.of(context).getText('drv_pickup'),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: MediaQuery.sizeOf(context).height * 0.025),
                 Row(
                   children: [
                     Expanded(
@@ -182,16 +185,16 @@ class NewRequestCard extends StatelessWidget {
                             FFLocalizations.of(context).getText('drv_decline'),
                             ugoRed,
                             isLoading ? null : onDecline)),
-                    const SizedBox(width: 16),
+                    SizedBox(width: MediaQuery.sizeOf(context).width * 0.04),
                     Expanded(
                         flex: 7,
                         child: isLoading
-                            ? const Center(
+                            ? Center(
                                 child: Padding(
-                                  padding: EdgeInsets.all(12),
+                                  padding: EdgeInsets.all(MediaQuery.sizeOf(context).width * 0.03),
                                   child: SizedBox(
-                                    width: 24,
-                                    height: 24,
+                                    width: MediaQuery.sizeOf(context).width * 0.06,
+                                    height: MediaQuery.sizeOf(context).width * 0.06,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: ugoGreen,
@@ -240,9 +243,12 @@ class NewRequestCard extends StatelessWidget {
         Container(height: 1, color: Colors.grey[300]),
         const Icon(Icons.arrow_forward, size: 16),
         Padding(
-          padding: const EdgeInsets.only(bottom: 25.0),
+          padding: EdgeInsets.only(bottom: MediaQuery.sizeOf(context).height * 0.03),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.sizeOf(context).width * 0.03,
+              vertical: MediaQuery.sizeOf(context).height * 0.01,
+            ),
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),

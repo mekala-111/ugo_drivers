@@ -71,8 +71,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
           // 1. Get Rating
           driverRating = data['driver_rating']?.toString() ?? '5.0';
-          if (driverRating == 'null' || driverRating.isEmpty)
+          if (driverRating == 'null' || driverRating.isEmpty) {
             driverRating = '5.0';
+          }
 
           // 2. Calculate Years from 'created_at'
           if (data['created_at'] != null) {

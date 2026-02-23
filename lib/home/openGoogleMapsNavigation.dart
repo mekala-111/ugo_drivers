@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
 

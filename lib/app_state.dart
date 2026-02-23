@@ -22,11 +22,7 @@ class FFAppState extends ChangeNotifier {
   String _activeRideStatus = '';
 
   /// Set when user taps ride request notification (Rapido-style). HomeWidget fetches and shows.
-  int _pendingRideIdFromNotification = 0;
-  int get pendingRideIdFromNotification => _pendingRideIdFromNotification;
-  set pendingRideIdFromNotification(int value) {
-    _pendingRideIdFromNotification = value;
-  }
+  int pendingRideIdFromNotification = 0;
   bool _overlayBubbleEnabled = false;
   bool get overlayBubbleEnabled => _overlayBubbleEnabled;
   set overlayBubbleEnabled(bool value) {
@@ -47,9 +43,18 @@ class FFAppState extends ChangeNotifier {
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
     SecureStorageService.instance.init();
-    _safeInit(() {
-      _accessToken = prefs.getString('ff_accessToken') ?? _accessToken;
-    });
+    try {
+      final sec = SecureStorageService.instance;
+      var token = await sec.read(SecureStorageService.keyAccessToken);
+      if (token == null || token.isEmpty) {
+        token = prefs.getString('ff_accessToken');
+        if (token != null && token.isNotEmpty) {
+          await sec.write(SecureStorageService.keyAccessToken, token);
+          await prefs.remove('ff_accessToken');
+        }
+      }
+      if (token != null && token.isNotEmpty) _accessToken = token;
+    } catch (_) {}
     _safeInit(() {
       _kycStatus = prefs.getString('ff_kycStatus') ?? _kycStatus;
     });
@@ -456,8 +461,11 @@ class FFAppState extends ChangeNotifier {
   String get dateOfBirth => _dateOfBirth;
   set dateOfBirth(String value) {
     _dateOfBirth = value;
-    if (value.isEmpty) prefs.remove('ff_dateOfBirth');
-    else prefs.setString('ff_dateOfBirth', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_dateOfBirth');
+    } else {
+      prefs.setString('ff_dateOfBirth', value);
+    }
     notifyListeners();
   }
 
@@ -465,8 +473,11 @@ class FFAppState extends ChangeNotifier {
   String get address => _address;
   set address(String value) {
     _address = value;
-    if (value.isEmpty) prefs.remove('ff_address');
-    else prefs.setString('ff_address', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_address');
+    } else {
+      prefs.setString('ff_address', value);
+    }
     notifyListeners();
   }
 
@@ -474,8 +485,11 @@ class FFAppState extends ChangeNotifier {
   String get city => _city;
   set city(String value) {
     _city = value;
-    if (value.isEmpty) prefs.remove('ff_city');
-    else prefs.setString('ff_city', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_city');
+    } else {
+      prefs.setString('ff_city', value);
+    }
     notifyListeners();
   }
 
@@ -483,8 +497,11 @@ class FFAppState extends ChangeNotifier {
   String get state => _state;
   set state(String value) {
     _state = value;
-    if (value.isEmpty) prefs.remove('ff_state');
-    else prefs.setString('ff_state', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_state');
+    } else {
+      prefs.setString('ff_state', value);
+    }
     notifyListeners();
   }
 
@@ -492,8 +509,11 @@ class FFAppState extends ChangeNotifier {
   String get postalCode => _postalCode;
   set postalCode(String value) {
     _postalCode = value;
-    if (value.isEmpty) prefs.remove('ff_postalCode');
-    else prefs.setString('ff_postalCode', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_postalCode');
+    } else {
+      prefs.setString('ff_postalCode', value);
+    }
     notifyListeners();
   }
 
@@ -501,8 +521,11 @@ class FFAppState extends ChangeNotifier {
   String get emergencyContactName => _emergencyContactName;
   set emergencyContactName(String value) {
     _emergencyContactName = value;
-    if (value.isEmpty) prefs.remove('ff_emergencyContactName');
-    else prefs.setString('ff_emergencyContactName', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_emergencyContactName');
+    } else {
+      prefs.setString('ff_emergencyContactName', value);
+    }
     notifyListeners();
   }
 
@@ -510,8 +533,11 @@ class FFAppState extends ChangeNotifier {
   String get emergencyContactPhone => _emergencyContactPhone;
   set emergencyContactPhone(String value) {
     _emergencyContactPhone = value;
-    if (value.isEmpty) prefs.remove('ff_emergencyContactPhone');
-    else prefs.setString('ff_emergencyContactPhone', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_emergencyContactPhone');
+    } else {
+      prefs.setString('ff_emergencyContactPhone', value);
+    }
     notifyListeners();
   }
 
@@ -987,8 +1013,11 @@ class FFAppState extends ChangeNotifier {
   String get vehicleYear => _vehicleYear;
   set vehicleYear(String value) {
     _vehicleYear = value;
-    if (value.isEmpty) prefs.remove('ff_vehicleYear');
-    else prefs.setString('ff_vehicleYear', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleYear');
+    } else {
+      prefs.setString('ff_vehicleYear', value);
+    }
     notifyListeners();
   }
 
@@ -997,8 +1026,11 @@ class FFAppState extends ChangeNotifier {
   String get vehicleName => _vehicleName;
   set vehicleName(String value) {
     _vehicleName = value;
-    if (value.isEmpty) prefs.remove('ff_vehicleName');
-    else prefs.setString('ff_vehicleName', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_vehicleName');
+    } else {
+      prefs.setString('ff_vehicleName', value);
+    }
     notifyListeners();
   }
 
@@ -1007,8 +1039,11 @@ class FFAppState extends ChangeNotifier {
   String get licensePlate => _licensePlate;
   set licensePlate(String value) {
     _licensePlate = value;
-    if (value.isEmpty) prefs.remove('ff_licensePlate');
-    else prefs.setString('ff_licensePlate', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_licensePlate');
+    } else {
+      prefs.setString('ff_licensePlate', value);
+    }
     notifyListeners();
   }
 
@@ -1017,8 +1052,11 @@ class FFAppState extends ChangeNotifier {
   String get registrationDate => _registrationDate;
   set registrationDate(String value) {
     _registrationDate = value;
-    if (value.isEmpty) prefs.remove('ff_registrationDate');
-    else prefs.setString('ff_registrationDate', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_registrationDate');
+    } else {
+      prefs.setString('ff_registrationDate', value);
+    }
     notifyListeners();
   }
 
@@ -1027,8 +1065,11 @@ class FFAppState extends ChangeNotifier {
   String get insuranceNumber => _insuranceNumber;
   set insuranceNumber(String value) {
     _insuranceNumber = value;
-    if (value.isEmpty) prefs.remove('ff_insuranceNumber');
-    else prefs.setString('ff_insuranceNumber', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_insuranceNumber');
+    } else {
+      prefs.setString('ff_insuranceNumber', value);
+    }
     notifyListeners();
   }
 
@@ -1037,8 +1078,11 @@ class FFAppState extends ChangeNotifier {
   String get insuranceExpiryDate => _insuranceExpiryDate;
   set insuranceExpiryDate(String value) {
     _insuranceExpiryDate = value;
-    if (value.isEmpty) prefs.remove('ff_insuranceExpiryDate');
-    else prefs.setString('ff_insuranceExpiryDate', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_insuranceExpiryDate');
+    } else {
+      prefs.setString('ff_insuranceExpiryDate', value);
+    }
     notifyListeners();
   }
 
@@ -1047,8 +1091,11 @@ class FFAppState extends ChangeNotifier {
   String get pollutionExpiryDate => _pollutionExpiryDate;
   set pollutionExpiryDate(String value) {
     _pollutionExpiryDate = value;
-    if (value.isEmpty) prefs.remove('ff_pollutionExpiryDate');
-    else prefs.setString('ff_pollutionExpiryDate', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_pollutionExpiryDate');
+    } else {
+      prefs.setString('ff_pollutionExpiryDate', value);
+    }
     notifyListeners();
   }
 
@@ -1099,8 +1146,11 @@ class FFAppState extends ChangeNotifier {
   String get insuranceBase64 => _insuranceBase64;
   set insuranceBase64(String value) {
     _insuranceBase64 = value;
-    if (value.isEmpty) prefs.remove('ff_insuranceBase64');
-    else prefs.setString('ff_insuranceBase64', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_insuranceBase64');
+    } else {
+      prefs.setString('ff_insuranceBase64', value);
+    }
     notifyListeners();
   }
 
@@ -1121,8 +1171,11 @@ class FFAppState extends ChangeNotifier {
   String get pollutionBase64 => _pollutionBase64;
   set pollutionBase64(String value) {
     _pollutionBase64 = value;
-    if (value.isEmpty) prefs.remove('ff_pollutionBase64');
-    else prefs.setString('ff_pollutionBase64', value);
+    if (value.isEmpty) {
+      prefs.remove('ff_pollutionBase64');
+    } else {
+      prefs.setString('ff_pollutionBase64', value);
+    }
     notifyListeners();
   }
 
@@ -1148,10 +1201,11 @@ class FFAppState extends ChangeNotifier {
 
   set accessToken(String value) {
     _accessToken = value;
+    final sec = SecureStorageService.instance;
     if (value.isEmpty) {
-      prefs.remove('ff_accessToken');
+      sec.delete(SecureStorageService.keyAccessToken);
     } else {
-      prefs.setString('ff_accessToken', value);
+      sec.write(SecureStorageService.keyAccessToken, value);
     }
     notifyListeners();
   }
@@ -1229,8 +1283,9 @@ class FFAppState extends ChangeNotifier {
   _aadharNumber = '';
   _aadharBackImage = null;
 
-  // Clear secure storage for Aadhaar/PAN
+  // Clear secure storage for JWT, Aadhaar/PAN
   final sec = SecureStorageService.instance;
+  await sec.delete(SecureStorageService.keyAccessToken);
   await sec.delete(SecureStorageService.keyAadharNumber);
   await sec.delete(SecureStorageService.keyAadharFrontImageUrl);
   await sec.delete(SecureStorageService.keyAadharBackImageUrl);

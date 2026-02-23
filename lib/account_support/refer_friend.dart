@@ -148,6 +148,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('WhatsApp not installed')));
     }
@@ -220,13 +221,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                               color: Colors.white, size: 24.0),
                           onPressed: () => context.pop(),
                         ),
-                        Expanded(
+                        const Expanded(
                           child: Text(
                             'Refer & Earn',
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

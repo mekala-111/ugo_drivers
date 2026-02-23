@@ -504,7 +504,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
                 ),
                 FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
+                    debugPrint('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     '6uptrs2q' /* Save */,

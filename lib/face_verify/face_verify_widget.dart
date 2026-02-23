@@ -70,19 +70,19 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 Profile Photo FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 Profile Photo FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'Profile Photo (bytes): ${FFAppState().profilePhoto?.bytes?.length ?? 0}');
-    print('Profile Photo URL: ${FFAppState().profilePhotoUrl}');
-    print(
+    debugPrint('Profile Photo URL: ${FFAppState().profilePhotoUrl}');
+    debugPrint(
         'Profile Photo Base64: ${FFAppState().profilePhotoBase64.length} chars');
-    print('═══════════════════════════════════════\n');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved profile photo...');
+    debugPrint('🔄 Loading saved profile photo...');
 
     // Load profile photo - Priority: Base64 > URL > Bytes
     if (FFAppState().profilePhotoBase64.isNotEmpty) {
@@ -96,16 +96,16 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
           _model.uploadedLocalFile_uploadDataFvd = _profilePhoto!;
           _isProfilePhotoValid = true;
         });
-        print('✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding profile photo Base64: $e');
+        debugPrint('❌ Error decoding profile photo Base64: $e');
       }
     } else if (FFAppState().profilePhotoUrl.isNotEmpty) {
       setState(() {
         _profilePhotoUrl = FFAppState().profilePhotoUrl;
         _isProfilePhotoValid = true;
       });
-      print('✅ Profile photo URL loaded: ${FFAppState().profilePhotoUrl}');
+      debugPrint('✅ Profile photo URL loaded: ${FFAppState().profilePhotoUrl}');
     } else if (FFAppState().profilePhoto?.bytes != null &&
         FFAppState().profilePhoto!.bytes!.isNotEmpty) {
       setState(() {
@@ -113,7 +113,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
         _model.uploadedLocalFile_uploadDataFvd = _profilePhoto!;
         _isProfilePhotoValid = true;
       });
-      print('✅ Profile photo loaded from memory');
+      debugPrint('✅ Profile photo loaded from memory');
     }
   }
 
@@ -183,16 +183,16 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
         FFAppState().profilePhotoBase64 = base64Image;
         FFAppState().update(() {});
 
-        print('✅ Camera photo saved to FFAppState');
-        print('   Bytes: ${bytes.length}');
-        print('   Base64: ${base64Image.length} chars');
+        debugPrint('✅ Camera photo saved to FFAppState');
+        debugPrint('   Bytes: ${bytes.length}');
+        debugPrint('   Base64: ${base64Image.length} chars');
 
         _showSnackBar(FFLocalizations.of(context).getText('face0001'));
       } else {
-        print('❌ Camera cancelled by user');
+        debugPrint('❌ Camera cancelled by user');
       }
     } catch (e) {
-      print('❌ Camera error: $e');
+      debugPrint('❌ Camera error: $e');
       _showSnackBar(
         FFLocalizations.of(context)
             .getText('face0002')
@@ -311,25 +311,25 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                     Text(
                                       FFLocalizations.of(context)
                                           .getText('face0003'),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         color: AppColors.textNearBlack,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.verified_user,
                                           size: 14,
                                           color: Colors.green,
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Text(
                                           FFLocalizations.of(context)
                                               .getText('face0004'),
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.green,
                                             fontWeight: FontWeight.w600,
@@ -345,7 +345,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           const SizedBox(height: 16),
                           Text(
                             FFLocalizations.of(context).getText('face0005'),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.greyMedium,
                               height: 1.4,
@@ -424,13 +424,13 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.tips_and_updates,
+                              const Icon(Icons.tips_and_updates,
                                   color: AppColors.registrationOrange, size: 20),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 FFLocalizations.of(context)
                                     .getText('face0008'),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -556,17 +556,17 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                           MainAxisAlignment
                                                               .center,
                                                       children: [
-                                                        Icon(
+                                                        const Icon(
                                                             Icons.error_outline,
                                                             size: 48,
                                                             color: Colors.red),
-                                                        SizedBox(height: 8),
+                                                        const SizedBox(height: 8),
                                                       Text(
                                                         FFLocalizations.of(
                                                             context)
                                                           .getText(
                                                             'upload0006'),
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           color: Colors
                                                             .red)),
                                                       ],
@@ -600,7 +600,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                       Text(
                                                         FFLocalizations.of(context)
                                                             .getText('face0015'),
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.w600,
@@ -658,7 +658,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                 '';
                                             FFAppState().update(() {});
 
-                                            print(
+                                            debugPrint(
                                                 '❌ Profile photo removed from FFAppState');
 
                                             _showSnackBar(
@@ -776,11 +776,11 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
 
                               FFAppState().update(() {});
 
-                              print('✅ Profile photo saved to FFAppState:');
-                              print(
+                              debugPrint('✅ Profile photo saved to FFAppState:');
+                              debugPrint(
                                   '   Image: ${_profilePhoto?.bytes?.length ?? 0} bytes');
-                              print('   URL: ${_profilePhotoUrl ?? "None"}');
-                              print(
+                              debugPrint('   URL: ${_profilePhotoUrl ?? "None"}');
+                              debugPrint(
                                   '   Base64: ${FFAppState().profilePhotoBase64.length} chars');
 
                                 _showSnackBar(FFLocalizations.of(context)

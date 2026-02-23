@@ -38,7 +38,7 @@ class _SupportWidgetState extends State<SupportWidget> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
-      print('Could not launch $url');
+      debugPrint('Could not launch $url');
     }
   }
 

@@ -6,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'vehicle_image_model.dart';
 export 'vehicle_image_model.dart';
 
@@ -88,7 +87,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           _isVehicleImageValid = true;
         });
       } catch (e) {
-        print('❌ Error: $e');
+        debugPrint('❌ Error: $e');
       }
     } else if (FFAppState().vehicleImage?.bytes != null) {
       setState(() {
@@ -137,7 +136,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           _isPollutionValid = true;
         });
       } catch (e) {
-        print('❌ Pollution decode error: $e');
+        debugPrint('❌ Pollution decode error: $e');
       }
     } else if (FFAppState().pollutioncertificateImage?.bytes != null &&
         FFAppState().pollutioncertificateImage!.bytes!.isNotEmpty) {
@@ -156,7 +155,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           _isInsuranceValid = true;
         });
       } catch (e) {
-        print('❌ Insurance decode error: $e');
+        debugPrint('❌ Insurance decode error: $e');
       }
     } else if (FFAppState().insuranceImage?.bytes != null &&
         FFAppState().insuranceImage!.bytes!.isNotEmpty) {
@@ -473,16 +472,16 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.sectionOrangeLight,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.add_photo_alternate, size: 40, color: AppColors.primary),
+                child: const Icon(Icons.add_photo_alternate, size: 40, color: AppColors.primary),
               ),
               const SizedBox(height: 12),
               Text(
                 FFLocalizations.of(context).getText('upload0002'),
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   color: AppColors.greySlate,
                   fontSize: 15,
@@ -495,6 +494,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
+  // ignore: unused_element
   Widget _buildVehicleTypeFromApi() {
     return FutureBuilder<ApiCallResponse>(
       future: ChoosevehicleCall.call(),
@@ -529,12 +529,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ),
             child: Row(
               children: [
-                Icon(Icons.cloud_off, color: AppColors.greySlate, size: 28),
+                const Icon(Icons.cloud_off, color: AppColors.greySlate, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     FFLocalizations.of(context).getText('veh0016'),
-                    style: TextStyle(color: AppColors.greySlate, fontSize: 14),
+                    style: const TextStyle(color: AppColors.greySlate, fontSize: 14),
                   ),
                 ),
                 TextButton(
@@ -561,7 +561,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ),
             child: Text(
               FFLocalizations.of(context).getText('veh0017'),
-              style: TextStyle(color: AppColors.greySlate, fontSize: 14),
+              style: const TextStyle(color: AppColors.greySlate, fontSize: 14),
             ),
           );
         }
@@ -657,6 +657,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
+  // ignore: unused_element
   Widget _buildSelectedVehicleTypeChip(String vehicleName) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -668,7 +669,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+          const Icon(Icons.check_circle, color: AppColors.primary, size: 20),
           const SizedBox(width: 10),
           Text(
             FFLocalizations.of(context)
@@ -809,7 +810,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ),
           ),
           child: DropdownButtonFormField<String>(
-            value: (value != null && value.isNotEmpty && items.contains(value)) ? value : null,
+            initialValue: (value != null && value.isNotEmpty && items.contains(value)) ? value : null,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(color: AppColors.greyLight, fontSize: 15),
@@ -992,7 +993,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ))
                 .toList();
           } catch (e) {
-            print('❌ Error: $e');
+            debugPrint('❌ Error: $e');
           }
           if (selectedUploadedFiles.isNotEmpty) {
             setState(() {
@@ -1040,7 +1041,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.sectionOrangeLight,
                         shape: BoxShape.circle,
                       ),
@@ -1127,11 +1128,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle, color: AppColors.white, size: 16),
-                      SizedBox(width: 4),
+                      const Icon(Icons.check_circle, color: AppColors.white, size: 16),
+                      const SizedBox(width: 4),
                       Text(
                         FFLocalizations.of(context).getText('upload0005'),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

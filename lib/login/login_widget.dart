@@ -1,5 +1,4 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/constants/responsive.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/gestures.dart';

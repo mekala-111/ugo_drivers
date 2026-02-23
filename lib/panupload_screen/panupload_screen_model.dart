@@ -1,3 +1,4 @@
+// ignore_for_file: non_constant_identifier_names
 import '/flutter_flow/flutter_flow_util.dart';
 import 'panupload_screen_widget.dart' show PanuploadScreenWidget;
 import 'package:flutter/material.dart';

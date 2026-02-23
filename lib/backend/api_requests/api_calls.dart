@@ -612,31 +612,40 @@ class UpdateDriverCall {
       params['pollution_certificate_image'] = pollutionCertificateImage;
     }
 
-    if (vehicleName != null && vehicleName.isNotEmpty)
+    if (vehicleName != null && vehicleName.isNotEmpty) {
       params['vehicle_name'] = vehicleName;
-    if (vehicleModel != null && vehicleModel.isNotEmpty)
+    }
+    if (vehicleModel != null && vehicleModel.isNotEmpty) {
       params['vehicle_model'] = vehicleModel;
-    if (vehicleColor != null && vehicleColor.isNotEmpty)
+    }
+    if (vehicleColor != null && vehicleColor.isNotEmpty) {
       params['vehicle_color'] = vehicleColor;
-    if (licensePlate != null && licensePlate.isNotEmpty)
+    }
+    if (licensePlate != null && licensePlate.isNotEmpty) {
       params['license_plate'] = licensePlate;
-    if (registrationNumber != null && registrationNumber.isNotEmpty)
+    }
+    if (registrationNumber != null && registrationNumber.isNotEmpty) {
       params['registration_number'] = registrationNumber;
-    if (registrationDate != null && registrationDate.isNotEmpty)
+    }
+    if (registrationDate != null && registrationDate.isNotEmpty) {
       params['registration_date'] = registrationDate;
-    if (insuranceNumber != null && insuranceNumber.isNotEmpty)
+    }
+    if (insuranceNumber != null && insuranceNumber.isNotEmpty) {
       params['insurance_number'] = insuranceNumber;
-    if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty)
+    }
+    if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty) {
       params['insurance_expiry_date'] = insuranceExpiryDate;
-    if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty)
+    }
+    if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty) {
       params['pollution_expiry_date'] = pollutionExpiryDate;
-    if (vehicleTypeId != null && vehicleTypeId > 0)
+    }
+    if (vehicleTypeId != null && vehicleTypeId > 0) {
       params['vehicle_type_id'] = vehicleTypeId;
+    }
 
-    print('🚀 UpdateDriver API Request:');
-    print('   URL: $_baseUrl/api/drivers/$id');
-    print('   Token: ${token?.substring(0, 20)}...');
-    print('   Params: $params');
+    if (kDebugMode) {
+      debugPrint('UpdateDriver API → $_baseUrl/api/drivers/$id');
+    }
 
     final response = await ApiManager.instance.makeApiCall(
       callName: 'updateDriver',
@@ -1564,7 +1573,7 @@ String _serializeJson(dynamic jsonVar, [bool isList = false]) {
     return json.encode(jsonVar, toEncodable: _toEncodable);
   } catch (_) {
     if (kDebugMode) {
-      print('Json serialization failed. Returning empty json.');
+      debugPrint('Json serialization failed. Returning empty json.');
     }
     return isList ? '[]' : '{}';
   }

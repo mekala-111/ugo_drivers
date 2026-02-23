@@ -74,22 +74,22 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 RC FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 RC FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'RC Front (bytes): ${FFAppState().registrationImage?.bytes?.length ?? 0}');
-    print('RC Front URL: ${FFAppState().rcFrontImageUrl}');
-    print('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
-    print('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
-    print('RC Back URL: ${FFAppState().rcBackImageUrl}');
-    print('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
-    print('Registration Number: ${FFAppState().registrationNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('RC Front URL: ${FFAppState().rcFrontImageUrl}');
+    debugPrint('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
+    debugPrint('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
+    debugPrint('RC Back URL: ${FFAppState().rcBackImageUrl}');
+    debugPrint('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
+    debugPrint('Registration Number: ${FFAppState().registrationNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved RC data...');
+    debugPrint('🔄 Loading saved RC data...');
 
     // Load front image
     if (FFAppState().rcFrontBase64.isNotEmpty) {
@@ -100,9 +100,9 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
           _model.uploadedLocalFile_uploadData1zx = _frontImage!;
           _isFrontValid = true;
         });
-        print('✅ RC front loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ RC front loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding RC front Base64: $e');
+        debugPrint('❌ Error decoding RC front Base64: $e');
       }
     } else if (FFAppState().rcFrontImageUrl.isNotEmpty) {
       setState(() {
@@ -126,9 +126,9 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
           _backImage = FFUploadedFile(bytes: bytes, name: 'rc_back.jpg');
           _isBackValid = true;
         });
-        print('✅ RC back loaded from Base64');
+        debugPrint('✅ RC back loaded from Base64');
       } catch (e) {
-        print('❌ Error decoding RC back Base64: $e');
+        debugPrint('❌ Error decoding RC back Base64: $e');
       }
     } else if (FFAppState().rcBackImageUrl.isNotEmpty) {
       setState(() {
@@ -166,7 +166,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
   // 🔥 OCR - Extract Registration Number from Image
   Future<void> _extractRegistrationNumberFromImage(FFUploadedFile image) async {
     if (image.bytes == null || image.bytes!.isEmpty) {
-      print('❌ No image bytes to process');
+      debugPrint('❌ No image bytes to process');
       return;
     }
 
@@ -183,8 +183,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
           await textRecognizer.processImage(inputImage);
 
-      print('📝 OCR Text Extracted:');
-      print(recognizedText.text);
+      debugPrint('📝 OCR Text Extracted:');
+      debugPrint(recognizedText.text);
 
       String? regNumber = _extractRegistrationNumber(recognizedText.text);
 
@@ -198,18 +198,18 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
         FFAppState().update(() {});
 
         _showSnackBar('✅ Registration Number auto-filled: $regNumber');
-        print('✅ Registration Number extracted: $regNumber');
+        debugPrint('✅ Registration Number extracted: $regNumber');
       } else {
         _showSnackBar(
             '⚠️ Could not detect registration number. Please enter manually.',
             isError: true);
-        print('❌ No valid registration number found in text');
+        debugPrint('❌ No valid registration number found in text');
       }
 
       await textRecognizer.close();
       await file.delete();
     } catch (e) {
-      print('❌ OCR Error: $e');
+      debugPrint('❌ OCR Error: $e');
       _showSnackBar('OCR failed. Please enter registration number manually.',
           isError: true);
     } finally {
@@ -644,7 +644,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -715,7 +715,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -972,7 +972,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
                             FFAppState().update(() {});
 
-                            print('✅ RC data saved');
+                            debugPrint('✅ RC data saved');
                             _showSnackBar('Registration certificate uploaded!');
 
                             await Future.delayed(const Duration(milliseconds: 500));
