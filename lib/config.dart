@@ -1,3 +1,5 @@
+import '/services/firebase_remote_config_service.dart';
+
 /// Application configuration and constants.
 ///
 /// For production: use --dart-define for sensitive values.
@@ -5,7 +7,8 @@
 class Config {
   static String get baseUrl {
     const defaultUrl = 'https://ugo-api.icacorp.org';
-    return const String.fromEnvironment('API_BASE_URL', defaultValue: defaultUrl);
+    return const String.fromEnvironment('API_BASE_URL',
+        defaultValue: defaultUrl);
   }
 
   /// Build full URL for relative image paths from API (e.g. /uploads/licenses/...)
@@ -16,11 +19,31 @@ class Config {
     return '$baseUrl${p.startsWith('/') ? p : '/$p'}';
   }
 
-  /// Razorpay keys - use dart-define in production. IFSC lookup is free and keyless.
-  static String get razorpayKeyId =>
-      const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');
-  static String get razorpayKeySecret =>
-      const String.fromEnvironment('RAZORPAY_KEY_SECRET', defaultValue: '');
+  /// Razorpay keys - fetched from Firebase Remote Config (secure)
+  /// Falls back to dart-define if remote config is not available
+  static String get razorpayKeyId {
+    // Try Firebase Remote Config first (secure)
+    final remoteKey = FirebaseRemoteConfigService().razorpayKeyId;
+    if (remoteKey.isNotEmpty) return remoteKey;
+
+    // Fallback to dart-define (for development)
+    return const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');
+  }
+
+  static String get razorpayKeySecret {
+    // Try Firebase Remote Config first (secure)
+    final remoteSecret = FirebaseRemoteConfigService().razorpayKeySecret;
+    if (remoteSecret.isNotEmpty) return remoteSecret;
+
+    // Fallback to dart-define (for development)
+    return const String.fromEnvironment('RAZORPAY_KEY_SECRET',
+        defaultValue: '');
+  }
+
+  /// Check if Razorpay is enabled
+  static bool get razorpayEnabled {
+    return FirebaseRemoteConfigService().razorpayEnabled;
+  }
 
   /// Google Maps API key for Distance Matrix / Directions.
   /// Set with: --dart-define=GOOGLE_MAPS_API_KEY=...

@@ -165,6 +165,33 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               const ErrorBoundary(child: WalletWidget()),
         ),
         FFRoute(
+          name: DriverTransactionsWidget.routeName,
+          path: DriverTransactionsWidget.routePath,
+          builder: (context, params) {
+            final driverId = params.getParam(
+                  'driverId',
+                  ParamType.int,
+                ) ??
+                0;
+            final token = params.getParam(
+                  'token',
+                  ParamType.String,
+                ) ??
+                '';
+            return ErrorBoundary(
+              child: DriverTransactionsWidget(
+                driverId: driverId,
+                token: token,
+              ),
+            );
+          },
+        ),
+        FFRoute(
+          name: AddMoneyWidget.routeName,
+          path: AddMoneyWidget.routePath,
+          builder: (context, params) => const AddMoneyWidget(),
+        ),
+        FFRoute(
           name: AddBankAccountWidget.routeName,
           path: AddBankAccountWidget.routePath,
           builder: (context, params) => const AddBankAccountWidget(),
@@ -578,6 +605,7 @@ extension _GoRouterStateExtensions on GoRouterState {
     }
     return extra is Map<String, dynamic> ? extra as Map<String, dynamic> : {};
   }
+
   Map<String, dynamic> get allParams => <String, dynamic>{}
     ..addAll(pathParameters)
     ..addAll(uri.queryParameters)

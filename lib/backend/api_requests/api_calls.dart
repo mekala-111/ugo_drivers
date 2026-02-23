@@ -1030,7 +1030,7 @@ class GetWalletCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getWallet',
-      apiUrl: '$_baseUrl/api/wallets/driver/$driverId',
+      apiUrl: '$_baseUrl/api/wallets/balance?user_id=$driverId',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -1045,15 +1045,236 @@ class GetWalletCall {
     );
   }
 
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
   static dynamic data(dynamic response) => getJsonField(
         response,
-        r'''$.data''',
+        r'$.data',
       );
 
   static dynamic walletBalance(dynamic response) => getJsonField(
         response,
-        r'''$.data.wallet_balance''',
+        r'$.data.balance',
       );
+
+  static String? currency(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.data.currency',
+      ));
+
+  static String? lastUpdated(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.data.last_updated',
+      ));
+}
+
+// 💰 Add Money to Wallet API Call
+class AddMoneyToWalletCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required double amount,
+    required String currency,
+    required String token,
+  }) async {
+    final ffApiRequestBody = jsonEncode({
+      'driver_id': driverId,
+      'amount': amount,
+      'currency': currency,
+    });
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'addMoneyToWallet',
+      apiUrl: '$_baseUrl/api/wallets/add',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static int? statusCode(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.statusCode',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+
+  static dynamic data(dynamic response) => getJsonField(
+        response,
+        r'$.data',
+      );
+
+  static int? walletId(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.wallet_id',
+      ));
+
+  static int? userId(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.user_id',
+      ));
+
+  static double? previousBalance(dynamic response) =>
+      castToType<double>(getJsonField(
+        response,
+        r'$.data.previous_balance',
+      ));
+
+  static double? amountAdded(dynamic response) =>
+      castToType<double>(getJsonField(
+        response,
+        r'$.data.amount_added',
+      ));
+
+  static double? newBalance(dynamic response) =>
+      castToType<double>(getJsonField(
+        response,
+        r'$.data.new_balance',
+      ));
+
+  static String? transactionId(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.data.transaction_id',
+      ));
+
+  static String? status(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.data.status',
+      ));
+
+  static String? createdAt(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.data.created_at',
+      ));
+}
+
+// 💳 Driver Transaction History API Call
+class GetDriverTransactionsCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String token,
+    int? page,
+    int? pageSize,
+  }) async {
+    final pageParam = page ?? 1;
+    final pageSizeParam = pageSize ?? 20;
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'getDriverTransactions',
+      apiUrl:
+          '$_baseUrl/api/payments/transactions?driver_id=$driverId&page=$pageParam&pageSize=$pageSizeParam',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) => castToType<bool>(getJsonField(
+        response,
+        r'$.success',
+      ));
+
+  static int? statusCode(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.statusCode',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
+      ));
+
+  static dynamic data(dynamic response) => getJsonField(
+        response,
+        r'$.data',
+      );
+
+  static int? total(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.total',
+      ));
+
+  static int? currentPage(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.page',
+      ));
+
+  static int? pageSize(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.pageSize',
+      ));
+
+  static int? statementId(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.statement_id',
+      ));
+
+  static String? startDate(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.data.range.start_date',
+      ));
+
+  static String? endDate(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.data.range.end_date',
+      ));
+
+  static List<dynamic>? transactions(dynamic response) =>
+      (getJsonField(response, r'$.data.transactions', true) as List?) ?? [];
+
+  // Extract individual transaction details
+  static String? itemTransactionId(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.transaction_id'));
+
+  static String? itemType(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.type'));
+
+  static double? itemAmount(dynamic item) =>
+      castToType<double>(getJsonField(item, r'$.amount'));
+
+  static String? itemStatus(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.status'));
+
+  static String? itemDescription(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.description'));
+
+  static String? itemCreatedAt(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.created_at'));
+
+  static String? itemUpdatedAt(dynamic item) =>
+      castToType<String>(getJsonField(item, r'$.updated_at'));
 }
 
 class PostQRcodeCall {

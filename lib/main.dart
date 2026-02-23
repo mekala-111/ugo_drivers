@@ -22,6 +22,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 // ✅ IMPORT API MANAGER & LOGIN
 import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';
+import '/services/firebase_remote_config_service.dart';
 import '/login/login_widget.dart';
 
 void main() {
@@ -31,6 +32,9 @@ void main() {
     usePathUrlStrategy();
     await WakelockPlus.enable();
     await initFirebase();
+
+    // Initialize Firebase Remote Config (for secure Razorpay keys)
+    await FirebaseRemoteConfigService().initialize();
 
     await RideNotificationService().initialize();
     await VoiceService().initFromStorage();
