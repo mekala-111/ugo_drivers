@@ -88,6 +88,8 @@ dependencies:
   geocoding: ^4.0.0
   google_fonts: ^8.0.1
   share_plus: ^12.0.1
+  razorpay_flutter: ^1.4.1
+  firebase_remote_config: ^5.4.5
 
 # --- Overrides to force compatibility ---
 dependency_overrides:

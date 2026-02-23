@@ -30,6 +30,3 @@ class HomeModel extends FlutterFlowModel<HomeWidget> {
   @override
   void dispose() {}
 }
-
-// 🛑 THE DUPLICATE RideRequest CLASS HAS BEEN DELETED.
-// IT IS NOW SAFELY IN lib/home/ride_request_model.dart

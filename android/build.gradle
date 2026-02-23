@@ -12,9 +12,12 @@ subprojects {
         if (project.hasProperty("kotlin")) {
             project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
                 kotlinOptions {
-                    jvmTarget = "1.8"
+                    jvmTarget = "11"
                 }
             }
+        }
+        project.tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs << "-Xlint:-options" << "-Xlint:-deprecation" << "-Xlint:-unchecked"
         }
     }
 }

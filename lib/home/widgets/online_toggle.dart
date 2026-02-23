@@ -18,8 +18,9 @@ class OnlineToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pad = Responsive.horizontalPadding(context) * 0.75;
+    final vPad = MediaQuery.sizeOf(context).height * 0.006;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: pad, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: pad, vertical: vPad.clamp(2.0, 8.0)),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(30),
@@ -28,6 +29,7 @@ class OnlineToggle extends StatelessWidget {
         children: [
           Text(
             switchValue ? 'ON' : 'OFF',
+            textScaler: MediaQuery.textScalerOf(context),
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

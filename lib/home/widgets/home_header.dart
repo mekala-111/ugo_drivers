@@ -26,14 +26,13 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: isSmallScreen ? 45 : 60,
       decoration: const BoxDecoration(color: AppColors.primary),
       child: SafeArea(
-        top: false,
+        top:true,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: isSmallScreen ? 12 : 16,
-            vertical: 8,
+            horizontal: screenWidth * 0.1,
+            vertical: isSmallScreen ? 8 : 12,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

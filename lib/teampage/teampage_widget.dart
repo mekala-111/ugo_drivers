@@ -250,7 +250,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             'Your referred drivers',
                             style: GoogleFonts.inter(
@@ -258,9 +258,9 @@ class _TeampageWidgetState extends State<TeampageWidget>
                               color: Colors.grey[500],
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 8),
 
-                          // LIST BUILDER
+                          // LIST BUILDER - takes remaining space
                           Expanded(
                             child: _buildTeamList(),
                           ),

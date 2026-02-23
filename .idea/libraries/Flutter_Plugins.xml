@@ -103,6 +103,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.5" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_mlkit_object_detection-0.15.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/razorpay_flutter-1.4.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_remote_config_web-1.8.5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_remote_config-5.4.5" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

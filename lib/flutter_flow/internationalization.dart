@@ -6195,6 +6195,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'आपने इसे ऑनलाइन प्राप्त किया',
       'te': 'మీరు దీన్ని ఆన్‌లైన్‌లో అందుకున్నారు'
     },
+    'drv_cash_collected': {
+      'en': 'Cash collected',
+      'hi': 'नकद प्राप्त हुआ',
+      'te': 'నగదు సంపాదించారు'
+    },
     'drv_review': {'en': 'Review', 'hi': 'समीक्षा', 'te': 'సమీక్ష'},
     'drv_total_fare': {
       'en': 'Total Fare',

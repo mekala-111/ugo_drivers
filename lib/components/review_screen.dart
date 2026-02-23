@@ -7,12 +7,14 @@ class ReviewScreen extends StatefulWidget {
   final RideRequest ride;
   final VoidCallback onSubmit;
   final VoidCallback onClose;
+  final bool isCashPayment;
 
   const ReviewScreen({
     super.key,
     required this.ride,
     required this.onSubmit,
     required this.onClose,
+    this.isCashPayment = false,
   });
 
   @override
@@ -56,8 +58,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 children: [
                   const SizedBox(height: 30),
                   Text(
-                      FFLocalizations.of(context)
-                          .getText('drv_received_online'),
+                      widget.isCashPayment
+                          ? FFLocalizations.of(context).getText('drv_cash_collected')
+                          : FFLocalizations.of(context).getText('drv_received_online'),
                       style: const TextStyle(
                           color: ugoGreen,
                           fontSize: 18,

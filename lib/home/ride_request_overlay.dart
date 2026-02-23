@@ -51,6 +51,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   final Map<int, int> _waitTimers = {};
   final Set<int> _showOtpOverlay = {};
   final Set<int> _paymentPendingRides = {};
+  int? _cashCollectedForRideId;
   final Map<int, List<TextEditingController>> _otpControllers = {};
   final PageController _requestPageController =
       PageController(viewportFraction: 0.94);
@@ -227,6 +228,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       _timers.remove(id);
       _waitTimers.remove(id);
       _showOtpOverlay.remove(id);
+      if (_cashCollectedForRideId == id) _cashCollectedForRideId = null;
       if (_otpControllers.containsKey(id)) {
         for (var c in _otpControllers[id]!) {
           c.dispose();
@@ -627,37 +629,57 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
 
     if (_paymentPendingRides.contains(ride.id) || status == RideStatus.completed) {
-      Null onDone() {
+      void onDone() {
         if (!mounted) return;
         Provider.of<RideState>(context, listen: false).clearRide();
         setState(() {
           _paymentPendingRides.remove(ride.id);
           _activeRequests.removeWhere((r) => r.id == ride.id);
           FFAppState().activeRideId = 0;
+          _cashCollectedForRideId = null;
         });
         if (widget.onRideComplete != null) widget.onRideComplete!();
       }
-      // Show screen based on payment mode
+      // Cash flow: 1) Collect cash screen → 2) Rating screen after collect
       if (ride.paymentMode.isCash) {
+        if (_cashCollectedForRideId == ride.id) {
+          return Positioned.fill(
+            child: SafeArea(
+              child: Container(
+                color: Colors.white,
+                child: ReviewScreen(
+                  ride: ride,
+                  isCashPayment: true,
+                  onSubmit: onDone,
+                  onClose: () {},
+                ),
+              ),
+            ),
+          );
+        }
         return Positioned.fill(
           child: SafeArea(
             child: Container(
               color: Colors.white,
               child: CashPaymentScreen(
                 ride: ride,
-                onCollectConfirmed: onDone,
+                onCollectConfirmed: () {
+                  if (!mounted) return;
+                  setState(() => _cashCollectedForRideId = ride.id);
+                },
               ),
             ),
           ),
         );
       }
-      // Online / wallet / default: show review screen
+      // Online / wallet: amount added to wallet by backend → show rating screen
       return Positioned.fill(
         child: SafeArea(
           child: Container(
             color: Colors.white,
             child: ReviewScreen(
               ride: ride,
+              isCashPayment: false,
               onSubmit: onDone,
               onClose: () {},
             ),

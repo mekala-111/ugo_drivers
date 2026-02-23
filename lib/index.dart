@@ -1,6 +1,8 @@
 // Export constants
 export '/constants/app_colors.dart' show AppColors;
+export '/constants/device_type.dart' show DeviceType, DeviceTypeX;
 export '/constants/responsive.dart' show Responsive;
+export '/constants/responsive_ext.dart' show ResponsiveContext;
 
 // Export models
 export '/models/transaction.dart' show Transaction, TransactionResponse;

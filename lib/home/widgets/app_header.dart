@@ -3,7 +3,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/index.dart';
 import 'package:ugo_driver/home/widgets/online_toggle.dart';
 
-/// AppBar with balance, profile avatar, notifications, online toggle.
+/// AppBar with menu, QR (when online), online toggle, notifications, team.
 class AppHeader extends StatelessWidget {
   const AppHeader({
     super.key,
@@ -13,7 +13,6 @@ class AppHeader extends StatelessWidget {
     required this.onToggleOnline,
     required this.screenWidth,
     required this.isSmallScreen,
-    this.balance,
     this.profileImageUrl,
     this.notificationCount = 0,
   });
@@ -24,7 +23,6 @@ class AppHeader extends StatelessWidget {
   final VoidCallback onToggleOnline;
   final double screenWidth;
   final bool isSmallScreen;
-  final double? balance;
   final String? profileImageUrl;
   final int notificationCount;
 
@@ -36,7 +34,6 @@ class AppHeader extends StatelessWidget {
     const minTap = Responsive.minTouchTarget;
     return Container(
       width: double.infinity,
-      height: headerH,
       decoration: const BoxDecoration(color: AppColors.primary),
       child: SafeArea(
         top: false,
@@ -53,19 +50,6 @@ class AppHeader extends StatelessWidget {
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
-              if (balance != null)
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '₹${balance!.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-              else
-                const SizedBox(width: minTap, height: minTap),
               if (switchValue)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),

@@ -26,6 +26,7 @@ class EarningsSummary extends StatelessWidget {
     final h = MediaQuery.sizeOf(context).height;
     final hPad = w * (isSmallScreen ? 0.035 : 0.04);
     final vPad = h * (isSmallScreen ? 0.014 : 0.016);
+    final gap = w * (isSmallScreen ? 0.022 : 0.03);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: const BoxDecoration(
@@ -48,7 +49,7 @@ class EarningsSummary extends StatelessWidget {
               isSmallScreen: isSmallScreen,
             ),
           ),
-          SizedBox(width: w * (isSmallScreen ? 0.022 : 0.03)),
+          SizedBox(width: gap),
           Expanded(
             child: _SummaryCard(
               title: FFLocalizations.of(context).getText('drv_wallet'),
@@ -56,7 +57,7 @@ class EarningsSummary extends StatelessWidget {
               isSmallScreen: isSmallScreen,
             ),
           ),
-          SizedBox(width: w * (isSmallScreen ? 0.022 : 0.03)),
+          SizedBox(width: gap),
           Expanded(
             child: _SummaryCard(
               title: FFLocalizations.of(context).getText('drv_ride_count'),
@@ -87,41 +88,44 @@ class _SummaryCard extends StatelessWidget {
     final h = MediaQuery.sizeOf(context).height;
     final vPad = h * (isSmallScreen ? 0.01 : 0.014);
     final hPad = w * (isSmallScreen ? 0.01 : 0.02);
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: vPad, horizontal: hPad),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLightBg,
-        borderRadius: BorderRadius.circular(w * (isSmallScreen ? 0.028 : 0.032)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            textScaler: MediaQuery.textScalerOf(context),
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: Responsive.fontSize(context, isSmallScreen ? 11 : 13),
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: h * (isSmallScreen ? 0.008 : 0.01)),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: w * 0.22),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: vPad, horizontal: hPad),
+        decoration: BoxDecoration(
+          color: AppColors.primaryLightBg,
+          borderRadius: BorderRadius.circular(w * (isSmallScreen ? 0.028 : 0.032)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
               textScaler: MediaQuery.textScalerOf(context),
               style: TextStyle(
-                color: Colors.black,
-                fontSize: Responsive.fontSize(context, isSmallScreen ? 18 : 20),
-                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                fontSize: Responsive.fontSize(context, isSmallScreen ? 11 : 13),
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: h * (isSmallScreen ? 0.008 : 0.01)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                textScaler: MediaQuery.textScalerOf(context),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: Responsive.fontSize(context, isSmallScreen ? 18 : 20),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

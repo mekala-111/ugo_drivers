@@ -26,9 +26,12 @@ class OfflineDashboard extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(vertical: Responsive.verticalSpacing(context) * 2),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Text(
             '$greeting,',
             style: TextStyle(
@@ -97,6 +100,7 @@ class OfflineDashboard extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
