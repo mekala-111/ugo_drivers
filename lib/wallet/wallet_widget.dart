@@ -142,7 +142,15 @@ class _WalletWidgetState extends State<WalletWidget> {
     final contentMaxWidth = isTablet ? 720.0 : double.infinity;
     final headerActions = [
       _buildHeaderAction(
-          Icons.add, FFLocalizations.of(context).getText('wallet0014'), () {}),
+          Icons.add, FFLocalizations.of(context).getText('wallet0014'),
+          () async {
+        // Navigate to Add Money page and refresh on return
+        await context.pushNamed(AddMoneyWidget.routeName);
+        // Refresh wallet balance after returning from Add Money page
+        if (mounted) {
+          _fetchWallet();
+        }
+      }),
       _buildHeaderAction(Icons.qr_code_scanner,
           FFLocalizations.of(context).getText('wallet0015'), () {}),
       _buildHeaderAction(Icons.history,
@@ -313,7 +321,23 @@ class _WalletWidgetState extends State<WalletWidget> {
                         SizedBox(height: 8.0 * scale),
                         Center(
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              // Navigate to driver transactions page
+                              final driverIdValue = FFAppState().driverid;
+                              final driverId =
+                                  int.tryParse(driverIdValue.toString());
+                              final token = FFAppState().accessToken;
+
+                              if (driverId != null && token.isNotEmpty) {
+                                context.pushNamed(
+                                  'DriverTransactions',
+                                  queryParameters: {
+                                    'driverId': driverId.toString(),
+                                    'token': token,
+                                  },
+                                );
+                              }
+                            },
                             child: Text(
                               FFLocalizations.of(context).getText('wallet0006'),
                               style: TextStyle(
@@ -366,7 +390,8 @@ class _WalletWidgetState extends State<WalletWidget> {
                             if (hasAccount) {
                               // Bank account exists - navigate to withdraw page
                               if (kDebugMode) {
-                                print('💳 Navigating to withdraw with wallet balance: "$walletBalance"');
+                                print(
+                                    '💳 Navigating to withdraw with wallet balance: "$walletBalance"');
                               }
                               context.pushNamedAuth(
                                 WithdrawWidget.routeName,

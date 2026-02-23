@@ -2,6 +2,9 @@
 export '/constants/app_colors.dart' show AppColors;
 export '/constants/responsive.dart' show Responsive;
 
+// Export models
+export '/models/transaction.dart' show Transaction, TransactionResponse;
+
 // Export pages
 export '/login/login_widget.dart' show LoginWidget;
 export '/language_select/language_select_widget.dart' show LanguageSelectWidget;
@@ -22,6 +25,9 @@ export '/account_management/preferred_city_widget.dart'
     show PreferredCityWidget;
 export '/support/support_widget.dart' show SupportWidget;
 export '/wallet/wallet_widget.dart' show WalletWidget;
+export '/driver_transactions/driver_transactions_widget.dart'
+    show DriverTransactionsWidget;
+export '/add_money/add_money_widget.dart' show AddMoneyWidget;
 
 export '/add_bankAccount/add_bank_account_widget.dart'
     show AddBankAccountWidget;
