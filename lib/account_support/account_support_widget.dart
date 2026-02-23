@@ -260,11 +260,14 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       backgroundColor: bgWhite,
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: _brandPrimary))
-          : SingleChildScrollView(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                  child: Column(
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final isLandscape = constraints.maxWidth > constraints.maxHeight;
+                return SingleChildScrollView(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                      child: Column(
                     children: [
                       // ==========================================
                       // 1️⃣ HEADER SECTION
@@ -291,36 +294,31 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                               child: Align(
                                 alignment: Alignment.topRight,
                                 child: Padding(
-                                  padding:
-                                      EdgeInsets.all(isSmall ? 12.0 : 16.0),
+                                  padding: EdgeInsets.all(isSmall ? 8.0 : (isLandscape ? 8.0 : 16.0)),
                                   child: InkWell(
-                                    onTap: () => context
-                                        .pushNamed(SupportWidget.routeName),
+                                    onTap: () => context.pushNamed(SupportWidget.routeName),
                                     borderRadius: BorderRadius.circular(20),
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: isSmall ? 10 : 12,
-                                        vertical: isSmall ? 4 : 6,
+                                        horizontal: isSmall ? 8 : (isLandscape ? 6 : 12),
+                                        vertical: isSmall ? 2 : (isLandscape ? 2 : 6),
                                       ),
                                       decoration: BoxDecoration(
-                                        color:
-                                            Colors.white.withValues(alpha: 0.2),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                            color: Colors.white, width: 1),
+                                        border: Border.all(color: Colors.white, width: 1),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.headset_mic_rounded,
-                                              color: Colors.white, size: 16),
+                                          Icon(Icons.headset_mic_rounded, color: Colors.white, size: isSmall || isLandscape ? 14 : 16),
                                           const SizedBox(width: 6),
-                                          Text(
-                                            FFLocalizations.of(context)
-                                                .getText('accsup0001'),
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              FFLocalizations.of(context).getText('accsup0001'),
+                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -333,7 +331,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
                           // ✅ FIXED: Back Button + "My Profile" Text
                           Positioned(
-                            top: topInset + (isSmall ? 8.0 : 12.0),
+                            top: topInset + (isSmall ? 4.0 : (isLandscape ? 4.0 : 12.0)),
                             left: horizontalPadding,
                             right: horizontalPadding,
                             child: Row(
@@ -343,24 +341,27 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                   child: Icon(
                                     Icons.arrow_back,
                                     color: Colors.white,
-                                    size: isSmall ? 24 : 28,
+                                    size: isSmall || isLandscape ? 20 : 28,
                                   ),
                                 ),
-                                SizedBox(width: isSmall ? 10 : 16),
+                                SizedBox(width: isSmall ? 6 : (isLandscape ? 6 : 16)),
                                 Expanded(
-                                  child: Text(
-                                    FFLocalizations.of(context)
-                                        .getText('accsup0002'),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: titleSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      FFLocalizations.of(context).getText('accsup0002'),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: titleSize,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: isSmall ? 72.0 : 96.0),
+                                SizedBox(width: isSmall ? 36.0 : (isLandscape ? 36.0 : 96.0)),
                               ],
                             ),
                           ),
@@ -456,14 +457,17 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       SizedBox(height: isSmall ? 52 : 60),
 
                       // Name
-                      Text(
-                        getDriverName(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.interTight(
-                            fontSize: nameSize,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          getDriverName(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.interTight(
+                              fontSize: nameSize,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
+                        ),
                       ),
 
                       const SizedBox(height: 24),
@@ -472,11 +476,10 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       // 2️⃣ STATS ROW (Rapido Captain style)
                       // ==========================================
                       Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: horizontalPadding),
+                        margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
                         padding: EdgeInsets.symmetric(
-                          vertical: isSmall ? 12 : 16,
-                          horizontal: isSmall ? 6 : 8,
+                          vertical: isSmall ? 8 : (isLandscape ? 8 : 16),
+                          horizontal: isSmall ? 2 : (isLandscape ? 2 : 8),
                         ),
                         decoration: BoxDecoration(
                           color: bgGrey,
@@ -484,14 +487,13 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                         ),
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final stackStats = constraints.maxWidth < 320;
+                            final stackStats = constraints.maxWidth < 320 || isLandscape;
                             if (stackStats) {
                               return Column(
                                 children: [
                                   _buildStatItem(
                                     driverRating,
-                                    FFLocalizations.of(context)
-                                        .getText('accsup0003'),
+                                    FFLocalizations.of(context).getText('accsup0003'),
                                     Icons.star_rounded,
                                     isSmall: isSmall,
                                     isTablet: isTablet,
@@ -499,8 +501,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                   const SizedBox(height: 12),
                                   _buildStatItem(
                                     "${driverData?['total_rides_completed'] ?? 0}",
-                                    FFLocalizations.of(context)
-                                        .getText('accsup0004'),
+                                    FFLocalizations.of(context).getText('accsup0004'),
                                     Icons.local_taxi_rounded,
                                     isSmall: isSmall,
                                     isTablet: isTablet,
@@ -508,8 +509,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                   const SizedBox(height: 12),
                                   _buildStatItem(
                                     driverYears,
-                                    FFLocalizations.of(context)
-                                        .getText('accsup0005'),
+                                    FFLocalizations.of(context).getText('accsup0005'),
                                     Icons.calendar_today_rounded,
                                     isSmall: isSmall,
                                     isTablet: isTablet,
@@ -522,32 +522,23 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                               children: [
                                 _buildStatItem(
                                   driverRating,
-                                  FFLocalizations.of(context)
-                                      .getText('accsup0003'),
+                                  FFLocalizations.of(context).getText('accsup0003'),
                                   Icons.star_rounded,
                                   isSmall: isSmall,
                                   isTablet: isTablet,
                                 ),
-                                Container(
-                                    width: 1,
-                                    height: 36,
-                                    color: Colors.grey[300]),
+                                Container(width: 1, height: 36, color: Colors.grey[300]),
                                 _buildStatItem(
                                   "${driverData?['total_rides_completed'] ?? 0}",
-                                  FFLocalizations.of(context)
-                                      .getText('accsup0004'),
+                                  FFLocalizations.of(context).getText('accsup0004'),
                                   Icons.local_taxi_rounded,
                                   isSmall: isSmall,
                                   isTablet: isTablet,
                                 ),
-                                Container(
-                                    width: 1,
-                                    height: 36,
-                                    color: Colors.grey[300]),
+                                Container(width: 1, height: 36, color: Colors.grey[300]),
                                 _buildStatItem(
                                   driverYears,
-                                  FFLocalizations.of(context)
-                                      .getText('accsup0005'),
+                                  FFLocalizations.of(context).getText('accsup0005'),
                                   Icons.calendar_today_rounded,
                                   isSmall: isSmall,
                                   isTablet: isTablet,
@@ -564,9 +555,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                       // 3️⃣ MENU LIST (Rapido Captain style)
                       // ==========================================
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: horizontalPadding),
+                        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _buildMenuItem(
                               icon: Icons.description_outlined,
