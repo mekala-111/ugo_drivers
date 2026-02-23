@@ -35,7 +35,7 @@ class DriverTransactionsModel {
 
   void setError(bool hasError, String message) {
     this.hasError = hasError;
-    this.errorMessage = message;
+    errorMessage = message;
   }
 
   void setTransactions(List<Transaction> txns) {

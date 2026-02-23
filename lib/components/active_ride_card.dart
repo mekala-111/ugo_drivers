@@ -29,7 +29,7 @@ class RidePickupOverlay extends StatelessWidget {
     }
     final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri browserUrl =
-        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -47,33 +47,31 @@ class RidePickupOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.bottomRight,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            // Floating "Pickup" Navigation Button
-            LayoutBuilder(
-              builder: (context, _) {
-                final btnH = Responsive.buttonHeight(context, base: 48);
-                return Padding(
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Floating Oval "Pickup" button anchored right above the banner
+                Padding(
                   padding: EdgeInsets.only(
                     right: Responsive.horizontalPadding(context),
-                    bottom: Responsive.verticalSpacing(context),
+                    bottom: 16,
                   ),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {
-                        _launchMap(ride.pickupLat, ride.pickupLng);
-                      },
+                      onTap: () => _launchMap(ride.pickupLat, ride.pickupLng),
                       borderRadius: BorderRadius.circular(30),
                       child: Container(
-                        height: btnH,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Responsive.horizontalPadding(context) + 8,
-                        ),
+                        height: Responsive.buttonHeight(context, base: 44),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(30),
@@ -82,23 +80,22 @@ class RidePickupOverlay extends StatelessWidget {
                               color: Colors.black26,
                               blurRadius: 8,
                               offset: Offset(0, 4),
-                            )
+                            ),
                           ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.navigation,
-                                color: Colors.white,
-                                size: Responsive.iconSize(context, base: 20)),
+                            Icon(
+                              Icons.navigation,
+                              color: Colors.black,
+                              size: Responsive.iconSize(context, base: 20),
+                            ),
                             const SizedBox(width: 8),
                             Text(
-                              FFLocalizations.of(context)
-                                  .getText('drv_navigate'),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              FFLocalizations.of(context).getText('drv_pickup'),
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold,
                                 fontSize: Responsive.fontSize(context, 16),
                               ),
@@ -108,19 +105,209 @@ class RidePickupOverlay extends StatelessWidget {
                       ),
                     ),
                   ),
-                );
-              },
+                ),
+
+                // Green "GO TO PICKUP" banner
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    color: AppColors.success,
+                  ),
+                  child: Text(
+                    FFLocalizations.of(context).getText('drv_go_to_pickup'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+
+                // White card with rider details and ARRIVED button
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      Responsive.horizontalPadding(context),
+                      20,
+                      Responsive.horizontalPadding(context),
+                      24,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Left Section: Name and Address Info
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ride.firstName ??
+                                        FFLocalizations.of(context)
+                                            .getText('drv_passenger'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      // Pickup icon Box
+                                      Container(
+                                        width: Responsive.buttonHeight(context,
+                                            base: 46),
+                                        height: Responsive.buttonHeight(context,
+                                            base: 46),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: AppColors.success,
+                                            width: 1,
+                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(8),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              color: AppColors.success,
+                                              size: Responsive.iconSize(context,
+                                                  base: 22),
+                                            ),
+                                            Text(
+                                              FFLocalizations.of(context)
+                                                  .getText('drv_pickup'),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: RichAddressFromLatLng(
+                                          lat: ride.pickupLat,
+                                          lng: ride.pickupLng,
+                                          fallbackAddress: ride.pickupAddress,
+                                          fallbackLabel: FFLocalizations.of(
+                                              context)
+                                              .getText('drv_unknown_location'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Right Section: Action Buttons
+                            Column(
+                              children: [
+                                _buildSquareIconBtn(
+                                  context,
+                                  Icon(
+                                    Icons.call,
+                                    color: Colors.black,
+                                    size: Responsive.iconSize(context, base: 24),
+                                  ),
+                                      () => launchUrl(
+                                    Uri.parse('tel:${ride.mobileNumber ?? ''}'),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: Responsive.verticalSpacing(context)),
+                                _buildSquareIconBtn(
+                                  context,
+                                  Container(
+                                    width: Responsive.iconSize(context, base: 24),
+                                    height: Responsive.iconSize(context, base: 24),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.error,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: Responsive.iconSize(context, base: 16),
+                                    ),
+                                  ),
+                                  onCancel ?? () {},
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        // ARRIVED swipe button
+                        SlideToAction(
+                          text: FFLocalizations.of(context)
+                              .getText('drv_arrived'),
+                          outerColor: AppColors.success,
+                          onSubmitted: onSwipe,
+                          height: Responsive.buttonHeight(context, base: 55),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            // The Main Card
-            ActiveRideCard(
-              ride: ride,
-              formattedWaitTime: formattedWaitTime,
-              onSwipe: onSwipe,
-              onCancel: onCancel,
-            ),
-          ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSquareIconBtn(
+      BuildContext context,
+      Widget iconWidget,
+      VoidCallback onTap,
+      ) {
+    final sz = Responsive.buttonHeight(context, base: 48);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: sz,
+        height: sz,
+        decoration: BoxDecoration(
+          color: const Color(0xFFE2E2E2), // Matching the light gray box from UI
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(child: iconWidget),
+      ),
     );
   }
 }
@@ -146,7 +333,6 @@ class ActiveRideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ride.status is now a RideStatus enum
     bool isArrived = ride.status == RideStatus.arrived;
     bool isStarted = ride.status == RideStatus.started;
 
@@ -158,13 +344,13 @@ class ActiveRideCard extends StatelessWidget {
 
     if (isArrived) {
       headerText =
-          "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
+      "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
       btnText = FFLocalizations.of(context).getText('drv_start_ride');
     } else if (isStarted) {
       headerText = FFLocalizations.of(context).getText('drv_go_to_drop');
       btnText = FFLocalizations.of(context).getText('drv_complete_ride');
       btnColor = ugoRed;
-      headerColor = ugoRed; // Change header color for Drop
+      headerColor = ugoRed;
       showPickupBox = false;
     }
 
@@ -207,7 +393,7 @@ class ActiveRideCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(
               Responsive.horizontalPadding(context),
-              16,
+              20,
               Responsive.horizontalPadding(context),
               24,
             ),
@@ -238,41 +424,39 @@ class ActiveRideCard extends StatelessWidget {
                               // Icon Box
                               Container(
                                 width:
-                                    Responsive.buttonHeight(context, base: 50),
+                                Responsive.buttonHeight(context, base: 46),
                                 height:
-                                    Responsive.buttonHeight(context, base: 50),
+                                Responsive.buttonHeight(context, base: 46),
                                 decoration: BoxDecoration(
-                                  color: (showPickupBox ? ugoGreen : ugoRed)
-                                      .withValues(alpha: 0.1),
+                                  color: Colors.white,
                                   border: Border.all(
                                       color: showPickupBox ? ugoGreen : ugoRed,
                                       width: 1),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.location_on,
                                         color:
-                                            showPickupBox ? ugoGreen : ugoRed,
+                                        showPickupBox ? ugoGreen : ugoRed,
                                         size: Responsive.iconSize(context,
-                                            base: 24)),
+                                            base: 22)),
                                     Text(
                                       showPickupBox
                                           ? FFLocalizations.of(context)
-                                              .getText('drv_pickup')
+                                          .getText('drv_pickup')
                                           : FFLocalizations.of(context)
-                                              .getText('drv_drop'),
-                                      style: TextStyle(
+                                          .getText('drv_drop'),
+                                      style: const TextStyle(
                                           fontSize: 10,
-                                          color: Colors.grey[800],
+                                          color: Colors.grey,
                                           fontWeight: FontWeight.w600),
                                     )
                                   ],
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // Pincode & locality from lat/lon (reverse geocoding)
                               Expanded(
                                 child: RichAddressFromLatLng(
                                   lat: showPickupBox
@@ -296,14 +480,26 @@ class ActiveRideCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     Column(
                       children: [
-                        _buildSquareIconBtn(context, Icons.call, Colors.green,
-                            () {
-                          launchUrl(
-                              Uri.parse("tel:${ride.mobileNumber ?? ''}"));
-                        }),
+                        _buildSquareIconBtn(
+                            context,
+                            Icon(Icons.call, color: Colors.black, size: Responsive.iconSize(context, base: 24)),
+                                () {
+                              launchUrl(
+                                  Uri.parse("tel:${ride.mobileNumber ?? ''}"));
+                            }),
                         SizedBox(height: Responsive.verticalSpacing(context)),
                         _buildSquareIconBtn(
-                            context, Icons.close, ugoRed, onCancel ?? () {}),
+                            context,
+                            Container(
+                              width: Responsive.iconSize(context, base: 24),
+                              height: Responsive.iconSize(context, base: 24),
+                              decoration: const BoxDecoration(
+                                color: AppColors.error,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.close, color: Colors.white, size: Responsive.iconSize(context, base: 16)),
+                            ),
+                            onCancel ?? () {}),
                       ],
                     )
                   ],
@@ -324,7 +520,7 @@ class ActiveRideCard extends StatelessWidget {
   }
 
   Widget _buildSquareIconBtn(
-      BuildContext context, IconData icon, Color color, VoidCallback onTap) {
+      BuildContext context, Widget iconWidget, VoidCallback onTap) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
@@ -332,11 +528,10 @@ class ActiveRideCard extends StatelessWidget {
         width: sz,
         height: sz,
         decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.black12)),
-        child: Icon(icon,
-            color: color, size: Responsive.iconSize(context, base: 24)),
+          color: const Color(0xFFE2E2E2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(child: iconWidget),
       ),
     );
   }

@@ -60,7 +60,6 @@ void main() {
               onToggleOnline: () {},
               screenWidth: 400,
               isSmallScreen: false,
-              balance: 1200.0,
               profileImageUrl: null,
               notificationCount: 0,
             ),

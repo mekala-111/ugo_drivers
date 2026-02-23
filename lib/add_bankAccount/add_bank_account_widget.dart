@@ -114,10 +114,9 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(dialogContext);
-                    // Proceed with bank account submission
-                    _submitBankAccount();
+                    await _submitBankAccount();
                   },
                   child: Text(
                     FFLocalizations.of(context).getText('bank0008'),
@@ -177,17 +176,80 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
     }
   }
 
-  void _submitBankAccount() {
-    // TODO: Add your logic here to submit the bank account details
-    // This could be saving to database or calling another API
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          FFLocalizations.of(context).getText('bank0012'),
-        ),
-        backgroundColor: Colors.green,
-      ),
-    );
+  Future<void> _submitBankAccount() async {
+    final driverId = FFAppState().driverid;
+    final token = FFAppState().accessToken;
+    final holderName = _model.bankHolderNameController.text.trim();
+    final accountNumber = _model.bankAccountNumberController.text.trim();
+    final ifscCode = _model.bankIfscCodeController.text.trim();
+
+    if (driverId == 0 || token.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please login first'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+    if (holderName.isEmpty || accountNumber.isEmpty || ifscCode.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(FFLocalizations.of(context).getText('bank0013')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() => _model.isValidating = true);
+    try {
+      final response = await AddBankAccountCall.call(
+        driverId: driverId,
+        bankAccountNumber: accountNumber,
+        bankIfscCode: ifscCode,
+        bankHolderName: holderName,
+        token: token,
+      );
+      if (!mounted) return;
+      setState(() => _model.isValidating = false);
+      if (AddBankAccountCall.success(response.jsonBody) == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AddBankAccountCall.message(response.jsonBody) ??
+                  FFLocalizations.of(context).getText('bank0012'),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AddBankAccountCall.message(response.jsonBody) ??
+                  'Failed to add bank account',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _model.isValidating = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -234,10 +296,6 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
 
     // Responsive button dimensions
     final buttonHeight = isLandscape ? 45.0 * scale : 50.0 * scale;
-    final cancelButtonWidth =
-        isSmallScreen ? double.infinity : (isTablet ? 140.0 : 120.0);
-    final submitButtonWidth =
-        isSmallScreen ? double.infinity : (isTablet ? 220.0 : 200.0);
     final fieldHeight = isLandscape ? 45.0 * scale : 50.0 * scale;
 
     return GestureDetector(
@@ -822,7 +880,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                         ),
                                                       ),
                                                     ),
-                                                    SizedBox(width: 12),
+                                                    const SizedBox(width: 12),
                                                     Expanded(
                                                       child: FFButtonWidget(
                                                         onPressed:
@@ -960,7 +1018,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(width: 12),
+                                                const SizedBox(width: 12),
                                                 Expanded(
                                                   child: FFButtonWidget(
                                                     onPressed:

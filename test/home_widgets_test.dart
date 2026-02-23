@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
-import 'package:ugo_driver/home/widgets/earnings_panel.dart';
 import 'package:ugo_driver/home/widgets/incentive_panel.dart';
 import 'package:ugo_driver/home/widgets/online_toggle.dart';
 

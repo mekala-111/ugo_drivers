@@ -34,7 +34,7 @@ class RideBottomOverlay extends StatelessWidget {
 
     final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri fallbackUrl =
-        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -49,11 +49,9 @@ class RideBottomOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Stack ensures the floating button sits on top of the map layer visually,
-    // but here we use a Column to stack it vertically *above* the card.
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end, // Align button to right
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         // ✅ Navigation Button - Pickup when arrived, Drop when started
         Padding(
@@ -79,7 +77,7 @@ class RideBottomOverlay extends StatelessWidget {
                   horizontal: Responsive.horizontalPadding(context) + 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: AppColors.primary, // Orange Color
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: const [
                     BoxShadow(
@@ -98,11 +96,11 @@ class RideBottomOverlay extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       (ride.status == RideStatus.started ||
-                              ride.status == RideStatus.onTrip)
+                          ride.status == RideStatus.onTrip)
                           ? FFLocalizations.of(context)
-                              .getText('drv_nav_to_drop')
+                          .getText('drv_nav_to_drop') // Assuming this translates to "Drop"
                           : FFLocalizations.of(context)
-                              .getText('drv_nav_to_pickup'),
+                          .getText('drv_nav_to_pickup'),
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -156,10 +154,8 @@ class StartRideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ride.status is now an enum
     bool isStarted = ride.status == RideStatus.started;
 
-    // Button Logic
     String btnText = isStarted
         ? FFLocalizations.of(context).getText('drv_complete_ride')
         : FFLocalizations.of(context).getText('drv_start_ride');
@@ -201,18 +197,19 @@ class StartRideCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(
               Responsive.horizontalPadding(context) + 4,
-              16,
+              20,
               Responsive.horizontalPadding(context) + 4,
               24,
             ),
             child: Column(
               children: [
-                // Top Row: User Name & Action Buttons
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final stackActions = constraints.maxWidth < 360;
-                    if (stackActions) {
-                      return Column(
+                // --- FIGMA LEFT/RIGHT SPLIT LAYOUT ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // LEFT COLUMN: Name and Address Info
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -226,100 +223,80 @@ class StartRideCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSquareIconBtn(context, Icons.call,
-                                  Colors.black, Colors.grey[200]!, onCall),
-                              SizedBox(
-                                  width: Responsive.verticalSpacing(context)),
-                              _buildSquareIconBtn(context, Icons.close,
-                                  Colors.white, ugoRed, onCancel),
+                              // Pickup/Drop Box
+                              Container(
+                                width: Responsive.buttonHeight(context, base: 46),
+                                height: Responsive.buttonHeight(context, base: 46),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: isStarted ? ugoRed : ugoGreen, width: 1.5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.location_on,
+                                        color: isStarted ? ugoRed : ugoGreen,
+                                        size: Responsive.iconSize(context, base: 22)),
+                                    Text(
+                                      isStarted
+                                          ? FFLocalizations.of(context).getText('drv_drop')
+                                          : FFLocalizations.of(context).getText('drv_pickup'),
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.w600),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              // Address text
+                              Expanded(
+                                child: RichAddressFromLatLng(
+                                  lat: isStarted ? ride.dropLat : ride.pickupLat,
+                                  lng: isStarted ? ride.dropLng : ride.pickupLng,
+                                  fallbackAddress:
+                                  isStarted ? ride.dropAddress : ride.pickupAddress,
+                                  fallbackLabel: FFLocalizations.of(context)
+                                      .getText('drv_unknown_location'),
+                                ),
+                              ),
                             ],
                           ),
                         ],
-                      );
-                    }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // RIGHT COLUMN: Vertically Stacked Action Buttons
+                    Column(
                       children: [
-                        Expanded(
-                          child: Text(
-                            ride.firstName ??
-                                FFLocalizations.of(context)
-                                    .getText('drv_passenger'),
-                            style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        _buildSquareIconBtn(
+                          context,
+                          Icon(Icons.call, color: Colors.black, size: Responsive.iconSize(context, base: 24)),
+                          onCall,
                         ),
-                        const SizedBox(width: 16),
-                        Row(
-                          children: [
-                            _buildSquareIconBtn(context, Icons.call,
-                                Colors.black, Colors.grey[200]!, onCall),
-                            SizedBox(
-                                width: Responsive.verticalSpacing(context)),
-                            _buildSquareIconBtn(context, Icons.close,
-                                Colors.white, ugoRed, onCancel),
-                          ],
-                        )
+                        SizedBox(height: Responsive.verticalSpacing(context)),
+                        _buildSquareIconBtn(
+                          context,
+                          Container(
+                            width: Responsive.iconSize(context, base: 24),
+                            height: Responsive.iconSize(context, base: 24),
+                            decoration: const BoxDecoration(
+                              color: AppColors.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.close, color: Colors.white, size: Responsive.iconSize(context, base: 16)),
+                          ),
+                          onCancel,
+                        ),
                       ],
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Middle Row: Location Box & Address
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Pickup/Drop Box
-                    Container(
-                      width: Responsive.buttonHeight(context, base: 50),
-                      height: Responsive.buttonHeight(context, base: 50),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: isStarted ? ugoRed : ugoGreen, width: 1.5),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.location_on,
-                              color: isStarted ? ugoRed : ugoGreen,
-                              size: Responsive.iconSize(context, base: 20)),
-                          Text(
-                            isStarted
-                                ? FFLocalizations.of(context)
-                                    .getText('drv_drop')
-                                : FFLocalizations.of(context)
-                                    .getText('drv_pickup'),
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w500),
-                          )
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-
-                    // Pincode & locality from lat/lon (reverse geocoding)
-                    Expanded(
-                      child: RichAddressFromLatLng(
-                        lat: isStarted ? ride.dropLat : ride.pickupLat,
-                        lng: isStarted ? ride.dropLng : ride.pickupLng,
-                        fallbackAddress:
-                            isStarted ? ride.dropAddress : ride.pickupAddress,
-                        fallbackLabel: FFLocalizations.of(context)
-                            .getText('drv_unknown_location'),
-                      ),
-                    ),
+                    )
                   ],
                 ),
 
@@ -340,19 +317,19 @@ class StartRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(BuildContext context, IconData icon,
-      Color iconColor, Color bgColor, VoidCallback onPressed) {
+  Widget _buildSquareIconBtn(
+      BuildContext context, Widget iconWidget, VoidCallback onPressed) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
         width: sz,
         height: sz,
         decoration: BoxDecoration(
-            color: bgColor, borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon,
-            color: iconColor, size: Responsive.iconSize(context, base: 24)),
+            color: const Color(0xFFE2E2E2), // Matching the light gray box from Figma
+            borderRadius: BorderRadius.circular(10)),
+        child: Center(child: iconWidget),
       ),
     );
   }

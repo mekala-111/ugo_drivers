@@ -29,6 +29,9 @@ class RideRequest {
   final String? vehicleType;
   final int? vehicleTypeId;
 
+  /// Pickup city ID (zone) - used to filter rides by driver's preferred city
+  final int? pickupCityId;
+
   /// 4-digit OTP for ride start verification (from backend if provided)
 
 
@@ -51,6 +54,7 @@ class RideRequest {
     this.mobileNumber,
     this.vehicleType,
     this.vehicleTypeId,
+    this.pickupCityId,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
@@ -106,6 +110,7 @@ class RideRequest {
           _parseToInt(json['vehicleTypeId']) ??
           _parseToInt(json['admin_vehicle_id']) ??
           (json['vehicle'] != null ? _parseToInt(json['vehicle']['vehicle_type_id']) : null),
+      pickupCityId: _parseToInt(json['pickup_city_id']),
     );
   }
 
@@ -131,6 +136,7 @@ class RideRequest {
     String? otp,
     String? vehicleType,
     int? vehicleTypeId,
+    int? pickupCityId,
   }) {
     return RideRequest(
       id: id ?? this.id,
@@ -151,6 +157,7 @@ class RideRequest {
       paymentMode: paymentMode ?? this.paymentMode,
       vehicleType: vehicleType ?? this.vehicleType,
       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
+      pickupCityId: pickupCityId ?? this.pickupCityId,
     );
   }
 

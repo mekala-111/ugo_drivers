@@ -45,8 +45,10 @@ class Config {
     return FirebaseRemoteConfigService().razorpayEnabled;
   }
 
-  /// Google Maps API key for Distance Matrix / Directions.
-  /// Set with: --dart-define=GOOGLE_MAPS_API_KEY=...
+  /// Google Maps API key for Distance Matrix / Directions (polyline, route services).
+  /// Source: android/local.properties MAPS_API_KEY, passed via --dart-define at build.
+  /// Use: ./scripts/flutter_run.sh (reads from local.properties automatically)
+  /// Or: flutter run --dart-define=GOOGLE_MAPS_API_KEY=your_key
   static String get googleMapsApiKey =>
       const String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
 }

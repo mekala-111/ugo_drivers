@@ -7,6 +7,8 @@ class InboxPageModel extends FlutterFlowModel<InboxPageWidget> {
 
   // Notification data
   dynamic notificationData;
+  bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState(BuildContext context) {}

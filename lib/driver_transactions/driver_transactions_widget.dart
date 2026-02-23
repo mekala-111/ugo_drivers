@@ -137,7 +137,7 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
             const SizedBox(height: 16),
@@ -273,11 +273,11 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildTransactionTile(transaction),
             );
-          }).toList(),
+          }),
           // Loading indicator for pagination
           if (_model.isLoading && _model.transactions.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
               child: Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),

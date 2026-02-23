@@ -1,3 +1,4 @@
+import '/app_state.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -32,15 +33,30 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
   }
 
   Future<void> _loadNotifications() async {
+    if (!mounted) return;
+    setState(() {
+      _model.isLoading = true;
+      _model.errorMessage = null;
+    });
+
     final response = await NotificationHistoryCall.call(
       token: FFAppState().accessToken,
     );
 
-    // Do not log full response body - may contain PII
-
+    if (!mounted) return;
     if (response.succeeded) {
       setState(() {
         _model.notificationData = response.jsonBody;
+        _model.isLoading = false;
+        _model.errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _model.isLoading = false;
+        _model.errorMessage = getJsonField(
+              response.jsonBody ?? {}, r'$.message',
+            )?.toString() ??
+            'Failed to load notifications';
       });
     }
   }
@@ -105,14 +121,53 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
         ),
         body: SafeArea(
           top: true,
-          child: _model.notificationData != null &&
-                  NotificationHistoryCall.notifications(
-                          _model.notificationData) !=
-                      null &&
-                  NotificationHistoryCall.notifications(
-                          _model.notificationData)!
-                      .isNotEmpty
-              ? ListView.builder(
+          child: _model.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _model.errorMessage != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: FlutterFlowTheme.of(context).error,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _model.errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: AppColors.textNearBlack,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            FilledButton.icon(
+                              onPressed: _loadNotifications,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Retry'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: FlutterFlowTheme.of(context)
+                                    .primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : _model.notificationData != null &&
+                          NotificationHistoryCall.notifications(
+                                  _model.notificationData) !=
+                              null &&
+                          NotificationHistoryCall.notifications(
+                                  _model.notificationData)!
+                              .isNotEmpty
+                      ? RefreshIndicator(
+                          onRefresh: _loadNotifications,
+                          child: ListView.builder(
                   padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                   itemCount: NotificationHistoryCall.notifications(
                           _model.notificationData)!
@@ -279,8 +334,9 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                       ),
                     );
                   },
-                )
-              : Center(
+                ),
+                        )
+                      : Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

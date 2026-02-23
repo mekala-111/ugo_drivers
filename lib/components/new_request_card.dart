@@ -195,7 +195,7 @@ class NewRequestCard extends StatelessWidget {
                                   child: SizedBox(
                                     width: MediaQuery.sizeOf(context).width * 0.06,
                                     height: MediaQuery.sizeOf(context).width * 0.06,
-                                    child: CircularProgressIndicator(
+                                    child: const CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: ugoGreen,
                                     ),

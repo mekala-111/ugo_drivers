@@ -75,6 +75,16 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     return driverType == rideType;
   }
 
+  /// Returns false if ride is in a different zone (city) than driver's preferred city.
+  /// When zone changes, driver should not receive ride requests outside their zone.
+  bool _matchesDriverZone(RideRequest ride) {
+    final preferredCityId = FFAppState().preferredCityId;
+    if (preferredCityId <= 0) return true; // no preferred city set, allow all
+    final ridePickupCityId = ride.pickupCityId;
+    if (ridePickupCityId == null) return true; // backend didn't send city, allow
+    return ridePickupCityId == preferredCityId;
+  }
+
   late AudioPlayer _audioPlayer;
   bool _isAlerting = false;
   Timer? _tickTimer;
@@ -172,6 +182,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         return;
       }
 
+      // Zone filter: only show rides in driver's preferred city (when zone changes, don't get ride requests)
+      if (status == RideStatus.searching && !_matchesDriverZone(updatedRide)) {
+        return;
+      }
+
         if (!mounted) return;
         setState(() {
           final validStatuses = [
@@ -218,6 +233,93 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Error parsing ride: $e');
+    }
+  }
+
+  Future<void> _rejectRide(int rideId) async {
+    final token = FFAppState().accessToken;
+    final driverId = FFAppState().driverid;
+    if (token.isNotEmpty && driverId > 0) {
+      try {
+        await RejectRideCall.call(
+          token: token,
+          rideId: rideId,
+          driverId: driverId,
+        );
+      } catch (_) {
+        if (kDebugMode) debugPrint('Reject ride API error');
+      }
+    }
+    if (mounted) {
+      removeRideById(rideId);
+    }
+  }
+
+  Future<void> _triggerEmergencySos(int rideId) async {
+    final token = FFAppState().accessToken;
+    if (token.isEmpty) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Emergency SOS'),
+        content: const Text(
+          'This will alert support and emergency contacts. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Send SOS'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final lat = widget.driverLocation?.latitude;
+      final lng = widget.driverLocation?.longitude;
+      final res = await EmergencySosCall.call(
+        token: token,
+        driverId: FFAppState().driverid,
+        rideId: rideId,
+        latitude: lat,
+        longitude: lng,
+      );
+      if (!mounted) return;
+      if (EmergencySosCall.success(res.jsonBody) == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              EmergencySosCall.message(res.jsonBody) ?? 'SOS sent successfully',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              EmergencySosCall.message(res.jsonBody) ?? 'Could not send SOS',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to send SOS'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -401,7 +503,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     setState(() => _isAcceptingRide = true);
     try {
       final res = await Dio().post(
-          '${Config.baseUrl}/api/rides/$rideId/accept',
+          '${Config.baseUrl}/api/rides/rides/$rideId/accept',
           data: {'driver_id': FFAppState().driverid},
           options: Options(headers: {
             'Authorization': 'Bearer ${FFAppState().accessToken}'
@@ -442,8 +544,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<void> _updateRideStatus(int rideId, RideStatus status) async {
     try {
       final payload = status.value.toLowerCase();
-      await Dio().put('${Config.baseUrl}/api/rides/$rideId',
-          data: {'ride_status': payload, 'driver_id': FFAppState().driverid},
+      await Dio().post('${Config.baseUrl}/api/drivers/update-ride-status',
+          data: {'ride_id': rideId, 'status': payload, 'driver_id': FFAppState().driverid},
           options: Options(headers: {
             'Authorization': 'Bearer ${FFAppState().accessToken}'
           }));
@@ -640,9 +742,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         });
         if (widget.onRideComplete != null) widget.onRideComplete!();
       }
-      // Cash flow: 1) Collect cash screen → 2) Rating screen after collect
+      // Cash flow: 1) Collect cash screen → 2) Rating screen after CASH COLLECTED tap
       if (ride.paymentMode.isCash) {
         if (_cashCollectedForRideId == ride.id) {
+          // Cash collected → navigate to Review screen
           return Positioned.fill(
             child: SafeArea(
               child: Container(
@@ -657,6 +760,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             ),
           );
         }
+        // Cash not yet collected → show collect screen
         return Positioned.fill(
           child: SafeArea(
             child: Container(
@@ -672,7 +776,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           ),
         );
       }
-      // Online / wallet: amount added to wallet by backend → show rating screen
+      // Online / wallet: amount added to wallet by backend → show rating screen directly
       return Positioned.fill(
         child: SafeArea(
           child: Container(
@@ -702,7 +806,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                   ? null
                   : () => _acceptRide(searchingRides.first.id),
               onDecline:
-                  _isAcceptingRide ? null : () => removeRideById(searchingRides.first.id),
+                  _isAcceptingRide ? null : () => _rejectRide(searchingRides.first.id),
               driverLocation: widget.driverLocation,
               isLoading: _isAcceptingRide,
             ),
@@ -731,7 +835,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                     onAccept:
                         _isAcceptingRide ? null : () => _acceptRide(r.id),
                     onDecline:
-                        _isAcceptingRide ? null : () => removeRideById(r.id),
+                        _isAcceptingRide ? null : () => _rejectRide(r.id),
                     driverLocation: widget.driverLocation,
                     isLoading: _isAcceptingRide,
                   ),
@@ -743,38 +847,119 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         );
       case RideStatus.accepted:
         return Positioned.fill(
-          child: RidePickupOverlay(
-            ride: ride,
-            onSwipe: () {
-              _updateRideStatus(ride.id, RideStatus.arrived);
-              VoiceService().arrivedAtPickup();
-            },
-            formattedWaitTime: '',
-            onCancel: _isCancellingRide ? null : () => _cancelRide(ride.id),
+          child: Stack(
+            children: [
+              RidePickupOverlay(
+                ride: ride,
+                onSwipe: () {
+                  _updateRideStatus(ride.id, RideStatus.arrived);
+                  VoiceService().arrivedAtPickup();
+                },
+                formattedWaitTime: '',
+                onCancel: _isCancellingRide ? null : () => _cancelRide(ride.id),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: Material(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(24),
+                  child: InkWell(
+                    onTap: () => _triggerEmergencySos(ride.id),
+                    borderRadius: BorderRadius.circular(24),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.emergency, color: Colors.white, size: 20),
+                          SizedBox(width: 6),
+                          Text('SOS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       case RideStatus.arrived:
         return Positioned.fill(
-          child: RideBottomOverlay(
-            ride: ride,
-            formattedWaitTime: _formatWaitTime(ride.id),
-            onSwipe: () {
-              setState(() => _showOtpOverlay.add(ride.id));
-              VoiceService().pleaseStartRide();
-            },
-            onCancel: _isCancellingRide ? () {} : () => _cancelRide(ride.id),
-            onCall: () => launchUrl(Uri.parse('tel:${ride.mobileNumber ?? ''}')),
+          child: Stack(
+            children: [
+              RideBottomOverlay(
+                ride: ride,
+                formattedWaitTime: _formatWaitTime(ride.id),
+                onSwipe: () {
+                  setState(() => _showOtpOverlay.add(ride.id));
+                  VoiceService().pleaseStartRide();
+                },
+                onCancel: _isCancellingRide ? () {} : () => _cancelRide(ride.id),
+                onCall: () => launchUrl(Uri.parse('tel:${ride.mobileNumber ?? ''}')),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: Material(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(24),
+                  child: InkWell(
+                    onTap: () => _triggerEmergencySos(ride.id),
+                    borderRadius: BorderRadius.circular(24),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.emergency, color: Colors.white, size: 20),
+                          SizedBox(width: 6),
+                          Text('SOS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       case RideStatus.started:
       case RideStatus.onTrip:
         return Positioned.fill(
-          child: RideCompleteOverlay(
-            ride: ride,
-            onSwipe: _isCompletingRide
-                ? null
-                : () => _completeRide(rideId: ride.id, userId: ride.userId),
-            isLoading: _isCompletingRide,
+          child: Stack(
+            children: [
+              RideCompleteOverlay(
+                ride: ride,
+                onSwipe: _isCompletingRide
+                    ? null
+                    : () => _completeRide(rideId: ride.id, userId: ride.userId),
+                isLoading: _isCompletingRide,
+              ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: Material(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(24),
+                  child: InkWell(
+                    onTap: () => _triggerEmergencySos(ride.id),
+                    borderRadius: BorderRadius.circular(24),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.emergency, color: Colors.white, size: 20),
+                          SizedBox(width: 6),
+                          Text('SOS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       default:

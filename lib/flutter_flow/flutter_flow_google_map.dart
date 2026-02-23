@@ -206,12 +206,12 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       child: GoogleMap(
         onMapCreated: (controller) async {
           _controller.complete(controller);
-          // ❌ Removed deprecated setMapStyle call
           widget.onMapCreated?.call(controller);
         },
-        // ✅ ADDED: Apply style directly here
-        style: googleMapStyleStrings[widget.style],
-
+        // Use null for standard (default) map; '[]' can cause blank tiles on some devices
+        style: widget.style == GoogleMapStyle.standard
+            ? null
+            : googleMapStyleStrings[widget.style],
         onCameraIdle: onCameraIdle,
         onCameraMove: (position) => currentMapCenter = position.target,
         initialCameraPosition: CameraPosition(

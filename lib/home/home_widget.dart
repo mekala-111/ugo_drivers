@@ -465,14 +465,10 @@ class _HomeWidgetState extends State<HomeWidget>
               backgroundColor: Colors.white,
               drawer: const Drawer(elevation: 16.0, child: MenuWidget()),
               body: SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.04),
-                        AppHeader(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    AppHeader(
                           scaffoldKey: scaffoldKey,
                           switchValue: c.isOnline,
                           isDataLoaded: c.isDataLoaded,
@@ -484,16 +480,23 @@ class _HomeWidgetState extends State<HomeWidget>
                         Expanded(
                           child: Stack(
                             children: [
-                              if (isOnline)
-                                RideMapContainer(
-                                  mapKey: _mapKey,
-                                  controller: _model.googleMapsController,
-                                  initialLocation: userLocation,
-                                  onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                                  mapCenter: _model.googleMapsCenter ?? userLocation,
-                                  availableDriversCount: c.availableDriversCount,
-                                  showCaptainsPanel: shouldShowPanels,
+                              // Map kept mounted when offline (hidden) to avoid GlobalKey/Completer
+                              // reuse issues when toggling online; markers/polylines need _mapKey.
+                              Opacity(
+                                opacity: isOnline ? 1.0 : 0.0,
+                                child: IgnorePointer(
+                                  ignoring: !isOnline,
+                                  child: RideMapContainer(
+                                    mapKey: _mapKey,
+                                    controller: _model.googleMapsController,
+                                    initialLocation: userLocation,
+                                    onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
+                                    mapCenter: _model.googleMapsCenter ?? userLocation,
+                                    availableDriversCount: c.availableDriversCount,
+                                    showCaptainsPanel: shouldShowPanels,
+                                  ),
                                 ),
+                              ),
                               if (!isOnline)
                                 OfflineDashboard(
                                   driverName: c.driverName,
@@ -528,10 +531,8 @@ class _HomeWidgetState extends State<HomeWidget>
                             isLoading: c.isLoadingEarnings,
                             isSmallScreen: isSmallScreen,
                           ),
-                        SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
-                      ],
-                    ),
-                  ),
+                    SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
+                  ],
                 ),
               ),
             ),

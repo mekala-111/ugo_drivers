@@ -14,11 +14,16 @@ class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
     String? fcmToken,
+    String? otp,
   }) async {
-    final body = <String, dynamic>{
-      'mobile_number': mobile?.toString() ?? '',
-      if (fcmToken != null && fcmToken.isNotEmpty) 'fcm_token': fcmToken,
-    };
+    final body = <String, dynamic>{};
+    if (otp != null && otp.isNotEmpty) {
+      body['mobile'] = mobile?.toString() ?? '';
+      body['otp'] = otp;
+    } else {
+      body['mobile_number'] = mobile?.toString() ?? '';
+      if (fcmToken != null && fcmToken.isNotEmpty) body['fcm_token'] = fcmToken;
+    }
     final ffApiRequestBody = json.encode(body);
     return ApiManager.instance.makeApiCall(
       callName: 'login',
@@ -61,7 +66,7 @@ class DriverMyReferralsCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'driverMyReferrals',
-      apiUrl: '$_baseUrl/api/driver/my-referrals',
+      apiUrl: '$_baseUrl/api/drivers/my-referrals',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -111,7 +116,7 @@ class DriverLinkReferralCall {
 
     return ApiManager.instance.makeApiCall(
       callName: 'driverLinkReferral',
-      apiUrl: '$_baseUrl/api/driver/referrals/link',
+      apiUrl: '$_baseUrl/api/drivers/referrals/link',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': 'Bearer $token',
@@ -509,6 +514,172 @@ class CompleteRideCall {
     }
     return null;
   }
+}
+
+/// POST /api/drivers/report-issue - Driver reports a safety/ride issue
+class ReportIssueCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+    required String issueCategory,
+    String? issueDescription,
+    int? rideId,
+  }) async {
+    final body = <String, dynamic>{
+      'driver_id': driverId,
+      'issue_category': issueCategory,
+      if (issueDescription != null && issueDescription.isNotEmpty) 'issue_description': issueDescription,
+      if (rideId != null && rideId > 0) 'ride_id': rideId,
+    };
+    return ApiManager.instance.makeApiCall(
+      callName: 'reportIssue',
+      apiUrl: '$_baseUrl/api/drivers/report-issue',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: json.encode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
+/// POST /api/drivers/reject-ride - Driver declines incoming ride
+class RejectRideCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int rideId,
+    required int driverId,
+    String? reason,
+  }) async {
+    final body = <String, dynamic>{
+      'ride_id': rideId,
+      'driver_id': driverId,
+      if (reason != null && reason.isNotEmpty) 'rejection_reason': reason,
+    };
+    return ApiManager.instance.makeApiCall(
+      callName: 'rejectRide',
+      apiUrl: '$_baseUrl/api/drivers/reject-ride',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: json.encode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
+/// POST /api/drivers/rate-ride - Driver rates rider after ride
+class RateRideCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int rideId,
+    required int userId,
+    required int driverId,
+    required int rating,
+    String? comment,
+  }) async {
+    final body = <String, dynamic>{
+      'ride_id': rideId,
+      'user_id': userId,
+      'driver_id': driverId,
+      'rating_score': rating,
+      if (comment != null && comment.isNotEmpty) 'rating_comment': comment,
+    };
+    return ApiManager.instance.makeApiCall(
+      callName: 'rateRide',
+      apiUrl: '$_baseUrl/api/drivers/rate-ride',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: json.encode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
+/// POST /api/drivers/emergency-sos - Driver triggers emergency alert
+class EmergencySosCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+    int? rideId,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final locationStr = (latitude != null && longitude != null)
+        ? '$latitude,$longitude'
+        : null;
+    final body = <String, dynamic>{
+      'driver_id': driverId,
+      if (rideId != null && rideId > 0) 'ride_id': rideId,
+      if (locationStr != null) 'location': locationStr,
+    };
+    return ApiManager.instance.makeApiCall(
+      callName: 'emergencySos',
+      apiUrl: '$_baseUrl/api/drivers/emergency-sos',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: json.encode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
 }
 
 class UpdateDriverCall {
@@ -929,7 +1100,7 @@ class SetPreferredCityCall {
     required String token,
     required int cityId,
   }) async {
-    final body = json.encode({'preferred_city_id': cityId});
+    final body = json.encode({'cityId': cityId});
     return ApiManager.instance.makeApiCall(
       callName: 'setPreferredCity',
       apiUrl: '$_baseUrl/api/drivers/preferred-city',
@@ -1030,7 +1201,7 @@ class GetWalletCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getWallet',
-      apiUrl: '$_baseUrl/api/wallets/balance?user_id=$driverId',
+      apiUrl: '$_baseUrl/api/drivers/wallet/$driverId',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -1657,7 +1828,7 @@ class RazorpayPayoutCall {
 
     return ApiManager.instance.makeApiCall(
       callName: 'razorpayPayout',
-      apiUrl: '$_baseUrl/api/payments/payout',
+      apiUrl: '$_baseUrl/api/drivers/withdraws',
       callType: ApiCallType.POST,
       headers: {
         'Authorization': 'Bearer $token',
@@ -1734,6 +1905,7 @@ class AddBankAccountCall {
     required String bankAccountNumber,
     required String bankIfscCode,
     required String bankHolderName,
+    String? token,
   }) async {
     final ffApiRequestBody = '''
 {
@@ -1750,6 +1922,7 @@ class AddBankAccountCall {
       callType: ApiCallType.POST,
       headers: {
         'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
       },
       params: {},
       body: ffApiRequestBody,

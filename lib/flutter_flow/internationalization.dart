@@ -6334,6 +6334,13 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'drv_review_worst': {'en': 'Worst', 'hi': 'सबसे खराब', 'te': 'చెత్త'},
     'drv_review_fast': {'en': 'Fast', 'hi': 'तेज़', 'te': 'వేగంగా'},
     'drv_review_clean': {'en': 'Clean', 'hi': 'साफ', 'te': 'శుభ్రంగా'},
+    'drv_review_affordable': {'en': 'Affordable', 'hi': 'किफायती', 'te': 'సరసమైనది'},
+    'drv_optional_comments': {'en': 'Optional Comments', 'hi': 'वैकल्पिक टिप्पणियाँ', 'te': 'ఐచ్ఛిక వ్యాఖ్యలు'},
+    'drv_collect': {'en': 'Collect', 'hi': 'संग्रह करें', 'te': 'సేకరించండి'},
+    'drv_payment_method': {'en': 'Payment Method', 'hi': 'भुगतान विधि', 'te': 'చెల్లింపు పద్ధతి'},
+    'drv_cash': {'en': 'Cash', 'hi': 'नकद', 'te': 'నగదు'},
+    'drv_online': {'en': 'Online', 'hi': 'ऑनलाइन', 'te': 'ఆన్‌లైన్'},
+    'drv_received': {'en': 'Received', 'hi': 'प्राप्त', 'te': 'అందుకున్నారు'},
     'drv_voice': {'en': 'Voice', 'hi': 'आवाज़', 'te': 'వాయిస్'},
     'drv_ride_announcements': {
       'en': 'Ride announcements',
