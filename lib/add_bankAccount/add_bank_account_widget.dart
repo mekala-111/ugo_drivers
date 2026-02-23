@@ -768,257 +768,120 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
                                           ? Column(
                                               mainAxisSize: MainAxisSize.max,
                                               children: [
-                                                FFButtonWidget(
-                                                  onPressed: () {
-                                                    context.pop();
-                                                  },
-                                                  text: FFLocalizations.of(
-                                                          context)
-                                                      .getText(
-                                                    'wv7qy5fs' /* Cancel */,
-                                                  ),
-                                                  options: FFButtonOptions(
-                                                    width: cancelButtonWidth,
-                                                    height: buttonHeight,
-                                                    padding: const EdgeInsets.all(8),
-                                                    iconPadding:
-                                                        const EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 0, 0, 0),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    textStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmall
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .interTight(
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                              ),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontWeight,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontStyle,
-                                                            ),
-                                                    elevation: 0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                    height:
-                                                        verticalSpacing * 0.75),
-                                                FFButtonWidget(
-                                                  onPressed: _model.isValidating
-                                                      ? null
-                                                      : () {
-                                                          _validateBankAccount();
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: FFButtonWidget(
+                                                        onPressed: () {
+                                                          context.pop();
                                                         },
-                                                  text: _model.isValidating
-                                                      ? FFLocalizations.of(
-                                                          context)
-                                                        .getText('bank0020')
-                                                      : FFLocalizations.of(
-                                                              context)
-                                                          .getText(
-                                                          '67uqdtth' /* Submit */,
-                                                        ),
-                                                  options: FFButtonOptions(
-                                                    width: submitButtonWidth,
-                                                    height: buttonHeight,
-                                                    padding: const EdgeInsets.all(8),
-                                                    iconPadding:
-                                                        const EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 0, 0, 0),
-                                                    color: _model.isValidating
-                                                        ? Colors.grey
-                                                        : const Color(
-                                                            0xFFFF7F27),
-                                                    textStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .interTight(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
+                                                        text: FFLocalizations.of(context).getText('wv7qy5fs' /* Cancel */),
+                                                        options: FFButtonOptions(
+                                                          height: buttonHeight,
+                                                          padding: const EdgeInsets.all(8),
+                                                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                          color: FlutterFlowTheme.of(context).secondaryBackground,
+                                                          textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                            font: GoogleFonts.interTight(
+                                                              fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                              fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                            ),
+                                                            color: FlutterFlowTheme.of(context).secondaryText,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                            fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
                                                           ),
-                                                          color: Colors.white,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontStyle,
+                                                          elevation: 0,
+                                                          borderRadius: BorderRadius.circular(8),
                                                         ),
-                                                    elevation: 0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: FFButtonWidget(
+                                                        onPressed: _model.isValidating ? null : () { _validateBankAccount(); },
+                                                        text: _model.isValidating
+                                                            ? FFLocalizations.of(context).getText('bank0020')
+                                                            : FFLocalizations.of(context).getText('67uqdtth' /* Submit */),
+                                                        options: FFButtonOptions(
+                                                          height: buttonHeight,
+                                                          padding: const EdgeInsets.all(8),
+                                                          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                          color: _model.isValidating ? Colors.grey : const Color(0xFFFF7F27),
+                                                          textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                            font: GoogleFonts.interTight(
+                                                              fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                              fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                            ),
+                                                            color: Colors.white,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                            fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                          ),
+                                                          elevation: 0,
+                                                          borderRadius: BorderRadius.circular(8),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
+                                                SizedBox(height: verticalSpacing * 0.75),
                                               ],
                                             )
                                           : Row(
                                               mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
                                               children: [
-                                                FFButtonWidget(
-                                                  onPressed: () {
-                                                    context.pop();
-                                                  },
-                                                  text: FFLocalizations.of(
-                                                          context)
-                                                      .getText(
-                                                    'wv7qy5fs' /* Cancel */,
-                                                  ),
-                                                  options: FFButtonOptions(
-                                                    width: cancelButtonWidth,
-                                                    height: buttonHeight,
-                                                    padding: const EdgeInsets.all(8),
-                                                    iconPadding:
-                                                        const EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 0, 0, 0),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    textStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmall
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .interTight(
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                              ),
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryText,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontWeight,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontStyle,
-                                                            ),
-                                                    elevation: 0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
+                                                Expanded(
+                                                  child: FFButtonWidget(
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
+                                                    text: FFLocalizations.of(context).getText('wv7qy5fs' /* Cancel */),
+                                                    options: FFButtonOptions(
+                                                      height: buttonHeight,
+                                                      padding: const EdgeInsets.all(8),
+                                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                      color: FlutterFlowTheme.of(context).secondaryBackground,
+                                                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                        font: GoogleFonts.interTight(
+                                                          fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                          fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                        ),
+                                                        color: FlutterFlowTheme.of(context).secondaryText,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                        fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                      ),
+                                                      elevation: 0,
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
                                                   ),
                                                 ),
-                                                FFButtonWidget(
-                                                  onPressed: _model.isValidating
-                                                      ? null
-                                                      : () {
-                                                          _validateBankAccount();
-                                                        },
-                                                  text: _model.isValidating
-                                                      ? FFLocalizations.of(
-                                                          context)
-                                                        .getText('bank0020')
-                                                      : FFLocalizations.of(
-                                                              context)
-                                                          .getText(
-                                                          '67uqdtth' /* Submit */,
+                                                SizedBox(width: 12),
+                                                Expanded(
+                                                  child: FFButtonWidget(
+                                                    onPressed: _model.isValidating ? null : () { _validateBankAccount(); },
+                                                    text: _model.isValidating
+                                                        ? FFLocalizations.of(context).getText('bank0020')
+                                                        : FFLocalizations.of(context).getText('67uqdtth' /* Submit */),
+                                                    options: FFButtonOptions(
+                                                      height: buttonHeight,
+                                                      padding: const EdgeInsets.all(8),
+                                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                      color: _model.isValidating ? Colors.grey : const Color(0xFFFF7F27),
+                                                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                        font: GoogleFonts.interTight(
+                                                          fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                          fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
                                                         ),
-                                                  options: FFButtonOptions(
-                                                    width: submitButtonWidth,
-                                                    height: buttonHeight,
-                                                    padding: const EdgeInsets.all(8),
-                                                    iconPadding:
-                                                        const EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 0, 0, 0),
-                                                    color: _model.isValidating
-                                                        ? Colors.grey
-                                                        : const Color(
-                                                            0xFFFF7F27),
-                                                    textStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .interTight(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: Colors.white,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                    elevation: 0,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
+                                                        color: Colors.white,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
+                                                        fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
+                                                      ),
+                                                      elevation: 0,
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
