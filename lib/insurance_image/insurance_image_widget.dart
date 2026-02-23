@@ -78,7 +78,7 @@ class _UploadRcWidgetState extends State<UploadRcWidget> {
               size: 24.0,
             ),
             onPressed: () {
-              print('IconButton pressed ...');
+              debugPrint('IconButton pressed ...');
             },
           ),
           title: Text(
@@ -260,7 +260,7 @@ class _UploadRcWidgetState extends State<UploadRcWidget> {
                 ),
                 FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
+                    debugPrint('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     'jvl4q2p4' /* Upload documents instead */,
@@ -298,7 +298,7 @@ class _UploadRcWidgetState extends State<UploadRcWidget> {
                 ),
                 FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
+                    debugPrint('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     '25gderrw' /* Continue */,

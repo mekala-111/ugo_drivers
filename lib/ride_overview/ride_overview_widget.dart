@@ -142,7 +142,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                 width: double.infinity,
                                 child: FFButtonWidget(
                                   onPressed: () {
-                                    print('Button pressed ...');
+                                    debugPrint('Button pressed ...');
                                   },
                                   text: FFLocalizations.of(context).getText(
                                     'y2ttgl8h' /* Get help */,
@@ -224,7 +224,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                               ),
                               FFButtonWidget(
                                 onPressed: () {
-                                  print('Button pressed ...');
+                                  debugPrint('Button pressed ...');
                                 },
                                 text: FFLocalizations.of(context).getText(
                                   'y2ttgl8h' /* Get help */,
@@ -436,7 +436,7 @@ RAJENDRA ... */
                             width: double.infinity,
                             child: FFButtonWidget(
                               onPressed: () {
-                                print('Button pressed ...');
+                                debugPrint('Button pressed ...');
                               },
                               text: FFLocalizations.of(context).getText(
                                 't13nqnia' /* Receipt */,
@@ -486,7 +486,7 @@ RAJENDRA ... */
                             width: double.infinity,
                             child: FFButtonWidget(
                               onPressed: () {
-                                print('Button pressed ...');
+                                debugPrint('Button pressed ...');
                               },
                               text: FFLocalizations.of(context).getText(
                                 '858a9u1g' /* Invoice */,
@@ -539,7 +539,7 @@ RAJENDRA ... */
                         children: [
                           FFButtonWidget(
                             onPressed: () {
-                              print('Button pressed ...');
+                              debugPrint('Button pressed ...');
                             },
                             text: FFLocalizations.of(context).getText(
                               't13nqnia' /* Receipt */,
@@ -583,7 +583,7 @@ RAJENDRA ... */
                           ),
                           FFButtonWidget(
                             onPressed: () {
-                              print('Button pressed ...');
+                              debugPrint('Button pressed ...');
                             },
                             text: FFLocalizations.of(context).getText(
                               '858a9u1g' /* Invoice */,

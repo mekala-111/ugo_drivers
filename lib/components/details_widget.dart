@@ -42,10 +42,9 @@ class _DetailsWidgetState extends State<DetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
-        child: Column(
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+      child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -232,7 +231,6 @@ class _DetailsWidgetState extends State<DetailsWidget> {
               ),
             ),
           ].divide(const SizedBox(height: 24.0)),
-        ),
       ),
     );
   }

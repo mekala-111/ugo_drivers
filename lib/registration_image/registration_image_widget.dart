@@ -74,22 +74,22 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 RC FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 RC FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'RC Front (bytes): ${FFAppState().registrationImage?.bytes?.length ?? 0}');
-    print('RC Front URL: ${FFAppState().rcFrontImageUrl}');
-    print('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
-    print('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
-    print('RC Back URL: ${FFAppState().rcBackImageUrl}');
-    print('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
-    print('Registration Number: ${FFAppState().registrationNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('RC Front URL: ${FFAppState().rcFrontImageUrl}');
+    debugPrint('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
+    debugPrint('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
+    debugPrint('RC Back URL: ${FFAppState().rcBackImageUrl}');
+    debugPrint('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
+    debugPrint('Registration Number: ${FFAppState().registrationNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved RC data...');
+    debugPrint('🔄 Loading saved RC data...');
 
     // Load front image
     if (FFAppState().rcFrontBase64.isNotEmpty) {
@@ -100,9 +100,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
           _model.uploadedLocalFile_uploadData1zx = _frontImage!;
           _isFrontValid = true;
         });
-        print('✅ RC front loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ RC front loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding RC front Base64: $e');
+        debugPrint('❌ Error decoding RC front Base64: $e');
       }
     } else if (FFAppState().rcFrontImageUrl.isNotEmpty) {
       setState(() {
@@ -126,9 +126,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
           _backImage = FFUploadedFile(bytes: bytes, name: 'rc_back.jpg');
           _isBackValid = true;
         });
-        print('✅ RC back loaded from Base64');
+        debugPrint('✅ RC back loaded from Base64');
       } catch (e) {
-        print('❌ Error decoding RC back Base64: $e');
+        debugPrint('❌ Error decoding RC back Base64: $e');
       }
     } else if (FFAppState().rcBackImageUrl.isNotEmpty) {
       setState(() {
@@ -166,7 +166,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
   // 🔥 OCR - Extract Registration Number from Image
   Future<void> _extractRegistrationNumberFromImage(FFUploadedFile image) async {
     if (image.bytes == null || image.bytes!.isEmpty) {
-      print('❌ No image bytes to process');
+      debugPrint('❌ No image bytes to process');
       return;
     }
 
@@ -183,8 +183,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
           await textRecognizer.processImage(inputImage);
 
-      print('📝 OCR Text Extracted:');
-      print(recognizedText.text);
+      debugPrint('📝 OCR Text Extracted:');
+      debugPrint(recognizedText.text);
 
       String? regNumber = _extractRegistrationNumber(recognizedText.text);
 
@@ -200,18 +200,18 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         _showSnackBar(FFLocalizations.of(context)
           .getText('rc0009')
           .replaceAll('%1', regNumber));
-        print('✅ Registration Number extracted: $regNumber');
+        debugPrint('✅ Registration Number extracted: $regNumber');
       } else {
         _showSnackBar(
           FFLocalizations.of(context).getText('rc0010'),
           isError: true);
-        print('❌ No valid registration number found in text');
+        debugPrint('❌ No valid registration number found in text');
       }
 
       await textRecognizer.close();
       await file.delete();
     } catch (e) {
-      print('❌ OCR Error: $e');
+      debugPrint('❌ OCR Error: $e');
         _showSnackBar(FFLocalizations.of(context).getText('rc0011'),
           isError: true);
     } finally {
@@ -436,12 +436,12 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: AppColors.registrationOrange),
-                            SizedBox(height: 16),
+                            const CircularProgressIndicator(color: AppColors.registrationOrange),
+                            const SizedBox(height: 16),
                             Text(
                               FFLocalizations.of(context)
                                   .getText('rc0008'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600),
@@ -545,11 +545,11 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.description, color: Colors.white, size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.description, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
               Text(
                 FFLocalizations.of(context).getText('rc0001'),
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
@@ -604,15 +604,15 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                   Text(
                                     FFLocalizations.of(context)
                                         .getText('rc0002'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     FFLocalizations.of(context)
                                         .getText('aad0002'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 13, color: AppColors.greyMedium),
                                   ),
                                 ],
@@ -656,7 +656,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -731,7 +731,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -794,7 +794,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 Text(
                                   FFLocalizations.of(context)
                                     .getText('rc0005'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
                                 if (_registrationNumberController
@@ -813,13 +813,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                         child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.check_circle,
+                                          const Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Text(
                                             FFLocalizations.of(context)
                                               .getText('dl0007'),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.w600)),
@@ -928,13 +928,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.lightbulb_outline,
+                                const Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                               Text(
                                 FFLocalizations.of(context)
                                   .getText('guide0001'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
                               ],
@@ -1007,7 +1007,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
                             FFAppState().update(() {});
 
-                            print('✅ RC data saved');
+                            debugPrint('✅ RC data saved');
                             _showSnackBar(FFLocalizations.of(context)
                               .getText('rc0021'));
 

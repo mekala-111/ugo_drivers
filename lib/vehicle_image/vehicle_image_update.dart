@@ -6,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'vehicle_image_model.dart';
 export 'vehicle_image_model.dart';
 
@@ -146,7 +145,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           _isVehicleImageValid = true;
         });
       } catch (e) {
-        print('Error: $e');
+        debugPrint('Error: $e');
       }
     } else if (FFAppState().vehicleImage?.bytes != null) {
       setState(() {
@@ -215,7 +214,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           _isPollutionValid = true;
         });
       } catch (e) {
-        print('Pollution decode error: $e');
+        debugPrint('Pollution decode error: $e');
       }
     } else if (FFAppState().pollutioncertificateImage?.bytes != null &&
         FFAppState().pollutioncertificateImage!.bytes!.isNotEmpty) {
@@ -234,7 +233,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           _isInsuranceValid = true;
         });
       } catch (e) {
-        print('Insurance decode error: $e');
+        debugPrint('Insurance decode error: $e');
       }
     } else if (FFAppState().insuranceImage?.bytes != null &&
         FFAppState().insuranceImage!.bytes!.isNotEmpty) {
@@ -408,6 +407,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  HERO PHOTO SECTION
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildHeroPhotoSection(bool hasImage) {
     return GestureDetector(
       onTap: () async {
@@ -429,7 +429,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     ))
                 .toList();
           } catch (e) {
-            print('Error: $e');
+            debugPrint('Error: $e');
           }
           if (files.isNotEmpty) {
             setState(() {
@@ -463,10 +463,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         Container(
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.15),
+                            color: AppColors.primary.withValues(alpha:0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.primary.withOpacity(0.4),
+                                color: AppColors.primary.withValues(alpha:0.4),
                                 width: 2),
                           ),
                           child: const Icon(Icons.camera_alt_rounded,
@@ -500,7 +500,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      AppColors.black.withOpacity(0.6)
+                      AppColors.black.withValues(alpha:0.6)
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -512,11 +512,11 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     padding: const EdgeInsets.all(12),
                     child: Row(children: [
                       Icon(Icons.edit_rounded,
-                          color: AppColors.white.withOpacity(0.9), size: 16),
+                          color: AppColors.white.withValues(alpha:0.9), size: 16),
                       const SizedBox(width: 4),
                       Text('Tap to change',
                           style: TextStyle(
-                              color: AppColors.white.withOpacity(0.9),
+                              color: AppColors.white.withValues(alpha:0.9),
                               fontSize: 12)),
                     ]),
                   ),
@@ -536,7 +536,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   color: _primary,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: _primary.withOpacity(0.5), blurRadius: 8)
+                    BoxShadow(color: _primary.withValues(alpha:0.5), blurRadius: 8)
                   ],
                 ),
                 child: const Row(
@@ -577,7 +577,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                          color: AppColors.black.withOpacity(0.2),
+                          color: AppColors.black.withValues(alpha:0.2),
                           blurRadius: 8)
                     ],
                   ),
@@ -783,7 +783,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             ),
           ),
           child: DropdownButtonFormField<String>(
-            value: (value != null && value.isNotEmpty && items.contains(value))
+            initialValue: (value != null && value.isNotEmpty && items.contains(value))
                 ? value
                 : null,
             decoration: InputDecoration(
@@ -844,7 +844,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             FFAppState().update(() {});
             _showSnackBar('Photo uploaded successfully! ✓');
           } catch (e) {
-            print('Error: $e');
+            debugPrint('Error: $e');
           }
         }
       },
@@ -976,7 +976,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         child: hasImage
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(14),
-                child: Image.memory(image!.bytes!,
+                child: Image.memory(image.bytes!,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity),
@@ -1009,6 +1009,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  SECTION LABEL
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _sectionLabel(String title, IconData icon) {
     return Row(children: [
       Container(
@@ -1033,6 +1034,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  GLASSMORPHISM CARD
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildCard({
     required String title,
     required IconData icon,
@@ -1046,7 +1048,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         border: Border.all(color: AppColors.greyBorder, width: 1),
         boxShadow: [
           BoxShadow(
-              color: AppColors.black.withOpacity(0.06),
+              color: AppColors.black.withValues(alpha:0.06),
               blurRadius: 12,
               offset: const Offset(0, 4)),
         ],
@@ -1058,7 +1060,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           Container(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
             decoration: BoxDecoration(
-              color: AppColors.sectionOrangeLight.withOpacity(0.3),
+              color: AppColors.sectionOrangeLight.withValues(alpha:0.3),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(24)),
               border: const Border(bottom: BorderSide(color: AppColors.greyBorder)),
@@ -1094,6 +1096,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  VIBRANT TEXT FIELD
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildVibrantField({
     required TextEditingController controller,
     required String label,
@@ -1189,6 +1192,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  COLOR GRID
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildColorGrid() {
     return Wrap(
       spacing: 10,
@@ -1217,7 +1221,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                          color: _primary.withOpacity(0.25), blurRadius: 10)
+                          color: _primary.withValues(alpha:0.25), blurRadius: 10)
                     ]
                   : [],
             ),
@@ -1233,7 +1237,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     border: Border.all(color: colorData['border'], width: 2),
                     boxShadow: [
                       BoxShadow(
-                          color: AppColors.black.withOpacity(0.15),
+                          color: AppColors.black.withValues(alpha:0.15),
                           blurRadius: 4)
                     ],
                   ),
@@ -1260,6 +1264,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  VEHICLE TYPE FROM API
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildVehicleTypeFromApi() {
     return FutureBuilder<ApiCallResponse>(
       future: ChoosevehicleCall.call(),
@@ -1296,7 +1301,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
               const Expanded(
                   child: Text('Could not load vehicle types',
                       style:
-                          const TextStyle(color: AppColors.greySlate, fontSize: 14))),
+                          TextStyle(color: AppColors.greySlate, fontSize: 14))),
               TextButton(
                 onPressed: () => setState(() {}),
                 child: const Text('Retry',
@@ -1378,7 +1383,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           gradient: isSelected
               ? LinearGradient(colors: [
                   AppColors.sectionOrangeLight,
-                  AppColors.sectionOrangeLight.withOpacity(0.5)
+                  AppColors.sectionOrangeLight.withValues(alpha:0.5)
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight)
               : null,
           borderRadius: BorderRadius.circular(20),
@@ -1389,7 +1394,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                      color: _primary.withOpacity(0.25),
+                      color: _primary.withValues(alpha:0.25),
                       blurRadius: 16,
                       offset: const Offset(0, 4))
                 ]
@@ -1453,6 +1458,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
     );
   }
 
+  // ignore: unused_element
   Widget _buildSelectedVehicleTypeChip(String vehicleName) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1495,6 +1501,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  DOCUMENT UPLOAD
   // ══════════════════════════════════════════════════════════════════
+  // ignore: unused_element
   Widget _buildDocUpload({
     required String label,
     required IconData icon,
@@ -1530,14 +1537,14 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             width: hasImg ? 2 : 1,
           ),
           boxShadow: hasImg
-              ? [BoxShadow(color: _primary.withOpacity(0.2), blurRadius: 12)]
+              ? [BoxShadow(color: _primary.withValues(alpha:0.2), blurRadius: 12)]
               : [],
         ),
         child: Stack(children: [
           if (hasImg)
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.memory(image!.bytes!,
+              child: Image.memory(image.bytes!,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity),
@@ -1550,9 +1557,9 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: _primary.withOpacity(0.1),
+                    color: _primary.withValues(alpha:0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(color: _primary.withOpacity(0.3)),
+                    border: Border.all(color: _primary.withValues(alpha:0.3)),
                   ),
                   child: Icon(icon, color: _primary, size: 36),
                 ),
@@ -1621,7 +1628,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         boxShadow: isFormValid
             ? [
                 BoxShadow(
-                    color: _primary.withOpacity(0.4),
+                    color: _primary.withValues(alpha:0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6))
               ]
@@ -1727,18 +1734,19 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     _showSnackBar(
                         'Please select vehicle type first (from Choose Vehicle)',
                         isError: true);
-                  } else if (_makeController.text.isEmpty)
+                  } else if (_makeController.text.isEmpty) {
                     _showSnackBar('Please select vehicle name', isError: true);
-                  else if (_modelController.text.isEmpty)
+                  } else if (_modelController.text.isEmpty) {
                     _showSnackBar('Please select vehicle model', isError: true);
-                  else if (!hasImage)
+                  } else if (!hasImage) {
                     _showSnackBar('Please upload vehicle photo', isError: true);
-                  else if (_pollutionImage == null)
+                  } else if (_pollutionImage == null) {
                     _showSnackBar('Please upload pollution certificate',
                         isError: true);
-                  else if (_insuranceImage == null)
+                  } else if (_insuranceImage == null) {
                     _showSnackBar('Please upload insurance document',
                         isError: true);
+                  }
                 },
           child: Center(
             child: Row(

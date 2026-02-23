@@ -192,7 +192,7 @@ class VoiceService {
       final drop = await dropFuture;
       final pickupArea = pickup.locality.isNotEmpty ? pickup.locality : _shortAddress(pickupAddress);
       final dropArea = drop.locality.isNotEmpty ? drop.locality : _shortAddress(dropAddress);
-      final fare = estimatedFare != null ? estimatedFare.toInt() : null;
+      final fare = estimatedFare?.toInt();
       final text = _formatRideDetailsSpeech(
         pickupArea: pickupArea,
         dropArea: dropArea,
@@ -201,7 +201,7 @@ class VoiceService {
       await _speakRepeated(text, times: repeatCount);
     } catch (e) {
       if (kDebugMode) debugPrint('VoiceService: speakNewRideAddress failed: $e');
-      final fare = estimatedFare != null ? estimatedFare.toInt() : null;
+      final fare = estimatedFare?.toInt();
       final fallback = _formatRideDetailsSpeech(
         pickupArea: _shortAddress(pickupAddress),
         dropArea: _shortAddress(dropAddress),

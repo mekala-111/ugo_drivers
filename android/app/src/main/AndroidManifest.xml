@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
@@ -70,7 +69,7 @@
         <!-- Floating Bubble Service -->
         <service
             android:name=".FloatingBubbleService"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="false"
             android:foregroundServiceType="dataSync">
         </service>
@@ -80,7 +79,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDO0iVw0vItsg45hIDHV3oAu8RB-zcra2Y"/>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="${MAPS_API_KEY}"/>
 
     </application>
 

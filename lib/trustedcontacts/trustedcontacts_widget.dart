@@ -230,7 +230,7 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                 padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                 child: FFButtonWidget(
                   onPressed: () {
-                    print('Button pressed ...');
+                    debugPrint('Button pressed ...');
                   },
                   text: FFLocalizations.of(context).getText(
                     '8kdg92mk' /* Add contact */,

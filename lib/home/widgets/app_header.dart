@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/constants/app_colors.dart';
-import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/index.dart';
 import 'package:ugo_driver/home/widgets/online_toggle.dart';
@@ -33,9 +31,9 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSz = Responsive.iconSize(context, base: isSmallScreen ? 24 : 28);
-    final headerH = Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
+    final headerH = MediaQuery.sizeOf(context).height * 0.065;
     final hPad = Responsive.horizontalPadding(context);
-    final minTap = Responsive.minTouchTarget;
+    const minTap = Responsive.minTouchTarget;
     return Container(
       width: double.infinity,
       height: headerH,
@@ -43,7 +41,10 @@ class AppHeader extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: hPad,
+            vertical: MediaQuery.sizeOf(context).height * 0.01,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -64,7 +65,7 @@ class AppHeader extends StatelessWidget {
                   ),
                 )
               else
-                SizedBox(width: minTap, height: minTap),
+                const SizedBox(width: minTap, height: minTap),
               if (switchValue)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),
@@ -72,7 +73,7 @@ class AppHeader extends StatelessWidget {
                   minSize: minTap,
                 )
               else
-                SizedBox(width: minTap, height: minTap),
+                const SizedBox(width: minTap, height: minTap),
               OnlineToggle(
                 switchValue: switchValue,
                 isDataLoaded: isDataLoaded,

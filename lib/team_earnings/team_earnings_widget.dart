@@ -75,7 +75,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
       setState(() => isLoading = false);
     }
   } catch (e) {
-    print('Error fetching total earnings: $e');
+    debugPrint('Error fetching total earnings: $e');
     setState(() => isLoading = false);
   }
 }

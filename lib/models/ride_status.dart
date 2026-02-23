@@ -53,6 +53,8 @@ extension RideStatusX on RideStatus {
       case 'cancelled':
       case 'canceled':
         return RideStatus.cancelled;
+      case 'declined':
+        return RideStatus.rejected;
       case 'rejected':
         return RideStatus.rejected;
       default:

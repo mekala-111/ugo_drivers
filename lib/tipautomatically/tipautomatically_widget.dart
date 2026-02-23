@@ -62,7 +62,7 @@ class _TipautomaticallyWidgetState extends State<TipautomaticallyWidget> {
                 size: 24.0,
               ),
               onPressed: () {
-                print('IconButton pressed ...');
+                debugPrint('IconButton pressed ...');
               },
             ),
           ),

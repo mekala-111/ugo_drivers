@@ -197,7 +197,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp.router(
       scaffoldMessengerKey: rootScaffoldMessengerKey, // ✅ Attach Global Key
       debugShowCheckedModeBanner: false,
-      title: 'UGO-DRIVER',
+      title: 'ugo_driver',
       localizationsDelegates: const [
         FFLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,

@@ -192,18 +192,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           FFAppState().registrationImage = null;
         });
 
+        if (!context.mounted) return;
         _showSnack(FFLocalizations.of(context).getText('docm0002'),
             isError: false);
         await Future.delayed(const Duration(milliseconds: 1000));
         if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
       } else {
         // Error Logic
+        if (!context.mounted) return;
         String msg =
             getJsonField(apiResult.jsonBody, r'''$.message''')?.toString() ??
                 FFLocalizations.of(context).getText('docm0003');
         _showSnack(msg, isError: true);
       }
     } catch (e) {
+      if (!context.mounted) return;
       _showSnack(FFLocalizations.of(context).getText('docm0004'),
           isError: true);
     } finally {
@@ -288,7 +291,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               const SizedBox(width: 16),
                               Text(
                                 FFLocalizations.of(context).getText('docm0005'),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -301,7 +304,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           Center(
                             child: Text(
                               FFLocalizations.of(context).getText('docm0006'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 28,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -427,7 +430,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                     : Text(
                                         FFLocalizations.of(context)
                                             .getText('docm0015'),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 0.5,

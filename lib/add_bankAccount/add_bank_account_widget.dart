@@ -131,6 +131,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
         }
       } else {
         // Get error details from response
+        if (!context.mounted) return;
         String errorMessage =
             FFLocalizations.of(context).getText('bank0009');
 

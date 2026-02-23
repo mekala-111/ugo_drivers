@@ -122,13 +122,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       bool shouldShowFloatingRide = false;
 
       final RideStatus status = updatedRide.status;
+
+      // Fast-fail: ignore unknown statuses to prevent UI state corruption
+      if (status == RideStatus.unknown) {
+        return;
+      }
+
       final int myDriverId = FFAppState().driverid;
       final int? rideDriverId = updatedRide.driverId;
 
       // Remove if cancelled, rejected, or completed by another driver
-      if (status == RideStatus.cancelled ||
-          status == RideStatus.rejected ||
-          status == RideStatus.unknown) {
+      if (status == RideStatus.cancelled || status == RideStatus.rejected) {
         removeRideById(updatedRide.id);
         return;
       }
@@ -149,6 +153,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       final index = _activeRequests.indexWhere((r) => r.id == updatedRide.id);
 
       if (index != -1) {
+        if (!mounted) return;
         setState(() {
           _activeRequests[index] = updatedRide;
           if (status == RideStatus.arrived && !_waitTimers.containsKey(updatedRide.id)) {
@@ -166,6 +171,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         return;
       }
 
+        if (!mounted) return;
         setState(() {
           final validStatuses = [
             RideStatus.searching,
@@ -215,6 +221,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   void removeRideById(int id) {
+    if (!mounted) return;
     setState(() {
       _activeRequests.removeWhere((r) => r.id == id);
       _timers.remove(id);
@@ -378,6 +385,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     } catch (e) {
       if (e is DioException && e.response?.statusCode == 404) {
         FFAppState().activeRideId = 0;
+        if (mounted) {
+          Provider.of<RideState>(context, listen: false).clearRide();
+        }
       }
     }
   }
@@ -389,7 +399,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     setState(() => _isAcceptingRide = true);
     try {
       final res = await Dio().post(
-          '${Config.baseUrl}/api/rides/rides/$rideId/accept',
+          '${Config.baseUrl}/api/rides/$rideId/accept',
           data: {'driver_id': FFAppState().driverid},
           options: Options(headers: {
             'Authorization': 'Bearer ${FFAppState().accessToken}'
@@ -437,7 +447,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           }));
       _updateLocalRideStatus(rideId, status);
     } catch (e) {
-      print('Status Update Error: $e');
+      if (kDebugMode) debugPrint('Status Update Error: $e');
     }
   }
 
@@ -474,6 +484,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   void _updateLocalRideStatus(int rideId, RideStatus status, {double? finalFare, PaymentMode? paymentMode}) {
+    if (!mounted) return;
     setState(() {
       final idx = _activeRequests.indexWhere((r) => r.id == rideId);
       if (idx != -1) {
@@ -607,9 +618,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _otpControllers[ride.id] = List.generate(4, (_) => TextEditingController());
       }
       return Positioned.fill(
-          child: OtpVerificationSheet(
-            otpControllers: _otpControllers[ride.id]!,
-            onVerify: () => _verifyOtp(ride.id),
+          child: SafeArea(
+            child: OtpVerificationSheet(
+              otpControllers: _otpControllers[ride.id]!,
+              onVerify: () => _verifyOtp(ride.id),
+            ),
           ));
     }
 
@@ -627,23 +640,27 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       // Show screen based on payment mode
       if (ride.paymentMode.isCash) {
         return Positioned.fill(
-          child: Container(
-            color: Colors.white,
-            child: CashPaymentScreen(
-              ride: ride,
-              onCollectConfirmed: onDone,
+          child: SafeArea(
+            child: Container(
+              color: Colors.white,
+              child: CashPaymentScreen(
+                ride: ride,
+                onCollectConfirmed: onDone,
+              ),
             ),
           ),
         );
       }
       // Online / wallet / default: show review screen
       return Positioned.fill(
-        child: Container(
-          color: Colors.white,
-          child: ReviewScreen(
-            ride: ride,
-            onSubmit: onDone,
-            onClose: () {},
+        child: SafeArea(
+          child: Container(
+            color: Colors.white,
+            child: ReviewScreen(
+              ride: ride,
+              onSubmit: onDone,
+              onClose: () {},
+            ),
           ),
         ),
       );
@@ -652,8 +669,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     switch (status) {
       case RideStatus.searching:
         if (searchingRides.length == 1) {
-          return Positioned(
-            bottom: 0, left: 0, right: 0,
+        return Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: SafeArea(
+            top: false,
             child: NewRequestCard(
               ride: searchingRides.first,
               remainingTime: _timers[searchingRides.first.id] ?? 0,
@@ -665,21 +684,25 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               driverLocation: widget.driverLocation,
               isLoading: _isAcceptingRide,
             ),
+          ),
           );
         }
         final pageHeight = (MediaQuery.sizeOf(context).height * 0.55)
             .clamp(380.0, 560.0);
         return Positioned(
           bottom: 0, left: 0, right: 0,
-          child: SizedBox(
-            height: pageHeight,
-            child: PageView.builder(
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: pageHeight,
+              child: PageView.builder(
               controller: _requestPageController,
               itemCount: searchingRides.length,
               itemBuilder: (context, index) {
                 final r = searchingRides[index];
+                final h = MediaQuery.sizeOf(context).height;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: h * 0.01),
                   child: NewRequestCard(
                     ride: r,
                     remainingTime: _timers[r.id] ?? 0,
@@ -693,6 +716,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 );
               },
             ),
+          ),
           ),
         );
       case RideStatus.accepted:

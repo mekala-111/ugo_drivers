@@ -1,5 +1,6 @@
 /// Uber-style document verification service.
 /// Runs validations on all onboarding documents before allowing server submission.
+library;
 import '../app_state.dart';
 import '../flutter_flow/uploaded_file.dart';
 import '../utils/input_validators.dart';

@@ -36,7 +36,7 @@ class OnBoardingWidget extends StatefulWidget {
 
 class _OnBoardingWidgetState extends State<OnBoardingWidget> {
   late OnBoardingModel _model;
-  String? fcm_token;
+  String? fcmToken;
   bool _isLoading = false;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -52,9 +52,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
   Future<void> _initFCM() async {
     try {
-      fcm_token = await FirebaseMessaging.instance.getToken();
+      fcmToken = await FirebaseMessaging.instance.getToken();
     } catch (e) {
-      print('FCM Error: $e');
+      debugPrint('FCM Error: $e');
     }
   }
 
@@ -502,9 +502,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
           builder: (ctx) => AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     color: Colors.orange, size: 28),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(FFLocalizations.of(context).getText('ob0008')),
               ],
             ),
@@ -603,7 +603,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             : null,
         'preferred_earning_mode': FFAppState().preferredEarningMode,
         'vehicle_image': FFAppState().vehicleImage?.name,
-        'fcm_token': fcm_token ?? '',
+        'fcmToken': fcmToken ?? '',
       };
       if (FFAppState().licenseNumber.isNotEmpty) {
         driverJsonData['license_number'] = FFAppState().licenseNumber;
@@ -651,19 +651,25 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
         vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
       }
-      if (FFAppState().vehicleMake.isNotEmpty)
+      if (FFAppState().vehicleMake.isNotEmpty) {
         vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
-      if (FFAppState().vehicleModel.isNotEmpty)
+      }
+      if (FFAppState().vehicleModel.isNotEmpty) {
         vehicleJsonData['vehicle_model'] = FFAppState().vehicleModel;
-      if (FFAppState().vehicleColor.isNotEmpty)
+      }
+      if (FFAppState().vehicleColor.isNotEmpty) {
         vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
-      if (FFAppState().licensePlate.isNotEmpty)
+      }
+      if (FFAppState().licensePlate.isNotEmpty) {
         vehicleJsonData['license_plate'] = FFAppState().licensePlate;
-      if (FFAppState().registrationNumber.isNotEmpty)
+      }
+      if (FFAppState().registrationNumber.isNotEmpty) {
         vehicleJsonData['registration_number'] =
             FFAppState().registrationNumber;
-      if (FFAppState().insuranceNumber.isNotEmpty)
+      }
+      if (FFAppState().insuranceNumber.isNotEmpty) {
         vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
+      }
       if (FFAppState().registrationDate.isNotEmpty) {
         vehicleJsonData['registration_date'] =
             _toApiDate(FFAppState().registrationDate);
@@ -696,7 +702,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         pollutionCertificateImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
-        fcmToken: fcm_token ?? '',
+        fcmToken: fcmToken ?? '',
       );
 
       // 4. Handle Response
@@ -747,7 +753,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             mobile: FFAppState().mobileNo,
             fcmToken: FFAppState().fcmToken.isNotEmpty
                 ? FFAppState().fcmToken
-                : (fcm_token ?? ''),
+                : (fcmToken ?? ''),
           );
           if (loginRes.succeeded) {
             accessToken =
@@ -812,7 +818,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             mobile: FFAppState().mobileNo,
             fcmToken: FFAppState().fcmToken.isNotEmpty
                 ? FFAppState().fcmToken
-                : (fcm_token ?? ''),
+                : (fcmToken ?? ''),
           );
           if (loginRes.succeeded) {
             String? accessToken =
@@ -855,7 +861,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         }
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -1,5 +1,4 @@
 import '/config.dart' as app_config;
-import '/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -99,7 +98,7 @@ class _VehicleWidgetState extends State<VehicleWidget> {
           children: [
             Row(
               children: [
-                Icon(Icons.directions_car, color: AppColors.primary, size: 22),
+                const Icon(Icons.directions_car, color: AppColors.primary, size: 22),
                 const SizedBox(width: 8),
                 Text(
                   'Vehicle Details',

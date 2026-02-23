@@ -70,6 +70,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     try {
       // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!context.mounted) return;
       if (!serviceEnabled) {
         setState(() => isFetchingLocation = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,8 +86,10 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
       // Check location permission
       LocationPermission permission = await Geolocator.checkPermission();
+      if (!context.mounted) return;
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+        if (!context.mounted) return;
         if (permission == LocationPermission.denied) {
           setState(() => isFetchingLocation = false);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -100,6 +103,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       }
 
       if (permission == LocationPermission.deniedForever) {
+        if (!context.mounted) return;
         setState(() => isFetchingLocation = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -118,6 +122,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         ),
       );
 
+      if (!context.mounted) return;
       setState(() {
         _latitudeController.text = position.latitude.toStringAsFixed(6);
         _longitudeController.text = position.longitude.toStringAsFixed(6);
@@ -132,6 +137,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         ),
       );
     } catch (e) {
+      if (!context.mounted) return;
       setState(() => isFetchingLocation = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -170,6 +176,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
       setState(() => isUpdating = false);
 
+      if (!context.mounted) return;
       if (response.succeeded) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -182,7 +189,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         widget.onUpdate();
 
         // Go back to previous screen
-        Navigator.pop(context);
+        if (context.mounted) Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -192,6 +199,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         );
       }
     } catch (e) {
+      if (!context.mounted) return;
       setState(() => isUpdating = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

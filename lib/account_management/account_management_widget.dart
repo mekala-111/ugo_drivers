@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'account_management_model.dart';
 export 'account_management_model.dart';
 import '/services/voice_service.dart';
-import 'preferred_city_widget.dart';
 
 class AccountManagementWidget extends StatefulWidget {
   const AccountManagementWidget({super.key});
@@ -162,26 +161,26 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
     if (selected != null && selected != currentLang && mounted) {
       await FFLocalizations.storeLocale(selected);
       VoiceService().setLanguage(selected);
+      if (!context.mounted) return;
       setAppLanguage(context, selected);
-      if (mounted) {
-        final languageNameKey = selected == 'hi'
+      if (!context.mounted) return;
+      final languageNameKey = selected == 'hi'
             ? 'langsel0005'
             : selected == 'te'
                 ? 'langsel0006'
                 : 'langsel0004';
-        final languageName =
-            FFLocalizations.of(context).getText(languageNameKey);
-        final message = FFLocalizations.of(context)
-            .getText('am0003')
-            .replaceAll('%1', languageName);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: AppColors.accentPurple,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      final languageName =
+          FFLocalizations.of(context).getText(languageNameKey);
+      final message = FFLocalizations.of(context)
+          .getText('am0003')
+          .replaceAll('%1', languageName);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.accentPurple,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 

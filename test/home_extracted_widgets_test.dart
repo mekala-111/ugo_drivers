@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import 'package:ugo_driver/home/ride_request_overlay.dart';
 import 'package:ugo_driver/home/widgets/app_header.dart';
@@ -31,7 +30,7 @@ void main() {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
-          home: Scaffold(
+          home: const Scaffold(
             body: EarningsSummary(
               todayTotal: 450.0,
               teamEarnings: 320.0,

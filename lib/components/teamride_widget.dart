@@ -37,8 +37,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
+    return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
           Padding(
@@ -1233,7 +1232,7 @@ class _TeamrideWidgetState extends State<TeamrideWidget> {
             ),
           ),
         ].divide(const SizedBox(height: 16.0)),
-      ),
+
     );
   }
 }

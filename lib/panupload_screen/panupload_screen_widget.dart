@@ -66,18 +66,18 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 PAN FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print('PAN Image (bytes): ${FFAppState().panImage?.bytes?.length ?? 0}');
-    print('PAN Image URL: ${FFAppState().panImageUrl}');
-    print('PAN Base64: ${FFAppState().panBase64.length} chars');
-    print('PAN Number: ${FFAppState().panNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 PAN FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint('PAN Image (bytes): ${FFAppState().panImage?.bytes?.length ?? 0}');
+    debugPrint('PAN Image URL: ${FFAppState().panImageUrl}');
+    debugPrint('PAN Base64: ${FFAppState().panBase64.length} chars');
+    debugPrint('PAN Number: ${FFAppState().panNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved PAN data...');
+    debugPrint('🔄 Loading saved PAN data...');
 
     // Load PAN image - Priority: Base64 > URL > Bytes
     if (FFAppState().panBase64.isNotEmpty) {
@@ -91,16 +91,16 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
           _model.uploadedLocalFile_uploadData4go = _panImage!;
           _isPanValid = true;
         });
-        print('✅ PAN image loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ PAN image loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding PAN Base64: $e');
+        debugPrint('❌ Error decoding PAN Base64: $e');
       }
     } else if (FFAppState().panImageUrl.isNotEmpty) {
       setState(() {
         _panImageUrl = FFAppState().panImageUrl;
         _isPanValid = true;
       });
-      print('✅ PAN image URL loaded: ${FFAppState().panImageUrl}');
+      debugPrint('✅ PAN image URL loaded: ${FFAppState().panImageUrl}');
     } else if (FFAppState().panImage?.bytes != null &&
         FFAppState().panImage!.bytes!.isNotEmpty) {
       setState(() {
@@ -108,7 +108,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
         _model.uploadedLocalFile_uploadData4go = _panImage!;
         _isPanValid = true;
       });
-      print('✅ PAN image loaded from memory');
+      debugPrint('✅ PAN image loaded from memory');
     }
 
     // Load saved PAN number
@@ -117,7 +117,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
         _panController.text = FFAppState().panNumber.toUpperCase();
         _isPanNumberValid = _validatePan(_panController.text) == null;
       });
-      print('✅ PAN number loaded: ${FFAppState().panNumber}');
+      debugPrint('✅ PAN number loaded: ${FFAppState().panNumber}');
     }
   }
 
@@ -314,13 +314,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   return Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.error_outline,
+                                      const Icon(Icons.error_outline,
                                           size: 40, color: Colors.red),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         FFLocalizations.of(context)
                                             .getText('upload0006'),
-                                        style: TextStyle(color: Colors.red),
+                                        style: const TextStyle(color: Colors.red),
                                       ),
                                     ],
                                   );
@@ -548,17 +548,17 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   Text(
                                     FFLocalizations.of(context)
                                         .getText('pan0001'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.textNearBlack,
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     FFLocalizations.of(context)
                                         .getText('pan0002'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       color: AppColors.greyMedium,
                                     ),
@@ -603,7 +603,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error creating uploaded file: $e');
+                              debugPrint('❌ Error creating uploaded file: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -622,14 +622,14 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 String base64Image =
                                     base64Encode(_panImage!.bytes!);
                                 FFAppState().panBase64 = base64Image;
-                                print(
+                                debugPrint(
                                     '✅ PAN image saved as Base64 (${base64Image.length} chars)');
                               }
 
                               FFAppState().update(() {});
 
-                              print('✅ PAN image saved to FFAppState');
-                              print('   Bytes: ${_panImage?.bytes?.length}');
+                              debugPrint('✅ PAN image saved to FFAppState');
+                              debugPrint('   Bytes: ${_panImage?.bytes?.length}');
 
                                 _showSnackBar(FFLocalizations.of(context)
                                   .getText('pan0005'));
@@ -651,7 +651,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                           FFAppState().panBase64 = '';
                           FFAppState().update(() {});
 
-                          print('❌ PAN image removed from FFAppState');
+                          debugPrint('❌ PAN image removed from FFAppState');
 
                             _showSnackBar(
                               FFLocalizations.of(context).getText('pan0006'),
@@ -689,7 +689,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                 Text(
                                   FFLocalizations.of(context)
                                       .getText('pan0007'),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -714,16 +714,16 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.check_circle,
                                             size: 12,
                                             color: Colors.green,
                                           ),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Text(
                                             FFLocalizations.of(context)
                                                 .getText('badge0001'),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 11,
                                               color: Colors.green,
                                               fontWeight: FontWeight.w600,
@@ -795,7 +795,7 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                                   FFAppState().panNumber =
                                       value.trim().toUpperCase();
                                   FFAppState().update(() {});
-                                  print(
+                                  debugPrint(
                                       '💾 PAN saved: ${FFAppState().panNumber}');
                                 }
                               },
@@ -843,13 +843,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.lightbulb_outline,
+                                const Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                 FFLocalizations.of(context)
                                   .getText('guide0001'),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600),
                                 ),
@@ -910,13 +910,13 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
 
                             FFAppState().update(() {});
 
-                            print('✅ PAN data saved to FFAppState:');
-                            print(
+                            debugPrint('✅ PAN data saved to FFAppState:');
+                            debugPrint(
                                 '   Image: ${_panImage?.bytes?.length ?? 0} bytes');
-                            print('   URL: ${_panImageUrl ?? "None"}');
-                            print(
+                            debugPrint('   URL: ${_panImageUrl ?? "None"}');
+                            debugPrint(
                                 '   Base64: ${FFAppState().panBase64.length} chars');
-                            print('   Number: ${FFAppState().panNumber}');
+                            debugPrint('   Number: ${FFAppState().panNumber}');
 
                             _showSnackBar(FFLocalizations.of(context)
                               .getText('pan0016'));

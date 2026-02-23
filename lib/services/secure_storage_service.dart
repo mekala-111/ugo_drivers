@@ -49,4 +49,5 @@ class SecureStorageService {
   static const String keyPanImageUrl = 'secure_ff_panImageUrl';
   static const String keyPanBase64 = 'secure_ff_panBase64';
   static const String keyPanNumber = 'secure_ff_panNumber';
+  static const String keyAccessToken = 'secure_ff_accessToken';
 }

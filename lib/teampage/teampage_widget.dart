@@ -252,7 +252,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Your referred drivers",
+                            'Your referred drivers',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.grey[500],

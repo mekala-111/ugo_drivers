@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 
 /// Rapido-style "Available captains nearby" panel shown on map when online.
@@ -16,17 +17,22 @@ class RideStatusPanel extends StatelessWidget {
     final caption = availableDriversCount != 1
         ? FFLocalizations.of(context).getText('drv_captains_nearby')
         : FFLocalizations.of(context).getText('drv_captain_nearby');
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+    final top = h * 0.015;
+    final hPad = w * 0.04;
+    final vPad = h * 0.01;
 
     return Positioned(
-      top: 12,
-      left: 16,
-      right: 16,
+      top: top,
+      left: hPad,
+      right: hPad,
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(w * 0.06),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
@@ -38,12 +44,13 @@ class RideStatusPanel extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.people, color: AppColors.primary, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.people, color: AppColors.primary, size: Responsive.iconSize(context, base: 20)),
+              SizedBox(width: w * 0.02),
               Text(
                 '$availableDriversCount $caption',
+                textScaler: MediaQuery.textScalerOf(context),
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: Responsive.fontSize(context, 14),
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[800],
                 ),

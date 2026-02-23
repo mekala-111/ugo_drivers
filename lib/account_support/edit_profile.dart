@@ -65,6 +65,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => saving = false);
 
+    if (!context.mounted) return;
     Navigator.pop(context, true);
   }
 

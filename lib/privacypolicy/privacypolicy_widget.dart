@@ -386,7 +386,7 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                 Flexible(
                   child: FFButtonWidget(
                     onPressed: () {
-                      print('Button pressed ...');
+                      debugPrint('Button pressed ...');
                     },
                     text: FFLocalizations.of(context).getText(
                       'x4yfngl0' /* Continue */,

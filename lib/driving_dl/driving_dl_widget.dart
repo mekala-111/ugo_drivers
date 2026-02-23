@@ -79,23 +79,23 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
   }
 
   void _debugPrintState() {
-    print('\n═══════════════════════════════════════');
-    print('📊 License FFAppState Debug Info:');
-    print('═══════════════════════════════════════');
-    print(
+    debugPrint('\n═══════════════════════════════════════');
+    debugPrint('📊 License FFAppState Debug Info:');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
         'Front Image (bytes): ${FFAppState().imageLicense?.bytes?.length ?? 0}');
-    print('Front Image URL: ${FFAppState().licenseFrontImageUrl}');
-    print('Front Base64: ${FFAppState().licenseFrontBase64.length} chars');
-    print(
+    debugPrint('Front Image URL: ${FFAppState().licenseFrontImageUrl}');
+    debugPrint('Front Base64: ${FFAppState().licenseFrontBase64.length} chars');
+    debugPrint(
         'Back Image (bytes): ${FFAppState().licenseBackImage?.bytes?.length ?? 0}');
-    print('Back Image URL: ${FFAppState().licenseBackImageUrl}');
-    print('Back Base64: ${FFAppState().licenseBackBase64.length} chars');
-    print('License Number: ${FFAppState().licenseNumber}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('Back Image URL: ${FFAppState().licenseBackImageUrl}');
+    debugPrint('Back Base64: ${FFAppState().licenseBackBase64.length} chars');
+    debugPrint('License Number: ${FFAppState().licenseNumber}');
+    debugPrint('═══════════════════════════════════════\n');
   }
 
   void _loadSavedData() {
-    print('🔄 Loading saved license data...');
+    debugPrint('🔄 Loading saved license data...');
 
     // Load front image
     if (FFAppState().licenseFrontBase64.isNotEmpty) {
@@ -106,9 +106,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
           _model.uploadedLocalFile_uploadDataQhu = _frontImage!;
           _isFrontValid = true;
         });
-        print('✅ Front image loaded from Base64 (${bytes.length} bytes)');
+        debugPrint('✅ Front image loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
-        print('❌ Error decoding front Base64: $e');
+        debugPrint('❌ Error decoding front Base64: $e');
       }
     } else if (FFAppState().licenseFrontImageUrl.isNotEmpty) {
       setState(() {
@@ -133,7 +133,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
           _isBackValid = true;
         });
       } catch (e) {
-        print('❌ Error decoding back Base64: $e');
+        debugPrint('❌ Error decoding back Base64: $e');
       }
     } else if (FFAppState().licenseBackImageUrl.isNotEmpty) {
       setState(() {
@@ -174,7 +174,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
   // 🔥 OCR - Extract DL Number from Image
   Future<void> _extractDLNumberFromImage(FFUploadedFile image) async {
     if (image.bytes == null || image.bytes!.isEmpty) {
-      print('❌ No image bytes to process');
+      debugPrint('❌ No image bytes to process');
       return;
     }
 
@@ -193,8 +193,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       final RecognizedText recognizedText =
           await textRecognizer.processImage(inputImage);
 
-      print('📝 OCR Text Extracted:');
-      print(recognizedText.text);
+      debugPrint('📝 OCR Text Extracted:');
+      debugPrint(recognizedText.text);
 
       // Extract DL number using regex
       String? dlNumber = _extractDLNumber(recognizedText.text);
@@ -212,18 +212,18 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
         _showSnackBar(FFLocalizations.of(context)
           .getText('dl0023')
           .replaceAll('%1', dlNumber));
-        print('✅ DL Number extracted: $dlNumber');
+        debugPrint('✅ DL Number extracted: $dlNumber');
       } else {
         _showSnackBar(FFLocalizations.of(context).getText('dl0024'),
           isError: true);
-        print('❌ No valid DL number found in text');
+        debugPrint('❌ No valid DL number found in text');
       }
 
       // Cleanup
       await textRecognizer.close();
       await file.delete();
     } catch (e) {
-      print('❌ OCR Error: $e');
+      debugPrint('❌ OCR Error: $e');
         _showSnackBar(FFLocalizations.of(context).getText('dl0025'),
           isError: true);
     } finally {
@@ -468,11 +468,11 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: AppColors.registrationOrange),
-                            SizedBox(height: 16),
+                            const CircularProgressIndicator(color: AppColors.registrationOrange),
+                            const SizedBox(height: 16),
                             Text(
                               FFLocalizations.of(context).getText('dl0026'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600),
@@ -637,20 +637,20 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                   Text(
                                     FFLocalizations.of(context)
                                         .getText('dl0001'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.auto_fix_high,
+                                      const Icon(Icons.auto_fix_high,
                                           size: 14, color: Colors.blue),
-                                      SizedBox(width: 4),
+                                      const SizedBox(width: 4),
                                       Text(
                                         FFLocalizations.of(context)
                                             .getText('dl0002'),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.blue,
                                             fontWeight: FontWeight.w600),
@@ -725,7 +725,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -800,7 +800,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       ))
                                   .toList();
                             } catch (e) {
-                              print('❌ Error: $e');
+                              debugPrint('❌ Error: $e');
                             }
                             if (selectedUploadedFiles.isNotEmpty) {
                               setState(() {
@@ -863,7 +863,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 Text(
                                   FFLocalizations.of(context)
                                     .getText('dl0006'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
                                 if (_licenseNumberController.text.isNotEmpty)
@@ -882,13 +882,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.check_circle,
+                                          const Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                             Text(
                                               FFLocalizations.of(context)
                                                 .getText('dl0007'),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.w600)),
@@ -1047,13 +1047,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.lightbulb_outline,
+                                const Icon(Icons.lightbulb_outline,
                                     color: AppColors.registrationOrange, size: 20),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                               Text(
                                 FFLocalizations.of(context)
                                   .getText('guide0001'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
                               ],

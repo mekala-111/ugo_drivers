@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 import 'IncentivePageWidget.dart' show IncentivePageWidget;
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';

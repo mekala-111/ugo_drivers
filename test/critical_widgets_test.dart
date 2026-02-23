@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show FlutterError;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +14,7 @@ void main() {
     // ── 1. ErrorBoundary: Renders child normally ─────────────────────────────
     testWidgets('ErrorBoundary renders child when no error', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: ErrorBoundary(
             child: Scaffold(
               body: Center(child: Text('Hello')),

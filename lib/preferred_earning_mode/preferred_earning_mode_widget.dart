@@ -1,4 +1,3 @@
-import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ class PaymentModeCard extends StatelessWidget {
   final Function(String) onSelect;
 
   const PaymentModeCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.emoji,
@@ -26,7 +25,7 @@ class PaymentModeCard extends StatelessWidget {
     required this.selectedValue,
     required this.gradientColors,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +49,13 @@ class PaymentModeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: gradientColors.last.withOpacity(0.3),
+              color: gradientColors.last.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
           ],
           border: Border.all(
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.2),
+            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.2),
             width: isSelected ? 2.5 : 1,
           ),
         ),
@@ -67,7 +66,7 @@ class PaymentModeCard extends StatelessWidget {
               height: 56,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Text(
@@ -93,7 +92,7 @@ class PaymentModeCard extends StatelessWidget {
                     subtitle,
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
@@ -203,7 +202,7 @@ class _PreferredEarningModeWidgetState
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: brandPrimary.withOpacity(0.3),
+                    color: brandPrimary.withValues(alpha:0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )
@@ -221,7 +220,7 @@ class _PreferredEarningModeWidgetState
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -242,7 +241,7 @@ class _PreferredEarningModeWidgetState
                       'How would you like to collect fares?',
                       style: GoogleFonts.inter(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -266,7 +265,7 @@ class _PreferredEarningModeWidgetState
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha:0.04),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       )
@@ -356,7 +355,7 @@ class _PreferredEarningModeWidgetState
             child: LinearProgressIndicator(
               value: 1.0, // Assuming this is the final step
               minHeight: 6,
-              backgroundColor: Colors.white.withOpacity(0.25),
+              backgroundColor: Colors.white.withValues(alpha:0.25),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ),
