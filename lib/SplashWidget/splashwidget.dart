@@ -31,7 +31,13 @@ class _SplashWidgetState extends State<SplashWidget> {
           // Route based on current registration step
           if (registrationStep >= 4) {
             // Step 4+: OnBoarding (final registration page)
-            context.goNamed(OnBoardingWidget.routeName);
+            context.goNamed(
+              OnBoardingWidget.routeName,
+              queryParameters: {
+                'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
+                'referalcode': serializeParam(FFAppState().usedReferralCode, ParamType.String),
+              }.withoutNulls,
+            );
           } else if (registrationStep >= 3) {
             // Step 3: ChooseVehicle
             context.goNamed(ChooseVehicleWidget.routeName);

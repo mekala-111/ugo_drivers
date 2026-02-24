@@ -1,0 +1,252 @@
+diff --git a/android/app/src/main/res/drawable/bubble_background.xml b/android/app/src/main/res/drawable/bubble_background.xml
+index a45d473..b3fad51 100644
+--- a/android/app/src/main/res/drawable/bubble_background.xml
++++ b/android/app/src/main/res/drawable/bubble_background.xml
+@@ -1,8 +1,16 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<shape xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:shape="oval">
+-    <solid android:color="#FFFF6600" />
+-    <stroke
+-        android:width="3dp"
+-        android:color="#FFFFFFFF" />
+-</shape>
+\ No newline at end of file
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
++    <!-- Outer circle shadow/border -->
++    <item>
++        <shape android:shape="oval">
++            <solid android:color="#FFFF8E32" />
++        </shape>
++    </item>
++    
++    <!-- Inner circle (main bubble) -->
++    <item android:inset="2dp">
++        <shape android:shape="oval">
++            <solid android:color="#FFFF6600" />
++        </shape>
++    </item>
++</layer-list>
+\ No newline at end of file
+diff --git a/android/app/src/main/res/layout/floating_bubble.xml b/android/app/src/main/res/layout/floating_bubble.xml
+index 18461c3..917fe8d 100644
+--- a/android/app/src/main/res/layout/floating_bubble.xml
++++ b/android/app/src/main/res/layout/floating_bubble.xml
+@@ -1,24 +1,22 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="120dp"
+     android:layout_height="120dp"
+     android:background="@drawable/bubble_background">
+ 
+     <ImageView
+         android:id="@+id/bubble_icon"
+-        android:layout_width="80dp"
+-        android:layout_height="80dp"
+-        android:layout_centerInParent="true"
++        android:layout_width="70dp"
++        android:layout_height="70dp"
++        android:layout_gravity="center"
+         android:src="@mipmap/ic_launcher"
+-        android:scaleType="fitCenter" />
++        android:scaleType="centerInside" />
+ 
+     <TextView
+         android:id="@+id/bubble_title"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_below="@id/bubble_icon"
+-        android:layout_centerHorizontal="true"
+-        android:layout_marginTop="2dp"
++        android:layout_gravity="center"
+         android:text="UGO"
+         android:textColor="#FFFFFF"
+         android:textSize="10sp"
+@@ -30,13 +28,11 @@
+         android:id="@+id/bubble_subtitle"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_below="@id/bubble_title"
+-        android:layout_centerHorizontal="true"
+-        android:layout_marginTop="1dp"
++        android:layout_gravity="center"
+         android:text="Driver"
+         android:textColor="#FFFFFF"
+         android:textSize="8sp"
+         android:maxLines="1"
+         android:visibility="gone" />
+ 
+-</RelativeLayout>
+\ No newline at end of file
++</FrameLayout>
+\ No newline at end of file
+diff --git a/lib/backend/api_requests/api_calls.dart b/lib/backend/api_requests/api_calls.dart
+index a068147..3e0ddfa 100644
+--- a/lib/backend/api_requests/api_calls.dart
++++ b/lib/backend/api_requests/api_calls.dart
+@@ -217,6 +217,36 @@ class DeleteDriverCall {
+       alwaysAllowBody: false,
+     );
+   }
++
++  /// Check if deletion was successful
++  static bool? success(dynamic response) => castToType<bool>(getJsonField(
++        response,
++        r'$.success',
++      ));
++
++  /// Get deletion response message
++  static String? message(dynamic response) => castToType<String>(getJsonField(
++        response,
++        r'$.message',
++      ));
++
++  /// Get status code
++  static int? statusCode(dynamic response) => castToType<int>(getJsonField(
++        response,
++        r'$.statusCode',
++      ));
++
++  /// Get error message (for failed deletions)
++  static String? error(dynamic response) => castToType<String>(getJsonField(
++        response,
++        r'$.error',
++      ));
++
++  /// Get deleted driver data (if returned)
++  static dynamic data(dynamic response) => getJsonField(
++        response,
++        r'$.data',
++      );
+ }
+ 
+ class CompleteRideCall {
+@@ -274,7 +304,6 @@ class UpdateDriverCall {
+     FFUploadedFile? registrationImage,
+     FFUploadedFile? insuranceImage,
+     FFUploadedFile? pollutionCertificateImage,
+-    
+   }) async {
+     // Build params dynamically - only include non-null values
+     final Map<String, dynamic> params = {};
+@@ -291,19 +320,19 @@ class UpdateDriverCall {
+     if (longitude != null) {
+       params['current_location_longitude'] = longitude.toString();
+     }
+-    
++
+     if (profileimage != null) {
+       params['profile_image'] = profileimage;
+     }
+-    
++
+     if (firstName != null) {
+       params['first_name'] = firstName;
+     }
+-    
++
+     if (lastName != null) {
+       params['last_name'] = lastName;
+     }
+-    
++
+     // if (email != null) {
+     //   params['email'] = email;
+     // }
+@@ -964,6 +993,7 @@ class RazorpayPayoutCall {
+         r'$.message',
+       ));
+ }
++
+ class DriverEarningsCall {
+   static Future<ApiCallResponse> call({
+     required int driverId,
+@@ -972,8 +1002,7 @@ class DriverEarningsCall {
+   }) async {
+     return ApiManager.instance.makeApiCall(
+       callName: 'DriverEarnings',
+-      apiUrl:
+-          '$_baseUrl/api/drivers/earnings/driver/$driverId?period=$period',
++      apiUrl: '$_baseUrl/api/drivers/earnings/driver/$driverId?period=$period',
+       callType: ApiCallType.GET,
+       headers: {
+         'Authorization': 'Bearer $token',
+@@ -1007,8 +1036,6 @@ class DriverEarningsCall {
+       getJsonField(response, r'$.data.rides', true) as List<dynamic>?;
+ }
+ 
+-
+-
+ // 🏦 Add Bank Account API Call (POST)
+ class AddBankAccountCall {
+   static Future<ApiCallResponse> call({
+@@ -1177,10 +1204,10 @@ class DriverIncentivesCall {
+   static Future<ApiCallResponse> call({
+     required String token,
+     required int driverId,
+-    String? date,   // particular date  "2026-02-11"
+-    String? type,   // "weekly" | "monthly"
+-    String? from,   // range start      "2026-02-01"
+-    String? to,     // range end        "2026-02-20"
++    String? date, // particular date  "2026-02-11"
++    String? type, // "weekly" | "monthly"
++    String? from, // range start      "2026-02-01"
++    String? to, // range end        "2026-02-20"
+   }) async {
+     final Map<String, String> queryParams = {};
+     if (date != null) queryParams['date'] = date;
+@@ -1189,8 +1216,7 @@ class DriverIncentivesCall {
+     if (to != null) queryParams['to'] = to;
+ 
+     final queryString = Uri(queryParameters: queryParams).query;
+-    final url =
+-        '$_baseUrl/api/driver-incentives/daily-incentives/$driverId'
++    final url = '$_baseUrl/api/driver-incentives/daily-incentives/$driverId'
+         '${queryString.isNotEmpty ? '?$queryString' : ''}';
+ 
+     debugPrint('📡 DriverIncentivesCall → $url');
+@@ -1240,7 +1266,8 @@ class DriverIncentivesCall {
+ 
+   static double itemRewardAmount(dynamic item) =>
+       double.tryParse(
+-          getJsonField(item, r'$.reward_amount')?.toString() ?? '0') ?? 0.0;
++          getJsonField(item, r'$.reward_amount')?.toString() ?? '0') ??
++      0.0;
+ 
+   static String itemProgressStatus(dynamic item) =>
+       castToType<String>(getJsonField(item, r'$.progress_status')) ?? 'ongoing';
+@@ -1249,11 +1276,12 @@ class DriverIncentivesCall {
+       itemProgressStatus(item) == 'completed';
+ 
+   static String itemIncentiveName(dynamic item) =>
+-      castToType<String>(getJsonField(item, r'$.incentive.name')) ?? 'Incentive';
++      castToType<String>(getJsonField(item, r'$.incentive.name')) ??
++      'Incentive';
+ 
+   static String itemRecurrenceType(dynamic item) =>
+-      castToType<String>(
+-          getJsonField(item, r'$.incentive.recurrence_type')) ?? '';
++      castToType<String>(getJsonField(item, r'$.incentive.recurrence_type')) ??
++      '';
+ 
+   static String itemStartTime(dynamic item) =>
+       castToType<String>(getJsonField(item, r'$.incentive.start_time')) ?? '';
+@@ -1269,8 +1297,7 @@ class VehiclePricingCall {
+   }) async {
+     return ApiManager.instance.makeApiCall(
+       callName: 'vehiclePricing',
+-      apiUrl:
+-          '$_baseUrl/api/vehicle-types/drivers/$driverId/vehicle-pricing',
++      apiUrl: '$_baseUrl/api/vehicle-types/drivers/$driverId/vehicle-pricing',
+       callType: ApiCallType.GET,
+       headers: {
+         'Authorization': 'Bearer $token',
+@@ -1316,7 +1343,4 @@ class VehiclePricingCall {
+ 
+     return path;
+   }
+-
+-
+ }
+-

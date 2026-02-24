@@ -1,0 +1,382 @@
+import 'package:flutter/material.dart';
+import 'package:ugo_driver/app_state.dart';
+import 'package:ugo_driver/backend/api_requests/api_calls.dart';
+import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/constants/app_colors.dart';
+import '../home/ride_request_model.dart';
+
+class ReviewScreen extends StatefulWidget {
+  final RideRequest ride;
+  final VoidCallback onSubmit;
+  final VoidCallback onClose;
+  final bool isCashPayment;
+
+  const ReviewScreen({
+    super.key,
+    required this.ride,
+    required this.onSubmit,
+    required this.onClose,
+    this.isCashPayment = false,
+  });
+
+  @override
+  _ReviewScreenState createState() => _ReviewScreenState();
+}
+
+class _ReviewScreenState extends State<ReviewScreen> {
+  int _starRating = 0;
+  bool _isSubmitting = false;
+  bool _fareExpanded = true;
+  List<String> _selectedTagKeys = [];
+  // Figma tags: Friendly, Safe, Worst, Fast, Affordable
+  static const List<String> _reviewTagKeys = [
+    'drv_review_friendly',
+    'drv_review_safe',
+    'drv_review_worst',
+    'drv_review_fast',
+    'drv_review_affordable',
+  ];
+
+  static const Color ugoOrange = AppColors.primary;
+  static const Color ugoGreen = AppColors.success;
+
+  String get _fareAmount =>
+      '₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toStringAsFixed(2) ?? '0.00'}';
+
+  Future<void> _handleSubmit() async {
+    if (_isSubmitting) return;
+
+    setState(() => _isSubmitting = true);
+
+    final token = FFAppState().accessToken;
+    if (token.isNotEmpty && _starRating > 0) {
+      final comment = _selectedTagKeys
+          .map((k) => FFLocalizations.of(context).getText(k))
+          .where((s) => s.isNotEmpty)
+          .join(', ');
+      try {
+        final res = await RateRideCall.call(
+          token: token,
+          rideId: widget.ride.id,
+          userId: widget.ride.userId,
+          driverId: FFAppState().driverid,
+          rating: _starRating,
+          comment: comment.isNotEmpty ? comment : null,
+        );
+        if (!mounted) return;
+        if (RateRideCall.success(res.jsonBody) != true && mounted) {
+          final msg = RateRideCall.message(res.jsonBody) ?? 'Failed to submit rating';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(msg), backgroundColor: Colors.orange),
+          );
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not submit rating'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    }
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      widget.onSubmit();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: ugoOrange,
+        elevation: 0,
+        title: Text(
+          FFLocalizations.of(context).getText('drv_ride_completed'),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white, size: 24),
+          onPressed: widget.onClose,
+        ),
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+<<<<<<< Updated upstream
+                  const SizedBox(height: 24),
+                  // Collect ₹76 — single line, both in green (Figma)
+                  Center(
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: const TextStyle(
+=======
+                  const SizedBox(height: 30),
+                  Text(
+                      widget.isCashPayment
+                          ? FFLocalizations.of(context)
+                              .getText('drv_cash_collected')
+                          : FFLocalizations.of(context)
+                              .getText('drv_received_online'),
+                      style: const TextStyle(
+>>>>>>> Stashed changes
+                          color: ugoGreen,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: widget.isCashPayment
+                                ? '${FFLocalizations.of(context).getText('drv_collect')} '
+                                : '${FFLocalizations.of(context).getText('drv_received')} ',
+                          ),
+                          TextSpan(
+                            text: _fareAmount,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Review section
+                  Text(
+                    FFLocalizations.of(context).getText('drv_review'),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // 5-star rating — outlined when empty
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      5,
+                      (index) => IconButton(
+                        icon: Icon(
+                          index < _starRating ? Icons.star : Icons.star_border,
+                          color: index < _starRating
+                              ? ugoOrange
+                              : Colors.grey[400],
+                          size: 40,
+                        ),
+                        onPressed: () =>
+                            setState(() => _starRating = index + 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Optional Comments
+                  Text(
+                    FFLocalizations.of(context).getText('drv_optional_comments'),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _reviewTagKeys.map((key) {
+                      final tag = FFLocalizations.of(context).getText(key);
+                      return ChoiceChip(
+                        label: Text(
+                          tag,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        selected: _selectedTagKeys.contains(key),
+                        selectedColor: ugoOrange.withValues(alpha: 0.2),
+                        backgroundColor: Colors.grey[200],
+                        side: BorderSide(
+                          color: _selectedTagKeys.contains(key)
+                              ? ugoOrange
+                              : Colors.grey[300]!,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        onSelected: (sel) {
+                          setState(() {
+                            if (sel) {
+                              _selectedTagKeys = [..._selectedTagKeys, key];
+                            } else {
+                              _selectedTagKeys = _selectedTagKeys
+                                  .where((k) => k != key)
+                                  .toList();
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  // Fare details — collapsible (Figma)
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.grey[200]!),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () =>
+                              setState(() => _fareExpanded = !_fareExpanded),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  FFLocalizations.of(context)
+                                      .getText('drv_total_fare'),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _fareAmount,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _fareExpanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      color: Colors.grey[600],
+                                      size: 24,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_fareExpanded) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0, right: 0),
+                            child: Column(
+                              children: [
+                                _fareRow(
+                                  FFLocalizations.of(context)
+                                      .getText('drv_total_fare'),
+                                  _fareAmount,
+                                ),
+                                const SizedBox(height: 8),
+                                _fareRow(
+                                  FFLocalizations.of(context)
+                                      .getText('drv_payment_method'),
+                                  FFLocalizations.of(context).getText(
+                                    widget.isCashPayment ? 'drv_cash' : 'drv_online',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        // Submit button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: _isSubmitting ? null : _handleSubmit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ugoOrange,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: _isSubmitting
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    FFLocalizations.of(context)
+                                        .getText('drv_submit'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _fareRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,0 +1,1654 @@
+diff --git a/.flutter-plugins-dependencies b/.flutter-plugins-dependencies
+index 7804f12..afd6e48 100644
+--- a/.flutter-plugins-dependencies
++++ b/.flutter-plugins-dependencies
+@@ -1 +1 @@
+-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_performance","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_performance-0.10.1+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geocoding_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geocoding_ios-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_maps_flutter_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_maps_flutter_ios-2.17.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_barcode_scanning","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_barcode_scanning-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_commons","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_digital_ink_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_digital_ink_recognition-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_entity_extraction","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_entity_extraction-0.15.3/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_face_detection-0.13.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_mesh_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_face_mesh_detection-0.4.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_image_description","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_image_description-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_prompt","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_prompt-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_proofreading","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_proofreading-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_rewriting","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_rewriting-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_speech_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_speech_recognition-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_summarization","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_summarization-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_image_labeling","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_image_labeling-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_language_id","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_language_id-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_object_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_object_detection-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_pose_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_pose_detection-0.14.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_selfie_segmentation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_selfie_segmentation-0.10.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_smart_reply","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_smart_reply-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_text_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_translation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_translation-0.13.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_sign_in_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"haptic_feedback","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/haptic_feedback-0.6.4+3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+6/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"pointer_interceptor_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/pointer_interceptor_ios-0.10.1+1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.6/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_ios-6.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"vibration","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/vibration-2.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_avfoundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.3/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_android-4.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_performance","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_performance-0.10.1+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_plugin_android_lifecycle","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geocoding_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geocoding_android-4.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_api_headers","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_api_headers-4.5.3/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false},{"name":"google_maps_flutter_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_maps_flutter_android-2.18.12/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"google_mlkit_barcode_scanning","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_barcode_scanning-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_commons","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_digital_ink_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_digital_ink_recognition-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_entity_extraction","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_entity_extraction-0.15.3/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_face_detection-0.13.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_mesh_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_face_mesh_detection-0.4.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_image_description","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_image_description-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_prompt","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_prompt-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_proofreading","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_proofreading-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_rewriting","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_rewriting-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_speech_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_speech_recognition-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_summarization","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_genai_summarization-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_image_labeling","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_image_labeling-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_language_id","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_language_id-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_object_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_object_detection-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_pose_detection","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_pose_detection-0.14.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_selfie_segmentation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_selfie_segmentation-0.10.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_smart_reply","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_smart_reply-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_text_recognition","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_translation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_mlkit_translation-0.13.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_sign_in_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_sign_in_android-6.2.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"haptic_feedback","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/haptic_feedback-0.6.4+3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+13/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.20/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.28/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"vibration","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/vibration-2.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_android","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/video_player_android-2.9.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_selector_macos","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage_macos","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_sign_in_ios","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_macos","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/","native_build":false,"dependencies":["file_selector_macos"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.6/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_macos","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_avfoundation","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.3/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_linux-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_local_notifications_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-4.0.1/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/","native_build":false,"dependencies":["file_selector_linux"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":false,"dependencies":["url_launcher_linux"],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false},{"name":"url_launcher_linux","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":false,"dependencies":["package_info_plus"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_windows-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_secure_storage_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-3.1.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/","native_build":false,"dependencies":["file_selector_windows"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":["url_launcher_windows"],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false},{"name":"url_launcher_windows","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":false,"dependencies":["package_info_plus"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_web-4.1.0/","dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","dependencies":[],"dev_dependency":false},{"name":"firebase_app_check_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_app_check_web-0.2.0+11/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_auth_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.0/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_core_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.0/","dependencies":[],"dev_dependency":false},{"name":"firebase_messaging_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.10.7/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_performance_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_performance_web-0.1.7+13/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_storage_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.14/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"flutter_secure_storage_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1/","dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","dependencies":[],"dev_dependency":false},{"name":"geolocator_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/","dependencies":[],"dev_dependency":false},{"name":"google_maps_flutter_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_maps_flutter_web-0.5.14+3/","dependencies":[],"dev_dependency":false},{"name":"google_sign_in_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/google_sign_in_web-0.12.4+4/","dependencies":[],"dev_dependency":false},{"name":"image_picker_for_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/","dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","dependencies":[],"dev_dependency":false},{"name":"pointer_interceptor_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/pointer_interceptor_web-0.10.3/","dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","dependencies":["url_launcher_web"],"dev_dependency":false},{"name":"shared_preferences_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/sign_in_with_apple_web-3.0.0/","dependencies":[],"dev_dependency":false},{"name":"url_launcher_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_web-2.4.2/","dependencies":[],"dev_dependency":false},{"name":"video_player_web","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/video_player_web-2.4.0/","dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","dependencies":["package_info_plus"],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"device_info_plus","dependencies":[]},{"name":"file_picker","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"file_selector_linux","dependencies":[]},{"name":"file_selector_macos","dependencies":[]},{"name":"file_selector_windows","dependencies":[]},{"name":"firebase_app_check","dependencies":["firebase_app_check_web","firebase_core"]},{"name":"firebase_app_check_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_auth","dependencies":["firebase_auth_web","firebase_core"]},{"name":"firebase_auth_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_core","dependencies":["firebase_core_web"]},{"name":"firebase_core_web","dependencies":[]},{"name":"firebase_crashlytics","dependencies":["firebase_core"]},{"name":"firebase_messaging","dependencies":["firebase_core","firebase_messaging_web"]},{"name":"firebase_messaging_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_performance","dependencies":["firebase_core","firebase_performance_web"]},{"name":"firebase_performance_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_storage","dependencies":["firebase_core","firebase_storage_web"]},{"name":"firebase_storage_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"flutter_local_notifications","dependencies":["flutter_local_notifications_linux"]},{"name":"flutter_local_notifications_linux","dependencies":[]},{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"flutter_secure_storage","dependencies":["flutter_secure_storage_linux","flutter_secure_storage_macos","flutter_secure_storage_web","flutter_secure_storage_windows"]},{"name":"flutter_secure_storage_linux","dependencies":[]},{"name":"flutter_secure_storage_macos","dependencies":[]},{"name":"flutter_secure_storage_web","dependencies":[]},{"name":"flutter_secure_storage_windows","dependencies":["path_provider"]},{"name":"flutter_tts","dependencies":[]},{"name":"geocoding","dependencies":["geocoding_android","geocoding_ios"]},{"name":"geocoding_android","dependencies":[]},{"name":"geocoding_ios","dependencies":[]},{"name":"geolocator","dependencies":["geolocator_android","geolocator_apple","geolocator_web","geolocator_windows"]},{"name":"geolocator_android","dependencies":[]},{"name":"geolocator_apple","dependencies":[]},{"name":"geolocator_web","dependencies":[]},{"name":"geolocator_windows","dependencies":[]},{"name":"google_api_headers","dependencies":["package_info_plus"]},{"name":"google_maps_flutter","dependencies":["google_maps_flutter_android","google_maps_flutter_ios","google_maps_flutter_web"]},{"name":"google_maps_flutter_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"google_maps_flutter_ios","dependencies":[]},{"name":"google_maps_flutter_web","dependencies":[]},{"name":"google_mlkit_barcode_scanning","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_commons","dependencies":[]},{"name":"google_mlkit_digital_ink_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_entity_extraction","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_face_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_face_mesh_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_image_description","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_prompt","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_proofreading","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_rewriting","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_speech_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_summarization","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_image_labeling","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_language_id","dependencies":[]},{"name":"google_mlkit_object_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_pose_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_selfie_segmentation","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_smart_reply","dependencies":[]},{"name":"google_mlkit_text_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_translation","dependencies":["google_mlkit_commons"]},{"name":"google_sign_in","dependencies":["google_sign_in_android","google_sign_in_ios","google_sign_in_web"]},{"name":"google_sign_in_android","dependencies":[]},{"name":"google_sign_in_ios","dependencies":[]},{"name":"google_sign_in_web","dependencies":[]},{"name":"haptic_feedback","dependencies":[]},{"name":"image_picker","dependencies":["image_picker_android","image_picker_for_web","image_picker_ios","image_picker_linux","image_picker_macos","image_picker_windows"]},{"name":"image_picker_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_for_web","dependencies":[]},{"name":"image_picker_ios","dependencies":[]},{"name":"image_picker_linux","dependencies":["file_selector_linux"]},{"name":"image_picker_macos","dependencies":["file_selector_macos"]},{"name":"image_picker_windows","dependencies":["file_selector_windows"]},{"name":"package_info_plus","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":[]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"pointer_interceptor","dependencies":["pointer_interceptor_ios","pointer_interceptor_web"]},{"name":"pointer_interceptor_ios","dependencies":[]},{"name":"pointer_interceptor_web","dependencies":[]},{"name":"share_plus","dependencies":["url_launcher_web","url_launcher_windows","url_launcher_linux"]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]},{"name":"sign_in_with_apple","dependencies":["sign_in_with_apple_web"]},{"name":"sign_in_with_apple_web","dependencies":[]},{"name":"sqflite","dependencies":[]},{"name":"url_launcher","dependencies":["url_launcher_android","url_launcher_ios","url_launcher_linux","url_launcher_macos","url_launcher_web","url_launcher_windows"]},{"name":"url_launcher_android","dependencies":[]},{"name":"url_launcher_ios","dependencies":[]},{"name":"url_launcher_linux","dependencies":[]},{"name":"url_launcher_macos","dependencies":[]},{"name":"url_launcher_web","dependencies":[]},{"name":"url_launcher_windows","dependencies":[]},{"name":"vibration","dependencies":[]},{"name":"video_player","dependencies":["video_player_android","video_player_avfoundation","video_player_web"]},{"name":"video_player_android","dependencies":[]},{"name":"video_player_avfoundation","dependencies":[]},{"name":"video_player_web","dependencies":[]},{"name":"wakelock_plus","dependencies":["package_info_plus"]}],"date_created":"2026-02-20 07:43:14.345766","version":"3.41.1","swift_package_manager_enabled":{"ios":false,"macos":false}}
+\ No newline at end of file
++{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"audioplayers_darwin","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_performance","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_performance-0.10.1+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geocoding_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/geocoding_ios-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"/Users/android/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_maps_flutter_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/google_maps_flutter_ios-2.17.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_barcode_scanning","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_barcode_scanning-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_commons","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_digital_ink_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_digital_ink_recognition-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_entity_extraction","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_entity_extraction-0.15.3/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_face_detection-0.13.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_mesh_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_face_mesh_detection-0.4.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_image_description","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_image_description-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_prompt","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_prompt-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_proofreading","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_proofreading-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_rewriting","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_rewriting-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_speech_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_speech_recognition-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_summarization","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_summarization-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_image_labeling","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_image_labeling-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_language_id","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_language_id-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_object_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_object_detection-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_pose_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_pose_detection-0.14.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_selfie_segmentation","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_selfie_segmentation-0.10.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_smart_reply","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_smart_reply-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_text_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_translation","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_translation-0.13.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_sign_in_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"haptic_feedback","path":"/Users/android/.pub-cache/hosted/pub.dev/haptic_feedback-0.6.4+3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+6/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/Users/android/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"pointer_interceptor_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/pointer_interceptor_ios-0.10.1+1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.6/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/android/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/android/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_ios-6.4.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"vibration","path":"/Users/android/.pub-cache/hosted/pub.dev/vibration-2.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_avfoundation","path":"/Users/android/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.3/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"android":[{"name":"audioplayers_android","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_android-4.0.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_performance","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_performance-0.10.1+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_plugin_android_lifecycle","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geocoding_android","path":"/Users/android/.pub-cache/hosted/pub.dev/geocoding_android-4.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_android","path":"/Users/android/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_api_headers","path":"/Users/android/.pub-cache/hosted/pub.dev/google_api_headers-4.5.3/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false},{"name":"google_maps_flutter_android","path":"/Users/android/.pub-cache/hosted/pub.dev/google_maps_flutter_android-2.18.12/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"google_mlkit_barcode_scanning","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_barcode_scanning-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_commons","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_commons-0.11.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_digital_ink_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_digital_ink_recognition-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_entity_extraction","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_entity_extraction-0.15.3/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_face_detection-0.13.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_face_mesh_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_face_mesh_detection-0.4.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_image_description","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_image_description-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_prompt","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_prompt-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_proofreading","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_proofreading-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_rewriting","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_rewriting-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_speech_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_speech_recognition-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_genai_summarization","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_genai_summarization-0.1.0/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_image_labeling","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_image_labeling-0.14.2/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_language_id","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_language_id-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_object_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_object_detection-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_pose_detection","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_pose_detection-0.14.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_selfie_segmentation","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_selfie_segmentation-0.10.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_smart_reply","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_smart_reply-0.13.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_mlkit_text_recognition","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_text_recognition-0.15.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_mlkit_translation","path":"/Users/android/.pub-cache/hosted/pub.dev/google_mlkit_translation-0.13.1/","native_build":true,"dependencies":["google_mlkit_commons"],"dev_dependency":false},{"name":"google_sign_in_android","path":"/Users/android/.pub-cache/hosted/pub.dev/google_sign_in_android-6.2.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"haptic_feedback","path":"/Users/android/.pub-cache/hosted/pub.dev/haptic_feedback-0.6.4+3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_android","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+13/","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_android","path":"/Users/android/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_android","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.20/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/android/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/android/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_android","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.28/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"vibration","path":"/Users/android/.pub-cache/hosted/pub.dev/vibration-2.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_android","path":"/Users/android/.pub-cache/hosted/pub.dev/video_player_android-2.9.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"macos":[{"name":"audioplayers_darwin","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_selector_macos","path":"/Users/android/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_app_check","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_app_check-0.3.2+7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_crashlytics","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_crashlytics-4.3.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_messaging","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_local_notifications","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage_macos","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"/Users/android/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"google_sign_in_ios","path":"/Users/android/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_macos","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/","native_build":false,"dependencies":["file_selector_macos"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"/Users/android/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"shared_preferences_foundation","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.6/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple","path":"/Users/android/.pub-cache/hosted/pub.dev/sign_in_with_apple-7.0.1/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"sqflite","path":"/Users/android/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_macos","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"video_player_avfoundation","path":"/Users/android/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.3/","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":true,"dependencies":["package_info_plus"],"dev_dependency":false}],"linux":[{"name":"audioplayers_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_linux-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_local_notifications_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-4.0.1/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"flutter_secure_storage_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/","native_build":false,"dependencies":["file_selector_linux"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":false,"dependencies":["url_launcher_linux"],"dev_dependency":false},{"name":"shared_preferences_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/","native_build":false,"dependencies":["path_provider_linux"],"dev_dependency":false},{"name":"url_launcher_linux","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":false,"dependencies":["package_info_plus"],"dev_dependency":false}],"windows":[{"name":"audioplayers_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_windows-3.1.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_auth","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_auth-5.6.0/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"firebase_core","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_core-3.14.0/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"firebase_storage","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_storage-12.4.7/","native_build":true,"dependencies":["firebase_core"],"dev_dependency":false},{"name":"flutter_secure_storage_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-3.1.2/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/","native_build":false,"dependencies":["file_selector_windows"],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","native_build":true,"dependencies":["url_launcher_windows"],"dev_dependency":false},{"name":"shared_preferences_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/","native_build":false,"dependencies":["path_provider_windows"],"dev_dependency":false},{"name":"url_launcher_windows","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.5/","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","native_build":false,"dependencies":["package_info_plus"],"dev_dependency":false}],"web":[{"name":"audioplayers_web","path":"/Users/android/.pub-cache/hosted/pub.dev/audioplayers_web-4.1.0/","dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/","dependencies":[],"dev_dependency":false},{"name":"file_picker","path":"/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/","dependencies":[],"dev_dependency":false},{"name":"firebase_app_check_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_app_check_web-0.2.0+11/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_auth_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.0/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_core_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.0/","dependencies":[],"dev_dependency":false},{"name":"firebase_messaging_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.10.7/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_performance_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_performance_web-0.1.7+13/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"firebase_storage_web","path":"/Users/android/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.14/","dependencies":["firebase_core_web"],"dev_dependency":false},{"name":"flutter_secure_storage_web","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1/","dependencies":[],"dev_dependency":false},{"name":"flutter_tts","path":"/Users/android/.pub-cache/hosted/pub.dev/flutter_tts-4.2.5/","dependencies":[],"dev_dependency":false},{"name":"geolocator_web","path":"/Users/android/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/","dependencies":[],"dev_dependency":false},{"name":"google_maps_flutter_web","path":"/Users/android/.pub-cache/hosted/pub.dev/google_maps_flutter_web-0.5.14+3/","dependencies":[],"dev_dependency":false},{"name":"google_sign_in_web","path":"/Users/android/.pub-cache/hosted/pub.dev/google_sign_in_web-0.12.4+4/","dependencies":[],"dev_dependency":false},{"name":"image_picker_for_web","path":"/Users/android/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/","dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/","dependencies":[],"dev_dependency":false},{"name":"pointer_interceptor_web","path":"/Users/android/.pub-cache/hosted/pub.dev/pointer_interceptor_web-0.10.3/","dependencies":[],"dev_dependency":false},{"name":"share_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/","dependencies":["url_launcher_web"],"dev_dependency":false},{"name":"shared_preferences_web","path":"/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/","dependencies":[],"dev_dependency":false},{"name":"sign_in_with_apple_web","path":"/Users/android/.pub-cache/hosted/pub.dev/sign_in_with_apple_web-3.0.0/","dependencies":[],"dev_dependency":false},{"name":"url_launcher_web","path":"/Users/android/.pub-cache/hosted/pub.dev/url_launcher_web-2.4.2/","dependencies":[],"dev_dependency":false},{"name":"video_player_web","path":"/Users/android/.pub-cache/hosted/pub.dev/video_player_web-2.4.0/","dependencies":[],"dev_dependency":false},{"name":"wakelock_plus","path":"/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/","dependencies":["package_info_plus"],"dev_dependency":false}]},"dependencyGraph":[{"name":"audioplayers","dependencies":["audioplayers_android","audioplayers_darwin","audioplayers_linux","audioplayers_web","audioplayers_windows","path_provider"]},{"name":"audioplayers_android","dependencies":[]},{"name":"audioplayers_darwin","dependencies":[]},{"name":"audioplayers_linux","dependencies":[]},{"name":"audioplayers_web","dependencies":[]},{"name":"audioplayers_windows","dependencies":[]},{"name":"device_info_plus","dependencies":[]},{"name":"file_picker","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"file_selector_linux","dependencies":[]},{"name":"file_selector_macos","dependencies":[]},{"name":"file_selector_windows","dependencies":[]},{"name":"firebase_app_check","dependencies":["firebase_app_check_web","firebase_core"]},{"name":"firebase_app_check_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_auth","dependencies":["firebase_auth_web","firebase_core"]},{"name":"firebase_auth_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_core","dependencies":["firebase_core_web"]},{"name":"firebase_core_web","dependencies":[]},{"name":"firebase_crashlytics","dependencies":["firebase_core"]},{"name":"firebase_messaging","dependencies":["firebase_core","firebase_messaging_web"]},{"name":"firebase_messaging_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_performance","dependencies":["firebase_core","firebase_performance_web"]},{"name":"firebase_performance_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"firebase_storage","dependencies":["firebase_core","firebase_storage_web"]},{"name":"firebase_storage_web","dependencies":["firebase_core","firebase_core_web"]},{"name":"flutter_local_notifications","dependencies":["flutter_local_notifications_linux"]},{"name":"flutter_local_notifications_linux","dependencies":[]},{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"flutter_secure_storage","dependencies":["flutter_secure_storage_linux","flutter_secure_storage_macos","flutter_secure_storage_web","flutter_secure_storage_windows"]},{"name":"flutter_secure_storage_linux","dependencies":[]},{"name":"flutter_secure_storage_macos","dependencies":[]},{"name":"flutter_secure_storage_web","dependencies":[]},{"name":"flutter_secure_storage_windows","dependencies":["path_provider"]},{"name":"flutter_tts","dependencies":[]},{"name":"geocoding","dependencies":["geocoding_android","geocoding_ios"]},{"name":"geocoding_android","dependencies":[]},{"name":"geocoding_ios","dependencies":[]},{"name":"geolocator","dependencies":["geolocator_android","geolocator_apple","geolocator_web","geolocator_windows"]},{"name":"geolocator_android","dependencies":[]},{"name":"geolocator_apple","dependencies":[]},{"name":"geolocator_web","dependencies":[]},{"name":"geolocator_windows","dependencies":[]},{"name":"google_api_headers","dependencies":["package_info_plus"]},{"name":"google_maps_flutter","dependencies":["google_maps_flutter_android","google_maps_flutter_ios","google_maps_flutter_web"]},{"name":"google_maps_flutter_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"google_maps_flutter_ios","dependencies":[]},{"name":"google_maps_flutter_web","dependencies":[]},{"name":"google_mlkit_barcode_scanning","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_commons","dependencies":[]},{"name":"google_mlkit_digital_ink_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_entity_extraction","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_face_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_face_mesh_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_image_description","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_prompt","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_proofreading","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_rewriting","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_speech_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_genai_summarization","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_image_labeling","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_language_id","dependencies":[]},{"name":"google_mlkit_object_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_pose_detection","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_selfie_segmentation","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_smart_reply","dependencies":[]},{"name":"google_mlkit_text_recognition","dependencies":["google_mlkit_commons"]},{"name":"google_mlkit_translation","dependencies":["google_mlkit_commons"]},{"name":"google_sign_in","dependencies":["google_sign_in_android","google_sign_in_ios","google_sign_in_web"]},{"name":"google_sign_in_android","dependencies":[]},{"name":"google_sign_in_ios","dependencies":[]},{"name":"google_sign_in_web","dependencies":[]},{"name":"haptic_feedback","dependencies":[]},{"name":"image_picker","dependencies":["image_picker_android","image_picker_for_web","image_picker_ios","image_picker_linux","image_picker_macos","image_picker_windows"]},{"name":"image_picker_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_for_web","dependencies":[]},{"name":"image_picker_ios","dependencies":[]},{"name":"image_picker_linux","dependencies":["file_selector_linux"]},{"name":"image_picker_macos","dependencies":["file_selector_macos"]},{"name":"image_picker_windows","dependencies":["file_selector_windows"]},{"name":"package_info_plus","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":[]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"pointer_interceptor","dependencies":["pointer_interceptor_ios","pointer_interceptor_web"]},{"name":"pointer_interceptor_ios","dependencies":[]},{"name":"pointer_interceptor_web","dependencies":[]},{"name":"share_plus","dependencies":["url_launcher_web","url_launcher_windows","url_launcher_linux"]},{"name":"shared_preferences","dependencies":["shared_preferences_android","shared_preferences_foundation","shared_preferences_linux","shared_preferences_web","shared_preferences_windows"]},{"name":"shared_preferences_android","dependencies":[]},{"name":"shared_preferences_foundation","dependencies":[]},{"name":"shared_preferences_linux","dependencies":["path_provider_linux"]},{"name":"shared_preferences_web","dependencies":[]},{"name":"shared_preferences_windows","dependencies":["path_provider_windows"]},{"name":"sign_in_with_apple","dependencies":["sign_in_with_apple_web"]},{"name":"sign_in_with_apple_web","dependencies":[]},{"name":"sqflite","dependencies":[]},{"name":"url_launcher","dependencies":["url_launcher_android","url_launcher_ios","url_launcher_linux","url_launcher_macos","url_launcher_web","url_launcher_windows"]},{"name":"url_launcher_android","dependencies":[]},{"name":"url_launcher_ios","dependencies":[]},{"name":"url_launcher_linux","dependencies":[]},{"name":"url_launcher_macos","dependencies":[]},{"name":"url_launcher_web","dependencies":[]},{"name":"url_launcher_windows","dependencies":[]},{"name":"vibration","dependencies":[]},{"name":"video_player","dependencies":["video_player_android","video_player_avfoundation","video_player_web"]},{"name":"video_player_android","dependencies":[]},{"name":"video_player_avfoundation","dependencies":[]},{"name":"video_player_web","dependencies":[]},{"name":"wakelock_plus","dependencies":["package_info_plus"]}],"date_created":"2026-02-20 12:42:09.864774","version":"3.38.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
+\ No newline at end of file
+diff --git a/lib/SplashWidget/splashwidget.dart b/lib/SplashWidget/splashwidget.dart
+index 8938b7a..7a05b76 100644
+--- a/lib/SplashWidget/splashwidget.dart
++++ b/lib/SplashWidget/splashwidget.dart
+@@ -20,7 +20,6 @@ class _SplashWidgetState extends State<SplashWidget> {
+     WidgetsBinding.instance.addPostFrameCallback((_) async {
+       // 1. Check if user is Logged In (OTP Verified)
+       if (FFAppState().isLoggedIn) {
+-
+         // 2. Check if Registration is Complete
+         if (FFAppState().isRegistered) {
+           // ✅ Logged In & Registered -> Go Home
+@@ -38,10 +37,14 @@ class _SplashWidgetState extends State<SplashWidget> {
+             }.withoutNulls,
+           );
+         }
+-
+       } else {
+-        // ❌ Not Logged In -> Go to Login
+-        context.goNamed(LoginWidget.routeName);
++        // ❌ Not Logged In -> Go to Language Select if needed
++        final storedLocale = FFLocalizations.getStoredLocale();
++        if (storedLocale == null) {
++          context.goNamed(LanguageSelectWidget.routeName);
++        } else {
++          context.goNamed(LoginWidget.routeName);
++        }
+       }
+     });
+   }
+@@ -49,7 +52,8 @@ class _SplashWidgetState extends State<SplashWidget> {
+   @override
+   Widget build(BuildContext context) {
+     return const Scaffold(
+-      backgroundColor: Colors.white, // Ensure background isn't black during load
++      backgroundColor:
++          Colors.white, // Ensure background isn't black during load
+       body: Center(
+         child: CircularProgressIndicator(
+           color: AppColors.primary, // Match your brand color
+@@ -57,4 +61,4 @@ class _SplashWidgetState extends State<SplashWidget> {
+       ),
+     );
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/lib/controllers/home_controller.dart b/lib/controllers/home_controller.dart
+index 5cd28f3..5df65f4 100644
+--- a/lib/controllers/home_controller.dart
++++ b/lib/controllers/home_controller.dart
+@@ -92,6 +92,13 @@ class HomeController extends ChangeNotifier {
+     );
+ 
+     if (_disposed) return;
++    
++    if (kDebugMode) {
++      debugPrint('🔍 === Driver Profile Response ===');
++      debugPrint('Response Succeeded: ${userDetails.succeeded}');
++      debugPrint('Response JSON: ${userDetails.jsonBody}');
++    }
++    
+     if (userDetails.jsonBody != null) {
+       final fetchedName = getJsonField(
+         userDetails.jsonBody,
+@@ -100,8 +107,22 @@ class HomeController extends ChangeNotifier {
+       if (fetchedName != 'null' && fetchedName.isNotEmpty) driverName = fetchedName;
+ 
+       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);
++      
++      if (kDebugMode) {
++        debugPrint('🖼️ Raw img value from API: $img');
++        debugPrint('🖼️ img is null: ${img == null}');
++        debugPrint('🖼️ img is empty: ${img?.isEmpty ?? true}');
++      }
++      
+       if (img != null && img.isNotEmpty) {
+         profileImageUrl = img.startsWith('http') ? img : '${Config.baseUrl}/$img';
++        if (kDebugMode) {
++          debugPrint('✅ Final profileImageUrl: $profileImageUrl');
++        }
++      } else {
++        if (kDebugMode) {
++          debugPrint('❌ No profile image found in response');
++        }
+       }
+     }
+ 
+diff --git a/lib/flutter_flow/internationalization.dart b/lib/flutter_flow/internationalization.dart
+index d27b34e..2498d9c 100644
+--- a/lib/flutter_flow/internationalization.dart
++++ b/lib/flutter_flow/internationalization.dart
+@@ -147,7 +147,6 @@ bool _isSupportedLocale(Locale locale) {
+ final kTranslationsMap = <Map<String, Map<String, String>>>[
+   // login
+   {
+-      
+     '0wqdgogt': {
+       'en': 'Start your journey – enter your phone number',
+       'hi': 'अपनी यात्रा शुरू करें - अपना फ़ोन नंबर दर्ज करें',
+@@ -178,6 +177,69 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
+       'hi': 'या से जुड़ें',
+       'te': 'లేదా కనెక్ట్ అవ్వండి',
+     },
++    'login0001': {
++      'en': 'Welcome Partner,',
++      'hi': 'स्वागत है, पार्टनर,',
++      'te': 'స్వాగతం, భాగస్వామి,',
++    },
++    'login0002': {
++      'en': "Let's get you on the road.",
++      'hi': 'चलिए आपको सड़क पर ले चलते हैं।',
++      'te': 'మిమ్మల్ని రోడ్డుపైకి తీసుకెళ్దాం.',
++    },
++    'login0003': {
++      'en': 'Enter Mobile Number',
++      'hi': 'मोबाइल नंबर दर्ज करें',
++      'te': 'మొబైల్ నంబర్ నమోదు చేయండి',
++    },
++    'login0004': {
++      'en': 'Mobile Number',
++      'hi': 'मोबाइल नंबर',
++      'te': 'మొబైల్ నంబర్',
++    },
++    'login0005': {
++      'en': 'Get OTP',
++      'hi': 'OTP प्राप्त करें',
++      'te': 'OTP పొందండి',
++    },
++    'login0006': {
++      'en': 'By continuing, you agree to our\n',
++      'hi': 'जारी रखने पर, आप हमारी\n',
++      'te': 'కొనసాగించడం ద్వారా, మీరు మా\n',
++    },
++    'login0007': {
++      'en': 'Terms of Service',
++      'hi': 'सेवा की शर्तें',
++      'te': 'సేవా నిబంధనలు',
++    },
++    'login0008': {
++      'en': ' & ',
++      'hi': ' और ',
++      'te': ' మరియు ',
++    },
++    'login0009': {
++      'en': 'Privacy Policy',
++      'hi': 'गोपनीयता नीति',
++      'te': 'గోప్యతా విధానం',
++    },
++    'login0010': {
++      'en':
++          'Verification Required: Please enter your mobile number to complete registration.',
++      'hi':
++          'सत्यापन आवश्यक: पंजीकरण पूरा करने के लिए अपना मोबाइल नंबर दर्ज करें।',
++      'te':
++          'ధృవీకరణ అవసరం: రిజిస్ట్రేషన్ పూర్తి చేయడానికి మీ మొబైల్ నంబర్ నమోదు చేయండి.',
++    },
++    'login0011': {
++      'en': 'Please enter a valid 10-digit mobile number.',
++      'hi': 'कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।',
++      'te': 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.',
++    },
++    'login0012': {
++      'en': '+91',
++      'hi': '+91',
++      'te': '+91',
++    },
+   },
+   // otpverification
+   {
+@@ -206,6 +268,152 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
+       'hi': 'सत्यापन',
+       'te': 'ధృవీకరణ',
+     },
++    'otpv0001': {
++      'en': 'Enter the code we sent you.',
++      'hi': 'हमने आपको जो कोड भेजा है उसे दर्ज करें।',
++      'te': 'మేము పంపిన కోడ్‌ను నమోదు చేయండి.',
++    },
++    'otpv0002': {
++      'en': 'Enter the 6-digit OTP sent to',
++      'hi': 'भेजा गया 6-अंकीय OTP दर्ज करें',
++      'te': 'పంపిన 6-అంకెల OTPను నమోదు చేయండి',
++    },
++    'otpv0003': {
++      'en': 'Verify & Continue',
++      'hi': 'सत्यापित करें और जारी रखें',
++      'te': 'ధృవీకరించి కొనసాగించండి',
++    },
++    'otpv0004': {
++      'en': "Didn't receive code?",
++      'hi': 'कोड नहीं मिला?',
++      'te': 'కోడ్ రాలేదా?',
++    },
++    'otpv0005': {
++      'en': 'Resend',
++      'hi': 'पुनः भेजें',
++      'te': 'మళ్లీ పంపండి',
++    },
++    'otpv0006': {
++      'en': 'Resend in',
++      'hi': 'फिर से भेजें',
++      'te': 'మళ్లీ పంపండి',
++    },
++    'otpv0007': {
++      'en': 'OTP Resent Successfully!',
++      'hi': 'OTP सफलतापूर्वक फिर से भेजा गया!',
++      'te': 'OTP విజయవంతంగా మళ్లీ పంపబడింది!',
++    },
++    'otpv0008': {
++      'en': 'Failed to resend OTP',
++      'hi': 'OTP फिर से भेजने में विफल',
++      'te': 'OTP మళ్లీ పంపడం విఫలమైంది',
++    },
++    'otpv0009': {
++      'en': 'Please enter a valid 6-digit OTP.',
++      'hi': 'कृपया एक मान्य 6-अंकीय OTP दर्ज करें।',
++      'te': 'దయచేసి చెల్లుబాటు అయ్యే 6-అంకెల OTPని నమోదు చేయండి.',
++    },
++    'otpv0010': {
++      'en': 'Verification Failed:',
++      'hi': 'सत्यापन विफल:',
++      'te': 'ధృవీకరణ విఫలమైంది:',
++    },
++  },
++  // language_select
++  {
++    'langsel0001': {
++      'en': 'Choose your language',
++      'hi': 'अपनी भाषा चुनें',
++      'te': 'మీ భాషను ఎంచుకోండి',
++    },
++    'langsel0002': {
++      'en': 'Select the language you want to use.',
++      'hi': 'आप उपयोग करना चाहते हैं वह भाषा चुनें।',
++      'te': 'మీరు ఉపయోగించాలనుకునే భాషను ఎంచుకోండి.',
++    },
++    'langsel0003': {
++      'en': 'Select language',
++      'hi': 'भाषा चुनें',
++      'te': 'భాషను ఎంచుకోండి',
++    },
++    'langsel0004': {
++      'en': 'English',
++      'hi': 'अंग्रेज़ी',
++      'te': 'ఇంగ్లీష్',
++    },
++    'langsel0005': {
++      'en': 'Hindi',
++      'hi': 'हिन्दी',
++      'te': 'హిందీ',
++    },
++    'langsel0006': {
++      'en': 'Telugu',
++      'hi': 'तेलुगु',
++      'te': 'తెలుగు',
++    },
++    'langsel0007': {
++      'en': 'Continue',
++      'hi': 'जारी रखें',
++      'te': 'కొనసాగించండి',
++    },
++  },
++  // menu_widget
++  {
++    'menu0001': {
++      'en': 'Welcome Back',
++      'hi': 'वापसी पर स्वागत है',
++      'te': 'తిరిగి స్వాగతం',
++    },
++    'menu0002': {
++      'en': 'Account',
++      'hi': 'खाता',
++      'te': 'ఖాతా',
++    },
++    'menu0003': {
++      'en': 'Manage your profile',
++      'hi': 'अपनी प्रोफ़ाइल प्रबंधित करें',
++      'te': 'మీ ప్రొఫైల్‌ను నిర్వహించండి',
++    },
++    'menu0004': {
++      'en': 'Earnings',
++      'hi': 'कमाई',
++      'te': 'ఆదాయాలు',
++    },
++    'menu0005': {
++      'en': 'History & Bank transfer',
++      'hi': 'इतिहास और बैंक ट्रांसफर',
++      'te': 'చరిత్ర & బ్యాంక్ బదిలీ',
++    },
++    'menu0006': {
++      'en': 'Incentives',
++      'hi': 'प्रोत्साहन',
++      'te': 'ప్రోత్సాహకాలు',
++    },
++    'menu0007': {
++      'en': 'Know how you get paid',
++      'hi': 'जानें कि आपको कैसे भुगतान मिलता है',
++      'te': 'మీరు ఎలా చెల్లింపు పొందుతున్నారో తెలుసుకోండి',
++    },
++    'menu0008': {
++      'en': 'Help',
++      'hi': 'मदद',
++      'te': 'సహాయం',
++    },
++    'menu0009': {
++      'en': 'Support & Accident Insurance',
++      'hi': 'सहायता और दुर्घटना बीमा',
++      'te': 'మద్దతు & ప్రమాద బీమా',
++    },
++    'menu0010': {
++      'en': 'Refer friends & earn ₹10 per ride',
++      'hi': 'दोस्तों को रेफर करें और प्रति सवारी ₹10 कमाएं',
++      'te': 'స్నేహితులను సిఫార్సు చేయండి & ప్రతి రైడ్‌కు ₹10 సంపాదించండి',
++    },
++    'menu0011': {
++      'en': 'Refer Now',
++      'hi': 'अभी रेफर करें',
++      'te': 'ఇప్పుడే సిఫార్సు చేయండి',
++    },
+   },
+   // privacypolicy
+   {
+@@ -216,8 +424,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
+     },
+     '1hdp8y0l': {
+       'en': 'By selecting \\"I Agree\\" below, I confirm that:',
+-      'hi':
+-          'नीचे \\"मैं सहमत हूँ\\" का चयन करके, मैं पुष्टि करता/करती हूँ कि:',
++      'hi': 'नीचे \\"मैं सहमत हूँ\\" का चयन करके, मैं पुष्टि करता/करती हूँ कि:',
+       'te':
+           'కింద \\"నేను అంగీకరిస్తున్నాను\\" ఎంచుకోవడం ద్వారా, నేను వీటిని నిర్ధారిస్తున్నాను:',
+     },
+@@ -4159,97 +4366,379 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
+   },
+   // driver_app - Home, Ride flow, Account
+   {
+-    'drv_good_morning': {'en': 'Good Morning', 'hi': 'सुप्रभात', 'te': 'శుభోదయం'},
+-    'drv_good_afternoon': {'en': 'Good Afternoon', 'hi': 'शुभ दोपहर', 'te': 'శుభ మధ్యాహ్నం'},
+-    'drv_good_evening': {'en': 'Good Evening', 'hi': 'शुभ संध्या', 'te': 'శుభ సాయంత్రం'},
+-    'drv_cannot_offline': {'en': 'Cannot go offline during an active ride!', 'hi': 'सक्रिय राइड के दौरान ऑफलाइन नहीं हो सकते!', 'te': 'యాక్టివ్ రైడ్ సమయంలో ఆఫ్‌లైన్ కాజాలరు!'},
+-    'drv_kyc_not_approved': {'en': 'KYC Not Approved', 'hi': 'KYC स्वीकृत नहीं', 'te': 'KYC ఆమోదించబడలేదు'},
+-    'drv_kyc_complete': {'en': 'Your KYC status is "%1". Please complete KYC.', 'hi': 'आपकी KYC स्थिति "%1" है। कृपया KYC पूर्ण करें।', 'te': 'మీ KYC స్థితి "%1". దయచేసి KYC పూర్తి చేయండి.'},
++    'drv_good_morning': {
++      'en': 'Good Morning',
++      'hi': 'सुप्रभात',
++      'te': 'శుభోదయం'
++    },
++    'drv_good_afternoon': {
++      'en': 'Good Afternoon',
++      'hi': 'शुभ दोपहर',
++      'te': 'శుభ మధ్యాహ్నం'
++    },
++    'drv_good_evening': {
++      'en': 'Good Evening',
++      'hi': 'शुभ संध्या',
++      'te': 'శుభ సాయంత్రం'
++    },
++    'drv_cannot_offline': {
++      'en': 'Cannot go offline during an active ride!',
++      'hi': 'सक्रिय राइड के दौरान ऑफलाइन नहीं हो सकते!',
++      'te': 'యాక్టివ్ రైడ్ సమయంలో ఆఫ్‌లైన్ కాజాలరు!'
++    },
++    'drv_kyc_not_approved': {
++      'en': 'KYC Not Approved',
++      'hi': 'KYC स्वीकृत नहीं',
++      'te': 'KYC ఆమోదించబడలేదు'
++    },
++    'drv_kyc_complete': {
++      'en': 'Your KYC status is "%1". Please complete KYC.',
++      'hi': 'आपकी KYC स्थिति "%1" है। कृपया KYC पूर्ण करें।',
++      'te': 'మీ KYC స్థితి "%1". దయచేసి KYC పూర్తి చేయండి.'
++    },
+     'drv_ok': {'en': 'OK', 'hi': 'ठीक है', 'te': 'సరే'},
+-    'drv_you_online': {'en': 'You are online', 'hi': 'आप ऑनलाइन हैं', 'te': 'మీరు ఆన్‌లైన్‌లో ఉన్నారు'},
+-    'drv_failed_offline': {'en': 'Failed to go offline', 'hi': 'ऑफलाइन जाने में विफल', 'te': 'ఆఫ్‌లైన్ కావడంలో విఫలమైంది'},
+-    'drv_location_needed': {'en': 'Location Access Needed', 'hi': 'स्थान पहुंच की आवश्यकता', 'te': 'స్థాన ప్రవేశం అవసరం'},
+-    'drv_location_body': {'en': 'UGO needs your location to receive ride requests, share with passengers, and navigate. Your location is only used when you\'re online.', 'hi': 'राइड रिक्वेस्ट प्राप्त करने, यात्रियों के साथ साझा करने और नेविगेट करने के लिए UGO को आपके स्थान की आवश्यकता है। आपका स्थान केवल ऑनलाइन होने पर उपयोग किया जाता है।', 'te': 'రైడ్ అభ్యర్థనలు స్వీకరించడానికి, ప్రయాణీకులతో భాగస్వామ్యం చేయడానికి మరియు నావిగేట్ చేయడానికి UGOకు మీ స్థానం అవసరం. మీరు ఆన్‌లైన్‌లో ఉన్నప్పుడు మాత్రమే మీ స్థానం ఉపయోగించబడుతుంది.'},
++    'drv_you_online': {
++      'en': 'You are online',
++      'hi': 'आप ऑनलाइन हैं',
++      'te': 'మీరు ఆన్‌లైన్‌లో ఉన్నారు'
++    },
++    'drv_failed_offline': {
++      'en': 'Failed to go offline',
++      'hi': 'ऑफलाइन जाने में विफल',
++      'te': 'ఆఫ్‌లైన్ కావడంలో విఫలమైంది'
++    },
++    'drv_location_needed': {
++      'en': 'Location Access Needed',
++      'hi': 'स्थान पहुंच की आवश्यकता',
++      'te': 'స్థాన ప్రవేశం అవసరం'
++    },
++    'drv_location_body': {
++      'en':
++          'UGO needs your location to receive ride requests, share with passengers, and navigate. Your location is only used when you\'re online.',
++      'hi':
++          'राइड रिक्वेस्ट प्राप्त करने, यात्रियों के साथ साझा करने और नेविगेट करने के लिए UGO को आपके स्थान की आवश्यकता है। आपका स्थान केवल ऑनलाइन होने पर उपयोग किया जाता है।',
++      'te':
++          'రైడ్ అభ్యర్థనలు స్వీకరించడానికి, ప్రయాణీకులతో భాగస్వామ్యం చేయడానికి మరియు నావిగేట్ చేయడానికి UGOకు మీ స్థానం అవసరం. మీరు ఆన్‌లైన్‌లో ఉన్నప్పుడు మాత్రమే మీ స్థానం ఉపయోగించబడుతుంది.'
++    },
+     'drv_not_now': {'en': 'Not Now', 'hi': 'अभी नहीं', 'te': 'ఇప్పుడు కాదు'},
+-    'drv_open_settings': {'en': 'Open Settings', 'hi': 'सेटिंग्स खोलें', 'te': 'సెట్టింగ్‌లు తెరయండి'},
+-    'drv_location_unavailable': {'en': 'Location not available.\\nPlease grant location permission to use the app.', 'hi': 'स्थान उपलब्ध नहीं।\\nऐप उपयोग के लिए स्थान अनुमति दें।', 'te': 'స్థానం అందుబాటులో లేదు.\\nయాప్ ఉపయోగించడానికి స్థాన అనుమతి ఇవ్వండి.'},
+-    'drv_back_exit': {'en': 'Press back again to exit', 'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं', 'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'},
+-    'drv_captains_nearby': {'en': 'captains nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్లు సమీపంలో'},
+-    'drv_captain_nearby': {'en': 'captain nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్ సమీపంలో'},
+-    'drv_offline': {'en': 'You are currently Offline', 'hi': 'आप वर्तमान में ऑफलाइन हैं', 'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'},
+-    'drv_go_online': {'en': 'GO ONLINE', 'hi': 'ऑनलाइन जाएं', 'te': 'ఆన్‌లైన్ కండి'},
+-    'drv_incentives': {'en': 'Incentives', 'hi': 'प्रोत्साहन', 'te': 'ప్రోత్సాహకాలు'},
+-    'drv_coming_soon': {'en': 'Coming Soon', 'hi': 'जल्द ही आ रहा है', 'te': 'త్వరలో వస్తోంది'},
+-    'drv_incentives_soon': {'en': 'Coming Soon or Please Complete first ride to view Incentives', 'hi': 'जल्द आ रहा है या प्रोत्साहन देखने के लिए पहली राइड पूरी करें', 'te': 'త్వరలో వస్తోంది లేదా ప్రోత్సాహకాలు చూడడానికి మొదటి రైడ్ పూర్తి చేయండి'},
+-    'drv_incentives_excite': {'en': 'Exciting incentive programs will be available soon!', 'hi': 'रोमांचक प्रोत्साहन कार्यक्रम जल्द उपलब्ध होंगे!', 'te': 'ఉత్తేజకరమైన ప్రోత్సాహక కార్యక్రమాలు త్వరలో అందుబాటులో ఉంటాయి!'},
++    'drv_open_settings': {
++      'en': 'Open Settings',
++      'hi': 'सेटिंग्स खोलें',
++      'te': 'సెట్టింగ్‌లు తెరయండి'
++    },
++    'drv_location_unavailable': {
++      'en':
++          'Location not available.\\nPlease grant location permission to use the app.',
++      'hi': 'स्थान उपलब्ध नहीं।\\nऐप उपयोग के लिए स्थान अनुमति दें।',
++      'te':
++          'స్థానం అందుబాటులో లేదు.\\nయాప్ ఉపయోగించడానికి స్థాన అనుమతి ఇవ్వండి.'
++    },
++    'drv_back_exit': {
++      'en': 'Press back again to exit',
++      'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं',
++      'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'
++    },
++    'drv_captains_nearby': {
++      'en': 'captains nearby',
++      'hi': 'कैप्टन पास में',
++      'te': 'కెప్టెన్లు సమీపంలో'
++    },
++    'drv_captain_nearby': {
++      'en': 'captain nearby',
++      'hi': 'कैप्टन पास में',
++      'te': 'కెప్టెన్ సమీపంలో'
++    },
++    'drv_offline': {
++      'en': 'You are currently Offline',
++      'hi': 'आप वर्तमान में ऑफलाइन हैं',
++      'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'
++    },
++    'drv_go_online': {
++      'en': 'GO ONLINE',
++      'hi': 'ऑनलाइन जाएं',
++      'te': 'ఆన్‌లైన్ కండి'
++    },
++    'drv_incentives': {
++      'en': 'Incentives',
++      'hi': 'प्रोत्साहन',
++      'te': 'ప్రోత్సాహకాలు'
++    },
++    'drv_coming_soon': {
++      'en': 'Coming Soon',
++      'hi': 'जल्द ही आ रहा है',
++      'te': 'త్వరలో వస్తోంది'
++    },
++    'drv_incentives_soon': {
++      'en': 'Coming Soon or Please Complete first ride to view Incentives',
++      'hi': 'जल्द आ रहा है या प्रोत्साहन देखने के लिए पहली राइड पूरी करें',
++      'te':
++          'త్వరలో వస్తోంది లేదా ప్రోత్సాహకాలు చూడడానికి మొదటి రైడ్ పూర్తి చేయండి'
++    },
++    'drv_incentives_excite': {
++      'en': 'Exciting incentive programs will be available soon!',
++      'hi': 'रोमांचक प्रोत्साहन कार्यक्रम जल्द उपलब्ध होंगे!',
++      'te': 'ఉత్తేజకరమైన ప్రోత్సాహక కార్యక్రమాలు త్వరలో అందుబాటులో ఉంటాయి!'
++    },
+     'drv_rides': {'en': 'rides', 'hi': 'राइड्स', 'te': 'రైడ్‌లు'},
+-    'drv_today_total': {'en': 'Today Total', 'hi': 'आज का कुल', 'te': 'ఈ రోజు మొత్తం'},
+-    'drv_ride_count': {'en': 'Ride Count', 'hi': 'राइड की संख्या', 'te': 'రైడ్ గణన'},
++    'drv_today_total': {
++      'en': 'Today Total',
++      'hi': 'आज का कुल',
++      'te': 'ఈ రోజు మొత్తం'
++    },
++    'drv_ride_count': {
++      'en': 'Ride Count',
++      'hi': 'राइड की संख्या',
++      'te': 'రైడ్ గణన'
++    },
+     'drv_wallet': {'en': 'Wallet', 'hi': 'वॉलेट', 'te': 'వాలెట్'},
+-    'drv_last_ride': {'en': 'Last Ride', 'hi': 'आखिरी राइड', 'te': 'చివరి రైడ్'},
+-    'drv_new_request': {'en': 'NEW REQUEST', 'hi': 'नई अनुरोध', 'te': 'కొత్త అభ్యర్థన'},
+-    'drv_pickup_distance': {'en': 'Pickup Distance', 'hi': 'पिकअप दूरी', 'te': 'పికప్ దూరం'},
++    'drv_last_ride': {
++      'en': 'Last Ride',
++      'hi': 'आखिरी राइड',
++      'te': 'చివరి రైడ్'
++    },
++    'drv_new_request': {
++      'en': 'NEW REQUEST',
++      'hi': 'नई अनुरोध',
++      'te': 'కొత్త అభ్యర్థన'
++    },
++    'drv_pickup_distance': {
++      'en': 'Pickup Distance',
++      'hi': 'पिकअप दूरी',
++      'te': 'పికప్ దూరం'
++    },
+     'drv_fare': {'en': 'Fare', 'hi': 'किराया', 'te': 'ఛార్జీ'},
+-    'drv_drop_distance': {'en': 'Drop Distance', 'hi': 'ड्रॉप दूरी', 'te': 'డ్రాప్ దూరం'},
++    'drv_drop_distance': {
++      'en': 'Drop Distance',
++      'hi': 'ड्रॉप दूरी',
++      'te': 'డ్రాప్ దూరం'
++    },
+     'drv_drop': {'en': 'Drop', 'hi': 'ड्रॉप', 'te': 'డ్రాప్'},
+     'drv_pickup': {'en': 'Pickup', 'hi': 'पिकअप', 'te': 'పికప్'},
+     'drv_decline': {'en': 'DECLINE', 'hi': 'अस्वीकार', 'te': 'తిరస్కరించండి'},
+     'drv_accept': {'en': 'ACCEPT', 'hi': 'स्वीकार', 'te': 'అంగీకరించండి'},
+-    'drv_navigate': {'en': 'NAVIGATE', 'hi': 'नेविगेट', 'te': 'నావిగేట్ చేయండి'},
+-    'drv_go_to_pickup': {'en': 'GO TO PICKUP', 'hi': 'पिकअप पर जाएं', 'te': 'పికప్‌కు వెళ్లండి'},
+-    'drv_waiting_time': {'en': 'Waiting Time', 'hi': 'प्रतीक्षा समय', 'te': 'వేచి ఉన్న సమయం'},
++    'drv_navigate': {
++      'en': 'NAVIGATE',
++      'hi': 'नेविगेट',
++      'te': 'నావిగేట్ చేయండి'
++    },
++    'drv_go_to_pickup': {
++      'en': 'GO TO PICKUP',
++      'hi': 'पिकअप पर जाएं',
++      'te': 'పికప్‌కు వెళ్లండి'
++    },
++    'drv_waiting_time': {
++      'en': 'Waiting Time',
++      'hi': 'प्रतीक्षा समय',
++      'te': 'వేచి ఉన్న సమయం'
++    },
+     'drv_arrived': {'en': 'ARRIVED', 'hi': 'पहुंच गए', 'te': 'వచ్చారు'},
+-    'drv_start_ride': {'en': 'START RIDE', 'hi': 'राइड शुरू करें', 'te': 'రైడ్ ప్రారంభించండి'},
+-    'drv_go_to_drop': {'en': 'GO TO DROP', 'hi': 'ड्रॉप पर जाएं', 'te': 'డ్రాప్‌కు వెళ్లండి'},
+-    'drv_complete_ride': {'en': 'COMPLETE RIDE', 'hi': 'राइड पूरी करें', 'te': 'రైడ్ పూర్తి చేయండి'},
+-    'drv_nav_to_drop': {'en': 'NAVIGATE TO DROP', 'hi': 'ड्रॉप पर नेविगेट करें', 'te': 'డ్రాప్‌కు నావిగేట్ చేయండి'},
+-    'drv_nav_to_pickup': {'en': 'NAVIGATE TO PICKUP', 'hi': 'पिकअप पर नेविगेट करें', 'te': 'పికప్‌కు నావిగేట్ చేయండి'},
++    'drv_start_ride': {
++      'en': 'START RIDE',
++      'hi': 'राइड शुरू करें',
++      'te': 'రైడ్ ప్రారంభించండి'
++    },
++    'drv_go_to_drop': {
++      'en': 'GO TO DROP',
++      'hi': 'ड्रॉप पर जाएं',
++      'te': 'డ్రాప్‌కు వెళ్లండి'
++    },
++    'drv_complete_ride': {
++      'en': 'COMPLETE RIDE',
++      'hi': 'राइड पूरी करें',
++      'te': 'రైడ్ పూర్తి చేయండి'
++    },
++    'drv_nav_to_drop': {
++      'en': 'NAVIGATE TO DROP',
++      'hi': 'ड्रॉप पर नेविगेट करें',
++      'te': 'డ్రాప్‌కు నావిగేట్ చేయండి'
++    },
++    'drv_nav_to_pickup': {
++      'en': 'NAVIGATE TO PICKUP',
++      'hi': 'पिकअप पर नेविगेट करें',
++      'te': 'పికప్‌కు నావిగేట్ చేయండి'
++    },
+     'drv_passenger': {'en': 'Passenger', 'hi': 'यात्री', 'te': 'ప్రయాణీకుడు'},
+-    'drv_unknown_location': {'en': 'Unknown Location', 'hi': 'अज्ञात स्थान', 'te': 'తెలియని స్థానం'},
+-    'drv_otp_title': {'en': 'Enter The OTP To Start The Ride', 'hi': 'राइड शुरू करने के लिए OTP दर्ज करें', 'te': 'రైడ్ ప్రారంభించడానికి OTP నమోదు చేయండి'},
+-    'drv_enter_otp': {'en': 'Enter OTP', 'hi': 'OTP दर्ज करें', 'te': 'OTP నమోదు చేయండి'},
++    'drv_unknown_location': {
++      'en': 'Unknown Location',
++      'hi': 'अज्ञात स्थान',
++      'te': 'తెలియని స్థానం'
++    },
++    'drv_otp_title': {
++      'en': 'Enter The OTP To Start The Ride',
++      'hi': 'राइड शुरू करने के लिए OTP दर्ज करें',
++      'te': 'రైడ్ ప్రారంభించడానికి OTP నమోదు చేయండి'
++    },
++    'drv_enter_otp': {
++      'en': 'Enter OTP',
++      'hi': 'OTP दर्ज करें',
++      'te': 'OTP నమోదు చేయండి'
++    },
+     'drv_ride_otp': {'en': 'Ride OTP', 'hi': 'राइड OTP', 'te': 'రైడ్ OTP'},
+     'drv_verify': {'en': 'VERIFY', 'hi': 'सत्यापित करें', 'te': 'ధృవీకరించండి'},
+-    'drv_phone_unavailable': {'en': 'Phone number not available.', 'hi': 'फ़ोन नंबर उपलब्ध नहीं।', 'te': 'ఫోన్ నంబర్ అందుబాటులో లేదు.'},
+-    'drv_dialer_fail': {'en': 'Could not launch dialer.', 'hi': 'डायलर खोल नहीं सके।', 'te': 'డయలర్ తెరవలేకపోయాం.'},
+-    'drv_drop_location': {'en': 'Drop Location', 'hi': 'ड्रॉप स्थान', 'te': 'డ్రాప్ స్థానం'},
+-    'drv_ride_completed': {'en': 'Ride Completed', 'hi': 'राइड पूरी हुई', 'te': 'రైడ్ పూర్తయింది'},
+-    'drv_received_online': {'en': 'You received it online', 'hi': 'आपने इसे ऑनलाइन प्राप्त किया', 'te': 'మీరు దీన్ని ఆన్‌లైన్‌లో అందుకున్నారు'},
++    'drv_phone_unavailable': {
++      'en': 'Phone number not available.',
++      'hi': 'फ़ोन नंबर उपलब्ध नहीं।',
++      'te': 'ఫోన్ నంబర్ అందుబాటులో లేదు.'
++    },
++    'drv_dialer_fail': {
++      'en': 'Could not launch dialer.',
++      'hi': 'डायलर खोल नहीं सके।',
++      'te': 'డయలర్ తెరవలేకపోయాం.'
++    },
++    'drv_drop_location': {
++      'en': 'Drop Location',
++      'hi': 'ड्रॉप स्थान',
++      'te': 'డ్రాప్ స్థానం'
++    },
++    'drv_ride_completed': {
++      'en': 'Ride Completed',
++      'hi': 'राइड पूरी हुई',
++      'te': 'రైడ్ పూర్తయింది'
++    },
++    'drv_received_online': {
++      'en': 'You received it online',
++      'hi': 'आपने इसे ऑनलाइन प्राप्त किया',
++      'te': 'మీరు దీన్ని ఆన్‌లైన్‌లో అందుకున్నారు'
++    },
+     'drv_review': {'en': 'Review', 'hi': 'समीक्षा', 'te': 'సమీక్ష'},
+-    'drv_total_fare': {'en': 'Total Fare', 'hi': 'कुल किराया', 'te': 'మొత్తం ఛార్జీ'},
++    'drv_total_fare': {
++      'en': 'Total Fare',
++      'hi': 'कुल किराया',
++      'te': 'మొత్తం ఛార్జీ'
++    },
+     'drv_submit': {'en': 'Submit', 'hi': 'जमा करें', 'te': 'సమర్పించండి'},
+-    'drv_manage_prefs': {'en': 'Manage your Preferences.', 'hi': 'अपनी प्राथमिकताएं प्रबंधित करें।', 'te': 'మీ ప్రాధాన్యతలను నిర్వహించండి.'},
+-    'drv_view_messages': {'en': 'View messages', 'hi': 'संदेश देखें', 'te': 'సందేశాలు చూడండి'},
+-    'drv_check_balance': {'en': 'Check balance', 'hi': 'बैलेंस जांचें', 'te': 'బ్యాలెన్స్ తనిఖీ చేయండి'},
+-    'drv_edit_info': {'en': 'Edit your info', 'hi': 'अपनी जानकारी संपादित करें', 'te': 'మీ సమాచారాన్ని సవరించండి'},
+-    'drv_legal_info': {'en': 'Legal information', 'hi': 'कानूनी जानकारी', 'te': 'చట్టపరమైన సమాచారం'},
+-    'drv_how_we_handle': {'en': 'How we handle your data', 'hi': 'हम आपके डेटा को कैसे संभालते हैं', 'te': 'మేము మీ డేటాను ఎలా నిర్వహిస్తాము'},
++    'drv_manage_prefs': {
++      'en': 'Manage your Preferences.',
++      'hi': 'अपनी प्राथमिकताएं प्रबंधित करें।',
++      'te': 'మీ ప్రాధాన్యతలను నిర్వహించండి.'
++    },
++    'drv_view_messages': {
++      'en': 'View messages',
++      'hi': 'संदेश देखें',
++      'te': 'సందేశాలు చూడండి'
++    },
++    'drv_check_balance': {
++      'en': 'Check balance',
++      'hi': 'बैलेंस जांचें',
++      'te': 'బ్యాలెన్స్ తనిఖీ చేయండి'
++    },
++    'drv_edit_info': {
++      'en': 'Edit your info',
++      'hi': 'अपनी जानकारी संपादित करें',
++      'te': 'మీ సమాచారాన్ని సవరించండి'
++    },
++    'drv_legal_info': {
++      'en': 'Legal information',
++      'hi': 'कानूनी जानकारी',
++      'te': 'చట్టపరమైన సమాచారం'
++    },
++    'drv_how_we_handle': {
++      'en': 'How we handle your data',
++      'hi': 'हम आपके डेटा को कैसे संभालते हैं',
++      'te': 'మేము మీ డేటాను ఎలా నిర్వహిస్తాము'
++    },
+     'drv_logout_title': {'en': 'Logout', 'hi': 'लॉग आउट', 'te': 'లాగ్ అవుట్'},
+-    'drv_logout_confirm': {'en': 'Are you sure you want to logout?', 'hi': 'क्या आप लॉग आउट करना चाहते हैं?', 'te': 'మీరు లాగ్ అవుట్ చేయాలనుకుంటున్నారా?'},
++    'drv_logout_confirm': {
++      'en': 'Are you sure you want to logout?',
++      'hi': 'क्या आप लॉग आउट करना चाहते हैं?',
++      'te': 'మీరు లాగ్ అవుట్ చేయాలనుకుంటున్నారా?'
++    },
+     'drv_cancel': {'en': 'Cancel', 'hi': 'रद्द करें', 'te': 'రద్దు చేయండి'},
+-    'drv_cancel_ride_confirm': {'en': 'Are you sure you want to cancel this ride?', 'hi': 'क्या आप इस राइड को रद्द करना चाहते हैं?', 'te': 'మీరు ఈ రైడ్‌ను రద్దు చేయాలనుకుంటున్నారా?'},
+-    'drv_yes_cancel': {'en': 'Yes, Cancel', 'hi': 'हाँ, रद्द करें', 'te': 'అవును, రద్దు చేయండి'},
+-    'drv_ride_cancelled': {'en': 'Ride cancelled', 'hi': 'राइड रद्द हो गई', 'te': 'రైడ్ రద్దు చేయబడింది'},
+-    'drv_select_cancel_reason': {'en': 'Select reason for cancellation', 'hi': 'रद्दीकरण का कारण चुनें', 'te': 'రద్దు కారణం ఎంచుకోండి'},
+-    'drv_cancel_ride': {'en': 'Cancel Ride', 'hi': 'राइड रद्द करें', 'te': 'రైడ్ రద్దు చేయండి'},
+-    'drv_cancel_reason_emergency': {'en': 'Personal emergency', 'hi': 'व्यक्तिगत आपातकाल', 'te': 'వ్యక్తిగత అత్యవసరం'},
+-    'drv_cancel_reason_vehicle': {'en': 'Vehicle issues', 'hi': 'वाहन समस्या', 'te': 'వాహన సమస్యలు'},
+-    'drv_cancel_reason_passenger_no_show': {'en': 'Passenger no-show', 'hi': 'यात्री नहीं मिला', 'te': 'ప్రయాణీకుడు రాలేదు'},
+-    'drv_cancel_reason_wrong_pickup': {'en': 'Incorrect pickup location', 'hi': 'गलत पिकअप स्थान', 'te': 'తప్పు పికప్ స్థానం'},
+-    'drv_cancel_reason_long_wait': {'en': 'Long waiting time', 'hi': 'लंबा इंतजार', 'te': 'ఎక్కువ వేచి ఉన్న సమయం'},
+-    'drv_cancel_reason_wrong_address': {'en': 'Wrong address', 'hi': 'गलत पता', 'te': 'తప్పు చిరునామా'},
+-    'drv_cancel_reason_change_plans': {'en': 'Change of plans', 'hi': 'योजना बदल गई', 'te': 'ప్రణాళికలు మార్చారు'},
++    'drv_cancel_ride_confirm': {
++      'en': 'Are you sure you want to cancel this ride?',
++      'hi': 'क्या आप इस राइड को रद्द करना चाहते हैं?',
++      'te': 'మీరు ఈ రైడ్‌ను రద్దు చేయాలనుకుంటున్నారా?'
++    },
++    'drv_yes_cancel': {
++      'en': 'Yes, Cancel',
++      'hi': 'हाँ, रद्द करें',
++      'te': 'అవును, రద్దు చేయండి'
++    },
++    'drv_ride_cancelled': {
++      'en': 'Ride cancelled',
++      'hi': 'राइड रद्द हो गई',
++      'te': 'రైడ్ రద్దు చేయబడింది'
++    },
++    'drv_select_cancel_reason': {
++      'en': 'Select reason for cancellation',
++      'hi': 'रद्दीकरण का कारण चुनें',
++      'te': 'రద్దు కారణం ఎంచుకోండి'
++    },
++    'drv_cancel_ride': {
++      'en': 'Cancel Ride',
++      'hi': 'राइड रद्द करें',
++      'te': 'రైడ్ రద్దు చేయండి'
++    },
++    'drv_cancel_reason_emergency': {
++      'en': 'Personal emergency',
++      'hi': 'व्यक्तिगत आपातकाल',
++      'te': 'వ్యక్తిగత అత్యవసరం'
++    },
++    'drv_cancel_reason_vehicle': {
++      'en': 'Vehicle issues',
++      'hi': 'वाहन समस्या',
++      'te': 'వాహన సమస్యలు'
++    },
++    'drv_cancel_reason_passenger_no_show': {
++      'en': 'Passenger no-show',
++      'hi': 'यात्री नहीं मिला',
++      'te': 'ప్రయాణీకుడు రాలేదు'
++    },
++    'drv_cancel_reason_wrong_pickup': {
++      'en': 'Incorrect pickup location',
++      'hi': 'गलत पिकअप स्थान',
++      'te': 'తప్పు పికప్ స్థానం'
++    },
++    'drv_cancel_reason_long_wait': {
++      'en': 'Long waiting time',
++      'hi': 'लंबा इंतजार',
++      'te': 'ఎక్కువ వేచి ఉన్న సమయం'
++    },
++    'drv_cancel_reason_wrong_address': {
++      'en': 'Wrong address',
++      'hi': 'गलत पता',
++      'te': 'తప్పు చిరునామా'
++    },
++    'drv_cancel_reason_change_plans': {
++      'en': 'Change of plans',
++      'hi': 'योजना बदल गई',
++      'te': 'ప్రణాళికలు మార్చారు'
++    },
+     'drv_cancel_reason_other': {'en': 'Other', 'hi': 'अन्य', 'te': 'ఇతర'},
+-    'drv_collect_cash': {'en': 'Collect cash', 'hi': 'नकद लें', 'te': 'నగదు సంపాదించండి'},
+-    'drv_from_passenger': {'en': 'from passenger', 'hi': 'यात्री से', 'te': 'ప్రయాణీకుని నుండి'},
+-    'drv_received_cash': {'en': "I've received the amount", 'hi': 'मुझे राशि मिल गई', 'te': 'నాకు మొత్తం వచ్చింది'},
+-    'drv_privacy_policy': {'en': 'Privacy Policy', 'hi': 'गोपनीयता नीति', 'te': 'గోప్యతా విధానం'},
+-    'drv_review_friendly': {'en': 'Friendly', 'hi': 'मैत्रीपूर्ण', 'te': 'స్నేహపూర్వకం'},
++    'drv_collect_cash': {
++      'en': 'Collect cash',
++      'hi': 'नकद लें',
++      'te': 'నగదు సంపాదించండి'
++    },
++    'drv_from_passenger': {
++      'en': 'from passenger',
++      'hi': 'यात्री से',
++      'te': 'ప్రయాణీకుని నుండి'
++    },
++    'drv_received_cash': {
++      'en': "I've received the amount",
++      'hi': 'मुझे राशि मिल गई',
++      'te': 'నాకు మొత్తం వచ్చింది'
++    },
++    'drv_privacy_policy': {
++      'en': 'Privacy Policy',
++      'hi': 'गोपनीयता नीति',
++      'te': 'గోప్యతా విధానం'
++    },
++    'drv_review_friendly': {
++      'en': 'Friendly',
++      'hi': 'मैत्रीपूर्ण',
++      'te': 'స్నేహపూర్వకం'
++    },
+     'drv_review_safe': {'en': 'Safe', 'hi': 'सुरक्षित', 'te': 'సురక్షితం'},
+     'drv_review_worst': {'en': 'Worst', 'hi': 'सबसे खराब', 'te': 'చెత్త'},
+     'drv_review_fast': {'en': 'Fast', 'hi': 'तेज़', 'te': 'వేగంగా'},
+     'drv_review_clean': {'en': 'Clean', 'hi': 'साफ', 'te': 'శుభ్రంగా'},
+     'drv_voice': {'en': 'Voice', 'hi': 'आवाज़', 'te': 'వాయిస్'},
+-    'drv_ride_announcements': {'en': 'Ride announcements', 'hi': 'राइड घोषणाएं', 'te': 'రైడ్ ప్రకటనలు'},
++    'drv_ride_announcements': {
++      'en': 'Ride announcements',
++      'hi': 'राइड घोषणाएं',
++      'te': 'రైడ్ ప్రకటనలు'
++    },
+   },
+ ].reduce((a, b) => a..addAll(b));
+diff --git a/lib/flutter_flow/nav/nav.dart b/lib/flutter_flow/nav/nav.dart
+index 847e300..7c28783 100644
+--- a/lib/flutter_flow/nav/nav.dart
++++ b/lib/flutter_flow/nav/nav.dart
+@@ -78,24 +78,27 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+       debugLogDiagnostics: true,
+       refreshListenable: appStateNotifier,
+       navigatorKey: appNavigatorKey,
+-      errorBuilder: (context, state) =>
+-          appStateNotifier.loggedIn
+-              ? const ErrorBoundary(child: HomeWidget())
+-              : const LoginWidget(),
++      errorBuilder: (context, state) => appStateNotifier.loggedIn
++          ? const ErrorBoundary(child: HomeWidget())
++          : const LoginWidget(),
+       routes: [
+         FFRoute(
+           name: '_initialize',
+           path: '/',
+-          builder: (context, _) =>
+-              appStateNotifier.loggedIn
+-                  ? const ErrorBoundary(child: HomeWidget())
+-                  : const LoginWidget(),
++          builder: (context, _) => appStateNotifier.loggedIn
++              ? const ErrorBoundary(child: HomeWidget())
++              : const LoginWidget(),
+         ),
+         FFRoute(
+           name: LoginWidget.routeName,
+           path: LoginWidget.routePath,
+           builder: (context, params) => const LoginWidget(),
+         ),
++        FFRoute(
++          name: LanguageSelectWidget.routeName,
++          path: LanguageSelectWidget.routePath,
++          builder: (context, params) => const LanguageSelectWidget(),
++        ),
+         FFRoute(
+           name: OtpverificationWidget.routeName,
+           path: OtpverificationWidget.routePath,
+@@ -135,7 +138,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+         FFRoute(
+           name: HomeWidget.routeName,
+           path: HomeWidget.routePath,
+-          builder: (context, params) => const ErrorBoundary(child: HomeWidget()),
++          builder: (context, params) =>
++              const ErrorBoundary(child: HomeWidget()),
+         ),
+         FFRoute(
+           name: AccountManagementWidget.routeName,
+@@ -150,7 +154,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+         FFRoute(
+           name: WalletWidget.routeName,
+           path: WalletWidget.routePath,
+-          builder: (context, params) => const ErrorBoundary(child: WalletWidget()),
++          builder: (context, params) =>
++              const ErrorBoundary(child: WalletWidget()),
+         ),
+         FFRoute(
+           name: AddBankAccountWidget.routeName,
+@@ -362,7 +367,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+           path: VehicleImageUpdateWidget.routePath,
+           builder: (context, params) => const VehicleImageUpdateWidget(),
+         ),
+-        
++
+         FFRoute(
+           name: DrivingDlUpdateWidget.routeName,
+           path: DrivingDlUpdateWidget.routePath,
+@@ -370,7 +375,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+         ),
+         FFRoute(
+           name: AdharUploadUpdateWidget.routeName,
+-          path:AdharUploadUpdateWidget.routePath,
++          path: AdharUploadUpdateWidget.routePath,
+           builder: (context, params) => const AdharUploadUpdateWidget(),
+         ),
+         FFRoute(
+@@ -384,7 +389,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
+           builder: (context, params) => const FaceVerifyupdateWidget(),
+         ),
+ 
+-
+         FFRoute(
+           name: RCUploadWidget.routeName,
+           path: RCUploadWidget.routePath,
+@@ -671,7 +675,8 @@ class TransitionInfo {
+   final Duration duration;
+   final Alignment? alignment;
+ 
+-  static TransitionInfo appDefault() => const TransitionInfo(hasTransition: false);
++  static TransitionInfo appDefault() =>
++      const TransitionInfo(hasTransition: false);
+ }
+ 
+ class RootPageContext {
+diff --git a/lib/index.dart b/lib/index.dart
+index 7525411..1faac3e 100644
+--- a/lib/index.dart
++++ b/lib/index.dart
+@@ -3,11 +3,14 @@ export '/constants/app_colors.dart' show AppColors;
+ 
+ // Export pages
+ export '/login/login_widget.dart' show LoginWidget;
++export '/language_select/language_select_widget.dart' show LanguageSelectWidget;
+ export '/otpverification/otpverification_widget.dart'
+     show OtpverificationWidget;
+ export '/privacypolicy/privacypolicy_widget.dart' show PrivacypolicyWidget;
+-export '/terms_conditions/terms_conditions_widget.dart' show TermsConditionsWidget;
+-export '/privacy_policy_page/privacy_policy_page_widget.dart' show PrivacyPolicyPageWidget;
++export '/terms_conditions/terms_conditions_widget.dart'
++    show TermsConditionsWidget;
++export '/privacy_policy_page/privacy_policy_page_widget.dart'
++    show PrivacyPolicyPageWidget;
+ export '/serviceoptions/serviceoptions_widget.dart' show ServiceoptionsWidget;
+ export '/home/home_widget.dart' show HomeWidget;
+ export '/account_management/account_management_widget.dart'
+@@ -15,8 +18,8 @@ export '/account_management/account_management_widget.dart'
+ export '/support/support_widget.dart' show SupportWidget;
+ export '/wallet/wallet_widget.dart' show WalletWidget;
+ 
+-
+-export '/add_bankAccount/add_bank_account_widget.dart' show AddBankAccountWidget;
++export '/add_bankAccount/add_bank_account_widget.dart'
++    show AddBankAccountWidget;
+ export '/payments/payments_page_widget.dart' show PaymentsPageWidget;
+ export '/withdraw/withdraw_widget.dart' show WithdrawWidget;
+ export '/scan_to_book/scan_to_book_widget.dart' show ScanToBookWidget;
+@@ -25,7 +28,6 @@ export '/profile_setting/profile_setting_widget.dart' show ProfileSettingWidget;
+ 
+ export '/saved_add/saved_add_widget.dart' show SavedAddWidget;
+ 
+-
+ export '/pushnotifications/pushnotifications_widget.dart'
+     show PushnotificationsWidget;
+ 
+@@ -37,8 +39,6 @@ export '/tipautomatically/tipautomatically_widget.dart'
+ export '/reservematching/reservematching_widget.dart'
+     show ReservematchingWidget;
+ 
+-
+-
+ export '/voucher/voucher_widget.dart' show VoucherWidget;
+ export '/wallet_password/wallet_password_widget.dart' show WalletPasswordWidget;
+ export '/messages/messages_widget.dart' show MessagesWidget;
+@@ -46,7 +46,8 @@ export '/account_support/account_support_widget.dart' show AccountSupportWidget;
+ export '/support_ride/support_ride_widget.dart' show SupportRideWidget;
+ export '/ride_overview/ride_overview_widget.dart' show RideOverviewWidget;
+ export '/report_issues/report_issues_widget.dart' show ReportIssuesWidget;
+-export '/customer_support/customer_support_widget.dart' show CustomerSupportWidget;
++export '/customer_support/customer_support_widget.dart'
++    show CustomerSupportWidget;
+ 
+ export '/choose_vehicle/choose_vehicle_widget.dart' show ChooseVehicleWidget;
+ export '/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
+@@ -66,20 +67,15 @@ export '/vehicle_image/vehicle_image_widget.dart' show VehicleImageWidget;
+ export '/registration_image/registration_image_widget.dart'
+     show RegistrationImageWidget;
+ export '/inxentive_page/IncentivePageWidget.dart' show IncentivePageWidget;
+-export '/face_verify/face_verify_update.dart'
+-    show FaceVerifyupdateWidget;
+-export '/driving_dl/driving_dl_update.dart'
+-    show DrivingDlUpdateWidget;
++export '/face_verify/face_verify_update.dart' show FaceVerifyupdateWidget;
++export '/driving_dl/driving_dl_update.dart' show DrivingDlUpdateWidget;
+ 
+-export '/adhar_upload/adhar_upload_update.dart'
+-    show AdharUploadUpdateWidget;
++export '/adhar_upload/adhar_upload_update.dart' show AdharUploadUpdateWidget;
+ 
+ export '/panupload_screen/panupload_screen_pdate.dart'
+     show PanuploadScreenUpdateWidget;
+ 
+-export '/vehicle_image/vehicle_image_update.dart'
+-    show VehicleImageUpdateWidget;
++export '/vehicle_image/vehicle_image_update.dart' show VehicleImageUpdateWidget;
+ 
+ export '/registration_image/registration_image_update.dart'
+     show RegistrationUpdateWidget;
+-
+diff --git a/lib/login/login_widget.dart b/lib/login/login_widget.dart
+index b0afd90..1a32c43 100644
+--- a/lib/login/login_widget.dart
++++ b/lib/login/login_widget.dart
+@@ -1,3 +1,5 @@
++import 'dart:math' as math;
++
+ import '/auth/firebase_auth/auth_util.dart';
+ import '/flutter_flow/flutter_flow_util.dart';
+ import '/index.dart';
+@@ -52,7 +54,7 @@ class _LoginWidgetState extends State<LoginWidget> {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+           content: Text(
+-            'Verification Required: Please enter your mobile number to complete registration.',
++            FFLocalizations.of(context).getText('login0010'),
+             style: GoogleFonts.inter(),
+           ),
+           backgroundColor: Colors.orange,
+@@ -88,13 +90,25 @@ class _LoginWidgetState extends State<LoginWidget> {
+     final scale = isTablet ? 1.2 : isSmallScreen ? 0.85 : 1.0;
+     final horizontalPadding = isTablet ? 40.0 : isSmallScreen ? 16.0 : 24.0;
+     final cardPadding = isTablet ? 32.0 : isSmallScreen ? 20.0 : 24.0;
+-    
+-    final logoSize = isSmallScreen ? 80.0 : (isTablet ? 120.0 : 100.0);
+-    final headlineFontSize = isSmallScreen ? 28.0 : (isTablet ? 42.0 : 36.0);
+-    final subtitleFontSize = isSmallScreen ? 22.0 : (isTablet ? 32.0 : 28.0);
++
++    final availableHeaderHeight =
++      headerHeight - MediaQuery.of(context).padding.top;
++    final headerTextScale = math
++      .min(1.0, availableHeaderHeight / 360.0)
++      .clamp(0.78, 1.0)
++      .toDouble();
++
++    final logoSize =
++      (isSmallScreen ? 80.0 : (isTablet ? 120.0 : 100.0)) * headerTextScale;
++    final headlineFontSize =
++      (isSmallScreen ? 28.0 : (isTablet ? 42.0 : 36.0)) * headerTextScale;
++    final subtitleFontSize =
++      (isSmallScreen ? 22.0 : (isTablet ? 32.0 : 28.0)) * headerTextScale;
+     final phoneFontSize = isSmallScreen ? 16.0 : (isTablet ? 24.0 : 20.0);
+     final buttonHeight = isSmallScreen ? 50.0 : (isTablet ? 64.0 : 58.0);
+     final buttonFontSize = isSmallScreen ? 16.0 : (isTablet ? 20.0 : 18.0);
++    final headerBottomGap =
++      (isSmallScreen || !isPortrait) ? 24.0 * scale : 60.0 * scale;
+ 
+     return GestureDetector(
+       onTap: () {
+@@ -160,27 +174,32 @@ class _LoginWidgetState extends State<LoginWidget> {
+                         const Spacer(),
+                         Center(
+                           child: Text(
+-                            'Welcome Partner,',
++                            FFLocalizations.of(context).getText('login0001'),
+                             style: GoogleFonts.inter(
+                               fontSize: headlineFontSize,
+                               color: Colors.white.withValues(alpha:0.9),
+                               fontWeight: FontWeight.bold,
+                             ),
++                            maxLines: 1,
++                            overflow: TextOverflow.ellipsis,
+                           ),
+                         ),
+                         SizedBox(height: 8 * scale),
+                         Center(
+                           child: Text(
+-                            "Let's get you on the road.",
++                            FFLocalizations.of(context).getText('login0002'),
+                             style: GoogleFonts.interTight(
+                               fontSize: subtitleFontSize,
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                               height: 1.1,
+                             ),
++                            maxLines: 2,
++                            textAlign: TextAlign.center,
++                            overflow: TextOverflow.ellipsis,
+                           ),
+                         ),
+-                        SizedBox(height: 60 * scale), // Space for card overlap
++                        SizedBox(height: headerBottomGap),
+                       ],
+                     ),
+                   ),
+@@ -213,7 +232,7 @@ class _LoginWidgetState extends State<LoginWidget> {
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Text(
+-                            'Enter Mobile Number',
++                            FFLocalizations.of(context).getText('login0003'),
+                             style: GoogleFonts.inter(
+                               fontSize: 14 * scale,
+                               fontWeight: FontWeight.w600,
+@@ -244,7 +263,8 @@ class _LoginWidgetState extends State<LoginWidget> {
+                                           color: Colors.orange, size: 20 * scale),
+                                       SizedBox(width: 8 * scale),
+                                       Text(
+-                                        '+91',
++                                        FFLocalizations.of(context)
++                                            .getText('login0012'),
+                                         style: GoogleFonts.inter(
+                                           fontSize: 18 * scale,
+                                           fontWeight: FontWeight.bold,
+@@ -279,7 +299,8 @@ class _LoginWidgetState extends State<LoginWidget> {
+                                       LengthLimitingTextInputFormatter(10),
+                                     ],
+                                     decoration: InputDecoration(
+-                                      hintText: 'Mobile Number',
++                                      hintText: FFLocalizations.of(context)
++                                          .getText('login0004'),
+                                       hintStyle: GoogleFonts.inter(
+                                         color: Colors.grey[400],
+                                         fontSize: phoneFontSize,
+@@ -326,7 +347,7 @@ class _LoginWidgetState extends State<LoginWidget> {
+                                 ),
+                               )
+                                   : Text(
+-                                'Get OTP',
++                                FFLocalizations.of(context).getText('login0005'),
+                                 style: GoogleFonts.interTight(
+                                   fontSize: buttonFontSize,
+                                   fontWeight: FontWeight.bold,
+@@ -351,9 +372,13 @@ class _LoginWidgetState extends State<LoginWidget> {
+                                       height: 1.5,
+                                     ),
+                                     children: [
+-                                      const TextSpan(text: 'By continuing, you agree to our\n'),
+                                       TextSpan(
+-                                        text: 'Terms of Service',
++                                        text: FFLocalizations.of(context)
++                                            .getText('login0006'),
++                                      ),
++                                      TextSpan(
++                                        text: FFLocalizations.of(context)
++                                            .getText('login0007'),
+                                         style: TextStyle(
+                                           color: Colors.black87,
+                                           fontWeight: FontWeight.w600,
+@@ -363,9 +388,13 @@ class _LoginWidgetState extends State<LoginWidget> {
+                                         recognizer: TapGestureRecognizer()
+                                           ..onTap = () => context.pushNamed(TermsConditionsWidget.routeName),
+                                       ),
+-                                      const TextSpan(text: ' & '),
+                                       TextSpan(
+-                                        text: 'Privacy Policy',
++                                        text: FFLocalizations.of(context)
++                                            .getText('login0008'),
++                                      ),
++                                      TextSpan(
++                                        text: FFLocalizations.of(context)
++                                            .getText('login0009'),
+                                         style: TextStyle(
+                                           color: Colors.black87,
+                                           fontWeight: FontWeight.w600,
+@@ -397,7 +426,7 @@ class _LoginWidgetState extends State<LoginWidget> {
+                 children: [
+                   const Expanded(child: Divider(indent: 40, endIndent: 10)),
+                   Text(
+-                    'Or connect with',
++                    FFLocalizations.of(context).getText('hczr77o0'),
+                     style: GoogleFonts.inter(
+                       fontSize: 12 * scale,
+                       color: Colors.grey[500],
+@@ -462,7 +491,7 @@ class _LoginWidgetState extends State<LoginWidget> {
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+           content: Text(
+-            'Please enter a valid 10-digit mobile number.',
++            FFLocalizations.of(context).getText('login0011'),
+             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+           ),
+           backgroundColor: Colors.redAccent,
+diff --git a/lib/otpverification/otpverification_widget.dart b/lib/otpverification/otpverification_widget.dart
+index a611965..765dd96 100644
+--- a/lib/otpverification/otpverification_widget.dart
++++ b/lib/otpverification/otpverification_widget.dart
+@@ -97,6 +97,47 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+     const Color brandGradientStart = AppColors.primaryGradientStart;
+     const Color bgOffWhite = AppColors.backgroundAlt;
+ 
++    // 📐 RESPONSIVE SIZING
++    final size = MediaQuery.of(context).size;
++    final isSmallScreen = size.width < 360;
++    final isTablet = size.width >= 600;
++    final isPortrait = size.height > size.width;
++
++    final headerHeight = isPortrait
++        ? (isTablet
++            ? 320.0
++            : isSmallScreen
++                ? 260.0
++                : 300.0)
++        : (isTablet ? 240.0 : 200.0);
++    final scale = isTablet
++        ? 1.15
++        : isSmallScreen
++            ? 0.9
++            : 1.0;
++    final horizontalPadding = isTablet
++        ? 40.0
++        : isSmallScreen
++            ? 16.0
++            : 24.0;
++    final cardPadding = isTablet
++        ? 32.0
++        : isSmallScreen
++            ? 18.0
++            : 24.0;
++    final headerTopGap = isSmallScreen ? 12.0 * scale : 20.0 * scale;
++    final headerBottomGap =
++        (isSmallScreen || !isPortrait) ? 32.0 * scale : 60.0 * scale;
++
++    final headerTitleSize = isSmallScreen ? 26.0 : (isTablet ? 36.0 : 30.0);
++    final headerSubtitleSize = isSmallScreen ? 22.0 : (isTablet ? 30.0 : 26.0);
++    final descriptionSize = isSmallScreen ? 13.0 : (isTablet ? 16.0 : 14.0);
++    final pinTextSize = isSmallScreen ? 20.0 : (isTablet ? 26.0 : 22.0);
++    final pinBoxHeight = isSmallScreen ? 44.0 : (isTablet ? 58.0 : 50.0);
++    final pinBoxWidth = isSmallScreen ? 40.0 : (isTablet ? 52.0 : 45.0);
++    final buttonHeight = isSmallScreen ? 50.0 : (isTablet ? 64.0 : 56.0);
++    final buttonFontSize = isSmallScreen ? 16.0 : (isTablet ? 20.0 : 18.0);
++
+     return GestureDetector(
+       onTap: () {
+         FocusScope.of(context).unfocus();
+@@ -112,7 +153,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+               // 1️⃣ VIBRANT HEADER
+               // ==========================================
+               Container(
+-                height: 280,
++                height: headerHeight,
+                 width: double.infinity,
+                 decoration: const BoxDecoration(
+                   gradient: LinearGradient(
+@@ -132,37 +173,43 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+                     )
+                   ],
+                 ),
+-                child: const SafeArea(
++                child: SafeArea(
+                   child: Padding(
+-                    padding: EdgeInsets.symmetric(horizontal: 24.0),
++                    padding:
++                        EdgeInsets.symmetric(horizontal: horizontalPadding),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+-                        SizedBox(height: 20),
+-                        Spacer(),
++                        SizedBox(height: headerTopGap),
++                        const Spacer(),
+                         Center(
+                           child: Text(
+-                            'Verification',
++                            FFLocalizations.of(context).getText('duko62qy'),
+                             style: TextStyle(
+-                              fontSize: 30,
++                              fontSize: headerTitleSize,
+                               color: Colors.white70,
+                               fontWeight: FontWeight.bold,
+                             ),
++                            maxLines: 1,
++                            overflow: TextOverflow.ellipsis,
+                           ),
+                         ),
+-                        SizedBox(height: 8),
++                        SizedBox(height: 8 * scale),
+                         Center(
+                           child: Text(
+-                            'Enter the code we sent you.',
++                            FFLocalizations.of(context).getText('otpv0001'),
+                             style: TextStyle(
+-                              fontSize: 26,
++                              fontSize: headerSubtitleSize,
+                               color: Colors.white,
+                               fontWeight: FontWeight.w600,
+                               height: 1.1,
+                             ),
++                            maxLines: 2,
++                            textAlign: TextAlign.center,
++                            overflow: TextOverflow.ellipsis,
+                           ),
+                         ),
+-                        SizedBox(height: 60),
++                        SizedBox(height: headerBottomGap),
+                       ],
+                     ),
+                   ),
+@@ -173,9 +220,11 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+               // 2️⃣ FLOATING CARD
+               // ==========================================
+               Transform.translate(
+-                offset: const Offset(0, -40),
++                offset: Offset(0, -40 * scale),
+                 child: Padding(
+-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
++                  padding: EdgeInsets.symmetric(
++                    horizontal: isSmallScreen ? 16.0 : (isTablet ? 32.0 : 20.0),
++                  ),
+                   child: Container(
+                     width: double.infinity,
+                     decoration: BoxDecoration(
+@@ -183,33 +232,33 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+                       borderRadius: BorderRadius.circular(24),
+                       boxShadow: [
+                         BoxShadow(
+-                          color: Colors.black.withValues(alpha:0.08),
++                          color: Colors.black.withValues(alpha: 0.08),
+                           blurRadius: 24,
+                           offset: const Offset(0, 12),
+                         ),
+                       ],
+                     ),
+                     child: Padding(
+-                      padding: const EdgeInsets.all(24.0),
++                      padding: EdgeInsets.all(cardPadding),
+                       child: Column(
+                         children: [
+                           Text(
+-                            'Enter the 6-digit OTP sent to\n+91 ${widget.mobile}',
++                            '${FFLocalizations.of(context).getText('otpv0002')}\n+91 ${widget.mobile}',
+                             textAlign: TextAlign.center,
+                             style: GoogleFonts.inter(
+-                              fontSize: 14,
++                              fontSize: descriptionSize,
+                               color: Colors.grey[600],
+                               height: 1.5,
+                             ),
+                           ),
+-                          const SizedBox(height: 32),
++                          SizedBox(height: 28 * scale),
+ 
+                           // 🔢 PIN CODE FIELD
+                           PinCodeTextField(
+                             appContext: context,
+                             length: 6,
+                             textStyle: GoogleFonts.inter(
+-                              fontSize: 22,
++                              fontSize: pinTextSize,
+                               fontWeight: FontWeight.bold,
+                               color: Colors.black,
+                             ),
+@@ -225,8 +274,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+                             pinTheme: PinTheme(
+                               shape: PinCodeFieldShape.box,
+                               borderRadius: BorderRadius.circular(12),
+-                              fieldHeight: 50,
+-                              fieldWidth: 45,
++                              fieldHeight: pinBoxHeight,
++                              fieldWidth: pinBoxWidth,
+                               borderWidth: 1.5,
+                               activeColor: brandPrimary,
+                               inactiveColor: Colors.grey[200]!,
+@@ -240,12 +289,12 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+                             onCompleted: (_) => _handleVerify(),
+                           ),
+ 
+-                          const SizedBox(height: 24),
++                          SizedBox(height: 20 * scale),
+ 
+                           // 🚀 VERIFY BUTTON
+                           SizedBox(
+                             width: double.infinity,
+-                            height: 56,
++                            height: buttonHeight,
+                             child: ElevatedButton(
+                               onPressed: _isLoading ? null : _handleVerify,
+                               style: ElevatedButton.styleFrom(
+@@ -255,46 +304,50 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+                                 shape: RoundedRectangleBorder(
+                                   borderRadius: BorderRadius.circular(16),
+                                 ),
+-                                disabledBackgroundColor: brandPrimary.withValues(alpha:0.6),
++                                disabledBackgroundColor:
++                                    brandPrimary.withValues(alpha: 0.6),
+                               ),
+                               child: _isLoading
+                                   ? const SizedBox(
+-                                height: 24,
+-                                width: 24,
+-                                child: CircularProgressIndicator(
+-                                  color: Colors.white,
+-                                  strokeWidth: 2.5,
+-                                ),
+-                              )
++                                      height: 24,
++                                      width: 24,
++                                      child: CircularProgressIndicator(
++                                        color: Colors.white,
++                                        strokeWidth: 2.5,
++                                      ),
++                                    )
+                                   : Text(
+-                                'Verify & Continue',
+-                                style: GoogleFonts.interTight(
+-                                  fontSize: 18,
+-                                  fontWeight: FontWeight.bold,
+-                                  letterSpacing: 0.5,
+-                                ),
+-                              ),
++                                      FFLocalizations.of(context)
++                                          .getText('otpv0003'),
++                                      style: GoogleFonts.interTight(
++                                        fontSize: buttonFontSize,
++                                        fontWeight: FontWeight.bold,
++                                        letterSpacing: 0.5,
++                                      ),
++                                    ),
+                             ),
+                           ),
+ 
+-                          const SizedBox(height: 24),
++                          SizedBox(height: 20 * scale),
+ 
+                           // 🔄 RESEND OTP WITH TIMER
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.center,
+                             children: [
+                               Text(
+-                                "Didn't receive code? ",
++                                '${FFLocalizations.of(context).getText('otpv0004')} ',
+                                 style: TextStyle(color: Colors.grey[600]),
+                               ),
+                               GestureDetector(
+                                 onTap: _canResend ? _handleResendOtp : null,
+                                 child: Text(
+                                   _canResend
+-                                      ? 'Resend'
+-                                      : 'Resend in $_timerSeconds s',
++                                      ? FFLocalizations.of(context)
++                                          .getText('otpv0005')
++                                      : '${FFLocalizations.of(context).getText('otpv0006')} $_timerSeconds s',
+                                   style: TextStyle(
+-                                    color: _canResend ? brandPrimary : Colors.grey,
++                                    color:
++                                        _canResend ? brandPrimary : Colors.grey,
+                                     fontWeight: FontWeight.bold,
+                                   ),
+                                 ),
+@@ -328,8 +381,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+         onCodeSent: (context) async {
+           if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+-              const SnackBar(
+-                content: Text('OTP Resent Successfully!'),
++              SnackBar(
++                content: Text(FFLocalizations.of(context).getText('otpv0007')),
+                 backgroundColor: Colors.green,
+               ),
+             );
+@@ -342,7 +395,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+       if (kDebugMode) debugPrint('Resend Error: $e');
+       if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+-          const SnackBar(content: Text('Failed to resend OTP'), backgroundColor: Colors.red),
++          SnackBar(
++            content: Text(FFLocalizations.of(context).getText('otpv0008')),
++            backgroundColor: Colors.red,
++          ),
+         );
+         setState(() => _isLoading = false);
+       }
+@@ -355,8 +411,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+ 
+     if (smsCodeVal.isEmpty || smsCodeVal.length < 6) {
+       ScaffoldMessenger.of(context).showSnackBar(
+-        const SnackBar(
+-          content: Text('Please enter a valid 6-digit OTP.'),
++        SnackBar(
++          content: Text(FFLocalizations.of(context).getText('otpv0009')),
+           backgroundColor: Colors.redAccent,
+           behavior: SnackBarBehavior.floating,
+         ),
+@@ -392,7 +448,6 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+       // 4. Navigate Based on Response
+       // Assuming a success status (200-299) means the user exists.
+       if (_model.apiResultk3y?.succeeded ?? false) {
+-
+         // ✅ EXISTING USER -> Go to Home
+         FFAppState().isLoggedIn = true;
+         FFAppState().isRegistered = true;
+@@ -406,9 +461,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+         );
+ 
+         FFAppState().accessToken = getJsonField(
+-          jsonResponse,
+-          r'''$.data.accessToken''',
+-        )?.toString() ?? '';
++              jsonResponse,
++              r'''$.data.accessToken''',
++            )?.toString() ??
++            '';
+ 
+         if (mounted) {
+           context.goNamedAuth(
+@@ -439,7 +495,9 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+       if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(
+-            content: Text('Verification Failed: ${e.toString()}'),
++            content: Text(
++              '${FFLocalizations.of(context).getText('otpv0010')} ${e.toString()}',
++            ),
+             backgroundColor: Colors.red,
+           ),
+         );
+@@ -448,4 +506,4 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
+       if (mounted) setState(() => _isLoading = false);
+     }
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/audioplayers_linux b/linux/flutter/ephemeral/.plugin_symlinks/audioplayers_linux
+index ff48e4c..b7778ae 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/audioplayers_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/audioplayers_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/audioplayers_linux-3.1.0/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/audioplayers_linux-3.1.0/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/device_info_plus b/linux/flutter/ephemeral/.plugin_symlinks/device_info_plus
+index a7dfec7..289546d 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/device_info_plus
++++ b/linux/flutter/ephemeral/.plugin_symlinks/device_info_plus
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/file_picker b/linux/flutter/ephemeral/.plugin_symlinks/file_picker
+index fb616b0..86411a8 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/file_picker
++++ b/linux/flutter/ephemeral/.plugin_symlinks/file_picker
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_picker-10.1.9/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/file_picker-10.1.9/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/file_selector_linux b/linux/flutter/ephemeral/.plugin_symlinks/file_selector_linux
+index 6122d89..f8c08bd 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/file_selector_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/file_selector_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/flutter_local_notifications_linux b/linux/flutter/ephemeral/.plugin_symlinks/flutter_local_notifications_linux
+index 14c7889..5be2a32 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/flutter_local_notifications_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/flutter_local_notifications_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-4.0.1/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-4.0.1/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux b/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux
+index c637ba3..79e7e9e 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/image_picker_linux b/linux/flutter/ephemeral/.plugin_symlinks/image_picker_linux
+index 3fc0f97..732ed0f 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/image_picker_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/image_picker_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus b/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus
+index a78d64b..9fae25c 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus
++++ b/linux/flutter/ephemeral/.plugin_symlinks/package_info_plus
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/package_info_plus-8.0.2/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux b/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
+index 882b30e..d75ffac 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/share_plus b/linux/flutter/ephemeral/.plugin_symlinks/share_plus
+index 1c18d36..deb6d21 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/share_plus
++++ b/linux/flutter/ephemeral/.plugin_symlinks/share_plus
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/share_plus-12.0.1/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/share_plus-12.0.1/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux b/linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux
+index 11ce6ab..b4ff4ae 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux b/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux
+index 0b05d75..b873e2e 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux
++++ b/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.2/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.2/
+\ No newline at end of file
+diff --git a/linux/flutter/ephemeral/.plugin_symlinks/wakelock_plus b/linux/flutter/ephemeral/.plugin_symlinks/wakelock_plus
+index 79e396e..9c009ff 120000
+--- a/linux/flutter/ephemeral/.plugin_symlinks/wakelock_plus
++++ b/linux/flutter/ephemeral/.plugin_symlinks/wakelock_plus
+@@ -1 +1 @@
+-/Users/mekalamanjunadh/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/
+\ No newline at end of file
++/Users/android/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0/
+\ No newline at end of file
+diff --git a/pubspec.lock b/pubspec.lock
+index ca43fd1..77cf660 100644
+--- a/pubspec.lock
++++ b/pubspec.lock
+@@ -197,10 +197,10 @@ packages:
+     dependency: transitive
+     description:
+       name: characters
+-      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
++      sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.4.1"
++    version: "1.4.0"
+   checked_yaml:
+     dependency: transitive
+     description:
+@@ -1345,18 +1345,18 @@ packages:
+     dependency: transitive
+     description:
+       name: matcher
+-      sha256: "12956d0ad8390bbcc63ca2e1469c0619946ccb52809807067a7020d57e647aa6"
++      sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.12.18"
++    version: "0.12.17"
+   material_color_utilities:
+     dependency: transitive
+     description:
+       name: material_color_utilities
+-      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
++      sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.13.0"
++    version: "0.11.1"
+   maybe_just_nothing:
+     dependency: transitive
+     description:
+@@ -1870,10 +1870,10 @@ packages:
+     dependency: transitive
+     description:
+       name: test_api
+-      sha256: "93167629bfc610f71560ab9312acdda4959de4df6fac7492c89ff0d3886f6636"
++      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.7.9"
++    version: "0.7.7"
+   timeago:
+     dependency: "direct main"
+     description:

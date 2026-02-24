@@ -23,6 +23,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
   String _selectedCityName = '';
   bool _requestingApproval = false;
 
+  bool _didInitDependencies = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +33,18 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
         : null;
     _selectedCityName = FFAppState().preferredCityName;
     _fetchCities();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInitDependencies) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map && args['referalcode'] != null && (args['referalcode'] as String).isNotEmpty) {
+        FFAppState().referralCode = args['referalcode'] as String;
+      }
+      _didInitDependencies = true;
+    }
   }
 
   bool get _isLocked =>
@@ -152,6 +166,10 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
       if (mounted) {
         context.pushNamed(
           PreferredEarningModeWidget.routeName,
+          queryParameters: {
+            'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
+            'referalcode': serializeParam(FFAppState().referralCode, ParamType.String),
+          }.withoutNulls,
           extra: const TransitionInfo(
             hasTransition: true,
             transitionType: PageTransitionType.rightToLeft,

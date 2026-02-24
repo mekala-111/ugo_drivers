@@ -163,6 +163,10 @@ class _PreferredEarningModeWidgetState
     }
     context.pushNamed(
       OnBoardingWidget.routeName,
+      queryParameters: {
+        'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
+        'referalcode': serializeParam(FFAppState().usedReferralCode, ParamType.String),
+      }.withoutNulls,
       extra: const TransitionInfo(
         hasTransition: true,
         transitionType: PageTransitionType.rightToLeft,

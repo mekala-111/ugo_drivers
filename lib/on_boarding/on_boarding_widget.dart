@@ -48,6 +48,11 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     _model = createModel(context, () => OnBoardingModel());
     // Mark current step for resume functionality
     FFAppState().registrationStep = 4;
+    // Set AppState usedReferralCode from widget.referalcode if provided
+    if (widget.referalcode != null && widget.referalcode!.isNotEmpty) {
+      FFAppState().usedReferralCode = widget.referalcode!;
+    }
+    debugPrint('referrer_code (final): \'${FFAppState().usedReferralCode}\'');
     _initFCM();
   }
 
@@ -590,15 +595,16 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
     try {
       // Prepare JSON Payload - include all collected onboarding data
+      final referrerCode = (FFAppState().usedReferralCode.isNotEmpty)
+          ? FFAppState().usedReferralCode
+          : (widget.referalcode ?? '');
       final driverJsonData = <String, dynamic>{
         'mobile_number': FFAppState().mobileNo.toString(),
         'first_name': FFAppState().firstName,
         'last_name': FFAppState().lastName,
         'email': FFAppState().email,
-        'referal_code': FFAppState().referralCode,
-        'used_referral_code': FFAppState().usedReferralCode.isNotEmpty
-            ? FFAppState().usedReferralCode
-            : null,
+        //'referal_code': FFAppState().referralCode,
+        'referrer_code': referrerCode.isNotEmpty ? referrerCode : null,
         'preferred_city_id': FFAppState().preferredCityId > 0
             ? FFAppState().preferredCityId
             : null,

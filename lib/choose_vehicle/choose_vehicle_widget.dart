@@ -66,268 +66,245 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: bgOffWhite,
-        body: Column(
-          children: [
-            // ==========================================
-            // 1️⃣ VIBRANT HEADER
-            // ==========================================
-            Container(
-              height: 180, // Compact header
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [brandGradientStart, brandPrimary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  )
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 24 + 56 + 16), // padding for button height + margin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 16),
-                      InkWell(
-                        onTap: () {
-                          final mobile = widget.mobile ?? FFAppState().mobileNo;
-                          context.goNamed(
-                            AddressDetailsWidget.routeName,
-                            queryParameters: {
-                              'mobile': serializeParam(mobile, ParamType.int),
-                              'firstname': serializeParam(widget.firstname, ParamType.String),
-                              'lastname': serializeParam(widget.lastname, ParamType.String),
-                              'email': serializeParam(widget.email, ParamType.String),
-                              'referalcode': serializeParam(widget.referalcode, ParamType.String),
-                            }.withoutNulls,
-                          );
-                        },
+                      // 1️⃣ VIBRANT HEADER
+                      Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [brandGradientStart, brandPrimary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 16),
+                              InkWell(
+                                onTap: () {
+                                  final mobile = widget.mobile ?? FFAppState().mobileNo;
+                                  context.goNamed(
+                                    AddressDetailsWidget.routeName,
+                                    queryParameters: {
+                                      'mobile': serializeParam(mobile, ParamType.int),
+                                      'firstname': serializeParam(widget.firstname, ParamType.String),
+                                      'lastname': serializeParam(widget.lastname, ParamType.String),
+                                      'email': serializeParam(widget.email, ParamType.String),
+                                      'referalcode': serializeParam(widget.referalcode, ParamType.String),
+                                    }.withoutNulls,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Center(
+                                child: Text(
+                                  FFLocalizations.of(context).getText('cv0001'),
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                FFLocalizations.of(context).getText('cv0002'),
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // 2️⃣ VEHICLE LIST (Floating)
+                      Transform.translate(
+                        offset: const Offset(0, -20),
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha:0.05),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              )
+                            ],
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
-                        ),
-                      ),
-                      const Spacer(),
-                      Center(
-                        child: Text(
-                          FFLocalizations.of(context).getText('cv0001'),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            color: Colors.white70,
-                            fontWeight: FontWeight.bold,
+                          child: FutureBuilder<ApiCallResponse>(
+                            future: ChoosevehicleCall.call(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(brandPrimary),
+                                  ),
+                                );
+                              }
+                              if (snapshot.hasError || snapshot.data?.statusCode != 200) {
+                                return _buildErrorState(brandPrimary, context);
+                              }
+                              final response = snapshot.data!;
+                              return Builder(
+                                builder: (context) {
+                                  final rawList = ChoosevehicleCall.data(response.jsonBody);
+                                  final vehicleList = (rawList is List) ? rawList : [];
+                                  if (vehicleList.isEmpty) {
+                                    return Center(
+                                      child: Text(
+                                        FFLocalizations.of(context).getText('cv0003'),
+                                        style: GoogleFonts.inter(color: Colors.grey),
+                                      ),
+                                    );
+                                  }
+                                  return ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: const EdgeInsets.all(20),
+                                    itemCount: vehicleList.length,
+                                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                    itemBuilder: (context, index) {
+                                      final item = vehicleList[index];
+                                      String vehicleName = '';
+                                      int vehicleId = 0;
+                                      String? imagePath;
+                                      if (item is Map) {
+                                        vehicleName = item['name']?.toString() ?? '';
+                                        vehicleId = castToType<int>(item['id']) ?? 0;
+                                        imagePath = item['image']?.toString();
+                                      } else {
+                                        vehicleName = getJsonField(item, r'$["name"]')?.toString() ?? '';
+                                        vehicleId = castToType<int>(getJsonField(item, r'$["id"]')) ?? 0;
+                                        imagePath = getJsonField(item, r'$["image"]')?.toString();
+                                      }
+                                      if (vehicleName.isEmpty) {
+                                        vehicleName = FFLocalizations.of(context).getText('cv0004');
+                                      }
+                                      final imageUrl = (imagePath != null && imagePath.isNotEmpty && imagePath != 'null')
+                                          ? (imagePath.startsWith('http') ? imagePath : '${app_config.Config.baseUrl}$imagePath')
+                                          : null;
+                                      final isSelected = FFAppState().selectvehicle == vehicleName;
+                                      return _buildVehicleCard(
+                                        vehicleName,
+                                        vehicleId,
+                                        imageUrl,
+                                        isSelected,
+                                        brandPrimary,
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        FFLocalizations.of(context).getText('cv0002'),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
                     ],
                   ),
                 ),
               ),
-            ),
-
-            // ==========================================
-            // 2️⃣ VEHICLE LIST (Floating)
-            // ==========================================
-            Expanded(
-              child: Transform.translate(
-                offset: const Offset(0, -20),
+              // 3️⃣ CONTINUE BUTTON (Fixed Bottom)
+              SafeArea(
+                top: false,
                 child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha:0.05),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
+                        blurRadius: 10,
+                        offset: const Offset(0, -5),
                       )
                     ],
                   ),
-                  child: FutureBuilder<ApiCallResponse>(
-                    future: ChoosevehicleCall.call(),
-                    builder: (context, snapshot) {
-                      // LOADING
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(brandPrimary),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: FFAppState().selectvehicle.isEmpty
+                          ? null
+                          : () {
+                        FFAppState().registrationStep = 3;
+                        context.pushNamed(
+                          PreferredCityWidget.routeName,
+                          extra: const TransitionInfo(
+                            hasTransition: true,
+                            transitionType: PageTransitionType.rightToLeft,
+                            duration: Duration(milliseconds: 300),
                           ),
+                          queryParameters: <String, String?>{
+                            'mobile': serializeParam(widget.mobile, ParamType.int),
+                            'firstname': serializeParam(widget.firstname, ParamType.String),
+                            'lastname': serializeParam(widget.lastname, ParamType.String),
+                            'email': serializeParam(widget.email, ParamType.String),
+                            'referalcode': serializeParam(widget.referalcode ?? FFAppState().referralCode, ParamType.String),
+                            'vehicletype': serializeParam(FFAppState().selectvehicle, ParamType.String),
+                            'isRegistrationFlow': serializeParam(true, ParamType.bool),
+                          }.withoutNulls,
                         );
-                      }
-
-                      // ERROR
-                      if (snapshot.hasError ||
-                          snapshot.data?.statusCode != 200) {
-                        return _buildErrorState(brandPrimary);
-                      }
-
-                      final response = snapshot.data!;
-                      return Builder(
-                        builder: (context) {
-                          final rawList = ChoosevehicleCall.data(response.jsonBody);
-                          final vehicleList = (rawList is List) ? rawList : [];
-
-                          if (vehicleList.isEmpty) {
-                            return Center(
-                              child: Text(
-                                FFLocalizations.of(context).getText('cv0003'),
-                                style: GoogleFonts.inter(color: Colors.grey),
-                              ),
-                            );
-                          }
-
-                          return ListView.separated(
-                            padding: const EdgeInsets.all(20),
-                            itemCount: vehicleList.length,
-                            separatorBuilder: (_, __) =>
-                            const SizedBox(height: 16),
-                            itemBuilder: (context, index) {
-                              final item = vehicleList[index];
-
-                              // Safe Name and ID extraction
-                              String vehicleName = '';
-                              int vehicleId = 0;
-                              String? imagePath;
-                              if (item is Map) {
-                                vehicleName = item['name']?.toString() ?? '';
-                                vehicleId = castToType<int>(item['id']) ?? 0;
-                                imagePath = item['image']?.toString();
-                              } else {
-                                vehicleName = getJsonField(item, r'$["name"]')?.toString() ?? '';
-                                vehicleId = castToType<int>(getJsonField(item, r'$["id"]')) ?? 0;
-                                imagePath = getJsonField(item, r'$["image"]')?.toString();
-                              }
-
-                              if (vehicleName.isEmpty) {
-                                vehicleName = FFLocalizations.of(context).getText('cv0004');
-                              }
-
-                              // Build full image URL (API returns relative path like /uploads/...)
-                              final imageUrl = (imagePath != null &&
-                                      imagePath.isNotEmpty &&
-                                      imagePath != 'null')
-                                  ? (imagePath.startsWith('http')
-                                      ? imagePath
-                                      : '${app_config.Config.baseUrl}$imagePath')
-                                  : null;
-
-                              final isSelected =
-                                  FFAppState().selectvehicle == vehicleName;
-
-                              return _buildVehicleCard(
-                                vehicleName,
-                                vehicleId,
-                                imageUrl,
-                                isSelected,
-                                brandPrimary,
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-
-            // ==========================================
-            // 3️⃣ CONTINUE BUTTON (Fixed Bottom)
-            // ==========================================
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  )
-                ],
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: FFAppState().selectvehicle.isEmpty
-                      ? null
-                      : () {
-                    // Update registration step (for resume functionality)
-                    FFAppState().registrationStep = 3;
-                    
-                    context.pushNamed(
-                      PreferredCityWidget.routeName,
-                      extra: const TransitionInfo(
-                        hasTransition: true,
-                        transitionType: PageTransitionType.rightToLeft,
-                        duration: Duration(milliseconds: 300),
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: brandPrimary,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        disabledBackgroundColor: Colors.grey[300],
                       ),
-                      queryParameters: <String, String?>{
-                        'mobile': serializeParam(
-                            widget.mobile, ParamType.int),
-                        'firstname': serializeParam(
-                            widget.firstname, ParamType.String),
-                        'lastname': serializeParam(
-                            widget.lastname, ParamType.String),
-                        'email': serializeParam(
-                            widget.email, ParamType.String),
-                        'referalcode': serializeParam(
-                            widget.referalcode, ParamType.String),
-                        'vehicletype': serializeParam(
-                            FFAppState().selectvehicle, ParamType.String),
-                        'isRegistrationFlow': serializeParam(true, ParamType.bool),
-                      }.withoutNulls,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: brandPrimary,
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    disabledBackgroundColor: Colors.grey[300],
-                  ),
-                  child: Text(
-                    FFLocalizations.of(context).getText('uhrogttt'),
-                    style: GoogleFonts.interTight(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                      child: Text(
+                        FFLocalizations.of(context).getText('uhrogttt'),
+                        style: GoogleFonts.interTight(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -406,7 +383,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   }
 
   // 🔹 Error State Widget
-  Widget _buildErrorState(Color color) {
+  Widget _buildErrorState(Color color, BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

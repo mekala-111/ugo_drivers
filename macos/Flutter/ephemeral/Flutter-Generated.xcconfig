@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/Users/macbook/development/flutter
-FLUTTER_APPLICATION_PATH=/Users/macbook/StudioProjects/ugo_drivers
+FLUTTER_ROOT=/Users/android/Desktop/my_projects/flutter
+FLUTTER_APPLICATION_PATH=/Users/android/Desktop/my_projects/ugo/ugo_driver_repository/ugo_drivers
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0

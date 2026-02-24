@@ -428,7 +428,8 @@ class _AddressDetailsWidgetState extends State<AddressDetailsWidget> {
         if (widget.firstname != null) 'firstname': serializeParam(widget.firstname, ParamType.String),
         if (widget.lastname != null) 'lastname': serializeParam(widget.lastname, ParamType.String),
         if (widget.email != null) 'email': serializeParam(widget.email, ParamType.String),
-        if (widget.referalcode != null) 'referalcode': serializeParam(widget.referalcode, ParamType.String),
+        // Always forward referral code from widget or FFAppState
+        'referalcode': serializeParam(widget.referalcode ?? FFAppState().referralCode, ParamType.String),
       }.withoutNulls,
     );
   }

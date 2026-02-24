@@ -296,31 +296,31 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                         FFAppState().email =
                                             _model.textController3.text;
                                         FFAppState().referralCode =
-                                            _model.textController4.text;
+                                          FFAppState().referralCode = _model.textController4.text;
 
                                         // 3. Update registration step (for resume functionality)
                                         FFAppState().registrationStep = 1;
 
                                         // 4. Navigate to Address & Emergency step (Uber-style)
                                         context.pushNamed(
-                                          AddressDetailsWidget.routeName,
-                                          queryParameters: {
+                                            AddressDetailsWidget.routeName,
+                                            queryParameters: {
                                             'mobile': serializeParam(
-                                                widget.mobile, ParamType.int),
+                                              widget.mobile, ParamType.int),
                                             'firstname': serializeParam(
-                                                _model.textController1.text,
-                                                ParamType.String),
+                                              _model.textController1.text,
+                                              ParamType.String),
                                             'lastname': serializeParam(
-                                                _model.textController2.text,
-                                                ParamType.String),
+                                              _model.textController2.text,
+                                              ParamType.String),
                                             'email': serializeParam(
-                                                _model.textController3.text,
-                                                ParamType.String),
+                                              _model.textController3.text,
+                                              ParamType.String),
                                             'referalcode': serializeParam(
-                                                _model.textController4.text,
-                                                ParamType.String),
-                                          }.withoutNulls,
-                                        );
+                                              _model.textController4.text,
+                                              ParamType.String),
+                                            }.withoutNulls,
+                                          );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: brandPrimary,
