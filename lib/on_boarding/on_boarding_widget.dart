@@ -48,9 +48,12 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     _model = createModel(context, () => OnBoardingModel());
     // Mark current step for resume functionality
     FFAppState().registrationStep = 4;
-    // Set AppState usedReferralCode from widget.referalcode if provided
+    // Set AppState usedReferralCode: from route param, or from First details (referralCode)
     if (widget.referalcode != null && widget.referalcode!.isNotEmpty) {
       FFAppState().usedReferralCode = widget.referalcode!;
+    } else if (FFAppState().usedReferralCode.isEmpty &&
+        FFAppState().referralCode.trim().isNotEmpty) {
+      FFAppState().usedReferralCode = FFAppState().referralCode.trim();
     }
     debugPrint('referrer_code (final): \'${FFAppState().usedReferralCode}\'');
     _initFCM();
@@ -595,15 +598,19 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
     try {
       // Prepare JSON Payload - include all collected onboarding data
-      final referrerCode = (FFAppState().usedReferralCode.isNotEmpty)
-          ? FFAppState().usedReferralCode
-          : (widget.referalcode ?? '');
+      // Referrer: usedReferralCode (set from route or init) > widget.referalcode > referralCode (First details)
+      String referrerCode = FFAppState().usedReferralCode.trim();
+      if (referrerCode.isEmpty) {
+        referrerCode = (widget.referalcode ?? '').trim();
+      }
+      if (referrerCode.isEmpty) {
+        referrerCode = FFAppState().referralCode.trim();
+      }
       final driverJsonData = <String, dynamic>{
         'mobile_number': FFAppState().mobileNo.toString(),
         'first_name': FFAppState().firstName,
         'last_name': FFAppState().lastName,
         'email': FFAppState().email,
-        //'referal_code': FFAppState().referralCode,
         'referrer_code': referrerCode.isNotEmpty ? referrerCode : null,
         'preferred_city_id': FFAppState().preferredCityId > 0
             ? FFAppState().preferredCityId
@@ -706,7 +713,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         registrationImage: FFAppState().registrationImage,
         insuranceImage:
             FFAppState().insurancePdf ?? FFAppState().insuranceImage,
-       pollutionImage: FFAppState().pollutioncertificateImage,
+        pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
         fcmToken: fcmToken ?? '',

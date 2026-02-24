@@ -165,7 +165,12 @@ class _PreferredEarningModeWidgetState
       OnBoardingWidget.routeName,
       queryParameters: {
         'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-        'referalcode': serializeParam(FFAppState().usedReferralCode, ParamType.String),
+        'referalcode': serializeParam(
+          FFAppState().usedReferralCode.isNotEmpty
+              ? FFAppState().usedReferralCode
+              : FFAppState().referralCode,
+          ParamType.String,
+        ),
       }.withoutNulls,
       extra: const TransitionInfo(
         hasTransition: true,
