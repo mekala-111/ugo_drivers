@@ -180,9 +180,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // ------------------------------------------------
-          // 1️⃣ ALL EARNINGS TAB
-          // ------------------------------------------------
+         
           isLoading
               ? const Center(child: CircularProgressIndicator(color: brand))
               : SingleChildScrollView(

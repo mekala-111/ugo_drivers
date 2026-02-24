@@ -53,7 +53,7 @@ class _ProfileSettingWidgetState extends State<ProfileSettingWidget> {
             mainAxisSize: MainAxisSize.max,
             children: [
               FlutterFlowIconButton(
-                borderRadius: 20.0,
+                borderRadius: 22.0,
                 buttonSize: 40.0,
                 icon: Icon(
                   Icons.keyboard_backspace,
