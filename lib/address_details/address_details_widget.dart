@@ -1,3 +1,4 @@
+import '/components/date_picker_field.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/utils/input_validators.dart';
@@ -134,6 +135,64 @@ class _AddressDetailsWidgetState extends State<AddressDetailsWidget> {
     );
   }
 
+  Widget _buildDateField({
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    String? Function(String?)? validator,
+    required bool isSmall,
+    required DateTime firstDate,
+    required DateTime lastDate,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: isSmall ? 13 : 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          onTap: () async {
+            final picked = await showDatePickerForField(
+              context,
+              currentValue: controller.text,
+              firstDate: firstDate,
+              lastDate: lastDate,
+            );
+            if (picked != null) {
+              controller.text = picked;
+              FFAppState().dateOfBirth = picked;
+            }
+          },
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(Icons.calendar_today, color: Colors.grey[400], size: 22),
+            suffixIcon: const Icon(Icons.calendar_month, color: Colors.grey, size: 22),
+            filled: true,
+            fillColor: AppColors.backgroundCard,
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: AppColors.divider, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color brandPrimary = AppColors.primary;
@@ -195,15 +254,16 @@ class _AddressDetailsWidgetState extends State<AddressDetailsWidget> {
                   ),
                 ),
                 SizedBox(height: sectionSpacing),
-                _buildField(
+                _buildDateField(
                   label: FFLocalizations.of(context).getText('ad0003'),
                   controller: _dobController,
-                  icon: Icons.calendar_today,
                   hint: FFLocalizations.of(context).getText('ad0004'),
                   validator: (v) => v != null && v.isNotEmpty
                       ? InputValidators.dateOfBirthError(v)
                       : null,
                   isSmall: isSmall,
+                  firstDate: DateTime(DateTime.now().year - 100, 1, 1),
+                  lastDate: DateTime.now(),
                 ),
                 SizedBox(height: fieldSpacing),
                 _buildField(

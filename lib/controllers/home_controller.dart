@@ -10,7 +10,7 @@ import 'package:ugo_driver/config.dart';
 import 'package:ugo_driver/home/incentive_model.dart';
 import 'package:ugo_driver/repositories/driver_repository.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart'
-    show DriverIdfetchCall, GetAllDriversCall;
+    show DriverIdfetchCall, GetAllDriversCall, NotificationHistoryCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -25,6 +25,8 @@ class HomeController extends ChangeNotifier {
     required this.onShowKycDialog,
     required this.onShowLocationDisclosure,
     required this.onShowPermissionDialog,
+    required this.onShowBackgroundLocationNotice,
+    required this.onShowGoOnlinePermissions,
     required this.onShowSnackBar,
     required this.onSocketRideData,
     required this.onFetchRideById,
@@ -33,6 +35,8 @@ class HomeController extends ChangeNotifier {
   final Future<void> Function() onShowKycDialog;
   final Future<bool> Function() onShowLocationDisclosure;
   final Future<void> Function() onShowPermissionDialog;
+  final Future<bool> Function() onShowBackgroundLocationNotice;
+  final Future<bool> Function() onShowGoOnlinePermissions;
   final void Function(String messageKey, {bool isError}) onShowSnackBar;
   final void Function(dynamic data) onSocketRideData;
   final void Function(int rideId) onFetchRideById;
@@ -68,6 +72,7 @@ class HomeController extends ChangeNotifier {
   bool isLoadingEarnings = true;
 
   int availableDriversCount = 0;
+  int notificationUnreadCount = 0;
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
@@ -82,6 +87,29 @@ class HomeController extends ChangeNotifier {
     isDataLoaded = true;
     _notify();
     _initSocket();
+    _fetchNotificationCount();
+  }
+
+  Future<void> _fetchNotificationCount() async {
+    if (_disposed) return;
+    final token = FFAppState().accessToken;
+    if (token.isEmpty) return;
+    try {
+      final res = await NotificationHistoryCall.call(token: token);
+      if (_disposed || !res.succeeded) return;
+      final list = NotificationHistoryCall.notifications(res.jsonBody);
+      if (list == null) return;
+      int count = 0;
+      for (final n in list) {
+        final isRead = getJsonField(n, r'$.is_read');
+        if (isRead != true) count++;
+      }
+      if (_disposed) return;
+      notificationUnreadCount = count;
+      _notify();
+    } catch (_) {
+      // Silently ignore - notification count is non-critical
+    }
   }
 
   void handlePendingRideFromNotification(int rideId) {
@@ -211,6 +239,33 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
+    // First time going online: show "Give all permissions" (Display over apps, Battery, Background Location)
+    if (!FFAppState().hasSeenGoOnlinePermissions) {
+      final completed = await onShowGoOnlinePermissions();
+      if (!completed) {
+        isOnline = false;
+        _notify();
+        return;
+      }
+    }
+
+    // Rapido-style: location requested at pre-login. Only show disclosure if not yet granted.
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      await onShowPermissionDialog();
+      isOnline = false;
+      _notify();
+      return;
+    }
+    if (permission == LocationPermission.denied) {
+      final agreed = await onShowLocationDisclosure();
+      if (!agreed) {
+        isOnline = false;
+        _notify();
+        return;
+      }
+    }
+
     Position? position;
     try {
       position = await Geolocator.getCurrentPosition(
@@ -238,7 +293,7 @@ class HomeController extends ChangeNotifier {
     if (_disposed) return;
     if (res.succeeded) {
       isOnline = true;
-      _startLocationTracking();
+      _startLocationTracking(skipDisclosure: true); // Already shown in goOnline()
       _fetchAvailableDrivers();
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
@@ -309,7 +364,7 @@ class HomeController extends ChangeNotifier {
 
   // ── Location ───────────────────────────────────────────────────────────────
 
-  Future<void> _startLocationTracking() async {
+  Future<void> _startLocationTracking({bool skipDisclosure = false}) async {
     if (_isTrackingLocation) return;
     _isTrackingLocation = true;
 
@@ -319,10 +374,12 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    final agreed = await onShowLocationDisclosure();
-    if (!agreed) {
-      _isTrackingLocation = false;
-      return;
+    if (!skipDisclosure) {
+      final agreed = await onShowLocationDisclosure();
+      if (!agreed) {
+        _isTrackingLocation = false;
+        return;
+      }
     }
 
     var permission = await Geolocator.checkPermission();
@@ -341,10 +398,17 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
+    // Rapido/Uber-style: require background location for ride matching when app is backgrounded
     if (Platform.isAndroid && permission == LocationPermission.whileInUse) {
+      final agreed = await onShowBackgroundLocationNotice();
+      if (!agreed) {
+        _isTrackingLocation = false;
+        return;
+      }
       final upgraded = await Geolocator.requestPermission();
       if (upgraded == LocationPermission.denied ||
-          upgraded == LocationPermission.deniedForever) {
+          upgraded == LocationPermission.deniedForever ||
+          upgraded == LocationPermission.whileInUse) {
         _isTrackingLocation = false;
         await onShowPermissionDialog();
         return;

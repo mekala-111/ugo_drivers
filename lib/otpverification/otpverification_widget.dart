@@ -7,6 +7,7 @@ import '/index.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
+import '/auth/login_timestamp.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'otpverification_model.dart';
 export 'otpverification_model.dart';
@@ -463,16 +464,17 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
       // Assuming a success status (200-299) means the user exists.
       if (_model.apiResultk3y?.succeeded ?? false) {
         // ✅ EXISTING USER -> Go to Home
+        lastLoginTime = DateTime.now();
         FFAppState().isLoggedIn = true;
         FFAppState().isRegistered = true;
 
         // Safely extract Data (Assuming JSON structure: { "data": { "id": 123, "accessToken": "xyz" } })
         final jsonResponse = _model.apiResultk3y?.jsonBody ?? '';
 
-        FFAppState().driverid = getJsonField(
-          jsonResponse,
-          r'''$.data.id''',
-        );
+        final idRaw = getJsonField(jsonResponse, r'''$.data.id''');
+        FFAppState().driverid = (idRaw is num)
+            ? idRaw.toInt()
+            : int.tryParse(idRaw?.toString() ?? '') ?? 0;
 
         FFAppState().accessToken = getJsonField(
               jsonResponse,
@@ -481,28 +483,51 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
             '';
 
         if (mounted) {
-          context.goNamedAuth(
-            HomeWidget.routeName,
-            context.mounted,
+          // Before login: Location first, then Notifications.
+          // onComplete navigates to Home (replaces stack) - no pop needed.
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PreLoginPermissionsFlow(
+                onComplete: () {
+                  if (mounted) {
+                    context.goNamedAuth(HomeWidget.routeName, mounted);
+                  }
+                },
+              ),
+            ),
           );
         }
       } else {
         // ❌ NEW USER -> Go to Registration (First Details)
+        lastLoginTime = DateTime.now();
         FFAppState().isLoggedIn = true;
         FFAppState().isRegistered = false;
         FFAppState().registrationStep = 0;
 
         if (mounted) {
-          // Changed from pushNamedAuth to goNamedAuth to prevent back navigation
-          context.goNamedAuth(
-            'firstdetails',
-            context.mounted,
-            queryParameters: {
-              'mobile': serializeParam(
-                widget.mobile,
-                ParamType.int,
+          // Before login: Location first, then Notifications.
+          // onComplete navigates to firstdetails (replaces stack) - no pop needed.
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PreLoginPermissionsFlow(
+                onComplete: () {
+                  if (mounted) {
+                    context.goNamedAuth(
+                      'firstdetails',
+                      mounted,
+                      queryParameters: {
+                        'mobile': serializeParam(
+                          widget.mobile,
+                          ParamType.int,
+                        ),
+                      }.withoutNulls,
+                    );
+                  }
+                },
               ),
-            }.withoutNulls,
+            ),
           );
         }
       }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
-import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import '../incentive_model.dart';
 

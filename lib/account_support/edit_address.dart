@@ -68,23 +68,14 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     setState(() => isFetchingLocation = true);
 
     try {
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!context.mounted) return;
       if (!serviceEnabled) {
         setState(() => isFetchingLocation = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Location services are disabled. Please enable them.'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        _showSnackBar('Location services are disabled. Please enable them.', Colors.orange);
         return;
       }
 
-      // Check location permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (!context.mounted) return;
       if (permission == LocationPermission.denied) {
@@ -92,12 +83,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         if (!context.mounted) return;
         if (permission == LocationPermission.denied) {
           setState(() => isFetchingLocation = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Location permission denied'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showSnackBar('Location permission denied', AppColors.error);
           return;
         }
       }
@@ -105,21 +91,12 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (!context.mounted) return;
         setState(() => isFetchingLocation = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location permissions are permanently denied'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        _showSnackBar('Location permissions are permanently denied', AppColors.error);
         return;
       }
 
-      // Get current position
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       if (!context.mounted) return;
@@ -129,43 +106,22 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         isFetchingLocation = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Current location fetched successfully!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _showSnackBar('Current location fetched successfully!', AppColors.success);
     } catch (e) {
       if (!context.mounted) return;
       setState(() => isFetchingLocation = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error getting location: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Error getting location: $e', AppColors.error);
     }
   }
 
   Future<void> updateDriverLocation() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => isUpdating = true);
 
     try {
-      // Parse latitude and longitude
-      double? latitude;
-      double? longitude;
-
-      if (_latitudeController.text.isNotEmpty) {
-        latitude = double.tryParse(_latitudeController.text);
-      }
-      if (_longitudeController.text.isNotEmpty) {
-        longitude = double.tryParse(_longitudeController.text);
-      }
+      double? latitude = double.tryParse(_latitudeController.text);
+      double? longitude = double.tryParse(_longitudeController.text);
 
       final response = await UpdateDriverCall.call(
         id: FFAppState().driverid,
@@ -178,82 +134,62 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
       if (!context.mounted) return;
       if (response.succeeded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Call the callback to refresh parent screen
+        _showSnackBar('Location updated successfully!', AppColors.success);
         widget.onUpdate();
-
-        // Go back to previous screen
         if (context.mounted) Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to update location'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to update location', AppColors.error);
       }
     } catch (e) {
       if (!context.mounted) return;
       setState(() => isUpdating = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Error: $e', AppColors.error);
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool hasCoordinates = _latitudeController.text.isNotEmpty && _longitudeController.text.isNotEmpty;
+
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F7FA), // Soft background color
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
+          backgroundColor: AppColors.primary,
           automaticallyImplyLeading: false,
+          elevation: 0,
           leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
             borderRadius: 30.0,
-            borderWidth: 1.0,
             buttonSize: 60.0,
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 30.0,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26.0),
+            onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Edit Address',
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  font: GoogleFonts.interTight(
-                    fontWeight: FontWeight.w500,
-                  ),
-                  color: Colors.white,
-                  fontSize: 18.0,
-                  letterSpacing: 0.0,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: GoogleFonts.interTight(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           centerTitle: true,
-          elevation: 2.0,
         ),
         body: SafeArea(
-          top: true,
           child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Form(
@@ -261,295 +197,167 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Current Address Display
+                    // --- Current Address Card ---
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(20.0),
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(12.0),
-                        border: Border.all(
-                          color: FlutterFlowTheme.of(context)
-                              .primary
-                              .withValues(alpha: 0.3),
-                          width: 1.5,
-                        ),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16.0),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.red,
-                                size: 22.0,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                'Current Address',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(Icons.location_on, color: AppColors.primary, size: 20.0),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Current Registered Address',
+                                style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           Text(
                             getFullAddress(),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                              height: 1.5,
-                            ),
+                            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700], height: 1.5),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 32),
 
-                    // Section Header
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.gps_fixed,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Update GPS Location',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
+                    // --- Action Section Header ---
                     Text(
-                      'Use your current location or manually enter coordinates',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      'Update GPS Location',
+                      style: GoogleFonts.interTight(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Tap the button below to accurately pinpoint your current location for rides.',
+                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], height: 1.4),
                     ),
 
                     const SizedBox(height: 20),
 
-                    // Use Current Location Button
+                    // --- Fetch Location Button ---
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: isFetchingLocation || isUpdating
-                            ? null
-                            : getCurrentLocation,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: FlutterFlowTheme.of(context).primary,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: Colors.blue[50],
+                      height: 54,
+                      child: ElevatedButton.icon(
+                        onPressed: isFetchingLocation || isUpdating ? null : getCurrentLocation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryLightBg, // Soft orange background
+                          foregroundColor: AppColors.primary, // Orange text/icon
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         icon: isFetchingLocation
-                            ? SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Icon(
-                                Icons.my_location,
-                                color: FlutterFlowTheme.of(context).primary,
-                                size: 20,
-                              ),
+                            ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2.5),
+                        )
+                            : const Icon(Icons.my_location, size: 22),
                         label: Text(
-                          isFetchingLocation
-                              ? 'Fetching Location...'
-                              : 'Use Current Location',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: FlutterFlowTheme.of(context).primary,
-                          ),
+                          isFetchingLocation ? 'Fetching Location...' : 'Use Current Location',
+                          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                    // Display Fetched Coordinates
-                    if (_latitudeController.text.isNotEmpty &&
-                        _longitudeController.text.isNotEmpty)
-                      Container(
+                    // --- Animated Coordinates Display ---
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeOutQuart,
+                      child: hasCoordinates
+                          ? Container(
+                        margin: const EdgeInsets.only(top: 8, bottom: 16),
                         width: double.infinity,
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          color: AppColors.sectionGreen,
+                          color: AppColors.success.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(
-                            color: Colors.green.withValues(alpha: 0.3),
-                            width: 1.5,
-                          ),
+                          border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1.5),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 22.0,
-                                ),
+                                const Icon(Icons.check_circle, color: AppColors.success, size: 20.0),
                                 const SizedBox(width: 10),
                                 Text(
                                   'Location Detected',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
+                                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Icon(Icons.gps_fixed,
-                                    size: 16, color: Colors.grey[700]),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Latitude: ',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                Text(
-                                  _latitudeController.text,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            _buildCoordinateRow('Latitude', _latitudeController.text),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.gps_not_fixed,
-                                    size: 16, color: Colors.grey[700]),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Longitude: ',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                Text(
-                                  _longitudeController.text,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            _buildCoordinateRow('Longitude', _longitudeController.text),
                           ],
                         ),
-                      ),
+                      )
+                          : const SizedBox.shrink(),
+                    ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
 
-                    // Update Button
+                    // --- Bottom Action Buttons ---
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 54,
                       child: ElevatedButton(
-                        onPressed: isUpdating || isFetchingLocation
-                            ? null
-                            : updateDriverLocation,
+                        onPressed: isUpdating || isFetchingLocation || !hasCoordinates ? null : updateDriverLocation,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: FlutterFlowTheme.of(context).primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          backgroundColor: AppColors.primary,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 2,
                         ),
                         child: isUpdating
                             ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.check_circle,
-                                      size: 20, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Update Location',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          width: 24, height: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        )
+                            : Text(
+                          'Save Location',
+                          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                    // Cancel Button
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton(
-                        onPressed: isUpdating || isFetchingLocation
-                            ? null
-                            : () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          side:
-                              BorderSide(color: Colors.grey[400]!, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                      height: 54,
+                      child: TextButton(
+                        onPressed: isUpdating || isFetchingLocation ? null : () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
                           'Cancel',
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
+                          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 30),
                   ],
                 ),
@@ -558,6 +366,24 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // Helper widget for rendering coordinates cleanly
+  Widget _buildCoordinateRow(String label, String value) {
+    return Row(
+      children: [
+        Icon(Icons.gps_fixed, size: 14, color: Colors.grey[600]),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

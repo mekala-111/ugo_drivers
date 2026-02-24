@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/components/date_picker_field.dart';
 import '/config.dart' as app_config;
 import '/constants/app_colors.dart';
 import '/constants/vehicle_data.dart';
@@ -284,15 +285,13 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       icon: Icons.description,
                     ),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                       controller: _regDateController,
                       label: 'Registration Date',
                       labelText:
                           FFLocalizations.of(context).getText('veh0007'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0008'),
+                      hintText: 'Tap to select date',
                       icon: Icons.calendar_today,
-                      keyboardType: TextInputType.datetime,
                     ),
                     const SizedBox(height: 20),
                     _buildSimpleTextField(
@@ -305,26 +304,22 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       icon: Icons.security,
                     ),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                       controller: _insuranceExpiryController,
                       label: 'Insurance Expiry',
                       labelText:
                           FFLocalizations.of(context).getText('veh0011'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0008'),
+                      hintText: 'Tap to select date',
                       icon: Icons.event,
-                      keyboardType: TextInputType.datetime,
                     ),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                       controller: _pollutionExpiryController,
                       label: 'Pollution Certificate Expiry',
                       labelText:
                           FFLocalizations.of(context).getText('veh0012'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0008'),
+                      hintText: 'Tap to select date',
                       icon: Icons.eco,
-                      keyboardType: TextInputType.datetime,
                     ),
 
                     const SizedBox(height: 20),
@@ -906,6 +901,93 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               }
               FFAppState().update(() {});
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required String labelText,
+    required String hintText,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () async {
+            final now = DateTime.now();
+            final picked = await showDatePickerForField(
+              context,
+              currentValue: controller.text,
+              firstDate: DateTime(now.year - 30, 1, 1),
+              lastDate: DateTime(now.year + 20, 12, 31),
+            );
+            if (picked != null) {
+              controller.text = picked;
+              if (label == 'Registration Date') {
+                FFAppState().registrationDate = picked;
+              } else if (label == 'Insurance Expiry') {
+                FFAppState().insuranceExpiryDate = picked;
+              } else if (label == 'Pollution Certificate Expiry') {
+                FFAppState().pollutionExpiryDate = picked;
+              }
+              FFAppState().update(() {});
+              setState(() {});
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: controller.text.isNotEmpty
+                    ? AppColors.primary
+                    : AppColors.greyBorder,
+                width: 1.5,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Icon(icon, color: AppColors.primary, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    controller.text.isEmpty ? hintText : controller.text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: controller.text.isEmpty
+                          ? AppColors.greyLight
+                          : AppColors.textDark,
+                    ),
+                  ),
+                ),
+                Icon(
+                  controller.text.isNotEmpty
+                      ? Icons.check_circle
+                      : Icons.calendar_month,
+                  color: controller.text.isNotEmpty
+                      ? AppColors.success
+                      : Colors.grey,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
       ],

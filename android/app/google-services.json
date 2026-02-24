@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "1002601441010-7rjvdfbn9jtrvpuupu0frg9hisqoqvrg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ugotaxi_rajkumar.driver",
+            "certificate_hash": "1f17efcbaff9e25de3df3f8dcaef6d2da5680414"
+          }
+        },
+        {
           "client_id": "1002601441010-fs0vsrume524bpku4hdol1jht54dgnnm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ugotaxi_rajkumar.driver",
             "certificate_hash": "4c2e1385fdf58a74dd1d0991cbed73ba6c73a275"
+          }
+        },
+        {
+          "client_id": "1002601441010-vsi251fergrhuimsd2573p3ugfcgnts5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ugotaxi_rajkumar.driver",
+            "certificate_hash": "cc8a38ae000901a2b1611506862f2cc185149ed0"
           }
         },
         {

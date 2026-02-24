@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/components/date_picker_field.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -989,12 +990,29 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _licenseExpiryController,
+                              readOnly: true,
+                              onTap: () async {
+                                final now = DateTime.now();
+                                final picked = await showDatePickerForField(
+                                  context,
+                                  currentValue: _licenseExpiryController.text,
+                                  firstDate: now,
+                                  lastDate: DateTime(now.year + 20, 12, 31),
+                                );
+                                if (picked != null) {
+                                  _licenseExpiryController.text = picked;
+                                  FFAppState().licenseExpiryDate = picked;
+                                  FFAppState().update(() {});
+                                  setState(() {});
+                                }
+                              },
                               decoration: InputDecoration(
                                 hintText: FFLocalizations.of(context)
                                     .getText('dl0012'),
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.calendar_today,
                                     color: AppColors.registrationOrange),
+                                suffixIcon: const Icon(Icons.calendar_month, color: Colors.grey),
                                 filled: true,
                                 fillColor: AppColors.backgroundLight,
                                 border: OutlineInputBorder(

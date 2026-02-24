@@ -107,6 +107,16 @@ class _HomeWidgetState extends State<HomeWidget>
         );
         return result ?? false;
       },
+      onShowBackgroundLocationNotice: () async {
+        if (!mounted) return false;
+        final result = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => const BackgroundLocationNoticeWidget(),
+          ),
+        );
+        return result == true;
+      },
       onShowPermissionDialog: () async {
         if (!mounted) return;
         await showDialog<void>(
@@ -135,6 +145,22 @@ class _HomeWidgetState extends State<HomeWidget>
           ),
         );
       },
+      onShowGoOnlinePermissions: () async {
+        if (!mounted) return false;
+        final result = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PreLoginPermissionsScreen(
+              onComplete: () {
+                FFAppState().hasSeenGoOnlinePermissions = true;
+                Navigator.of(context).pop(true);
+              },
+              onBack: () => Navigator.of(context).pop(false),
+            ),
+          ),
+        );
+        return result == true;
+      },
       onShowSnackBar: (key, {isError = false}) {
         if (!mounted) return;
         final localized = FFLocalizations.of(context).getText(key);
@@ -160,6 +186,7 @@ class _HomeWidgetState extends State<HomeWidget>
       _controller.addListener(_onControllerChange);
       _syncFloatingBubble();
       _handlePendingRideFromNotification();
+      _maybeShowPostLoginScreens();
     });
   }
 
@@ -208,6 +235,33 @@ class _HomeWidgetState extends State<HomeWidget>
     if (!_bubbleVisible) return;
     await FloatingBubbleService.stopFloatingBubble();
     _bubbleVisible = false;
+  }
+
+  Future<void> _maybeShowPostLoginScreens() async {
+    if (!mounted) return;
+    if (FFAppState().hasSeenPostLoginScreens) return;
+
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PreLoginGoogleMapsScreen(
+          onAgree: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PostLoginTermsDialog(
+        onGotIt: () {
+          FFAppState().hasSeenPostLoginScreens = true;
+        },
+      ),
+    );
+    if (mounted) FFAppState().hasSeenPostLoginScreens = true;
   }
 
   void _handlePendingRideFromNotification() {
@@ -475,7 +529,7 @@ class _HomeWidgetState extends State<HomeWidget>
                           onToggleOnline: () => c.toggleOnlineStatus(),
                           screenWidth: screenWidth,
                           isSmallScreen: isSmallScreen,
-                          notificationCount: 0,
+                          notificationCount: c.notificationUnreadCount,
                         ),
                         Expanded(
                           child: Stack(
@@ -528,8 +582,15 @@ class _HomeWidgetState extends State<HomeWidget>
                             todayTotal: c.todayTotal,
                             teamEarnings: c.todayWallet,
                             ridesToday: c.todayRideCount,
+                            lastRideEarnings: c.lastRideAmount,
                             isLoading: c.isLoadingEarnings,
                             isSmallScreen: isSmallScreen,
+                            onRideCountTap: () =>
+                                context.pushNamed(HistoryWidget.routeName),
+                            onWalletTap: () =>
+                                context.pushNamed(WalletWidget.routeName),
+                            onLastRideTap: () =>
+                                context.pushNamed(LastOrderWidget.routeName),
                           ),
                     SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
                   ],

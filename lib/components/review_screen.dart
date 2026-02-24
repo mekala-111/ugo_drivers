@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/app_state.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
@@ -45,46 +44,78 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
+    if (_starRating <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a star rating'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
     final token = FFAppState().accessToken;
-    if (token.isNotEmpty && _starRating > 0) {
-      final comment = _selectedTagKeys
-          .map((k) => FFLocalizations.of(context).getText(k))
-          .where((s) => s.isNotEmpty)
-          .join(', ');
-      try {
-        final res = await RateRideCall.call(
-          token: token,
-          rideId: widget.ride.id,
-          userId: widget.ride.userId,
-          driverId: FFAppState().driverid,
-          rating: _starRating,
-          comment: comment.isNotEmpty ? comment : null,
+    final driverId = FFAppState().driverid;
+    if (token.isEmpty || driverId <= 0) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Session expired. Please log in again.'),
+            backgroundColor: Colors.orange,
+          ),
         );
-        if (!mounted) return;
-        if (RateRideCall.success(res.jsonBody) != true && mounted) {
-          final msg = RateRideCall.message(res.jsonBody) ?? 'Failed to submit rating';
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), backgroundColor: Colors.orange),
-          );
-        }
-      } catch (_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not submit rating'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
       }
+      return;
     }
 
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-      widget.onSubmit();
+    final comment = _selectedTagKeys
+        .map((k) => FFLocalizations.of(context).getText(k))
+        .where((s) => s.isNotEmpty)
+        .join(', ');
+
+    try {
+      final res = await RateRideCall.call(
+        token: token,
+        rideId: widget.ride.id,
+        userId: widget.ride.userId,
+        driverId: driverId,
+        rating: _starRating,
+        comment: comment.isNotEmpty ? comment : null,
+      );
+
+      if (!mounted) return;
+
+      final ok = res.succeeded && (RateRideCall.success(res.jsonBody) ?? false);
+      if (ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              RateRideCall.message(res.jsonBody) ?? 'Thank you! Rating submitted.',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        widget.onSubmit();
+      } else {
+        final msg = RateRideCall.message(res.jsonBody) ?? 'Failed to submit rating';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), backgroundColor: Colors.orange),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not submit rating: ${e.toString()}'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 

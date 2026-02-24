@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'vehicle_model.dart';
 export 'vehicle_model.dart';
 
-/// Displays driver's vehicle info from FFAppState (aligned with vehicles table).
 class VehicleWidget extends StatefulWidget {
   const VehicleWidget({
     super.key,

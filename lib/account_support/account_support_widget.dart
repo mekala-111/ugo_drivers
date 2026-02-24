@@ -260,538 +260,521 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       backgroundColor: bgWhite,
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: _brandPrimary))
-          : LayoutBuilder(
-              builder: (context, constraints) {
-                final isLandscape = constraints.maxWidth >
-                    constraints.maxHeight;
-                return SingleChildScrollView(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                      child: Column(
-                        children: [
-                          // ==========================================
-                          // 1️⃣ HEADER SECTION
-                          // ==========================================
-                          Stack(
-                            alignment: Alignment.center,
-                            clipBehavior: Clip.none,
-                            children: [
-                              // Banner Background
-                              Container(
-                                height: headerHeight,
-                                width: double.infinity,
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.primaryGradientStart,
-                                      AppColors.primary
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: SafeArea(
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(
-                                          isSmall ? 8.0 : (isLandscape
-                                              ? 8.0
-                                              : 16.0)),
-                                      child: InkWell(
-                                        onTap: () =>
-                                            context.pushNamed(
-                                                SupportWidget.routeName),
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: isSmall
-                                                ? 8
-                                                : (isLandscape ? 6 : 12),
-                                            vertical: isSmall ? 2 : (isLandscape
-                                                ? 2
-                                                : 6),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withValues(
-                                                alpha: 0.2),
-                                            borderRadius: BorderRadius.circular(
-                                                20),
-                                            border: Border.all(
-                                                color: Colors.white, width: 1),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.headset_mic_rounded,
-                                                  color: Colors.white,
-                                                  size: isSmall || isLandscape
-                                                      ? 14
-                                                      : 16),
-                                              const SizedBox(width: 6),
-                                              FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(
-                                                  FFLocalizations
-                                                      .of(context)
-                                                      .getText('accsup0001'),
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight
-                                                          .bold),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // ✅ FIXED: Back Button + "My Profile" Text
-                              Positioned(
-                                top: topInset + (isSmall ? 4.0 : (isLandscape
-                                    ? 4.0
-                                    : 12.0)),
-                                left: horizontalPadding,
-                                right: horizontalPadding,
-                                child: Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () => context.pop(),
-                                      child: Icon(
-                                        Icons.arrow_back,
-                                        color: Colors.white,
-                                        size: isSmall || isLandscape ? 20 : 28,
-                                      ),
-                                    ),
-                                    SizedBox(width: isSmall ? 6 : (isLandscape
-                                        ? 6
-                                        : 16)),
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          FFLocalizations.of(context).getText(
-                                              'accsup0002'),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: titleSize,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                        width: isSmall ? 36.0 : (isLandscape
-                                            ? 36.0
-                                            : 96.0)),
+          : LayoutBuilder(builder: (context, constraints) {
+              final isLandscape = constraints.maxWidth > constraints.maxHeight;
+              return SingleChildScrollView(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                    child: Column(
+                      children: [
+                        // ==========================================
+                        // 1️⃣ HEADER SECTION
+                        // ==========================================
+                        Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Banner Background
+                            Container(
+                              height: headerHeight,
+                              width: double.infinity,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primaryGradientStart,
+                                    AppColors.primary
                                   ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
                               ),
-
-                              // Profile Picture (Overlapping)
-                              // Profile Picture + Edit Button
-                              Positioned(
-                                bottom: profileBottom,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque, // IMPORTANT
-                                  onTap: () async {
-                                    final updated = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            EditProfileScreen(
-                                                driverData: driverData!),
-                                      ),
-                                    );
-
-                                    if (updated == true) {
-                                      fetchDriverDetails();
-                                    }
-                                  },
-                                  child: SizedBox(
-                                    width: profileSize,
-                                    height: profileSize,
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          width: profileInnerSize,
-                                          height: profileInnerSize,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                                color: Colors.white, width: 4),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.1),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 5),
+                              child: SafeArea(
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(isSmall
+                                        ? 8.0
+                                        : (isLandscape ? 8.0 : 16.0)),
+                                    child: InkWell(
+                                      onTap: () => context
+                                          .pushNamed(SupportWidget.routeName),
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: isSmall
+                                              ? 8
+                                              : (isLandscape ? 6 : 12),
+                                          vertical: isSmall
+                                              ? 2
+                                              : (isLandscape ? 2 : 6),
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Colors.white, width: 1),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.headset_mic_rounded,
+                                                color: Colors.white,
+                                                size: isSmall || isLandscape
+                                                    ? 14
+                                                    : 16),
+                                            const SizedBox(width: 6),
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                FFLocalizations.of(context)
+                                                    .getText('accsup0001'),
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
-                                            ],
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                                profileInnerSize / 2),
-                                            child:
-                                            driverData?['profile_image'] != null
-                                                ? CachedNetworkImage(
-                                              imageUrl: getFullImageUrl(
-                                                  driverData![
-                                                  'profile_image']),
-                                              fit: BoxFit.cover,
-                                              errorWidget: (_, __, ___) =>
-                                              const Icon(Icons.person,
-                                                  size: 50),
-                                            )
-                                                : const Icon(Icons.person,
-                                                size: 50),
-                                          ),
-                                        ),
-
-                                        // Pencil (visual only)
-                                        Positioned(
-                                          bottom: 2,
-                                          right: 2,
-                                          child: Container(
-                                            padding:
-                                            EdgeInsets.all(isSmall ? 5 : 6),
-                                            decoration: const BoxDecoration(
-                                              color: _brandPrimary,
-                                              shape: BoxShape.circle,
                                             ),
-                                            child: Icon(
-                                              Icons.edit,
-                                              size: isSmall ? 16 : 18,
-                                              color: Colors.white,
-                                            ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-
-                          SizedBox(height: isSmall ? 52 : 60),
-
-                          // Name
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              getDriverName(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.interTight(
-                                  fontSize: nameSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87),
                             ),
-                          ),
 
-                          const SizedBox(height: 24),
+                            // ✅ FIXED: Back Button + "My Profile" Text
+                            Positioned(
+                              top: topInset +
+                                  (isSmall ? 4.0 : (isLandscape ? 4.0 : 12.0)),
+                              left: horizontalPadding,
+                              right: horizontalPadding,
+                              child: Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () => context.pop(),
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      color: Colors.white,
+                                      size: isSmall || isLandscape ? 20 : 28,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      width:
+                                          isSmall ? 6 : (isLandscape ? 6 : 16)),
+                                  Expanded(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        FFLocalizations.of(context)
+                                            .getText('accsup0002'),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: titleSize,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      width: isSmall
+                                          ? 36.0
+                                          : (isLandscape ? 36.0 : 96.0)),
+                                ],
+                              ),
+                            ),
 
-                          // ==========================================
-                          // 2️⃣ STATS ROW (Rapido Captain style)
-                          // ==========================================
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: horizontalPadding),
-                            padding: EdgeInsets.symmetric(
-                              vertical: isSmall ? 8 : (isLandscape ? 8 : 16),
-                              horizontal: isSmall ? 2 : (isLandscape ? 2 : 8),
-                            ),
-                            decoration: BoxDecoration(
-                              color: bgGrey,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final stackStats = constraints.maxWidth < 320 ||
-                                    isLandscape;
-                                if (stackStats) {
-                                  return Column(
+                            // Profile Picture (Overlapping)
+                            // Profile Picture + Edit Button
+                            Positioned(
+                              bottom: profileBottom,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque, // IMPORTANT
+                                onTap: () async {
+                                  final updated = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => EditProfileScreen(
+                                          driverData: driverData!),
+                                    ),
+                                  );
+
+                                  if (updated == true) {
+                                    fetchDriverDetails();
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: profileSize,
+                                  height: profileSize,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
                                     children: [
-                                      _buildStatItem(
-                                        driverRating,
-                                        FFLocalizations.of(context).getText(
-                                            'accsup0003'),
-                                        Icons.star_rounded,
-                                        isSmall: isSmall,
-                                        isTablet: isTablet,
+                                      Container(
+                                        width: profileInnerSize,
+                                        height: profileInnerSize,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color: Colors.white, width: 4),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                              profileInnerSize / 2),
+                                          child: driverData?['profile_image'] !=
+                                                  null
+                                              ? CachedNetworkImage(
+                                                  imageUrl: getFullImageUrl(
+                                                      driverData![
+                                                          'profile_image']),
+                                                  fit: BoxFit.cover,
+                                                  errorWidget: (_, __, ___) =>
+                                                      const Icon(Icons.person,
+                                                          size: 50),
+                                                )
+                                              : const Icon(Icons.person,
+                                                  size: 50),
+                                        ),
                                       ),
-                                      const SizedBox(height: 12),
-                                      _buildStatItem(
-                                        "${driverData?['total_rides_completed'] ??
-                                            0}",
-                                        FFLocalizations.of(context).getText(
-                                            'accsup0004'),
-                                        Icons.local_taxi_rounded,
-                                        isSmall: isSmall,
-                                        isTablet: isTablet,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      _buildStatItem(
-                                        driverYears,
-                                        FFLocalizations.of(context).getText(
-                                            'accsup0005'),
-                                        Icons.calendar_today_rounded,
-                                        isSmall: isSmall,
-                                        isTablet: isTablet,
+
+                                      // Pencil (visual only)
+                                      Positioned(
+                                        bottom: 2,
+                                        right: 2,
+                                        child: Container(
+                                          padding:
+                                              EdgeInsets.all(isSmall ? 5 : 6),
+                                          decoration: const BoxDecoration(
+                                            color: _brandPrimary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: isSmall ? 16 : 18,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
                                     ],
-                                  );
-                                }
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .spaceEvenly,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: isSmall ? 52 : 60),
+
+                        // Name
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            getDriverName(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.interTight(
+                                fontSize: nameSize,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // ==========================================
+                        // 2️⃣ STATS ROW (Rapido Captain style)
+                        // ==========================================
+                        Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding),
+                          padding: EdgeInsets.symmetric(
+                            vertical: isSmall ? 8 : (isLandscape ? 8 : 16),
+                            horizontal: isSmall ? 2 : (isLandscape ? 2 : 8),
+                          ),
+                          decoration: BoxDecoration(
+                            color: bgGrey,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final stackStats =
+                                  constraints.maxWidth < 320 || isLandscape;
+                              if (stackStats) {
+                                return Column(
                                   children: [
                                     _buildStatItem(
                                       driverRating,
-                                      FFLocalizations.of(context).getText(
-                                          'accsup0003'),
+                                      FFLocalizations.of(context)
+                                          .getText('accsup0003'),
                                       Icons.star_rounded,
                                       isSmall: isSmall,
                                       isTablet: isTablet,
                                     ),
-                                    Container(width: 1,
-                                        height: 36,
-                                        color: Colors.grey[300]),
+                                    const SizedBox(height: 12),
                                     _buildStatItem(
-                                      "${driverData?['total_rides_completed'] ??
-                                          0}",
-                                      FFLocalizations.of(context).getText(
-                                          'accsup0004'),
+                                      "${driverData?['total_rides_completed'] ?? 0}",
+                                      FFLocalizations.of(context)
+                                          .getText('accsup0004'),
                                       Icons.local_taxi_rounded,
                                       isSmall: isSmall,
                                       isTablet: isTablet,
                                     ),
-                                    Container(width: 1,
-                                        height: 36,
-                                        color: Colors.grey[300]),
+                                    const SizedBox(height: 12),
                                     _buildStatItem(
                                       driverYears,
-                                      FFLocalizations.of(context).getText(
-                                          'accsup0005'),
+                                      FFLocalizations.of(context)
+                                          .getText('accsup0005'),
                                       Icons.calendar_today_rounded,
                                       isSmall: isSmall,
                                       isTablet: isTablet,
                                     ),
                                   ],
                                 );
-                              },
-                            ),
+                              }
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildStatItem(
+                                    driverRating,
+                                    FFLocalizations.of(context)
+                                        .getText('accsup0003'),
+                                    Icons.star_rounded,
+                                    isSmall: isSmall,
+                                    isTablet: isTablet,
+                                  ),
+                                  Container(
+                                      width: 1,
+                                      height: 36,
+                                      color: Colors.grey[300]),
+                                  _buildStatItem(
+                                    "${driverData?['total_rides_completed'] ?? 0}",
+                                    FFLocalizations.of(context)
+                                        .getText('accsup0004'),
+                                    Icons.local_taxi_rounded,
+                                    isSmall: isSmall,
+                                    isTablet: isTablet,
+                                  ),
+                                  Container(
+                                      width: 1,
+                                      height: 36,
+                                      color: Colors.grey[300]),
+                                  _buildStatItem(
+                                    driverYears,
+                                    FFLocalizations.of(context)
+                                        .getText('accsup0005'),
+                                    Icons.calendar_today_rounded,
+                                    isSmall: isSmall,
+                                    isTablet: isTablet,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
+                        ),
 
-                          const SizedBox(height: 24),
+                        const SizedBox(height: 24),
 
-                          // ==========================================
-                          // 3️⃣ MENU LIST (Rapido Captain style)
-                          // ==========================================
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: horizontalPadding),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                _buildMenuItem(
-                                  icon: Icons.description_outlined,
-                                  title: FFLocalizations.of(context)
-                                      .getText('accsup0006'),
-                                  subtitle: FFLocalizations.of(context)
-                                      .getText('accsup0007'),
-                                  onTap: () =>
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const DocumentsScreen()),
-                                      ),
+                        // ==========================================
+                        // 3️⃣ MENU LIST (Rapido Captain style)
+                        // ==========================================
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildMenuItem(
+                                icon: Icons.description_outlined,
+                                title: FFLocalizations.of(context)
+                                    .getText('accsup0006'),
+                                subtitle: FFLocalizations.of(context)
+                                    .getText('accsup0007'),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const DocumentsScreen()),
                                 ),
-                                const SizedBox(height: 8),
-                                _buildMenuItem(
-                                  icon: Icons.edit_location_alt_outlined,
-                                  title: FFLocalizations.of(context)
-                                      .getText('accsup0008'),
-                                  subtitle: FFLocalizations.of(context)
-                                      .getText('accsup0009'),
-                                  onTap: () {
-                                    if (driverData != null) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditAddressScreen(
-                                                driverData: driverData!,
-                                                onUpdate: () =>
-                                                    fetchDriverDetails(),
-                                              ),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildMenuItem(
+                                icon: Icons.edit_location_alt_outlined,
+                                title: FFLocalizations.of(context)
+                                    .getText('accsup0008'),
+                                subtitle: FFLocalizations.of(context)
+                                    .getText('accsup0009'),
+                                onTap: () {
+                                  if (driverData != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditAddressScreen(
+                                          driverData: driverData!,
+                                          onUpdate: () => fetchDriverDetails(),
                                         ),
-                                      );
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 8),
-                                _buildMenuItem(
-                                  icon: Icons.card_giftcard_rounded,
-                                  title: FFLocalizations.of(context)
-                                      .getText('accsup0010'),
-                                  subtitle: FFLocalizations.of(context)
-                                      .getText('accsup0011'),
-                                  onTap: () =>
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const ReferFriendWidget()),
                                       ),
+                                    );
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              _buildMenuItem(
+                                icon: Icons.card_giftcard_rounded,
+                                title: FFLocalizations.of(context)
+                                    .getText('accsup0010'),
+                                subtitle: FFLocalizations.of(context)
+                                    .getText('accsup0011'),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ReferFriendWidget()),
                                 ),
-                                const SizedBox(height: 8),
-                                _buildMenuItem(
-                                  icon: Icons.description_outlined,
-                                  title: FFLocalizations.of(context)
-                                      .getText('accsup0012'),
-                                  subtitle: FFLocalizations.of(context)
-                                      .getText('accsup0013'),
-                                  onTap: () =>
-                                      context
-                                          .pushNamed(
-                                          TermsConditionsWidget.routeName),
-                                ),
-                                const SizedBox(height: 8),
-                                _buildMenuItem(
-                                  icon: Icons.privacy_tip_outlined,
-                                  title: FFLocalizations.of(context)
-                                      .getText('accsup0014'),
-                                  subtitle: FFLocalizations.of(context)
-                                      .getText('accsup0015'),
-                                  onTap: () =>
-                                      context
-                                          .pushNamed(
-                                          PrivacyPolicyPageWidget.routeName),
-                                ),
-                                const SizedBox(height: 8),
-                                _buildMenuItem(
-                                  icon: Icons.delete_forever_outlined,
-                                  title: 'Delete Account Info',
-                                  subtitle: 'Steps and data retention',
-                                  onTap: () => _launchUrl(_deleteAccountUrl),
-                                ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildMenuItem(
+                                icon: Icons.description_outlined,
+                                title: FFLocalizations.of(context)
+                                    .getText('accsup0012'),
+                                subtitle: FFLocalizations.of(context)
+                                    .getText('accsup0013'),
+                                onTap: () => context
+                                    .pushNamed(TermsConditionsWidget.routeName),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildMenuItem(
+                                icon: Icons.privacy_tip_outlined,
+                                title: FFLocalizations.of(context)
+                                    .getText('accsup0014'),
+                                subtitle: FFLocalizations.of(context)
+                                    .getText('accsup0015'),
+                                onTap: () => context.pushNamed(
+                                    PrivacyPolicyPageWidget.routeName),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildMenuItem(
+                                icon: Icons.delete_forever_outlined,
+                                title: 'Delete Account Info',
+                                subtitle: 'Steps and data retention',
+                                onTap: () => _launchUrl(_deleteAccountUrl),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          const SizedBox(height: 30),
+                        const SizedBox(height: 30),
 
-                          // ==========================================
-                          // 4️⃣ ACTION BUTTONS
-                          // ==========================================
-                          Padding(
-                            padding:
-                            EdgeInsets.symmetric(horizontal: horizontalPadding),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: buttonHeight,
-                                  child: OutlinedButton.icon(
-                                    onPressed: _isLoggingOut ? null : _logout,
-                                    icon: _isLoggingOut
-                                        ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                        : const Icon(Icons.power_settings_new,
-                                        color: Colors.black87),
-                                    label: Text(
-                                      _isLoggingOut
-                                          ? FFLocalizations.of(context)
-                                          .getText('accsup0026')
-                                          : FFLocalizations.of(context)
-                                          .getText('accsup0016'),
-                                      style: const TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                          color: Colors.black54, width: 1.5),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              12)),
+                        // ==========================================
+                        // 4️⃣ ACTION BUTTONS
+                        // ==========================================
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                height: buttonHeight,
+                                child: OutlinedButton.icon(
+                                  onPressed: _isLoggingOut ? null : _logout,
+                                  icon: _isLoggingOut
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.power_settings_new,
+                                          color: Colors.black87),
+                                  label: Text(
+                                    _isLoggingOut
+                                        ? FFLocalizations.of(context)
+                                            .getText('accsup0026')
+                                        : FFLocalizations.of(context)
+                                            .getText('accsup0016'),
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: buttonHeight,
-                                  child: ElevatedButton.icon(
-                                    onPressed:
-                                    _isDeletingAccount ? null : _deleteAccount,
-                                    icon: _isDeletingAccount
-                                        ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                        : const Icon(Icons.delete_outline,
-                                        color: Colors.white),
-                                    label: Text(
-                                      _isDeletingAccount
-                                          ? FFLocalizations.of(context)
-                                          .getText('accsup0027')
-                                          : FFLocalizations.of(context)
-                                          .getText('accsup0019'),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.errorCritical,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              12)),
-                                      elevation: 0,
-                                    ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(
+                                        color: Colors.black54, width: 1.5),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                height: buttonHeight,
+                                child: ElevatedButton.icon(
+                                  onPressed: _isDeletingAccount
+                                      ? null
+                                      : _deleteAccount,
+                                  icon: _isDeletingAccount
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(Icons.delete_outline,
+                                          color: Colors.white),
+                                  label: Text(
+                                    _isDeletingAccount
+                                        ? FFLocalizations.of(context)
+                                            .getText('accsup0027')
+                                        : FFLocalizations.of(context)
+                                            .getText('accsup0019'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.errorCritical,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                    elevation: 0,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          const SizedBox(height: 40),
-                        ],
-                      ),
+                        const SizedBox(height: 40),
+                      ],
                     ),
                   ),
-                );
-              }
-      ),
-                );
-
-
+                ),
+              );
+            }),
+    );
   }
 
   Widget _buildStatItem(

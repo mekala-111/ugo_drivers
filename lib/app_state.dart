@@ -30,6 +30,23 @@ class FFAppState extends ChangeNotifier {
     prefs.setBool('ff_overlayBubbleEnabled', value);
     notifyListeners();
   }
+
+  bool _hasSeenPostLoginScreens = false;
+  bool get hasSeenPostLoginScreens => _hasSeenPostLoginScreens;
+  set hasSeenPostLoginScreens(bool value) {
+    _hasSeenPostLoginScreens = value;
+    prefs.setBool('ff_hasSeenPostLoginScreens', value);
+    notifyListeners();
+  }
+
+  bool _hasSeenGoOnlinePermissions = false;
+  bool get hasSeenGoOnlinePermissions => _hasSeenGoOnlinePermissions;
+  set hasSeenGoOnlinePermissions(bool value) {
+    _hasSeenGoOnlinePermissions = value;
+    prefs.setBool('ff_hasSeenGoOnlinePermissions', value);
+    notifyListeners();
+  }
+
   int _mobileNo = 0;
   String _firstName = '';
   String _lastName = '';
@@ -141,6 +158,14 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _overlayBubbleEnabled = prefs.getBool('ff_overlayBubbleEnabled') ?? false;
+    });
+    _safeInit(() {
+      _hasSeenPostLoginScreens =
+          prefs.getBool('ff_hasSeenPostLoginScreens') ?? false;
+    });
+    _safeInit(() {
+      _hasSeenGoOnlinePermissions =
+          prefs.getBool('ff_hasSeenGoOnlinePermissions') ?? false;
     });
     // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
     await _loadAadharPanFromSecureStorage();

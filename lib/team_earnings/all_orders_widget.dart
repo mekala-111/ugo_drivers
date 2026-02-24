@@ -7,6 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 class AllOrdersScreen extends StatefulWidget {
   const AllOrdersScreen({super.key});
 
+  static const String routeName = 'AllOrders';
+  static const String routePath = '/allOrders';
+
   @override
   State<AllOrdersScreen> createState() => _AllOrdersScreenState();
 }
@@ -383,8 +386,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
   Widget _buildOrderCard(dynamic r, String status) {
     bool isCancelled = status == 'Cancelled';
 
-    // Extract Data (API: rideType, fare, pickupAddress, dropAddress, completedAt/createdAt)
-    String type = (r['rideType'] ?? r['vehicle_type'] ?? 'bike').toString().toUpperCase();
+    // Extract Data (API: orderType, fare, pickupAddress, dropAddress, completedAt/createdAt)
+    String type = (r['orderType'] ?? r['rideType'] ?? r['vehicle_type'] ?? 'bike').toString().toUpperCase();
     String time = 'N/A';
     final dateVal = r['completedAt'] ?? r['createdAt'] ?? r['created_at'] ?? r['date'];
     if (dateVal != null) {

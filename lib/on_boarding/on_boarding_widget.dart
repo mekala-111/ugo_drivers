@@ -1,3 +1,4 @@
+import '/auth/login_timestamp.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -774,6 +775,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         if (accessToken != null &&
             accessToken.isNotEmpty &&
             resolvedDriverId > 0) {
+          lastLoginTime = DateTime.now();
           FFAppState().update(() {
             FFAppState().isLoggedIn = true;
             FFAppState().isRegistered = true;
@@ -832,6 +834,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 0;
 
             if (accessToken != null && accessToken.isNotEmpty && driverId > 0) {
+              lastLoginTime = DateTime.now();
               FFAppState().update(() {
                 FFAppState().isLoggedIn = true;
                 FFAppState().isRegistered = true;

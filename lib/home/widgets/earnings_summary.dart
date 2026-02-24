@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 
@@ -8,18 +7,24 @@ class EarningsSummary extends StatefulWidget {
   final double todayTotal;
   final double teamEarnings; // Maps to Wallet
   final int ridesToday;      // Maps to Ride Count
-  final double lastRideEarnings; // ✅ Added to match the Figma "Last Ride" box
+  final double lastRideEarnings; // Matches the Figma "Last Ride" box
   final bool isLoading;
   final bool isSmallScreen;
+  final VoidCallback? onRideCountTap;
+  final VoidCallback? onWalletTap;
+  final VoidCallback? onLastRideTap;
 
   const EarningsSummary({
     super.key,
     required this.todayTotal,
     required this.teamEarnings,
     required this.ridesToday,
-    this.lastRideEarnings = 0.0, // Default to 0.0 if not provided
+    this.lastRideEarnings = 0.0,
     this.isLoading = false,
     this.isSmallScreen = false,
+    this.onRideCountTap,
+    this.onWalletTap,
+    this.onLastRideTap,
   });
 
   @override
@@ -27,8 +32,8 @@ class EarningsSummary extends StatefulWidget {
 }
 
 class _EarningsSummaryState extends State<EarningsSummary> {
-  // ✅ State variable to track if the box is expanded
-  bool _isExpanded = true;
+  // Starts collapsed
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,54 +44,73 @@ class _EarningsSummaryState extends State<EarningsSummary> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300, width: 1), // Grey border from Figma
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ✅ Collapsible Header
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
-              child: Row(
-                children: [
-                  Text(
-                    FFLocalizations.of(context).getText('drv_today_total'), // Or hardcode 'Today Total'
-                    style: TextStyle(
-                      fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 14 : 16),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+          // --- Collapsible Header (Strictly expands/collapses) ---
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                // ✅ Strictly toggles the panel, no navigation
+                setState(() => _isExpanded = !_isExpanded);
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 16),
+                child: Row(
+                  children: [
+                    Text(
+                      FFLocalizations.of(context).getText('drv_today_total'),
+                      style: TextStyle(
+                        fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 15 : 17),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                        letterSpacing: 0.3,
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    widget.isLoading ? '...' : '₹${widget.todayTotal.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 14 : 16),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                    const Spacer(),
+                    Text(
+                      widget.isLoading ? '...' : '₹${widget.todayTotal.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 16 : 18),
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: Colors.black,
-                    size: 24,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        color: Colors.black87,
+                        size: 22,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
-          // ✅ Expanded Content (The 3 Orange Boxes)
+          // --- Expanded Content (The 3 Orange Boxes) ---
           AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutQuart,
             child: _isExpanded
                 ? Padding(
               padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 16),
@@ -95,32 +119,34 @@ class _EarningsSummaryState extends State<EarningsSummary> {
                 children: [
                   Expanded(
                     child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_ride_count'), // Or 'Ride Count'
+                      title: FFLocalizations.of(context).getText('drv_ride_count'),
                       value: widget.isLoading ? '...' : widget.ridesToday.toString(),
                       isSmallScreen: widget.isSmallScreen,
+                      onTap: widget.onRideCountTap,
                     ),
                   ),
                   SizedBox(width: gap),
                   Expanded(
                     child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_wallet'), // Or 'Wallet'
+                      title: FFLocalizations.of(context).getText('drv_wallet'),
                       value: widget.isLoading ? '...' : '₹${widget.teamEarnings.toStringAsFixed(2)}',
                       isSmallScreen: widget.isSmallScreen,
-
+                      onTap: widget.onWalletTap,
                     ),
                   ),
                   SizedBox(width: gap),
                   Expanded(
                     child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_last_ride'), // Or 'Last Ride'
-                      value: widget.isLoading ? '...' : widget.lastRideEarnings.toStringAsFixed(0),
+                      title: FFLocalizations.of(context).getText('drv_last_ride'),
+                      value: widget.isLoading ? '...' : '₹${widget.lastRideEarnings.toStringAsFixed(0)}',
                       isSmallScreen: widget.isSmallScreen,
+                      onTap: widget.onLastRideTap,
                     ),
                   ),
                 ],
               ),
             )
-                : const SizedBox(width: double.infinity, height: 0), // Collapsed state
+                : const SizedBox(width: double.infinity, height: 0),
           ),
         ],
       ),
@@ -134,48 +160,62 @@ class _SummaryCard extends StatelessWidget {
     required this.title,
     required this.value,
     required this.isSmallScreen,
+    this.onTap,
   });
 
   final String title;
   final String value;
   final bool isSmallScreen;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFCBA4), // Peach/Orange color from Figma
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: Responsive.fontSize(context, isSmallScreen ? 12 : 14),
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    return Material(
+      color: const Color(0xFFFFD4B2),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        splashColor: Colors.white.withValues(alpha: 0.3),
+        highlightColor: Colors.white.withValues(alpha: 0.1),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            vertical: isSmallScreen ? 14 : 16,
+            horizontal: 6,
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: Responsive.fontSize(context, isSmallScreen ? 14 : 16),
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: Responsive.fontSize(context, isSmallScreen ? 12 : 13),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: Responsive.fontSize(context, isSmallScreen ? 16 : 18),
+                    fontWeight: FontWeight.w800,
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

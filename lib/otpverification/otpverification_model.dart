@@ -22,6 +22,11 @@ class OtpverificationModel extends FlutterFlowModel<OtpverificationWidget> {
   @override
   void dispose() {
     pinCodeFocusNode?.dispose();
-    pinCodeController?.dispose();
+    try {
+      pinCodeController?.dispose();
+    } catch (_) {
+      // PinCodeTextField may have already disposed the controller
+    }
+    pinCodeController = null;
   }
 }

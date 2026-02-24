@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/components/date_picker_field.dart';
 import '/config.dart' as app_config;
 import '/constants/app_colors.dart';
 import '/constants/vehicle_data.dart';
@@ -331,13 +332,11 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         icon: Icons.description,
                         stateKey: 'registrationNumber'),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                         controller: _regDateController,
                         label: 'Registration Date',
-                        hint: 'YYYY-MM-DD',
-                        icon: Icons.calendar_today,
-                        stateKey: 'registrationDate',
-                        keyboardType: TextInputType.datetime),
+                        hint: 'Tap to select date',
+                        icon: Icons.calendar_today),
                     const SizedBox(height: 20),
                     _buildSimpleTextField(
                         controller: _insuranceNumberController,
@@ -346,21 +345,17 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         icon: Icons.security,
                         stateKey: 'insuranceNumber'),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                         controller: _insuranceExpiryController,
                         label: 'Insurance Expiry',
-                        hint: 'YYYY-MM-DD',
-                        icon: Icons.event,
-                        stateKey: 'insuranceExpiryDate',
-                        keyboardType: TextInputType.datetime),
+                        hint: 'Tap to select date',
+                        icon: Icons.event),
                     const SizedBox(height: 20),
-                    _buildSimpleTextField(
+                    _buildDateField(
                         controller: _pollutionExpiryController,
                         label: 'Pollution Certificate Expiry',
-                        hint: 'YYYY-MM-DD',
-                        icon: Icons.eco,
-                        stateKey: 'pollutionExpiryDate',
-                        keyboardType: TextInputType.datetime),
+                        hint: 'Tap to select date',
+                        icon: Icons.eco),
                     const SizedBox(height: 20),
                     const Text('Vehicle Photo',
                         style: TextStyle(
@@ -679,6 +674,71 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                 FFAppState().update(() {});
               }
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDark)),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () async {
+            final now = DateTime.now();
+            final picked = await showDatePickerForField(
+              context,
+              currentValue: controller.text,
+              firstDate: DateTime(now.year - 30, 1, 1),
+              lastDate: DateTime(now.year + 20, 12, 31),
+            );
+            if (picked != null) {
+              controller.text = picked;
+              setState(() {});
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: controller.text.isNotEmpty ? _primary : AppColors.greyBorder,
+                width: 1.5,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Icon(icon, color: _primary, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    controller.text.isEmpty ? hint : controller.text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: controller.text.isEmpty ? AppColors.greyLight : AppColors.textDark,
+                    ),
+                  ),
+                ),
+                Icon(controller.text.isNotEmpty ? Icons.check_circle : Icons.calendar_month,
+                    color: controller.text.isNotEmpty ? AppColors.success : Colors.grey,
+                    size: 20),
+              ],
+            ),
           ),
         ),
       ],

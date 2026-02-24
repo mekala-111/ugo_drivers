@@ -239,6 +239,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               const ErrorBoundary(child: HistoryWidget()),
         ),
         FFRoute(
+          name: LastOrderWidget.routeName,
+          path: LastOrderWidget.routePath,
+          builder: (context, params) =>
+              const ErrorBoundary(child: LastOrderWidget()),
+        ),
+        FFRoute(
+          name: AllOrdersScreen.routeName,
+          path: AllOrdersScreen.routePath,
+          builder: (context, params) =>
+              const ErrorBoundary(child: AllOrdersScreen()),
+        ),
+        FFRoute(
           name: ProfileSettingWidget.routeName,
           path: ProfileSettingWidget.routePath,
           builder: (context, params) => const ProfileSettingWidget(),

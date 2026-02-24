@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
+import 'package:ugo_driver/home/widgets/earnings_summary.dart';
 import 'package:ugo_driver/home/widgets/incentive_panel.dart';
 import 'package:ugo_driver/home/widgets/online_toggle.dart';
 
@@ -64,7 +65,7 @@ void main() {
       expect(switchWidget.onChanged, isNull);
     });
 
-    testWidgets('EarningsPanel shows today total', (tester) async {
+    testWidgets('EarningsSummary shows today total', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           locale: const Locale('en'),
@@ -76,24 +77,18 @@ void main() {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: EarningsPanel(
-                isExpanded: false,
-                isLoadingEarnings: false,
-                todayTotal: 450.0,
-                todayRideCount: 8,
-                todayWallet: 320.0,
-                lastRideAmount: 55.0,
-                onTap: () {},
-                screenWidth: 400,
-                isSmallScreen: false,
-              ),
+          home: const Scaffold(
+            body: EarningsSummary(
+              todayTotal: 450.0,
+              teamEarnings: 320.0,
+              ridesToday: 8,
+              isLoading: false,
+              isSmallScreen: false,
             ),
           ),
         ),
       );
-      expect(find.text('450'), findsOneWidget);
+      expect(find.textContaining('450'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('IncentivePanel builds when collapsed', (tester) async {

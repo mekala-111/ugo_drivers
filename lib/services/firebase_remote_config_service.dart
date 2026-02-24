@@ -25,11 +25,13 @@ class FirebaseRemoteConfigService {
         minimumFetchInterval: const Duration(hours: 1),
       ));
 
-      // Set default values (fallback if remote config fails)
+      // Set default values (fallback if remote config fails).
+      // IMPORTANT: Never put real Razorpay secret here - it goes in the APK.
+      // Production keys must come from Firebase Remote Config only.
       await _remoteConfig!.setDefaults(const {
-        'razorpay_key_id': 'rzp_test_SJLRBPVJueitlX',
-        'razorpay_key_secret': 'nZyMUPL3wnwdtKx2BVMyL3Ue',
-        'razorpay_enabled': true,
+        'razorpay_key_id': '',
+        'razorpay_key_secret': '',
+        'razorpay_enabled': false,
       });
 
       // Fetch and activate

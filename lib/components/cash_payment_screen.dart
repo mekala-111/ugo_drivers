@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import '../home/ride_request_model.dart';
 

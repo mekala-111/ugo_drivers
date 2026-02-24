@@ -1,6 +1,7 @@
 import '/backend/api_requests/api_calls.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 import '/models/transaction.dart';
 import 'driver_transactions_model.dart';
 import 'package:flutter/material.dart';
@@ -53,9 +54,15 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
     });
 
     try {
+      final driverId = widget.driverId > 0
+          ? widget.driverId
+          : FFAppState().driverid;
+      final token = widget.token.isNotEmpty
+          ? widget.token
+          : FFAppState().accessToken;
       final response = await GetDriverTransactionsCall.call(
-        driverId: widget.driverId,
-        token: widget.token,
+        driverId: driverId,
+        token: token,
         page: _model.currentPage,
       );
 

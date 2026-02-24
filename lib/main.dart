@@ -23,6 +23,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';
 import '/services/firebase_remote_config_service.dart';
+import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
 
 void main() {
@@ -134,29 +135,38 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
     ApiManager.onUnauthenticated = () {
-      if (FFAppState().isLoggedIn) {
-        // 1. Clear Local State
-        FFAppState().update(() {
-          FFAppState().accessToken = '';
-          FFAppState().isLoggedIn = false;
-          // You might keep isRegistered true to avoid full re-registration flow if they login again
-        });
+      if (!FFAppState().isLoggedIn) return;
 
-        // 2. Redirect to Login
-        _router.goNamed(LoginWidget.routeName);
-
-        // 3. Show Alert
-        rootScaffoldMessengerKey.currentState?.showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Session expired. You have been logged in on another device.',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 4),
-          ),
-        );
+      // Grace period: avoid logout on 401 within 10s of login (handles race with first API calls)
+      final now = DateTime.now();
+      if (lastLoginTime != null &&
+          now.difference(lastLoginTime!).inSeconds < 10) {
+        if (kDebugMode) {
+          debugPrint('API 401: Ignoring during login grace period');
+        }
+        return;
       }
+
+      // 1. Clear Local State
+      FFAppState().update(() {
+        FFAppState().accessToken = '';
+        FFAppState().isLoggedIn = false;
+      });
+
+      // 2. Redirect to Login
+      _router.goNamed(LoginWidget.routeName);
+
+      // 3. Show Alert
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Session expired. You have been logged in on another device.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        ),
+      );
     };
   }
 

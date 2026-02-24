@@ -23,7 +23,7 @@ if (flutterVersionName == null) flutterVersionName = '1.0'
 def mapsApiKey = localProperties.getProperty('MAPS_API_KEY', '')
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
+def keystorePropertiesFile = file('key.properties')
 def hasKeystore = keystorePropertiesFile.exists()
 if (hasKeystore) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))

@@ -79,6 +79,26 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
     _fetchDailyData(); // load first tab immediately
   }
 
+  Future<void> _openDailyCalendarPicker() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dailyDates.isNotEmpty
+          ? _dailyDates[_selectedDailyIndex]
+          : now,
+      firstDate: DateTime(now.year - 1, 1, 1),
+      lastDate: now,
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        _dailyDates = List.generate(
+            7, (i) => picked.subtract(Duration(days: 3 - i)));
+        _selectedDailyIndex = 3;
+      });
+      _fetchDailyData();
+    }
+  }
+
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) return;
     switch (_tabController.index) {
@@ -277,6 +297,7 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
               setState(() => _selectedDailyIndex = i);
               _fetchDailyData();
             },
+            onCalendarTap: _openDailyCalendarPicker,
           ),
           // ── Tab 2: Weekly ─────────────────────────────────
           _WeeklyTab(
@@ -309,6 +330,7 @@ class _DailyTab extends StatelessWidget {
   final bool isLoading;
   final List<dynamic> incentiveList;
   final Function(int) onDateSelected;
+  final VoidCallback? onCalendarTap;
 
   const _DailyTab({
     required this.dates,
@@ -316,6 +338,7 @@ class _DailyTab extends StatelessWidget {
     required this.isLoading,
     required this.incentiveList,
     required this.onDateSelected,
+    this.onCalendarTap,
   });
 
   @override
@@ -327,6 +350,7 @@ class _DailyTab extends StatelessWidget {
           dates: dates,
           selectedIndex: selectedIndex,
           onDateSelected: onDateSelected,
+          onCalendarTap: onCalendarTap,
         ),
         Expanded(
           child: isLoading
@@ -767,11 +791,14 @@ class _DateSelectorBar extends StatelessWidget {
   final List<DateTime> dates;
   final int selectedIndex;
   final Function(int) onDateSelected;
+  final VoidCallback? onCalendarTap;
 
-  const _DateSelectorBar(
-      {required this.dates,
-      required this.selectedIndex,
-      required this.onDateSelected});
+  const _DateSelectorBar({
+    required this.dates,
+    required this.selectedIndex,
+    required this.onDateSelected,
+    this.onCalendarTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -782,7 +809,10 @@ class _DateSelectorBar extends StatelessWidget {
     return Container(
       color: AppColors.accentAmber,
       height: barHeight,
-      child: ListView.builder(
+      child: Row(
+        children: [
+          Expanded(
+            child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dates.length,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -844,6 +874,15 @@ class _DateSelectorBar extends StatelessWidget {
             ),
           );
         },
+      ),
+    ),
+          if (onCalendarTap != null)
+            IconButton(
+              icon: const Icon(Icons.calendar_month, color: Colors.white),
+              onPressed: onCalendarTap,
+              tooltip: 'Pick date from calendar',
+            ),
+        ],
       ),
     );
   }

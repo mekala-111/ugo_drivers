@@ -1,4 +1,3 @@
-import '/app_state.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -39,26 +38,52 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
       _model.errorMessage = null;
     });
 
-    final response = await NotificationHistoryCall.call(
-      token: FFAppState().accessToken,
-    );
+    try {
+      final token = FFAppState().accessToken;
+      if (token.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          _model.isLoading = false;
+          _model.errorMessage = 'Please log in to view notifications';
+        });
+        return;
+      }
 
-    if (!mounted) return;
-    if (response.succeeded) {
+      final response = await NotificationHistoryCall.call(token: token);
+
+      if (!mounted) return;
+      if (response.succeeded) {
+        setState(() {
+          _model.notificationData = response.jsonBody;
+          _model.isLoading = false;
+          _model.errorMessage = null;
+        });
+      } else {
+        setState(() {
+          _model.isLoading = false;
+          _model.errorMessage = getJsonField(
+                response.jsonBody ?? {}, r'$.message',
+              )?.toString() ??
+              'Failed to load notifications';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _model.notificationData = response.jsonBody;
         _model.isLoading = false;
-        _model.errorMessage = null;
-      });
-    } else {
-      setState(() {
-        _model.isLoading = false;
-        _model.errorMessage = getJsonField(
-              response.jsonBody ?? {}, r'$.message',
-            )?.toString() ??
-            'Failed to load notifications';
+        _model.errorMessage = 'Failed to load notifications';
       });
     }
+  }
+
+  bool get _hasNotifications {
+    final list = NotificationHistoryCall.notifications(_model.notificationData);
+    return list != null && list.isNotEmpty;
+  }
+
+  List<dynamic> get _notificationList {
+    final list = NotificationHistoryCall.notifications(_model.notificationData);
+    return list ?? [];
   }
 
   @override
@@ -159,22 +184,14 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                       ),
                     )
                   : _model.notificationData != null &&
-                          NotificationHistoryCall.notifications(
-                                  _model.notificationData) !=
-                              null &&
-                          NotificationHistoryCall.notifications(
-                                  _model.notificationData)!
-                              .isNotEmpty
+                          _hasNotifications
                       ? RefreshIndicator(
                           onRefresh: _loadNotifications,
                           child: ListView.builder(
                   padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-                  itemCount: NotificationHistoryCall.notifications(
-                          _model.notificationData)!
-                      .length,
+                  itemCount: _notificationList.length,
                   itemBuilder: (context, index) {
-                    final notification = NotificationHistoryCall.notifications(
-                        _model.notificationData)![index];
+                    final notification = _notificationList[index];
                     final isRead = getJsonField(
                           notification,
                           r'$.is_read',

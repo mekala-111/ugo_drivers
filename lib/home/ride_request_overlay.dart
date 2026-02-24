@@ -416,7 +416,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     try {
       await _audioPlayer.setReleaseMode(ReleaseMode.stop);
       await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
-      await _audioPlayer.onPlayerComplete.first
+      // Use take(1)+listen to avoid "Bad state: No element" when stream
+      // completes without emitting (e.g. if player is stopped early)
+      await _audioPlayer.onPlayerComplete
+          .take(1)
+          .listen((_) {})
+          .asFuture()
           .timeout(const Duration(seconds: 6), onTimeout: () {});
     } catch (_) {}
   }

@@ -22,7 +22,17 @@ Future<void> firebaseBackgroundMessageHandler(RemoteMessage msg) async {
 }
 
 /// Initialize plugin and show notification in background isolate.
+/// Wrapped in try-catch to avoid "Future already completed" or other
+/// isolate errors from affecting the app.
 Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
+  try {
+    await _showRideNotificationInBackgroundImpl(msg);
+  } catch (_) {
+    // Background isolate: log but don't propagate to avoid app crash
+  }
+}
+
+Future<void> _showRideNotificationInBackgroundImpl(RemoteMessage msg) async {
   final data = msg.data;
   final rideId = data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0';
   final title = msg.notification?.title ?? data['title'] ?? 'New Ride Request!';
@@ -125,9 +135,11 @@ class RideNotificationService {
     if (_initialized) return;
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Disable auto-request to avoid "Future already completed" when we request
+    // in PreLoginLocationNotificationsScreen. Permission requested once before login.
     const ios = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
     );
     const initSettings = InitializationSettings(android: android, iOS: ios);
 
@@ -138,11 +150,8 @@ class RideNotificationService {
 
     FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
 
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // Notification permission is requested once in PreLoginLocationNotificationsScreen (before login).
+    // Do NOT request here to avoid asking twice.
 
     if (Platform.isAndroid) {
       final androidChannel = AndroidNotificationChannel(

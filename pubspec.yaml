@@ -67,6 +67,7 @@ dependencies:
 
   # --- Device/Platform ---
   geolocator: 14.0.1
+  permission_handler: ^11.3.1
   go_router: 12.1.3
   image_picker: 1.1.2
   package_info_plus: 8.0.2
@@ -114,11 +115,12 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
+  remove_alpha_ios: true  # Required for App Store (no transparency)
   web:
     generate: true
-  image_path: "assets/images/app_launcher_icon.png"
+  image_path: "assets/images/app_icon.png"
   adaptive_icon_background: "#ff7b10"
-  adaptive_icon_foreground: "assets/images/adaptive_foreground_icon.png"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
 
 flutter:
   uses-material-design: true

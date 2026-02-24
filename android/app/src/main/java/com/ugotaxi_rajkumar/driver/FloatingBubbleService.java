@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ServiceInfo;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -23,6 +24,10 @@ import androidx.core.app.NotificationCompat;
 
 public class FloatingBubbleService extends Service {
     private static final String TAG = "FloatingBubbleService";
+
+    private boolean isDebug() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
 
     private WindowManager windowManager;
     private View floatingBubble;
@@ -169,7 +174,7 @@ public class FloatingBubbleService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             String action = intent.getAction();
-            if (BuildConfig.DEBUG) {
+            if (isDebug()) {
                 Log.d(TAG, "onStartCommand called with action: " + action);
             }
             if ("SHOW_BUBBLE".equals(action)) {
@@ -191,7 +196,7 @@ public class FloatingBubbleService extends Service {
             } else if ("HIDE_RIDE_REQUEST".equals(action)) {
                 hideRideRequest();
             }
-        } else if (BuildConfig.DEBUG) {
+        } else if (isDebug()) {
             Log.d(TAG, "onStartCommand called with null intent");
         }
         return START_STICKY;
@@ -217,7 +222,7 @@ public class FloatingBubbleService extends Service {
                     windowManager.addView(floatingBubble, params);
                 }
                 if (rideRequestCard != null && rideRequestCard.getVisibility() == View.VISIBLE) {
-                    if (BuildConfig.DEBUG) Log.d(TAG, "Ride request visible; skip bubble");
+                    if (isDebug()) Log.d(TAG, "Ride request visible; skip bubble");
                     return;
                 }
                 if (bubbleContainer != null) {
@@ -227,7 +232,7 @@ public class FloatingBubbleService extends Service {
                     rideRequestCard.setVisibility(View.GONE);
                 }
                 floatingBubble.setVisibility(View.VISIBLE);
-                if (BuildConfig.DEBUG) Log.d(TAG, "Bubble shown - visibility set to VISIBLE");
+                if (isDebug()) Log.d(TAG, "Bubble shown - visibility set to VISIBLE");
             } catch (Exception e) {
                 Log.e(TAG, "Error showing bubble: " + e.getMessage());
             }
@@ -239,7 +244,7 @@ public class FloatingBubbleService extends Service {
     public void hideBubble() {
         if (floatingBubble != null) {
             floatingBubble.setVisibility(View.GONE);
-            if (BuildConfig.DEBUG) Log.d(TAG, "Bubble hidden - visibility set to GONE");
+            if (isDebug()) Log.d(TAG, "Bubble hidden - visibility set to GONE");
         } else {
             Log.e(TAG, "Cannot hide bubble - floatingBubble is null");
         }
@@ -258,7 +263,7 @@ public class FloatingBubbleService extends Service {
                 subtitleView.setText(subtitle);
                 subtitleView.setVisibility(View.VISIBLE);
             }
-            if (BuildConfig.DEBUG) {
+            if (isDebug()) {
                 Log.d(TAG, "Bubble content updated - title: " + title + ", subtitle: " + subtitle);
             }
         } else {
@@ -294,7 +299,7 @@ public class FloatingBubbleService extends Service {
                     dropView.setText(drop);
                 }
                 floatingBubble.setVisibility(View.VISIBLE);
-                if (BuildConfig.DEBUG) Log.d(TAG, "Ride request shown");
+                if (isDebug()) Log.d(TAG, "Ride request shown");
             } catch (Exception e) {
                 Log.e(TAG, "Error showing ride request: " + e.getMessage());
             }

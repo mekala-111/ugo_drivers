@@ -2061,7 +2061,25 @@ class DriverRideHistoryCall {
     return list is List ? List<dynamic>.from(list) : [];
   }
 
-  /// Summary: data.summary (totalCompletedRides, totalEarnings, etc.)
+  /// Completed orders: data.tabs.completed.orders (API uses "orders" not "rides")
+  static List<dynamic> completedOrders(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.completed.orders''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Cancelled orders: data.tabs.cancelled.orders
+  static List<dynamic> cancelledOrders(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.cancelled.orders''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Missed orders: data.tabs.missed.orders
+  static List<dynamic> missedOrders(dynamic response) {
+    final list = getJsonField(response, r'''$.data.tabs.missed.orders''');
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  /// Summary: data.summary (totalCompletedOrders, totalEarnings, etc.)
   static Map<String, dynamic>? summary(dynamic response) =>
       getJsonField(response, r'''$.data.summary''') as Map<String, dynamic>?;
 
@@ -2077,12 +2095,37 @@ class DriverRideHistoryCall {
     return null;
   }
 
-  /// All rides combined (completed + cancelled + missed) - for backwards compat
+  /// All rides/orders combined (completed + cancelled + missed).
+  /// Supports multiple API response formats:
+  /// - data.tabs.completed/cancelled/missed.rides (grouped)
+  /// - data.tabs.completed/cancelled/missed.orders (grouped, API format)
+  /// - data.rides (flat list)
+  /// - data (array directly)
   static List rides(dynamic response) {
-    final completed = completedRides(response);
-    final cancelled = cancelledRides(response);
-    final missed = missedRides(response);
-    return [...completed, ...cancelled, ...missed];
+    // Try rides first
+    var completed = completedRides(response);
+    var cancelled = cancelledRides(response);
+    var missed = missedRides(response);
+    if (completed.isNotEmpty || cancelled.isNotEmpty || missed.isNotEmpty) {
+      return [...completed, ...cancelled, ...missed];
+    }
+    // Fallback: orders (API uses "orders" not "rides")
+    completed = completedOrders(response);
+    cancelled = cancelledOrders(response);
+    missed = missedOrders(response);
+    if (completed.isNotEmpty || cancelled.isNotEmpty || missed.isNotEmpty) {
+      return [...completed, ...cancelled, ...missed];
+    }
+    // Fallback: flat list at data.rides
+    var list = getJsonField(response, r'''$.data.rides''');
+    if (list is List && list.isNotEmpty) return List<dynamic>.from(list);
+    // Fallback: data.orders
+    list = getJsonField(response, r'''$.data.orders''');
+    if (list is List && list.isNotEmpty) return List<dynamic>.from(list);
+    // Fallback: data is array
+    final data = getJsonField(response, r'''$.data''');
+    if (data is List && data.isNotEmpty) return List<dynamic>.from(data);
+    return [];
   }
 }
 

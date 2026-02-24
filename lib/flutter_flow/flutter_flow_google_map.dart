@@ -205,7 +205,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       absorbing: !widget.allowInteraction,
       child: GoogleMap(
         onMapCreated: (controller) async {
-          _controller.complete(controller);
+          if (!_controller.isCompleted) _controller.complete(controller);
           widget.onMapCreated?.call(controller);
         },
         // Use null for standard (default) map; '[]' can cause blank tiles on some devices
