@@ -419,7 +419,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               const SizedBox(width: 4),
               Text(time, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13)),
               const Spacer(),
-              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoYellow)),
+              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoYellow
+              )),
               if (!isCancelled) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.check_circle, size: 16, color: AppColors.successAlt),
