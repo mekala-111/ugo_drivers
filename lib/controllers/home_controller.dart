@@ -165,16 +165,36 @@ class HomeController extends ChangeNotifier {
       }
     }
 
-    final preferredCityId = getJsonField(
-      (userDetails.jsonBody ?? ''),
-      r'''$.data.preferred_city_id''',
-    );
-    if (preferredCityId != null) {
-      final parsed = int.tryParse(preferredCityId.toString());
-      if (parsed != null && parsed > 0) {
-        FFAppState().preferredCityId = parsed;
+    // Preferred city: support multiple API shapes (preferred_city_id, preferred_city.id, city_id)
+    final body = userDetails.jsonBody;
+    int? parsedCityId;
+    String? parsedCityName;
+    if (body != null) {
+      final preferredCityIdRaw = getJsonField(body, r'''$.data.preferred_city_id''');
+      if (preferredCityIdRaw != null) {
+        parsedCityId = int.tryParse(preferredCityIdRaw.toString());
+      }
+      if (parsedCityId == null || parsedCityId! <= 0) {
+        final preferredCityObj = getJsonField(body, r'''$.data.preferred_city''');
+        if (preferredCityObj != null && preferredCityObj is Map) {
+          final id = preferredCityObj['id'];
+          if (id != null) parsedCityId = int.tryParse(id.toString());
+          final name = preferredCityObj['name']?.toString();
+          if (name != null && name.isNotEmpty) parsedCityName = name;
+        }
+      }
+      if (parsedCityId == null || parsedCityId! <= 0) {
+        final cityIdRaw = getJsonField(body, r'''$.data.city_id''');
+        if (cityIdRaw != null) parsedCityId = int.tryParse(cityIdRaw.toString());
       }
     }
+    if (parsedCityId != null && parsedCityId! > 0) {
+      FFAppState().preferredCityId = parsedCityId!;
+      if (parsedCityName != null && parsedCityName.isNotEmpty) {
+        FFAppState().preferredCityName = parsedCityName;
+      }
+    }
+    // If API did not return a preferred city, keep existing app state (e.g. set during registration)
 
     FFAppState().kycStatus = getJsonField(
       (userDetails.jsonBody ?? ''),
