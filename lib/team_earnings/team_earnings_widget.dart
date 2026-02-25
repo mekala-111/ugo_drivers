@@ -240,14 +240,12 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
             ),
           ),
 
-          // ------------------------------------------------
-          // 2️⃣ TEAM EARNINGS TAB
-          // ------------------------------------------------
+         
           isLoadingTeam
               ? const Center(child: CircularProgressIndicator(color: Colors.green))
               : SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(top: 24, bottom: 40),
+            padding: const EdgeInsets.only(top: 25, bottom: 40),
             child: Column(
               children: [
                 // Header & Floating Stats
@@ -265,7 +263,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                           colors: [const Color(0xFF2ECC71), const Color(0xFF27AE60)],
                           shadowColor: const Color(0xFF2ECC71).withValues(alpha: 0.4),
                           icon: Icons.groups_rounded,
-                          bottomPadding: 60, // Extra space for floating card
+                          bottomPadding: 61, // Extra space for floating card
                         ),
                       ),
                       // Floating Stats Box
@@ -289,7 +287,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               _buildTeamStat('Active Drivers', totalReferrals, Icons.group_rounded, brand),
-                              Container(width: 1, height: 40, color: Colors.grey.shade200),
+                              Container(width: 1, height: 41, color: Colors.grey.shade200),
                               _buildTeamStat('Commission', '5%', Icons.percent_rounded, const Color(0xFFE74C3C)),
                             ],
                           ),
