@@ -55,7 +55,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         FFAppState().referralCode.trim().isNotEmpty) {
       FFAppState().usedReferralCode = FFAppState().referralCode.trim();
     }
-    debugPrint('referrer_code (final): \'${FFAppState().usedReferralCode}\'');
+    debugPrint('referrer_code (final): \'${FFAppState().referralCode}\'');
     _initFCM();
   }
 
@@ -599,7 +599,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     try {
       // Prepare JSON Payload - include all collected onboarding data
       // Referrer: usedReferralCode (set from route or init) > widget.referalcode > referralCode (First details)
-      String referrerCode = FFAppState().usedReferralCode.trim();
+      String referrerCode = FFAppState().referralCode.trim();
       if (referrerCode.isEmpty) {
         referrerCode = (widget.referalcode ?? '').trim();
       }
