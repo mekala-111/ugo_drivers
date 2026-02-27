@@ -117,7 +117,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     );
     final headlineFontSize = Responsive.fontSize(context, 36);
     final subtitleFontSize = Responsive.fontSize(context, 28);
-    final phoneFontSize = Responsive.fontSize(context, 20);
+    final phoneFontSize = Responsive.fontSize(context, 18);
     final buttonHeight = Responsive.buttonHeight(context, base: 56);
     final buttonFontSize = Responsive.fontSize(context, 18);
     // Max card width on tablets (centered layout)
@@ -323,7 +323,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                                 fontSize: phoneFontSize,
                                                 fontWeight: FontWeight.w600,
                                                 color: Colors.black,
-                                                letterSpacing: 1.2,
+                                                // letterSpacing: 1.2,
                                               ),
                                               inputFormatters: [
                                                 FilteringTextInputFormatter
@@ -341,12 +341,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                                 border: InputBorder.none,
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: Responsive
-                                                      .horizontalPadding(
-                                                          context),
-                                                  vertical: 18 * scale,
+                                                contentPadding: EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 16,
                                                 ),
                                               ),
                                             ),
