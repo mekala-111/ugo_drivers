@@ -178,8 +178,11 @@ class _HomeWidgetState extends State<HomeWidget>
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      getCurrentUserLocation(defaultLocation: const LatLng(0.0, 0.0), cached: true)
-          .then((loc) => _controller.setUserLocation(loc));
+    //  getCurrentUserLocation(
+    //   defaultLocation: const LatLng(0.0, 0.0),
+    //   cached: true,
+    // ).then((loc) => _controller.setUserLocation(loc));
+     await _initLocationSafely(); 
 
       await _controller.init();
       _lastOnlineState = _controller.isOnline;
@@ -189,6 +192,33 @@ class _HomeWidgetState extends State<HomeWidget>
       _maybeShowPostLoginScreens();
     });
   }
+  Future<void> _initLocationSafely() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  // Ask only if truly denied
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+
+  // If permanently denied, do not ask again
+  if (permission == LocationPermission.deniedForever) {
+    print("Location permanently denied");
+    return;
+  }
+
+  // If granted, then get location
+  if (permission == LocationPermission.whileInUse ||
+      permission == LocationPermission.always) {
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    _controller.setUserLocation(
+      LatLng(position.latitude, position.longitude),
+    );
+  }
+}
 
   Future<void> _handleBubbleMethod(MethodCall call) async {
     if (call.method != 'rideAction') return;
