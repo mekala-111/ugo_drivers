@@ -273,7 +273,9 @@ class NewRequestCard extends StatelessWidget {
     String label,
     RideRequest ride,
   ) {
-    final fallbackKm = _dropDistanceKm(ride);
+    // ✅ Use backend distance as fallback (more accurate than straight-line)
+    // while RouteDistanceService fetches the actual driving distance
+    final fallbackKm = ride.distance ?? _dropDistanceKm(ride);
     return FutureBuilder<double?>(
       future: RouteDistanceService().getDrivingDistanceKm(
         originLat: ride.pickupLat,

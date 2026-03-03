@@ -363,10 +363,27 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   String _formatDropDistance(RideRequest ride) {
-    if (ride.distance == null || ride.distance == 0) {
+    // ✅ Use backend distance first (more accurate than straight-line)
+    if (ride.distance != null && ride.distance! > 0) {
+      return 'Drop ${ride.distance!.toStringAsFixed(1)} km';
+    }
+    
+    // Fallback to calculating straight-line distance if backend value not available
+    if (ride.pickupLat == 0 ||
+        ride.pickupLng == 0 ||
+        ride.dropLat == 0 ||
+        ride.dropLng == 0) {
       return 'Drop distance --';
     }
-    return 'Drop ${ride.distance!.toStringAsFixed(1)} km';
+    
+    final meters = Geolocator.distanceBetween(
+      ride.pickupLat,
+      ride.pickupLng,
+      ride.dropLat,
+      ride.dropLng,
+    );
+    final km = meters / 1000;
+    return 'Drop ${km.toStringAsFixed(1)} km';
   }
 
   void _startTickTimer() {
