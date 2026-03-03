@@ -88,7 +88,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
   int _calculateCompletionPercentage() {
     int completed = 0;
     int total =
-        8; // License, Profile, Aadhar, Pan, Vehicle, RC, Insurance, Pollution
+        6; // License, Profile, Aadhar, Pan, Vehicle, RC
 
     final hasLicense = _isDocumentUploaded(FFAppState().imageLicense) ||
         _isDocumentUploaded(FFAppState().licenseFrontImage) ||
@@ -99,10 +99,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     final hasRC = _isDocumentUploaded(FFAppState().registrationImage) ||
         _isDocumentUploaded(FFAppState().rcFrontImage) ||
         _isDocumentUploaded(FFAppState().rcBackImage);
-    final hasInsurance = _isDocumentUploaded(FFAppState().insurancePdf) ||
-        _isDocumentUploaded(FFAppState().insuranceImage);
-    final hasPollution =
-        _isDocumentUploaded(FFAppState().pollutioncertificateImage);
 
     if (hasLicense) completed++;
     if (_isDocumentUploaded(FFAppState().profilePhoto)) completed++;
@@ -110,8 +106,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     if (_isDocumentUploaded(FFAppState().panImage)) completed++;
     if (_isDocumentUploaded(FFAppState().vehicleImage)) completed++;
     if (hasRC) completed++;
-    if (hasInsurance) completed++;
-    if (hasPollution) completed++;
 
     return ((completed / total) * 100).round();
   }
@@ -333,19 +327,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                           FFAppState().registrationImage,
                           () => context
                               .pushNamed(RegistrationImageWidget.routeName),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDocItem(
-                          'Insurance PDF',
-                          FFAppState().insurancePdf ??
-                              FFAppState().insuranceImage,
-                          () => context.pushNamed(UploadRcWidget.routeName),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDocItem(
-                          'Pollution Certificate',
-                          FFAppState().pollutioncertificateImage,
-                          () => context.pushNamed(RCUploadWidget.routeName),
                         ),
                       ],
                     ),

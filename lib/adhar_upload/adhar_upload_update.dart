@@ -58,17 +58,17 @@ class _AdharUploadUpdateWidgetState extends State<AdharUploadUpdateWidget>
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    _animationController.forward();
-
-    // Load saved data from FFAppState
-    _loadSavedData();
-
-    // Debug what was loaded
-    _debugPrintState();
 
     _aadhaarController.addListener(() {
       FFAppState().aadharNumber =
           _aadhaarController.text.replaceAll(' ', '');
+    });
+
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+      _debugPrintState();
     });
   }
 

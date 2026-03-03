@@ -52,16 +52,16 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    _animationController.forward();
-
-    // Load saved data
-    _loadSavedData();
-
-    // Debug
-    _debugPrintState();
 
     _panController.addListener(() {
       FFAppState().panNumber = _panController.text.trim().toUpperCase();
+    });
+
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+      _debugPrintState();
     });
   }
 

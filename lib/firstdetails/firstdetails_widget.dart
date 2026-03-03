@@ -301,9 +301,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                         // 3. Update registration step (for resume functionality)
                                         FFAppState().registrationStep = 1;
 
-                                        // 4. Navigate to Address & Emergency step (Uber-style)
+                                        // 4. Navigate to Choose Vehicle step
                                         context.pushNamed(
-                                            AddressDetailsWidget.routeName,
+                                            ChooseVehicleWidget.routeName,
                                             queryParameters: {
                                             'mobile': serializeParam(
                                               widget.mobile, ParamType.int),

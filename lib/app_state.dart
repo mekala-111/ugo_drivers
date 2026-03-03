@@ -47,6 +47,14 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _hasAskedBackgroundLocation = false;
+  bool get hasAskedBackgroundLocation => _hasAskedBackgroundLocation;
+  set hasAskedBackgroundLocation(bool value) {
+    _hasAskedBackgroundLocation = value;
+    prefs.setBool('ff_hasAskedBackgroundLocation', value);
+    notifyListeners();
+  }
+
   int _mobileNo = 0;
   String _firstName = '';
   String _lastName = '';
@@ -166,6 +174,10 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _hasSeenGoOnlinePermissions =
           prefs.getBool('ff_hasSeenGoOnlinePermissions') ?? false;
+    });
+    _safeInit(() {
+      _hasAskedBackgroundLocation =
+          prefs.getBool('ff_hasAskedBackgroundLocation') ?? false;
     });
     // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
     await _loadAadharPanFromSecureStorage();

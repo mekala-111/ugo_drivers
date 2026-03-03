@@ -38,20 +38,9 @@ class _SplashWidgetState extends State<SplashWidget> {
                 'referalcode': serializeParam(FFAppState().usedReferralCode, ParamType.String),
               }.withoutNulls,
             );
-          } else if (registrationStep >= 3) {
-            // Step 3: ChooseVehicle
-            context.goNamed(ChooseVehicleWidget.routeName);
           } else if (registrationStep >= 2) {
-            // Step 2: AddressDetails
-            context.goNamed(
-              AddressDetailsWidget.routeName,
-              queryParameters: {
-                'mobile': serializeParam(
-                  FFAppState().mobileNo,
-                  ParamType.int,
-                ),
-              }.withoutNulls,
-            );
+            // Step 2: ChooseVehicle
+            context.goNamed(ChooseVehicleWidget.routeName);
           } else {
             // Step 0, 1, or unset: Start from FirstDetails
             context.goNamed(

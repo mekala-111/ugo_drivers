@@ -62,14 +62,16 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
       curve: Curves.easeIn,
     );
 
-    _animationController.forward();
-
-    _loadSavedData();
-    _debugPrintState();
-
     _registrationNumberController.addListener(() {
       FFAppState().registrationNumber =
           _registrationNumberController.text.trim().toUpperCase();
+    });
+
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+      _debugPrintState();
     });
   }
 

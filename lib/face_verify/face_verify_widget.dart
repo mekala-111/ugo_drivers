@@ -60,13 +60,12 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
       ),
     );
 
-    _animationController.forward();
-
-    // Load saved data
-    _loadSavedData();
-
-    // Debug
-    _debugPrintState();
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+      _debugPrintState();
+    });
   }
 
   void _debugPrintState() {

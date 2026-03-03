@@ -80,14 +80,11 @@ export '/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
 export '/driving_dl/driving_dl_widget.dart' show DrivingDlWidget;
 export '/face_verify/face_verify_widget.dart' show FaceVerifyWidget;
 export '/adhar_upload/adhar_upload_widget.dart' show AdharUploadWidget;
-export 'insurance_image/insurance_image_widget.dart' show UploadRcWidget;
-export 'pollution_image/pollution_image_widget.dart' show RCUploadWidget;
 export '/inbox_page/inbox_page_widget.dart' show InboxPageWidget;
 export '/teampage/teampage_widget.dart' show TeampageWidget;
 export '/teamrides/teamrides_widget.dart' show TeamridesWidget;
 export '/team_earnings/team_earnings_widget.dart' show TeamEarningsWidget;
 export '/firstdetails/firstdetails_widget.dart' show FirstdetailsWidget;
-export '/address_details/address_details_widget.dart' show AddressDetailsWidget;
 export '/panupload_screen/panupload_screen_widget.dart'
     show PanuploadScreenWidget;
 export '/vehicle_image/vehicle_image_widget.dart' show VehicleImageWidget;

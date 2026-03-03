@@ -74,8 +74,11 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       curve: Curves.easeInOut,
     );
 
-    _animationController.forward();
-    _loadSavedData();
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+    });
   }
 
   void _loadSavedData() {
@@ -244,85 +247,85 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Vehicle Name (dynamic from API or static fallback)
-                    _buildVehicleMakeDropdown(),
+                    // // Vehicle Name (dynamic from API or static fallback)
+                    // _buildVehicleMakeDropdown(),
 
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 20),
 
-                    // Vehicle Model (dynamic from API or static fallback)
-                    _buildVehicleModelDropdown(),
+                    // // Vehicle Model (dynamic from API or static fallback)
+                    // _buildVehicleModelDropdown(),
 
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 20),
 
-                    Text(
-                      FFLocalizations.of(context).getText('veh0002'),
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildColorGrid(),
+                    // Text(
+                    //   FFLocalizations.of(context).getText('veh0002'),
+                    //   style: const TextStyle(
+                    //       fontSize: 16,
+                    //       fontWeight: FontWeight.w600,
+                    //       color: AppColors.textDark),
+                    // ),
+                    // const SizedBox(height: 8),
+                    // _buildColorGrid(),
 
-                    const SizedBox(height: 20),
-                    _buildSimpleTextField(
-                      controller: _licensePlateController,
-                      label: 'License Plate',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0003'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0004'),
-                      icon: Icons.badge,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSimpleTextField(
-                      controller: _regNumberController,
-                      label: 'Registration Number',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0005'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0006'),
-                      icon: Icons.description,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildDateField(
-                      controller: _regDateController,
-                      label: 'Registration Date',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0007'),
-                      hintText: 'Tap to select date',
-                      icon: Icons.calendar_today,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSimpleTextField(
-                      controller: _insuranceNumberController,
-                      label: 'Insurance Number',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0009'),
-                      hintText:
-                          FFLocalizations.of(context).getText('veh0010'),
-                      icon: Icons.security,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildDateField(
-                      controller: _insuranceExpiryController,
-                      label: 'Insurance Expiry',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0011'),
-                      hintText: 'Tap to select date',
-                      icon: Icons.event,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildDateField(
-                      controller: _pollutionExpiryController,
-                      label: 'Pollution Certificate Expiry',
-                      labelText:
-                          FFLocalizations.of(context).getText('veh0012'),
-                      hintText: 'Tap to select date',
-                      icon: Icons.eco,
-                    ),
+                    // const SizedBox(height: 20),
+                    // _buildSimpleTextField(
+                    //   controller: _licensePlateController,
+                    //   label: 'License Plate',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0003'),
+                    //   hintText:
+                    //       FFLocalizations.of(context).getText('veh0004'),
+                    //   icon: Icons.badge,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // _buildSimpleTextField(
+                    //   controller: _regNumberController,
+                    //   label: 'Registration Number',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0005'),
+                    //   hintText:
+                    //       FFLocalizations.of(context).getText('veh0006'),
+                    //   icon: Icons.description,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // _buildDateField(
+                    //   controller: _regDateController,
+                    //   label: 'Registration Date',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0007'),
+                    //   hintText: 'Tap to select date',
+                    //   icon: Icons.calendar_today,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // _buildSimpleTextField(
+                    //   controller: _insuranceNumberController,
+                    //   label: 'Insurance Number',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0009'),
+                    //   hintText:
+                    //       FFLocalizations.of(context).getText('veh0010'),
+                    //   icon: Icons.security,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // _buildDateField(
+                    //   controller: _insuranceExpiryController,
+                    //   label: 'Insurance Expiry',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0011'),
+                    //   hintText: 'Tap to select date',
+                    //   icon: Icons.event,
+                    // ),
+                    // const SizedBox(height: 20),
+                    // _buildDateField(
+                    //   controller: _pollutionExpiryController,
+                    //   label: 'Pollution Certificate Expiry',
+                    //   labelText:
+                    //       FFLocalizations.of(context).getText('veh0012'),
+                    //   hintText: 'Tap to select date',
+                    //   icon: Icons.eco,
+                    // ),
 
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 20),
 
                     // Photo Upload (screenshot: large white card, icon in circle, Tap to upload photo, Camera or Gallery)
                     Text(
@@ -335,67 +338,67 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     ),
                     const SizedBox(height: 12),
                     _buildPhotoUpload(hasImage),
-                    const SizedBox(height: 24),
+                    // const SizedBox(height: 24),
 
-                    Text(
-                      FFLocalizations.of(context).getText('veh0014'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExtraImageUpload(
-                      image: _pollutionImage,
-                      isValid: _isPollutionValid,
-                      onImageSelected: (file) {
-                        setState(() {
-                          _pollutionImage = file;
-                          _isPollutionValid = true;
-                        });
+                    // Text(
+                    //   FFLocalizations.of(context).getText('veh0014'),
+                    //   style: const TextStyle(
+                    //     fontSize: 16,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: AppColors.textDark,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 12),
+                    // _buildExtraImageUpload(
+                    //   image: _pollutionImage,
+                    //   isValid: _isPollutionValid,
+                    //   onImageSelected: (file) {
+                    //     setState(() {
+                    //       _pollutionImage = file;
+                    //       _isPollutionValid = true;
+                    //     });
 
-                        FFAppState().pollutionImage = file;
-                        if (file?.bytes != null) {
-                          FFAppState().pollutionBase64 = base64Encode(file!.bytes!);
-                        }
-                        FFAppState().update(() {});
-                      },
-                    ),
+                    //     FFAppState().pollutionImage = file;
+                    //     if (file?.bytes != null) {
+                    //       FFAppState().pollutionBase64 = base64Encode(file!.bytes!);
+                    //     }
+                    //     FFAppState().update(() {});
+                    //   },
+                    // ),
 
-                    const SizedBox(height: 24),
+                    // const SizedBox(height: 24),
 
-                    Text(
-                      FFLocalizations.of(context).getText('veh0015'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExtraImageUpload(
-                      image: _insuranceImage,
-                      isValid: _isInsuranceValid,
-                      onImageSelected: (file) {
-                        setState(() {
-                          _insuranceImage = file;
-                          _isInsuranceValid = true;
-                        });
+                    // Text(
+                    //   FFLocalizations.of(context).getText('veh0015'),
+                    //   style: const TextStyle(
+                    //     fontSize: 16,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: AppColors.textDark,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 12),
+                    // _buildExtraImageUpload(
+                    //   image: _insuranceImage,
+                    //   isValid: _isInsuranceValid,
+                    //   onImageSelected: (file) {
+                    //     setState(() {
+                    //       _insuranceImage = file;
+                    //       _isInsuranceValid = true;
+                    //     });
 
-                        FFAppState().insuranceImage = file;
-                        if (file?.bytes != null) {
-                          FFAppState().insuranceBase64 = base64Encode(file!.bytes!);
-                        }
-                        FFAppState().update(() {});
-                      },
-                    ),
+                    //     FFAppState().insuranceImage = file;
+                    //     if (file?.bytes != null) {
+                    //       FFAppState().insuranceBase64 = base64Encode(file!.bytes!);
+                    //     }
+                    //     FFAppState().update(() {});
+                    //   },
+                    // ),
 
-                    const SizedBox(height: 32),
+                    // const SizedBox(height: 32),
 
 
-                    // Submit Button
-                    _buildSubmitButton(hasImage),
+                    // // Submit Button
+                    // _buildSubmitButton(hasImage),
 
                     const SizedBox(height: 20),
                   ],

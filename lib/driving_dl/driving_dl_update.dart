@@ -64,10 +64,12 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    _animationController.forward();
-
-    _loadSavedData();
-    _debugPrintState();
+    // Defer loading data and animations until after initState and first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _loadSavedData();
+      _debugPrintState();
+    });
 
     _licenseNumberController.addListener(() {
       FFAppState().licenseNumber =

@@ -174,7 +174,7 @@ class HomeController extends ChangeNotifier {
       if (preferredCityIdRaw != null) {
         parsedCityId = int.tryParse(preferredCityIdRaw.toString());
       }
-      if (parsedCityId == null || parsedCityId! <= 0) {
+      if (parsedCityId == null || parsedCityId <= 0) {
         final preferredCityObj = getJsonField(body, r'''$.data.preferred_city''');
         if (preferredCityObj != null && preferredCityObj is Map) {
           final id = preferredCityObj['id'];
@@ -183,13 +183,13 @@ class HomeController extends ChangeNotifier {
           if (name != null && name.isNotEmpty) parsedCityName = name;
         }
       }
-      if (parsedCityId == null || parsedCityId! <= 0) {
+      if (parsedCityId == null || parsedCityId <= 0) {
         final cityIdRaw = getJsonField(body, r'''$.data.city_id''');
         if (cityIdRaw != null) parsedCityId = int.tryParse(cityIdRaw.toString());
       }
     }
-    if (parsedCityId != null && parsedCityId! > 0) {
-      FFAppState().preferredCityId = parsedCityId!;
+    if (parsedCityId != null && parsedCityId > 0) {
+      FFAppState().preferredCityId = parsedCityId;
       if (parsedCityName != null && parsedCityName.isNotEmpty) {
         FFAppState().preferredCityName = parsedCityName;
       }
@@ -270,7 +270,7 @@ class HomeController extends ChangeNotifier {
     }
 
     // Rapido-style: location requested at pre-login. Only show disclosure if not yet granted.
-    final permission = await Geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.deniedForever) {
       await onShowPermissionDialog();
       isOnline = false;
@@ -280,6 +280,15 @@ class HomeController extends ChangeNotifier {
     if (permission == LocationPermission.denied) {
       final agreed = await onShowLocationDisclosure();
       if (!agreed) {
+        isOnline = false;
+        _notify();
+        return;
+      }
+      // Request permission after user agrees to disclosure
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        await onShowPermissionDialog();
         isOnline = false;
         _notify();
         return;
@@ -419,7 +428,10 @@ class HomeController extends ChangeNotifier {
     }
 
     // Rapido/Uber-style: require background location for ride matching when app is backgrounded
-    if (Platform.isAndroid && permission == LocationPermission.whileInUse) {
+    if (Platform.isAndroid && 
+        permission == LocationPermission.whileInUse && 
+        !FFAppState().hasAskedBackgroundLocation) {
+      FFAppState().hasAskedBackgroundLocation = true;
       final agreed = await onShowBackgroundLocationNotice();
       if (!agreed) {
         _isTrackingLocation = false;

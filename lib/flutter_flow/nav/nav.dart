@@ -425,11 +425,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const AdharUploadWidget(),
         ),
         FFRoute(
-          name: UploadRcWidget.routeName,
-          path: UploadRcWidget.routePath,
-          builder: (context, params) => const UploadRcWidget(),
-        ),
-        FFRoute(
           name: VehicleImageUpdateWidget.routeName,
           path: VehicleImageUpdateWidget.routePath,
           builder: (context, params) => const VehicleImageUpdateWidget(),
@@ -456,11 +451,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const FaceVerifyupdateWidget(),
         ),
 
-        FFRoute(
-          name: RCUploadWidget.routeName,
-          path: RCUploadWidget.routePath,
-          builder: (context, params) => const RCUploadWidget(),
-        ),
         FFRoute(
           name: InboxPageWidget.routeName,
           path: InboxPageWidget.routePath,
@@ -495,17 +485,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'mobile',
               ParamType.int,
             ),
-          ),
-        ),
-        FFRoute(
-          name: AddressDetailsWidget.routeName,
-          path: AddressDetailsWidget.routePath,
-          builder: (context, params) => AddressDetailsWidget(
-            mobile: params.getParam('mobile', ParamType.int),
-            firstname: params.getParam('firstname', ParamType.String),
-            lastname: params.getParam('lastname', ParamType.String),
-            email: params.getParam('email', ParamType.String),
-            referalcode: params.getParam('referalcode', ParamType.String),
           ),
         ),
         FFRoute(

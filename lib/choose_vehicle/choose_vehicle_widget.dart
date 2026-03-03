@@ -107,13 +107,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                 onTap: () {
                                   final mobile = widget.mobile ?? FFAppState().mobileNo;
                                   context.goNamed(
-                                    AddressDetailsWidget.routeName,
+                                    FirstdetailsWidget.routeName,
                                     queryParameters: {
                                       'mobile': serializeParam(mobile, ParamType.int),
-                                      'firstname': serializeParam(widget.firstname, ParamType.String),
-                                      'lastname': serializeParam(widget.lastname, ParamType.String),
-                                      'email': serializeParam(widget.email, ParamType.String),
-                                      'referalcode': serializeParam(widget.referalcode, ParamType.String),
                                     }.withoutNulls,
                                   );
                                 },
