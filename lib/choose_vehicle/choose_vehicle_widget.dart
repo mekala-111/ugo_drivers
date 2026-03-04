@@ -275,6 +275,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                             'referalcode': serializeParam(widget.referalcode ?? FFAppState().referralCode, ParamType.String),
                             'vehicletype': serializeParam(FFAppState().selectvehicle, ParamType.String),
                             'isRegistrationFlow': serializeParam(true, ParamType.bool),
+                            'vehicleid': serializeParam(FFAppState().adminVehicleId, ParamType.int),
                           }.withoutNulls,
                         );
                       },

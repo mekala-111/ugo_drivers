@@ -598,7 +598,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             : null,
         'preferred_earning_mode': FFAppState().preferredEarningMode,
         'vehicle_image': FFAppState().vehicleImage?.name,
-        'fcmToken': fcmToken ?? '',
+        'fcm_token': fcmToken ?? '',
       };
       if (FFAppState().licenseNumber.isNotEmpty) {
         driverJsonData['license_number'] = FFAppState().licenseNumber;
@@ -636,16 +636,20 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         driverJsonData['emergency_contact_phone'] =
             FFAppState().emergencyContactPhone;
       }
+      if (FFAppState().adminVehicleId > 0) {
+       
+        driverJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
+      }
 
       final vehicleJsonData = <String, dynamic>{
         'vehicle_type': FFAppState().selectvehicle.isEmpty
             ? 'auto'
             : FFAppState().selectvehicle,
       };
-      if (FFAppState().adminVehicleId > 0) {
-        vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
-        vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
-      }
+      // if (FFAppState().adminVehicleId > 0) {
+      //   vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
+      //   vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
+      // }
       if (FFAppState().vehicleMake.isNotEmpty) {
         vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
       }
@@ -697,8 +701,11 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
-        fcmToken: fcmToken ?? '',
+        // fcmToken: fcmToken ?? '',
       );
+      print("STATUS CODE: ${_model.apiResult7ju?.statusCode}");
+print("RAW RESPONSE: ${_model.apiResult7ju?.bodyText}");
+print("JSON RESPONSE: ${_model.apiResult7ju?.jsonBody}");
 
       // 4. Handle Response
       if (_model.apiResult7ju?.succeeded ?? false) {

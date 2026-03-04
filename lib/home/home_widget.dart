@@ -376,8 +376,9 @@ class _HomeWidgetState extends State<HomeWidget>
         }
         _mapKey.currentState?.updateMarkers(markers);
 
-        // ✅ Highlight pickup/drop area like Rapido Captain (~350m radius circles)
-        const radiusMeters = 350.0;
+        // ✅ Highlight pickup/drop area like Rapido C
+        // aptain (~350m radius circles)
+        const radiusMeters = 351.0;
         final circles = <Circle>{};
         if (hasPickup && (isAccepted || isStarted)) {
           circles.add(Circle(

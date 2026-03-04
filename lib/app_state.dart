@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/uploaded_file.dart';
 import '/services/secure_storage_service.dart';
+import 'dart:convert';
 
 class FFAppState extends ChangeNotifier {
   static final FFAppState _instance = FFAppState._internal();
@@ -270,7 +271,68 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _pollutionBase64 = prefs.getString('ff_pollutionBase64') ?? '';
     });
+    _restoreUploadedFilesFromBase64();
   }
+
+
+
+  void _restoreUploadedFilesFromBase64() {
+  if (_licenseFrontBase64.isNotEmpty) {
+    _licenseFrontImage = FFUploadedFile(
+      name: 'license_front.jpg',
+      bytes: base64Decode(_licenseFrontBase64),
+    );
+  }
+
+  if (_licenseBackBase64.isNotEmpty) {
+    _licenseBackImage = FFUploadedFile(
+      name: 'license_back.jpg',
+      bytes: base64Decode(_licenseBackBase64),
+    );
+  }
+
+  if (_profilePhotoBase64.isNotEmpty) {
+    _profilePhoto = FFUploadedFile(
+      name: 'profile.jpg',
+      bytes: base64Decode(_profilePhotoBase64),
+    );
+  }
+
+  if (_vehicleBase64.isNotEmpty) {
+    _vehicleImage = FFUploadedFile(
+      name: 'vehicle.jpg',
+      bytes: base64Decode(_vehicleBase64),
+    );
+  }
+
+  if (_rcFrontBase64.isNotEmpty) {
+    _rcFrontImage = FFUploadedFile(
+      name: 'rc_front.jpg',
+      bytes: base64Decode(_rcFrontBase64),
+    );
+  }
+
+  if (_rcBackBase64.isNotEmpty) {
+    _rcBackImage = FFUploadedFile(
+      name: 'rc_back.jpg',
+      bytes: base64Decode(_rcBackBase64),
+    );
+  }
+
+  if (_insuranceBase64.isNotEmpty) {
+    _insuranceImage = FFUploadedFile(
+      name: 'insurance.jpg',
+      bytes: base64Decode(_insuranceBase64),
+    );
+  }
+
+  if (_pollutionBase64.isNotEmpty) {
+    _pollutioncertificateImage = FFUploadedFile(
+      name: 'pollution.jpg',
+      bytes: base64Decode(_pollutionBase64),
+    );
+  }
+}
 
   Future<void> _loadAadharPanFromSecureStorage() async {
     final sec = SecureStorageService.instance;
