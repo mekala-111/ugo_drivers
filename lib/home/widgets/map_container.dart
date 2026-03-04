@@ -26,6 +26,8 @@ class MapContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('🗺️ MapContainer building with location: ${mapCenter ?? initialLocation}');
+    
     return Stack(
       children: [
         FlutterFlowGoogleMap(

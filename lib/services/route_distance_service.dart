@@ -34,7 +34,10 @@ class RouteDistanceService {
     if (_inflight.containsKey(key)) return _inflight[key];
 
     final apiKey = Config.googleMapsApiKey;
-    if (apiKey.isEmpty) return null;
+    if (apiKey.isEmpty) {
+      print('❌ Google Maps API key is EMPTY! Set via --dart-define=GOOGLE_MAPS_API_KEY=xxx');
+      return null;
+    }
 
     final future = () async {
       final uri = Uri.parse(
@@ -45,23 +48,55 @@ class RouteDistanceService {
         '&key=$apiKey',
       );
 
+      print('🌐 Calling Google Distance Matrix API: $originLat,$originLng → $destLat,$destLng');
+
       try {
         final res = await http.get(uri);
-        if (res.statusCode != 200) return null;
+        print('📡 API Response Status: ${res.statusCode}');
+        
+        if (res.statusCode != 200) {
+          print('❌ API returned non-200 status: ${res.statusCode}');
+          print('Response: ${res.body}');
+          return null;
+        }
+        
         final data = jsonDecode(res.body) as Map<String, dynamic>;
-        if (data['status'] != 'OK') return null;
+        print('📦 API Response: ${data['status']}');
+        
+        if (data['status'] != 'OK') {
+          print('❌ API status not OK: ${data['status']}');
+          print('Error message: ${data['error_message'] ?? 'none'}');
+          return null;
+        }
+        
         final rows = data['rows'] as List<dynamic>;
-        if (rows.isEmpty) return null;
+        if (rows.isEmpty) {
+          print('❌ No rows in response');
+          return null;
+        }
+        
         final elements = rows.first['elements'] as List<dynamic>;
-        if (elements.isEmpty) return null;
+        if (elements.isEmpty) {
+          print('❌ No elements in response');
+          return null;
+        }
+        
         final element = elements.first as Map<String, dynamic>;
-        if (element['status'] != 'OK') return null;
+        if (element['status'] != 'OK') {
+          print('❌ Element status not OK: ${element['status']}');
+          return null;
+        }
+        
         final distance = element['distance'] as Map<String, dynamic>;
         final meters = (distance['value'] as num).toDouble();
         final km = meters / 1000;
+        
+        print('✅ Google Maps returned: ${km.toStringAsFixed(2)}km (${meters.round()}m)');
+        
         _cache[key] = _CachedDistance(km: km);
         return km;
-      } catch (_) {
+      } catch (e) {
+        print('💥 Exception calling Google Maps API: $e');
         return null;
       } finally {
         _inflight.remove(key);
