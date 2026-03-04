@@ -350,7 +350,7 @@ class CreateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
-    String? fcmToken = '',
+    // String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
 
@@ -379,7 +379,7 @@ class CreateDriverCall {
         'registration_image': registrationImage,
         'insurance_image': insuranceImage,
         'pollution_certificate_image': pollutionImage,
-        'fcm_token': fcmToken,
+        // 'fcm_token': fcmToken,
       },
       bodyType: BodyType.MULTIPART,
       returnBody: true,
