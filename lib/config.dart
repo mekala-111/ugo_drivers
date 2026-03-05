@@ -6,7 +6,8 @@ import '/services/firebase_remote_config_service.dart';
 /// Example: flutter run --dart-define=API_BASE_URL=https://...
 class Config {
   static String get baseUrl {
-    const defaultUrl = 'https://ugotaxi.icacorp.org';
+    const defaultUrl = 'https://ugo-api.icacorp.org';
+    // const defaultUrl = 'https://ugotaxi.icacorp.org';
     return const String.fromEnvironment('API_BASE_URL',
         defaultValue: defaultUrl);
   }

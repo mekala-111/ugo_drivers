@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_element
+
 import '/backend/api_requests/api_calls.dart';
 import '/components/date_picker_field.dart';
 import '/config.dart' as app_config;
@@ -492,7 +494,6 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
-  // ignore: unused_element
   Widget _buildVehicleTypeFromApi() {
     return FutureBuilder<ApiCallResponse>(
       future: ChoosevehicleCall.call(),
@@ -655,7 +656,6 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
-  // ignore: unused_element
   Widget _buildSelectedVehicleTypeChip(String vehicleName) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),

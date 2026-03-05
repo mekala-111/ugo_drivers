@@ -184,6 +184,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     currentMapCenter = initialPosition;
     _controller = widget.controller;
     initializeMarkerBitmap();
+    print('🗺️ FlutterFlowGoogleMap initState - initialPosition: $initialPosition, zoom: $initialZoom');
   }
 
   @override
@@ -205,7 +206,13 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       absorbing: !widget.allowInteraction,
       child: GoogleMap(
         onMapCreated: (controller) async {
-          if (!_controller.isCompleted) _controller.complete(controller);
+          print('🗺️ GoogleMap onMapCreated called');
+          if (!_controller.isCompleted) {
+            _controller.complete(controller);
+            print('🗺️ GoogleMap controller completed');
+          } else {
+            print('🗺️ GoogleMap controller already completed');
+          }
           widget.onMapCreated?.call(controller);
         },
         // Use null for standard (default) map; '[]' can cause blank tiles on some devices

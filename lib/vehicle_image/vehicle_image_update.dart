@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_element
+
 import '/backend/api_requests/api_calls.dart';
 import '/components/date_picker_field.dart';
 import '/config.dart' as app_config;
@@ -402,7 +404,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  HERO PHOTO SECTION
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildHeroPhotoSection(bool hasImage) {
     return GestureDetector(
       onTap: () async {
@@ -1069,7 +1070,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  SECTION LABEL
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _sectionLabel(String title, IconData icon) {
     return Row(children: [
       Container(
@@ -1094,7 +1094,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  GLASSMORPHISM CARD
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildCard({
     required String title,
     required IconData icon,
@@ -1156,7 +1155,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  VIBRANT TEXT FIELD
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildVibrantField({
     required TextEditingController controller,
     required String label,
@@ -1252,7 +1250,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  COLOR GRID
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildColorGrid() {
     return Wrap(
       spacing: 10,
@@ -1324,7 +1321,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  VEHICLE TYPE FROM API
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildVehicleTypeFromApi() {
     return FutureBuilder<ApiCallResponse>(
       future: ChoosevehicleCall.call(),
@@ -1518,7 +1514,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
     );
   }
 
-  // ignore: unused_element
   Widget _buildSelectedVehicleTypeChip(String vehicleName) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1561,7 +1556,6 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   // ══════════════════════════════════════════════════════════════════
   //  DOCUMENT UPLOAD
   // ══════════════════════════════════════════════════════════════════
-  // ignore: unused_element
   Widget _buildDocUpload({
     required String label,
     required IconData icon,
