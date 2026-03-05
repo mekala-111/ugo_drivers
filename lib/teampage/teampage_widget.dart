@@ -22,7 +22,6 @@ class _TeampageWidgetState extends State<TeampageWidget>
   late TeampageModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Ugo Brand Colors
   final Color ugoOrange = AppColors.primary;
   final Color ugoOrangeLight = AppColors.primaryLight;
   final Color ugoGreen = AppColors.success;
@@ -34,14 +33,15 @@ class _TeampageWidgetState extends State<TeampageWidget>
   void initState() {
     super.initState();
     _model = createModel(context, () => TeampageModel());
-
-    // Load data with a slight delay for animation effect
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadReferralData());
   }
 
   Future<void> _loadReferralData() async {
-    final response = await DriverMyReferralsCall.call(
+    setState(() => _isLoading = true);
+
+    final response = await ReferralDashboardCall.call(
       token: FFAppState().accessToken,
+      driverId: FFAppState().driverid,
     );
 
     if (response.succeeded) {
@@ -60,6 +60,45 @@ class _TeampageWidgetState extends State<TeampageWidget>
     super.dispose();
   }
 
+  // ── JSON path helpers ────────────────────────────────────────────────────
+
+  /// $.driver.referred_driver_count
+  String get _referredCount {
+    if (_model.referralData == null) return '0';
+    return '${getJsonField(_model.referralData, r'$.driver.referred_driver_count') ?? 0}';
+  }
+
+  /// $.lifetime_statistics.total_commission_earned
+  String get _lifetimeCommission {
+    if (_model.referralData == null) return '₹0';
+    return '₹${getJsonField(_model.referralData, r'$.lifetime_statistics.total_commission_earned') ?? 0}';
+  }
+
+  /// $.yesterday_statistics.my_performance.ride_earnings
+  String get _yesterdayEarnings {
+    if (_model.referralData == null) return '₹0';
+    return '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.ride_earnings') ?? 0}';
+  }
+
+  /// $.yesterday_statistics.total_commission_earned_yesterday
+  String get _yesterdayCommission {
+    if (_model.referralData == null) return '₹0';
+    return '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}';
+  }
+
+  /// ✅ CORRECT PATH: $.yesterday_statistics.referrals
+  List<dynamic> get _referralsList {
+    if (_model.referralData == null) return [];
+    return (getJsonField(
+              _model.referralData,
+              r'$.yesterday_statistics.referrals',
+              true,
+            ) as List?) ??
+        [];
+  }
+
+  // ── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -69,222 +108,334 @@ class _TeampageWidgetState extends State<TeampageWidget>
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: AppColors.backgroundAlt, // Light Grey Background
+        backgroundColor: AppColors.backgroundAlt,
         body: _isLoading
             ? Center(child: CircularProgressIndicator(color: ugoOrange))
             : Stack(
-          children: [
-            // 1️⃣ HEADER BACKGROUND
-            Container(
-              height: 280,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [ugoOrange, ugoOrangeLight],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: ugoOrange.withValues(alpha:0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  )
-                ],
-              ),
-            ),
-
-            // 2️⃣ CONTENT
-            SafeArea(
-              child: Column(
                 children: [
-                  // Custom App Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      children: [
-                        FlutterFlowIconButton(
-                          borderColor: Colors.white.withValues(alpha:0.3),
-                          borderRadius: 30.0,
-                          borderWidth: 1.0,
-                          buttonSize: 45.0,
-                          fillColor: Colors.white.withValues(alpha:0.2),
-                          icon: const Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 24.0),
-                          onPressed: () => context.pop(),
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          'My Team',
-                          style: GoogleFonts.interTight(
-                            color: Colors.white,
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Header Info (Summary)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total Referrals',
-                              style: GoogleFonts.inter(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              _model.referralData != null
-                                  ? '${getJsonField(_model.referralData, r'$.data.total_referrals') ?? 0}'
-                                  : '0',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha:0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.star,
-                                  color: Colors.amber, size: 16),
-                              const SizedBox(width: 4),
-                              Text(
-                                'My Team',
-                                style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
+                  // ── HEADER GRADIENT ──
+                  Container(
+                    height: 300,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [ugoOrange, ugoOrangeLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ugoOrange.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         )
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
-
-                  // 3️⃣ STATS CARDS (Floating)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Center(
-                      child: Row(
-                        children: [
-                          // Total Rides Card
-                          Expanded(
-                            child: _buildStatCard(
-                              title: 'Total Referrals',
-                              value: _model.referralData != null
-                                  ? '${getJsonField(_model.referralData, r'$.data.total_referrals') ?? 0}'
-                                  : '0',
-                              icon: Icons.people_alt,
-                              color: ugoBlue,
-                              delay: 100,
-                              onTap: () {},
-                            ),
+                  // ── CONTENT ──
+                  SafeArea(
+                    child: Column(
+                      children: [
+                        // App Bar
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 12.0),
+                          child: Row(
+                            children: [
+                              FlutterFlowIconButton(
+                                borderColor:
+                                    Colors.white.withValues(alpha: 0.3),
+                                borderRadius: 30.0,
+                                borderWidth: 1.0,
+                                buttonSize: 45.0,
+                                fillColor:
+                                    Colors.white.withValues(alpha: 0.2),
+                                icon: const Icon(Icons.arrow_back_rounded,
+                                    color: Colors.white, size: 24.0),
+                                onPressed: () => context.pop(),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                'My Team',
+                                style: GoogleFonts.interTight(
+                                  color: Colors.white,
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(),
+                              FlutterFlowIconButton(
+                                borderColor:
+                                    Colors.white.withValues(alpha: 0.3),
+                                borderRadius: 30.0,
+                                borderWidth: 1.0,
+                                buttonSize: 42.0,
+                                fillColor:
+                                    Colors.white.withValues(alpha: 0.2),
+                                icon: const Icon(Icons.refresh_rounded,
+                                    color: Colors.white, size: 20.0),
+                                onPressed: _loadReferralData,
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          // Earnings Card
-                          Expanded(
-                            child: _buildStatCard(
-                              title: 'Total Earnings',
-                              value: _model.referralData != null
-                                  ? '₹${getJsonField(_model.referralData, r'$.data.total_earnings') ?? 0}'
-                                  : '₹0',
-                              icon: Icons.account_balance_wallet,
-                              color: ugoGreen,
-                              delay: 200,
-                              onTap: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 4️⃣ TEAM LIST SECTION
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(top: 24, left: 20, right: 20),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'My Referrals',
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Your referred drivers',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
 
-                          // LIST BUILDER - takes remaining space
-                          Expanded(
-                            child: _buildTeamList(),
+                        // Header summary
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0),
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Total Referrals',
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white70,
+                                        fontSize: 12),
+                                  ),
+                                  Text(
+                                    _referredCount,
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white
+                                      .withValues(alpha: 0.2),
+                                  borderRadius:
+                                      BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        color: Colors.amber, size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'My Team',
+                                      style: GoogleFonts.inter(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Stat cards
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Total Referrals',
+                                  value: _referredCount,
+                                  icon: Icons.people_alt,
+                                  color: ugoBlue,
+                                  delay: 100,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Lifetime Commission',
+                                  value: _lifetimeCommission,
+                                  icon: Icons.account_balance_wallet,
+                                  color: ugoGreen,
+                                  delay: 200,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Yesterday strip
+                        _buildYesterdayStrip(),
+
+                        const SizedBox(height: 12),
+
+                        // Referrals list
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.only(
+                                top: 22, left: 20, right: 20),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(30),
+                                topRight: Radius.circular(30),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'My Referrals',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Your referred drivers',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: Colors.grey[500],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    Container(
+                                      padding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: ugoOrange
+                                            .withValues(alpha: 0.1),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '${_referralsList.length} drivers',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: ugoOrange,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Expanded(child: _buildTeamList()),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  // ── Yesterday strip ──────────────────────────────────────────────────────
+
+  Widget _buildYesterdayStrip() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: double.infinity,
+        padding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_rounded,
+                color: ugoOrange, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              'Yesterday',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Colors.black87,
+              ),
             ),
+            const Spacer(),
+            _miniStat(
+                label: 'Ride Earnings',
+                value: _yesterdayEarnings,
+                color: ugoGreen),
+            const SizedBox(width: 20),
+            _miniStat(
+                label: 'Commission',
+                value: _yesterdayCommission,
+                color: ugoBlue),
           ],
         ),
       ),
     );
   }
 
-  // 🔹 WIDGET: Animated Stat Card
+  Widget _miniStat(
+      {required String label,
+      required String value,
+      required Color color}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          value,
+          style: GoogleFonts.interTight(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(label,
+            style: GoogleFonts.inter(
+                fontSize: 10, color: Colors.grey[500])),
+      ],
+    );
+  }
+
+  // ── Stat Card ────────────────────────────────────────────────────────────
+
   Widget _buildStatCard({
     required String title,
     required String value,
     required IconData icon,
     required Color color,
     required int delay,
-    required VoidCallback onTap,
   }) {
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: 1),
@@ -293,53 +444,49 @@ class _TeampageWidgetState extends State<TeampageWidget>
       builder: (context, double val, child) {
         return Transform.scale(
           scale: val,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha:0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha:0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: color, size: 24),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  value,
+                  style: GoogleFonts.inter(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    value,
-                    style: GoogleFonts.inter(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -347,20 +494,33 @@ class _TeampageWidgetState extends State<TeampageWidget>
     );
   }
 
-  // 🔹 WIDGET: Team List
-  Widget _buildTeamList() {
-    final referrals = getJsonField(
-        _model.referralData, r'$.data.referrals') as List?;
+  // ── Team List ────────────────────────────────────────────────────────────
 
-    if (referrals == null || referrals.isEmpty) {
+  Widget _buildTeamList() {
+    // ✅ CORRECT PATH: $.yesterday_statistics.referrals
+    final referrals = _referralsList;
+
+    if (referrals.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
             const SizedBox(height: 12),
-            Text('No referrals found',
-                style: GoogleFonts.inter(color: Colors.grey[400])),
+            Text(
+              'No referrals yet',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[400],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Share your code to grow your team',
+              style: GoogleFonts.inter(
+                  fontSize: 12, color: Colors.grey[400]),
+            ),
           ],
         ),
       );
@@ -371,29 +531,29 @@ class _TeampageWidgetState extends State<TeampageWidget>
       itemCount: referrals.length,
       physics: const BouncingScrollPhysics(),
       itemBuilder: (context, index) {
-        final driver = referrals[index];
-        final name = getJsonField(driver, r'$.name')?.toString() ?? 'Unknown';
-        final mobile = getJsonField(driver, r'$.mobile_number')?.toString() ?? '';
-        final status = getJsonField(driver, r'$.status')?.toString() ?? 'unknown';
-        final amountPerRide =
-            getJsonField(driver, r'$.amount_per_pro_ride') ?? 0;
-        final createdAt =
-            getJsonField(driver, r'$.created_at')?.toString() ?? '';
-        final createdAtText = createdAt.isNotEmpty
-            ? dateTimeFormat(
-                'MMM d, yyyy',
-                DateTime.tryParse(createdAt) ?? DateTime.now(),
-              )
-            : '-';
+        final driver = referrals[index] as Map<String, dynamic>;
 
-        // Staggered Animation
+        // ✅ Keys from actual API response
+        final name = driver['name']?.toString() ?? 'Unknown';
+        final proRides =
+            (driver['pro_rides_completed'] as num?)?.toInt() ?? 0;
+        final normalRides =
+            (driver['normal_rides_completed'] as num?)?.toInt() ?? 0;
+        final rideEarnings =
+            (driver['ride_earnings'] as num?)?.toInt() ?? 0;
+        final commission =
+            (driver['commission_earned_by_72'] as num?)?.toDouble() ??
+                0.0;
+        final totalRides = proRides + normalRides;
+        final bool isActive = totalRides > 0;
+
         return TweenAnimationBuilder(
           tween: Tween<double>(begin: 0, end: 1),
-          duration: Duration(milliseconds: 400 + (index * 100)),
+          duration: Duration(milliseconds: 400 + (index * 80)),
           curve: Curves.easeOut,
           builder: (context, double val, child) {
             return Transform.translate(
-              offset: Offset(0, 50 * (1 - val)),
+              offset: Offset(0, 30 * (1 - val)),
               child: Opacity(
                 opacity: val,
                 child: Container(
@@ -402,68 +562,105 @@ class _TeampageWidgetState extends State<TeampageWidget>
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey[200]!),
+                    border: Border.all(
+                      color: isActive
+                          ? ugoGreen.withValues(alpha: 0.3)
+                          : Colors.grey[200]!,
+                    ),
                   ),
                   child: Row(
                     children: [
                       // Avatar
                       Container(
-                        width: 45,
-                        height: 45,
+                        width: 46,
+                        height: 46,
                         decoration: BoxDecoration(
-                          color: ugoOrange.withValues(alpha:0.1),
+                          color: isActive
+                              ? ugoGreen.withValues(alpha: 0.12)
+                              : ugoOrange.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
-                            name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: GoogleFonts.inter(
-                              color: ugoOrange,
+                            name.isNotEmpty
+                                ? name[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.interTight(
+                              color:
+                                  isActive ? ugoGreen : ugoOrange,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 14),
+
                       // Info
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              name,
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(Icons.phone, size: 14, color: ugoBlue),
-                                const SizedBox(width: 4),
-                                Text(
-                                  mobile.isNotEmpty ? mobile : 'No phone',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
+                                Expanded(
+                                  child: Text(
+                                    name,
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 7,
+                                          vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? ugoGreen.withValues(
+                                            alpha: 0.12)
+                                        : Colors.grey.withValues(
+                                            alpha: 0.12),
+                                    borderRadius:
+                                        BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    isActive
+                                        ? 'Active'
+                                        : 'Inactive',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: isActive
+                                          ? ugoGreen
+                                          : Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
-                                Icon(Icons.verified,
-                                    size: 14, color: ugoGreen),
-                                const SizedBox(width: 4),
+                                _rideChip(
+                                    label: '$proRides Pro',
+                                    color: ugoBlue),
+                                const SizedBox(width: 6),
+                                _rideChip(
+                                    label: '$normalRides Normal',
+                                    color: ugoOrange),
+                                const SizedBox(width: 6),
                                 Text(
-                                  '${status.toUpperCase()} • $createdAtText',
+                                  '₹$rideEarnings earned',
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
                                   ),
                                 ),
                               ],
@@ -471,24 +668,27 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           ],
                         ),
                       ),
-                      // Earning
+
+                      // Commission
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'PER RIDE',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
+                            '₹${commission.toStringAsFixed(0)}',
+                            style: GoogleFonts.interTight(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[400],
+                              color: commission > 0
+                                  ? ugoGreen
+                                  : Colors.grey[400],
                             ),
                           ),
                           Text(
-                            '₹$amountPerRide',
+                            'commission',
                             style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: ugoGreen,
+                              fontSize: 10,
+                              color: Colors.grey[400],
                             ),
                           ),
                         ],
@@ -501,6 +701,26 @@ class _TeampageWidgetState extends State<TeampageWidget>
           },
         );
       },
+    );
+  }
+
+  Widget _rideChip(
+      {required String label, required Color color}) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 }

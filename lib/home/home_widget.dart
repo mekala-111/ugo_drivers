@@ -192,23 +192,34 @@ class _HomeWidgetState extends State<HomeWidget>
       _maybeShowPostLoginScreens();
     });
   }
-  Future<void> _initLocationSafely() async {
+ Future<void> _initLocationSafely() async {
+
+  // Check if already asked
+  if (FFAppState().locationPermissionAsked == true) {
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    _controller.setUserLocation(
+      LatLng(position.latitude, position.longitude),
+    );
+    return;
+  }
+
   LocationPermission permission = await Geolocator.checkPermission();
 
-  // Ask only if truly denied
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
   }
 
-  // If permanently denied, do not ask again
   if (permission == LocationPermission.deniedForever) {
-    print("Location permanently denied");
     return;
   }
 
-  // If granted, then get location
   if (permission == LocationPermission.whileInUse ||
       permission == LocationPermission.always) {
+
+    FFAppState().locationPermissionAsked = true;
 
     final position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,

@@ -21,6 +21,7 @@ class FFAppState extends ChangeNotifier {
   bool hasRC = false;
   int _activeRideId = 0;
   String _activeRideStatus = '';
+  bool locationPermissionAsked = false;
 
   /// Set when user taps ride request notification (Rapido-style). HomeWidget fetches and shows.
   int pendingRideIdFromNotification = 0;

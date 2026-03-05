@@ -1518,92 +1518,6 @@ class GetDriverIncentivesCall {
       ) as List?;
 }
 
-class ReferralDashboardCall {
-  static Future<ApiCallResponse> call({
-    required int driverId,
-    String? token = '',
-  }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'referralDashboard',
-      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  static dynamic data(dynamic response) => getJsonField(
-        response,
-        r'$.data',
-      );
-
-  static bool? success(dynamic response) => castToType<bool>(getJsonField(
-        response,
-        r'$.success',
-      ));
-
-  static String? message(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'$.message',
-      ));
-
-  static dynamic totalEarnings(dynamic response) => getJsonField(
-        response,
-        r'$.data.total_earnings',
-      );
-
-  static dynamic totalRides(dynamic response) => getJsonField(
-        response,
-        r'$.data.total_rides',
-      );
-
-  static String? driverName(dynamic response) =>
-      castToType<String>(getJsonField(
-        response,
-        r'$.driver_info.name',
-      ));
-
-  static int? totalProRides(dynamic response) => castToType<int>(getJsonField(
-        response,
-        r'$.data.my_ride_statistics.total_pro_rides',
-      ));
-
-  static int? totalNormalRides(dynamic response) =>
-      castToType<int>(getJsonField(
-        response,
-        r'$.data.my_ride_statistics.total_normal_rides',
-      ));
-
-  static dynamic totalRideEarnings(dynamic response) => getJsonField(
-        response,
-        r'$.data.my_ride_statistics.total_ride_earnings',
-      );
-
-  static int? totalReferredDrivers(dynamic response) =>
-      castToType<int>(getJsonField(
-        response,
-        r'$.data.referral_summary.total_referred_drivers',
-      ));
-
-  static dynamic totalReferralEarnings(dynamic response) => getJsonField(
-        response,
-        r'$.data.referral_summary.total_referral_earnings',
-      );
-
-  static List? referredDriversDetailed(dynamic response) => getJsonField(
-        response,
-        r'$.data.referred_drivers_detailed',
-        true,
-      ) as List?;
-}
 
 class YesterdayStatisticsCall {
   static Future<ApiCallResponse> call({
@@ -2242,7 +2156,41 @@ class DriverIncentivesCall {
   static List<dynamic> filterRunningIncentives(List<dynamic> incentives) =>
       incentives.where((item) => itemIsRunning(item)).toList();
 }
+class ReferralDashboardCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'referralDashboard',
+      apiUrl:
+          '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
 
+  static int totalReferrals(dynamic response) =>
+      castToType<int>(
+          getJsonField(response, r'$.driver.referred_driver_count')) ??
+      0;
+
+  static int totalEarnings(dynamic response) =>
+      castToType<int>(getJsonField(
+              response, r'$.lifetime_statistics.total_commission_earned')) ??
+      0;
+
+  static List<dynamic> referrals(dynamic response) =>
+      (getJsonField(response, r'$.yesterday_statistics.referrals', true)
+              as List?) ??
+          [];
+}
 class VehiclePricingCall {
   static Future<ApiCallResponse> call({
     required int driverId,

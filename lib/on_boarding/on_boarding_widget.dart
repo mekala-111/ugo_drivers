@@ -704,8 +704,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         // fcmToken: fcmToken ?? '',
       );
       print("STATUS CODE: ${_model.apiResult7ju?.statusCode}");
-print("RAW RESPONSE: ${_model.apiResult7ju?.bodyText}");
-print("JSON RESPONSE: ${_model.apiResult7ju?.jsonBody}");
+      print("RAW RESPONSE: ${_model.apiResult7ju?.bodyText}");
+      print("JSON RESPONSE: ${_model.apiResult7ju?.jsonBody}");
 
       // 4. Handle Response
       if (_model.apiResult7ju?.succeeded ?? false) {
