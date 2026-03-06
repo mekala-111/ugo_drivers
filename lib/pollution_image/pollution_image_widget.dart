@@ -224,7 +224,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
         pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,
-        fcmToken: FFAppState().fcmToken,
+        // fcmToken: FFAppState().fcmToken,
       );
 
       if (apiResult.succeeded) {

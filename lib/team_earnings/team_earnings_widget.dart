@@ -25,11 +25,8 @@ class AnimatedListItem extends StatelessWidget {
       curve: Curves.easeOutQuart,
       builder: (context, value, child) {
         return Transform.translate(
-          offset: Offset(0, 30 * (1 - value)), // Slides up smoothly
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
+          offset: Offset(0, 30 * (1 - value)),
+          child: Opacity(opacity: value, child: child),
         );
       },
       child: child,
@@ -54,11 +51,11 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   late TabController _tabController;
 
   // Data Variables - All Earnings
-  String todaysEarnings = '₹0';
+  String todaysEarnings = '0';
   bool isLoading = true;
 
   // Data Variables - Team Earnings
-  String teamEarnings = '₹0';
+  String teamEarnings = '0';
   String totalReferrals = '0';
   List<dynamic> referredDrivers = [];
   bool isLoadingTeam = true;
@@ -79,7 +76,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
     super.dispose();
   }
 
-  // 1. Fetch General Earnings
+  // 1. Fetch General Earnings (unchanged)
   Future<void> _fetchEarningsData() async {
     setState(() => isLoading = true);
     try {
@@ -88,7 +85,6 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
         token: FFAppState().accessToken,
         period: 'all',
       );
-
       if (response.succeeded) {
         final data = response.jsonBody['data'];
         setState(() {
@@ -105,6 +101,14 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   }
 
   // 2. Fetch Team/Referral Data
+  // ✅ Fixed to match actual API response:
+  //   GET /api/referral-dashboard/:driverId/referral-dashboard
+  //
+  //   $.driver.referred_driver_count                         → totalReferrals
+  //   $.lifetime_statistics.total_commission_earned          → teamEarnings
+  //   $.yesterday_statistics.referrals                       → referredDrivers list
+  //   Each item: { name, pro_rides_completed, normal_rides_completed,
+  //                ride_earnings, commission_earned_by_72 }
   Future<void> _fetchTeamData() async {
     setState(() => isLoadingTeam = true);
     try {
@@ -114,18 +118,32 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
       );
 
       if (response.succeeded) {
-        final data = getJsonField(response.jsonBody, r'''$.data''');
-        final summary = data['referral_summary'] ?? {};
+        final body = response.jsonBody;
+
+        // Total referred drivers count
+        final referredCount =
+            (getJsonField(body, r'$.driver.referred_driver_count') ?? 0)
+                .toString();
+
+        // Lifetime commission earned
+        final lifetimeCommission =
+            getJsonField(body, r'$.lifetime_statistics.total_commission_earned') ?? 0;
+
+        // Referrals list (yesterday's activity)
+        final List<dynamic> drivers =
+            (getJsonField(body, r'$.yesterday_statistics.referrals', true) as List?) ?? [];
+
         setState(() {
-          teamEarnings = "₹${summary['total_referral_earnings'] ?? '0'}";
-          totalReferrals = "${summary['total_referred_drivers'] ?? '0'}";
-          referredDrivers = data['referred_drivers_detailed'] ?? [];
+          teamEarnings = "₹$lifetimeCommission";
+          totalReferrals = referredCount;
+          referredDrivers = drivers;
           isLoadingTeam = false;
         });
       } else {
         setState(() => isLoadingTeam = false);
       }
     } catch (e) {
+      debugPrint('Error fetching team data: $e');
       setState(() => isLoadingTeam = false);
     }
   }
@@ -136,7 +154,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: const Color(0xFFF8F9FB), // Soft off-white for contrast
+      backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -167,8 +185,10 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
               unselectedLabelColor: Colors.grey.shade500,
               indicatorColor: brand,
               indicatorWeight: 3,
-              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
-              unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
+              labelStyle:
+                  GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
+              unselectedLabelStyle:
+                  GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
               tabs: const [
                 Tab(text: 'All Earnings'),
                 Tab(text: 'Team Earnings'),
@@ -180,240 +200,337 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
       body: TabBarView(
         controller: _tabController,
         children: [
-         
+          // ── TAB 1: All Earnings (completely unchanged) ────────────────
           isLoading
               ? const Center(child: CircularProgressIndicator(color: brand))
               : SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: Column(
-              children: [
-                // Animated Header Card
-                AnimatedListItem(
-                  index: 0,
-                  child: _buildGradientEarningsCard(
-                    title: 'Total Personal Earnings',
-                    amount: todaysEarnings,
-                    colors: [brand, brand.withValues(alpha: 0.8)],
-                    shadowColor: brand.withValues(alpha: 0.4),
-                    icon: Icons.account_balance_wallet_rounded,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Animated Menu Items
-                AnimatedListItem(
-                  index: 1,
-                  child: _buildPremiumMenuItem(
-                    icon: Icons.receipt_long_rounded,
-                    title: 'All Rides',
-                    subtitle: 'Ride History and Ride Earnings',
-                    color: const Color(0xFF4A90E2),
-                    onTap: () => context.pushNamed(AllOrdersScreen.routeName),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AnimatedListItem(
-                  index: 2,
-                  child: _buildPremiumMenuItem(
-                    icon: Icons.history_rounded,
-                    title: 'Last Ride Earnings',
-                    subtitle: 'View recent trip earnings',
-                    color: const Color(0xFF9B59B6),
-                    onTap: () => context.pushNamed(LastOrderWidget.routeName),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AnimatedListItem(
-                  index: 3,
-                  child: _buildPremiumMenuItem(
-                    icon: Icons.currency_rupee_rounded,
-                    title: 'View Rate Card',
-                    subtitle: 'Check base fares and commission',
-                    color: const Color(0xFFE74C3C),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const RateCardWidget()));
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-         
-          isLoadingTeam
-              ? const Center(child: CircularProgressIndicator(color: Colors.green))
-              : SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(top: 25, bottom: 40),
-            child: Column(
-              children: [
-                // Header & Floating Stats
-                AnimatedListItem(
-                  index: 0,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.bottomCenter,
+                  physics: const BouncingScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                      AnimatedListItem(
+                        index: 0,
                         child: _buildGradientEarningsCard(
-                          title: 'Total Team Earnings',
-                          amount: teamEarnings,
-                          colors: [const Color(0xFF2ECC71), const Color(0xFF27AE60)],
-                          shadowColor: const Color(0xFF2ECC71).withValues(alpha: 0.4),
-                          icon: Icons.groups_rounded,
-                          bottomPadding: 61, // Extra space for floating card
+                          title: 'Total Personal Earnings',
+                          amount: todaysEarnings,
+                          colors: [brand, brand.withValues(alpha: 0.8)],
+                          shadowColor: brand.withValues(alpha: 0.4),
+                          icon: Icons.account_balance_wallet_rounded,
                         ),
                       ),
-                      // Floating Stats Box
-                      Positioned(
-                        bottom: -25,
-                        child: Container(
-                          width: MediaQuery.sizeOf(context).width - 60,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              )
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildTeamStat('Active Drivers', totalReferrals, Icons.group_rounded, brand),
-                              Container(width: 1, height: 41, color: Colors.grey.shade200),
-                              _buildTeamStat('Commission', '5%', Icons.percent_rounded, const Color(0xFFE74C3C)),
-                            ],
-                          ),
+                      const SizedBox(height: 32),
+                      AnimatedListItem(
+                        index: 1,
+                        child: _buildPremiumMenuItem(
+                          icon: Icons.receipt_long_rounded,
+                          title: 'All Rides',
+                          subtitle: 'Ride History and Ride Earnings',
+                          color: const Color(0xFF4A90E2),
+                          onTap: () =>
+                              context.pushNamed(AllOrdersScreen.routeName),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      AnimatedListItem(
+                        index: 2,
+                        child: _buildPremiumMenuItem(
+                          icon: Icons.history_rounded,
+                          title: 'Last Ride Earnings',
+                          subtitle: 'View recent trip earnings',
+                          color: const Color(0xFF9B59B6),
+                          onTap: () =>
+                              context.pushNamed(LastOrderWidget.routeName),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      AnimatedListItem(
+                        index: 3,
+                        child: _buildPremiumMenuItem(
+                          icon: Icons.currency_rupee_rounded,
+                          title: 'View Rate Card',
+                          subtitle: 'Check base fares and commission',
+                          color: const Color(0xFFE74C3C),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const RateCardWidget()));
+                          },
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 50),
-
-                // Team List Header
-                AnimatedListItem(
-                  index: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.people_alt_rounded, color: Colors.orange, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Your Team ($totalReferrals)',
-                          style: GoogleFonts.interTight(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Team List
-                if (referredDrivers.isEmpty)
-                  AnimatedListItem(
-                    index: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(40.0),
-                      child: Column(
-                        children: [
-                          Icon(Icons.group_off_rounded, size: 60, color: Colors.grey.shade300),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No team members yet.',
-                            style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Share your referral code to start earning!',
-                            style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: referredDrivers.length,
-                    itemBuilder: (context, index) {
-                      final driver = referredDrivers[index];
-                      return AnimatedListItem(
-                        index: index + 2, // stagger after header
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              )
-                            ],
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            leading: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [Color(0xFFFFD4B2), Color(0xFFFFE0B2)]),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+          // ── TAB 2: Team Earnings ──────────────────────────────────────
+          isLoadingTeam
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.green))
+              : SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 25, bottom: 40),
+                  child: Column(
+                    children: [
+                      // Header & Floating Stats (same layout, fixed data)
+                      AnimatedListItem(
+                        index: 0,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: _buildGradientEarningsCard(
+                                title: 'Total Team Earnings',
+                                amount: teamEarnings,
+                                colors: [
+                                  const Color(0xFF2ECC71),
+                                  const Color(0xFF27AE60)
+                                ],
+                                shadowColor: const Color(0xFF2ECC71)
+                                    .withValues(alpha: 0.4),
+                                icon: Icons.groups_rounded,
+                                bottomPadding: 61,
                               ),
-                              child: Center(
-                                child: Text(
-                                  (driver['name'] ?? 'U')[0].toUpperCase(),
-                                  style: GoogleFonts.inter(color: Colors.orange.shade800, fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            // Floating Stats Box
+                            Positioned(
+                              bottom: -25,
+                              child: Container(
+                                width: MediaQuery.sizeOf(context).width - 60,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 8),
+                                    )
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    // ✅ $.driver.referred_driver_count
+                                    _buildTeamStat(
+                                      'Active Drivers',
+                                      totalReferrals,
+                                      Icons.group_rounded,
+                                      brand,
+                                    ),
+                                    Container(
+                                        width: 1,
+                                        height: 41,
+                                        color: Colors.grey.shade200),
+                                    // ✅ $.lifetime_statistics.total_commission_earned
+                                    _buildTeamStat(
+                                      'Commission',
+                                      teamEarnings,
+                                      Icons.currency_rupee_rounded,
+                                      const Color(0xFFE74C3C),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                            title: Text(driver['name'] ?? 'Unknown Driver', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15)),
-                            subtitle: Text("Joined: ${driver['joined_at'] ?? 'N/A'}", style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500)),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "₹${driver['earnings_generated'] ?? '0'}",
-                                  style: GoogleFonts.interTight(fontWeight: FontWeight.bold, color: const Color(0xFF2ECC71), fontSize: 16),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 50),
+
+                      // Team List Header
+                      AnimatedListItem(
+                        index: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color:
+                                      Colors.orange.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
                                 ),
-                                Text("Generated", style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade400)),
+                                child: const Icon(Icons.people_alt_rounded,
+                                    color: Colors.orange, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Your Team ($totalReferrals)',
+                                style: GoogleFonts.interTight(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Team Members List
+                      if (referredDrivers.isEmpty)
+                        AnimatedListItem(
+                          index: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(40.0),
+                            child: Column(
+                              children: [
+                                Icon(Icons.group_off_rounded,
+                                    size: 60, color: Colors.grey.shade300),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No team members yet.',
+                                  style: GoogleFonts.inter(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Share your referral code to start earning!',
+                                  style: GoogleFonts.inter(
+                                      color: Colors.grey.shade400,
+                                      fontSize: 13),
+                                ),
                               ],
                             ),
                           ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: referredDrivers.length,
+                          itemBuilder: (context, index) {
+                            final driver =
+                                referredDrivers[index] as Map<String, dynamic>;
+
+                            // ✅ All keys from actual API response
+                            final name =
+                                driver['name']?.toString() ?? 'Unknown Driver';
+                            final proRides =
+                                (driver['pro_rides_completed'] as num?)
+                                        ?.toInt() ??
+                                    0;
+                            final normalRides =
+                                (driver['normal_rides_completed'] as num?)
+                                        ?.toInt() ??
+                                    0;
+                            final rideEarnings =
+                                (driver['ride_earnings'] as num?)?.toInt() ?? 0;
+                            final commission =
+                                (driver['commission_earned_by_72'] as num?)
+                                        ?.toDouble() ??
+                                    0.0;
+                            final totalRides = proRides + normalRides;
+
+                            return AnimatedListItem(
+                              index: index + 2,
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black
+                                          .withValues(alpha: 0.03),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ],
+                                ),
+                                child: ListTile(
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 8),
+                                  leading: Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(colors: [
+                                        Color(0xFFFFD4B2),
+                                        Color(0xFFFFE0B2)
+                                      ]),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        name.isNotEmpty
+                                            ? name[0].toUpperCase()
+                                            : 'U',
+                                        style: GoogleFonts.inter(
+                                            color: Colors.orange.shade800,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18),
+                                      ),
+                                    ),
+                                  ),
+                                  // ✅ driver['name']
+                                  title: Text(
+                                    name,
+                                    style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15),
+                                  ),
+                                  // ✅ pro_rides + normal_rides + total
+                                  subtitle: Text(
+                                    '$proRides Pro • $normalRides Normal • $totalRides rides',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade500),
+                                  ),
+                                  trailing: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.end,
+                                    children: [
+                                      // ✅ commission_earned_by_72
+                                      Text(
+                                        "₹${commission.toStringAsFixed(0)}",
+                                        style: GoogleFonts.interTight(
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF2ECC71),
+                                            fontSize: 16),
+                                      ),
+                                      // ✅ ride_earnings
+                                      Text(
+                                        "₹$rideEarnings earned",
+                                        style: GoogleFonts.inter(
+                                            fontSize: 10,
+                                            color: Colors.grey.shade400),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                    ],
                   ),
-              ],
-            ),
-          ),
+                ),
         ],
       ),
     );
   }
 
-  // --- WIDGET BUILDERS ---
+  // --- WIDGET BUILDERS (all unchanged from original) ---
 
   Widget _buildGradientEarningsCard({
     required String title,
@@ -427,7 +544,10 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24, 32, 24, bottomPadding),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(
+            colors: colors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(color: shadowColor, blurRadius: 20, offset: const Offset(0, 10))
@@ -441,7 +561,10 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
             children: [
               Text(
                 title,
-                style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.8), fontSize: 15, fontWeight: FontWeight.w500),
+                style: GoogleFonts.inter(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500),
               ),
               Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 28),
             ],
@@ -449,20 +572,33 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
           const SizedBox(height: 8),
           Text(
             amount,
-            style: GoogleFonts.interTight(color: Colors.white, fontSize: 44, fontWeight: FontWeight.w800, letterSpacing: -1),
+            style: GoogleFonts.interTight(
+                color: Colors.white,
+                fontSize: 44,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -1),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTeamStat(String label, String value, IconData icon, Color iconColor) {
+  Widget _buildTeamStat(
+      String label, String value, IconData icon, Color iconColor) {
     return Column(
       children: [
         Icon(icon, color: iconColor.withValues(alpha: 0.7), size: 22),
         const SizedBox(height: 6),
-        Text(value, style: GoogleFonts.interTight(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87)),
-        Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500)),
+        Text(value,
+            style: GoogleFonts.interTight(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87)),
+        Text(label,
+            style: GoogleFonts.inter(
+                fontSize: 12,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -479,7 +615,10 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
         ],
       ),
       child: Material(
@@ -506,13 +645,20 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
+                      Text(title,
+                          style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87)),
                       const SizedBox(height: 4),
-                      Text(subtitle, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500)),
+                      Text(subtitle,
+                          style: GoogleFonts.inter(
+                              fontSize: 13, color: Colors.grey.shade500)),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400, size: 26),
+                Icon(Icons.chevron_right_rounded,
+                    color: Colors.grey.shade400, size: 26),
               ],
             ),
           ),

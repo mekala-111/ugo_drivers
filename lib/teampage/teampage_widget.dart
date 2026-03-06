@@ -261,7 +261,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildStatCard(
-                                  title: 'Lifetime Commission',
+                                  title: 'Total Earnings',
                                   value: _lifetimeCommission,
                                   icon: Icons.account_balance_wallet,
                                   color: ugoGreen,
@@ -386,7 +386,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
               'Yesterday',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
+                fontSize: 10,
                 color: Colors.black87,
               ),
             ),
@@ -416,7 +416,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
         Text(
           value,
           style: GoogleFonts.interTight(
-            fontSize: 14,
+            fontSize: 10,
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -472,7 +472,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                 Text(
                   value,
                   style: GoogleFonts.inter(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -659,7 +659,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 Text(
                                   '₹$rideEarnings earned',
                                   style: GoogleFonts.inter(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -684,13 +684,13 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                   : Colors.grey[400],
                             ),
                           ),
-                          Text(
-                            'commission',
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              color: Colors.grey[400],
-                            ),
-                          ),
+                          // Text(
+                          //   'commission',
+                          //   style: GoogleFonts.inter(
+                          //     fontSize: 10,
+                          //     color: Colors.grey[400],
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],
