@@ -11,9 +11,16 @@ class FirebaseRemoteConfigService {
 
   FirebaseRemoteConfig? _remoteConfig;
   bool _initialized = false;
+  late Future<void> _initializeFuture;
 
   /// Initialize Firebase Remote Config with default values
   Future<void> initialize() async {
+    if (_initialized) return;
+    _initializeFuture = _doInitialize();
+    await _initializeFuture;
+  }
+
+  Future<void> _doInitialize() async {
     if (_initialized) return;
 
     try {
@@ -32,6 +39,7 @@ class FirebaseRemoteConfigService {
         'razorpay_key_id': '',
         'razorpay_key_secret': '',
         'razorpay_enabled': false,
+        'google_maps_api_key': '',
       });
 
       // Fetch and activate
@@ -79,7 +87,39 @@ class FirebaseRemoteConfigService {
     }
   }
 
-  /// Get any string value from remote config
+  /// Wait for Firebase Remote Config to be initialized
+  Future<void> ensureInitialized() async {
+    if (_initialized) return;
+    if (!_initialized) {
+      await _initializeFuture;
+    }
+  }
+
+  /// Get Google Maps API Key - waits for initialization if needed
+  Future<String> googleMapsApiKeyAsync() async {
+    await ensureInitialized();
+    try {
+      final key = _remoteConfig?.getString('google_maps_api_key') ?? '';
+      if (key.isNotEmpty && kDebugMode) {
+        print('✅ Google Maps API Key loaded from Firebase Remote Config (length: ${key.length})');
+      }
+      return key;
+    } catch (e) {
+      if (kDebugMode) print('Error getting google_maps_api_key: $e');
+      return '';
+    }
+  }
+
+  /// Get Google Maps API Key (synchronous, after initialization is complete)
+  String get googleMapsApiKey {
+    try {
+      return _remoteConfig?.getString('google_maps_api_key') ?? '';
+    } catch (e) {
+      if (kDebugMode) print('Error getting google_maps_api_key: $e');
+      return '';
+    }
+  }
+
   String getString(String key, {String defaultValue = ''}) {
     try {
       return _remoteConfig?.getString(key) ?? defaultValue;

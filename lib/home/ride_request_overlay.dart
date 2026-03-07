@@ -95,6 +95,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   bool _isCompletingRide = false;
   bool _isCancellingRide = false;
   bool _isAppInForeground = true;
+  
+  // ✅ Track completed incentives to detect newly completed ones
+  final Set<int> _completedIncentiveIds = {};
 
   @override
   void initState() {
@@ -704,6 +707,100 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
+  /// Fetch incentives after ride completion and add wallet reward for completed incentives
+  Future<void> _fetchIncentivesAfterRideCompletion() async {
+    try {
+      debugPrint('🎯 Fetching incentives after ride completion...');
+      final res = await DriverIncentivesCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+      );
+      
+      if (res.succeeded) {
+        final incentives = DriverIncentivesCall.incentiveList(res.jsonBody);
+        debugPrint('✅ Incentives fetched successfully: ${incentives.length} incentives found');
+        
+        // Extract ride count from incentives
+        if (incentives.isNotEmpty) {
+          int totalCompletedRides = 0;
+          double newlyCompletedRewards = 0.0;
+          List<String> completedIncentiveNames = [];
+          
+          for (var incentive in incentives) {
+            final incentiveId = incentive['id'] ?? 0;
+            final completedRides = DriverIncentivesCall.itemCompletedRides(incentive);
+            final status = DriverIncentivesCall.itemProgressStatus(incentive);
+            final name = DriverIncentivesCall.itemIncentiveName(incentive);
+            final reward = DriverIncentivesCall.itemRewardAmount(incentive);
+            
+            totalCompletedRides += completedRides;
+            debugPrint(
+              '📊 Incentive: $name - '
+              'Completed rides: $completedRides/${DriverIncentivesCall.itemTargetRides(incentive)} - '
+              'Status: $status - Reward: ₹$reward'
+            );
+            
+            // ✅ Check if incentive just completed
+            if (status == 'completed' && !_completedIncentiveIds.contains(incentiveId)) {
+              debugPrint('🎉 Incentive "$name" is now COMPLETED! Reward: ₹$reward');
+              _completedIncentiveIds.add(incentiveId);
+              newlyCompletedRewards += reward;
+              completedIncentiveNames.add(name);
+            }
+          }
+          
+          debugPrint('🎉 Total completed rides across incentives: $totalCompletedRides');
+          
+          // ✅ Add completed incentive rewards to wallet
+          if (newlyCompletedRewards > 0 && mounted) {
+            debugPrint('💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives...');
+            _addIncentiveRewardToWallet(newlyCompletedRewards, completedIncentiveNames);
+          }
+        }
+      } else {
+        debugPrint('⚠️ Failed to fetch incentives after ride completion: ${res.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error fetching incentives after ride completion: $e');
+    }
+  }
+  
+  /// Add completed incentive reward to wallet
+  Future<void> _addIncentiveRewardToWallet(double amount, List<String> incentiveNames) async {
+    try {
+      final res = await AddMoneyToWalletCall.call(
+        driverId: FFAppState().driverid,
+        amount: amount,
+        currency: 'INR',
+        token: FFAppState().accessToken,
+      );
+      
+      if (res.succeeded) {
+        debugPrint('✅ Incentive reward ₹$amount added to wallet successfully!');
+        
+        if (mounted) {
+          // Show success notification
+          final incentiveList = incentiveNames.join(', ');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '🎉 Incentive Complete!\n'
+                '$incentiveList\n'
+                '✅ ₹${amount.toStringAsFixed(2)} added to wallet',
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      } else {
+        debugPrint('⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error adding incentive reward to wallet: $e');
+    }
+  }
+
   Future<void> _completeRide({required int rideId, required int userId}) async {
     if (_isCompletingRide) return;
     if (!mounted) return;
@@ -723,6 +820,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _updateLocalRideStatus(rideId, RideStatus.completed,
             finalFare: fare, paymentMode: pm);
         VoiceService().rideCompleted();
+        
+        // ✅ Fetch incentives immediately after ride completion
+        // This ensures the incentive ride count is updated in real-time
+        debugPrint('🏁 Ride $rideId completed successfully. Fetching updated incentives...');
+        _fetchIncentivesAfterRideCompletion();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

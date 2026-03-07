@@ -85,7 +85,6 @@ class NewRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   print("drop lat: ${ride.dropLat}, drop lng: ${ride.dropLng} pickup lat: ${ride.pickupLat}, pickup lng: ${ride.pickupLng}"); // Debug log for drop coordinates
     final margin =
         Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
@@ -293,21 +292,6 @@ class NewRequestCard extends StatelessWidget {
     final originLat = hasDriverLocation ? driverLocation!.latitude : ride.pickupLat;
     final originLng = hasDriverLocation ? driverLocation!.longitude : ride.pickupLng;
 
-    if (hasDriverLocation && ride.pickupLat != 0 && ride.pickupLng != 0) {
-      final driverToPickupMeters = Geolocator.distanceBetween(
-        driverLocation!.latitude,
-        driverLocation!.longitude,
-        ride.pickupLat,
-        ride.pickupLng,
-      );
-      final isSameAsPickup = driverToPickupMeters <= 50;
-      debugPrint(
-        '📍 Drop distance origin check -> driver(${driverLocation!.latitude}, ${driverLocation!.longitude}) '
-        'pickup(${ride.pickupLat}, ${ride.pickupLng}) sameOrigin=$isSameAsPickup '
-        'delta=${driverToPickupMeters.toStringAsFixed(1)}m',
-      );
-    }
-
     // Always use Google Distance Matrix for accurate road distance (matches navigation).
     return FutureBuilder<double?>(
       future: RouteDistanceService().getDrivingDistanceKm(
@@ -340,15 +324,6 @@ class NewRequestCard extends StatelessWidget {
 
         // Use Google Maps driving distance (road distance, not straight-line)
         double? km = snapshot.data;
-
-        // Debug: Check if API returned data
-        if (snapshot.hasData && km != null) {
-          debugPrint('✅ Google Maps API returned: ${km.toStringAsFixed(1)}km');
-        } else if (snapshot.hasError) {
-          debugPrint('❌ Google Maps API error: ${snapshot.error}');
-        } else {
-          debugPrint('⚠️ Google Maps API returned null - falling back to straight-line');
-        }
 
         // Fallback ONLY to straight-line calculation (NOT backend distance)
         // Backend ride.distance is also straight-line, so calculate it ourselves

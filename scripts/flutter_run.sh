@@ -15,6 +15,7 @@ fi
 DART_DEFINES=()
 if [ -n "$MAPS_KEY" ]; then
   DART_DEFINES+=(--dart-define=GOOGLE_MAPS_API_KEY="$MAPS_KEY")
+  DART_DEFINES+=(--dart-define=MAPS_API_KEY="$MAPS_KEY")
 fi
 
 cd "$PROJECT_ROOT"

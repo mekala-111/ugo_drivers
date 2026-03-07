@@ -350,7 +350,7 @@ class CreateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
-    // String? fcmToken = '',
+     String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
 
@@ -379,7 +379,7 @@ class CreateDriverCall {
         'registration_image': registrationImage,
         'insurance_image': insuranceImage,
         'pollution_certificate_image': pollutionImage,
-        // 'fcm_token': fcmToken,
+        'fcm_token': fcmToken,
       },
       bodyType: BodyType.MULTIPART,
       returnBody: true,
@@ -1228,7 +1228,7 @@ class GetWalletCall {
 
   static dynamic walletBalance(dynamic response) => getJsonField(
         response,
-        r'$.data.balance',
+        r'$.data.wallet_balance',
       );
 
   static String? currency(dynamic response) => castToType<String>(getJsonField(
@@ -1239,7 +1239,25 @@ class GetWalletCall {
   static String? lastUpdated(dynamic response) =>
       castToType<String>(getJsonField(
         response,
-        r'$.data.last_updated',
+        r'$.data.last_transaction_date',
+      ));
+
+  // ✅ Additional wallet fields
+  static String? totalRechargeAmount(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.data.total_recharge_amount',
+      ));
+
+  static String? totalSpentAmount(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'$.data.total_spent_amount',
+      ));
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'$.message',
       ));
 }
 

@@ -10,7 +10,7 @@ import 'package:ugo_driver/config.dart';
 import 'package:ugo_driver/home/incentive_model.dart';
 import 'package:ugo_driver/repositories/driver_repository.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart'
-    show DriverIdfetchCall, GetAllDriversCall, NotificationHistoryCall;
+    show DriverIdfetchCall, GetAllDriversCall, NotificationHistoryCall, AddMoneyToWalletCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -64,6 +64,9 @@ class HomeController extends ChangeNotifier {
   double totalIncentiveEarned = 0.0;
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
+  
+  // ✅ Track completed incentives to detect newly completed ones
+  final Set<int> _completedIncentiveIds = {};
 
   double todayTotal = 0.0;
   int todayRideCount = 0;
@@ -551,18 +554,18 @@ class HomeController extends ChangeNotifier {
   }
 
   // ── Socket ─────────────────────────────────────────────────────────────────
-
-  void _initSocket() {
+void _initSocket() {
     if (_socketInitialized) return;
     _socketInitialized = true;
 
     final token = FFAppState().accessToken;
     final driverId = FFAppState().driverid;
+
     _socket = io.io(
       Config.baseUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .enableReconnection()
+          .enableReconnection() // keep auto-reconnect
           .setReconnectionAttempts(5)
           .setReconnectionDelay(2000)
           .disableAutoConnect()
@@ -573,34 +576,46 @@ class HomeController extends ChangeNotifier {
 
     _socket.onConnect((_) {
       if (kDebugMode) debugPrint('Socket CONNECTED');
+      // This will also fire after a successful reconnect,
+      // so we only need to emit watch_entity here.
       _socket.emit('watch_entity', {'type': 'driver', 'id': driverId});
     });
 
+    // Optional: just log reconnect, do NOT re-emit watch_entity here
     _socket.onReconnect((_) {
-      _socket.emit('watch_entity', {'type': 'driver', 'id': driverId});
+      if (kDebugMode) debugPrint('Socket RECONNECTED');
+      // No emit here to avoid re-snapshotting old rides as “new”
     });
 
+    // Ensure we don't accumulate multiple listeners
     _socket.off('driver_rides');
     _socket.off('ride_updated');
     _socket.off('ride_taken');
     _socket.off('ride_assigned');
+
     _socket.on('driver_rides', (data) {
       if (!_disposed) onSocketRideData(data);
     });
+
     _socket.on('ride_updated', (data) {
+      print('🔔 Socket ride_updated event: $data');
       if (!_disposed) onSocketRideData(data);
     });
+
     // Rapido-style: when another driver accepts, backend may emit ride_taken/ride_assigned
     void onRideTaken(dynamic data) {
       if (_disposed) return;
       final d = data is Map ? Map<String, dynamic>.from(Map.from(data)) : null;
       if (d == null) return;
+
       final rideId = d['ride_id'] ?? d['rideId'];
-      final driverId = d['driver_id'];
+      final otherDriverId = d['driver_id'];
       final myId = FFAppState().driverid;
-      if (rideId != null && driverId != null && driverId != myId) {
+
+      if (rideId != null && otherDriverId != null && otherDriverId != myId) {
         onSocketRideData(
-            {'id': rideId, 'driver_id': driverId, 'ride_status': 'ACCEPTED'});
+          {'id': rideId, 'driver_id': otherDriverId, 'ride_status': 'ACCEPTED'},
+        );
       }
     }
 
@@ -642,11 +657,35 @@ class HomeController extends ChangeNotifier {
 
           if (kDebugMode) {
             debugPrint(
-                '📊 Incentives: Total=${incentivesArray.length}, Running=${runningIncentives.length}');
+                '📊 Incentives fetched: Total=${incentivesArray.length}, Running=${runningIncentives.length}');
             for (var i in runningIncentives) {
+              final completed = i['completed_rides'] ?? 0;
+              final target = i['target_rides'] ?? 0;
               debugPrint(
-                  '  ✅ ${i['incentive']?['name']} - Progress: ${i['completed_rides']}/${i['target_rides']} rides');
+                  '  🎯 ${i['incentive']?['name']} - Progress: $completed/$target rides - Status: ${i['progress_status']}');
             }
+          }
+
+          // ✅ Check for newly completed incentives
+          double newlyCompletedRewards = 0.0;
+          List<String> completedIncentiveNames = [];
+          for (var item in incentivesArray) {
+            final incentiveId = item['id'] ?? 0;
+            final status = item['progress_status'] ?? '';
+            if (status == 'completed' && !_completedIncentiveIds.contains(incentiveId)) {
+              _completedIncentiveIds.add(incentiveId);
+              final name = item['incentive']?['name'] ?? 'Incentive';
+              final reward = double.tryParse((item['reward_amount'] ?? '0').toString()) ?? 0.0;
+              newlyCompletedRewards += reward;
+              completedIncentiveNames.add(name);
+              debugPrint('🎉 Newly completed incentive detected: $name - Reward: ₹$reward');
+            }
+          }
+          
+          // ✅ Trigger wallet update for newly completed incentives
+          if (newlyCompletedRewards > 0) {
+            debugPrint('💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives');
+            await _addIncentiveRewardToWallet(newlyCompletedRewards, completedIncentiveNames);
           }
 
           // Calculate current rides count from running incentives
@@ -654,6 +693,10 @@ class HomeController extends ChangeNotifier {
           for (final item in runningIncentives) {
             final completed = item['completed_rides'] ?? 0;
             if (completed > currentRides) currentRides = completed;
+          }
+
+          if (kDebugMode) {
+            debugPrint('✅ Updated ride count: $currentRides rides completed');
           }
 
           // Calculate total earned from all running incentives
@@ -689,6 +732,37 @@ class HomeController extends ChangeNotifier {
       if (!_disposed) {
         isLoadingIncentives = false;
         _notify();
+      }
+    }
+  }
+
+  /// Add completed incentive reward to wallet
+  Future<void> _addIncentiveRewardToWallet(double amount, List<String> incentiveNames) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('💰 Processing wallet update for ₹$amount (${incentiveNames.length} incentives)');
+      }
+      
+      final res = await AddMoneyToWalletCall.call(
+        driverId: FFAppState().driverid,
+        amount: amount,
+        currency: 'INR',
+        token: FFAppState().accessToken,
+      );
+      
+      if (res.succeeded) {
+        if (kDebugMode) {
+          debugPrint('✅ Incentive reward ₹$amount added to wallet successfully!');
+        }
+        onShowSnackBar('incentive_reward_added', isError: false);
+      } else {
+        if (kDebugMode) {
+          debugPrint('⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ Error adding incentive reward to wallet: $e');
       }
     }
   }
@@ -737,8 +811,9 @@ class HomeController extends ChangeNotifier {
     if (_disposed) return;
     currentRideStatus = 'IDLE';
     _notify();
+    debugPrint('🔄 Ride completed. Refreshing earnings and incentives...');
     _fetchTodayEarnings();
-    _fetchIncentiveData();
+    _fetchIncentiveData(); // ✅ Explicitly refresh incentives to update ride count
   }
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────

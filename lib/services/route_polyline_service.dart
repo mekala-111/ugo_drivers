@@ -34,6 +34,7 @@ class RoutePolylineService {
 
     if (_inflight.containsKey(key)) return _inflight[key];
 
+    // Get API key from Firebase Remote Config (primary) or dart-define (fallback)
     final apiKey = Config.googleMapsApiKey;
     if (apiKey.isEmpty) return null;
 

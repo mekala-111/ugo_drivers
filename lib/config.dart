@@ -46,10 +46,42 @@ class Config {
     return FirebaseRemoteConfigService().razorpayEnabled;
   }
 
-  /// Google Maps API key for Distance Matrix / Directions (polyline, route services).
-  /// Source: android/local.properties MAPS_API_KEY, passed via --dart-define at build.
-  /// Use: ./scripts/flutter_run.sh (reads from local.properties automatically)
-  /// Or: flutter run --dart-define=GOOGLE_MAPS_API_KEY=your_key
-  static String get googleMapsApiKey =>
-      const String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
+  /// Google Maps API key - get from Firebase Remote Config (primary) or dart-define (fallback)
+  /// For production: Firebase Remote Config should be initialized before this is called
+  /// For development: pass via --dart-define or use local.properties
+  static String get googleMapsApiKey {
+    // Primary: Firebase Remote Config (used in production and after initialization)
+    final firebaseKey = FirebaseRemoteConfigService().googleMapsApiKey;
+    if (firebaseKey.isNotEmpty) return firebaseKey;
+
+    // Fallback: dart-define (for development without Firebase)
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: '');
+    if (primary.isNotEmpty) return primary;
+    return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
+  }
+
+  /// Alternative async method if Firebase hasn't initialized yet
+  static Future<String> getGoogleMapsApiKey() async {
+    try {
+      final remoteKey = await FirebaseRemoteConfigService().googleMapsApiKeyAsync();
+      if (remoteKey.isNotEmpty) return remoteKey;
+    } catch (e) {
+      // Fall through to dart-define if Firebase fails
+    }
+
+    // Fallback to dart-define (for development)
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: '');
+    if (primary.isNotEmpty) return primary;
+    return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
+  }
+
+  /// Synchronous fallback (only dart-define, for immediate access before Firebase init)
+  static String get googleMapsApiKeySync {
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: '');
+    if (primary.isNotEmpty) return primary;
+    return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
+  }
 }

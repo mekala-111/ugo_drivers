@@ -35,7 +35,11 @@ class _WalletWidgetState extends State<WalletWidget> {
   String? bankName;
   String? accountHolderName;
   String? fundAccountId;
-  String? walletBalance;
+  String? walletBalance = '0';
+  String? totalRechargeAmount = '0';
+  String? totalSpentAmount = '0';
+  String? lastTransactionDate;
+  bool _isLoadingWallet = true;
 
   @override
   void initState() {
@@ -87,13 +91,19 @@ class _WalletWidgetState extends State<WalletWidget> {
 
   // 💳 Fetch wallet details from API
   Future<void> _fetchWallet() async {
+    setState(() => _isLoadingWallet = true);
     try {
       final driverIdValue = FFAppState().driverid;
       final driverId = int.tryParse(driverIdValue.toString());
 
       if (driverId == null) {
         if (kDebugMode) print('Driver ID is invalid for wallet');
+        setState(() => _isLoadingWallet = false);
         return;
+      }
+
+      if (kDebugMode) {
+        debugPrint('🔄 Fetching wallet for driver: $driverId');
       }
 
       final response = await GetWalletCall.call(
@@ -101,20 +111,56 @@ class _WalletWidgetState extends State<WalletWidget> {
         token: FFAppState().accessToken,
       );
 
+      if (kDebugMode) {
+        debugPrint('📡 Wallet API Response: ${response.statusCode}');
+        debugPrint('📦 Full Response Body: ${response.jsonBody}');
+      }
+
       if (response.succeeded) {
+        // Extract wallet balance from response
+        final rawBalance = GetWalletCall.walletBalance(response.jsonBody);
+        final rechargeAmount = GetWalletCall.totalRechargeAmount(response.jsonBody);
+        final spentAmount = GetWalletCall.totalSpentAmount(response.jsonBody);
+        final transactionDate = GetWalletCall.lastUpdated(response.jsonBody);
+
+        if (kDebugMode) {
+          debugPrint('💰 Raw balance from API: $rawBalance (type: ${rawBalance.runtimeType})');
+          debugPrint('📊 Recharge: $rechargeAmount');
+          debugPrint('📊 Spent: $spentAmount');
+          debugPrint('📅 Last Transaction: $transactionDate');
+        }
+
         setState(() {
-          walletBalance =
-              GetWalletCall.walletBalance(response.jsonBody)?.toString();
+          // Ensure balance is properly formatted
+          if (rawBalance != null) {
+            walletBalance = rawBalance.toString();
+          } else {
+            walletBalance = '0';
+          }
+          
+          totalRechargeAmount = rechargeAmount ?? '0';
+          totalSpentAmount = spentAmount ?? '0';
+          lastTransactionDate = transactionDate;
+          _isLoadingWallet = false;
         });
 
-        // Wallet loaded
+        if (kDebugMode) {
+          debugPrint('✅ Wallet state updated: walletBalance=$walletBalance');
+          debugPrint('✅ Wallet formatted: ₹${_formatBalance(walletBalance)}');
+        }
       } else {
         if (kDebugMode) {
-          debugPrint('Wallet fetch failed: status ${response.statusCode}');
+          debugPrint('❌ Wallet fetch failed: status ${response.statusCode}');
+          debugPrint('❌ Error message: ${response.statusCode}');
         }
+        setState(() => _isLoadingWallet = false);
       }
     } catch (e) {
-      if (kDebugMode) print('❌ Error fetching wallet: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Exception fetching wallet: $e');
+        debugPrint('❌ Stack trace: ${e}');
+      }
+      setState(() => _isLoadingWallet = false);
     }
   }
 
@@ -122,6 +168,23 @@ class _WalletWidgetState extends State<WalletWidget> {
   void dispose() {
     _model.dispose();
     super.dispose();
+  }
+
+  // 💰 Format wallet balance to display as currency
+  String _formatBalance(String? balance) {
+    if (balance == null || balance.isEmpty) {
+      if (kDebugMode) debugPrint('⚠️ Format Balance: input is null/empty, returning 0.00');
+      return '0.00';
+    }
+    try {
+      final double amount = double.tryParse(balance) ?? 0.0;
+      final formatted = amount.toStringAsFixed(2);
+      if (kDebugMode) debugPrint('✅ Format Balance: "$balance" → ₹$formatted');
+      return formatted;
+    } catch (e) {
+      if (kDebugMode) debugPrint('❌ Format Balance error: $e, returning 0.00');
+      return '0.00';
+    }
   }
 
   @override
@@ -242,14 +305,40 @@ class _WalletWidgetState extends State<WalletWidget> {
                         ),
                         SizedBox(height: 8.0 * scale),
                         // 💰 Dynamic Balance Amount
-                        Text(
-                          '₹${walletBalance ?? '0.00'}',
-                          style: GoogleFonts.interTight(
-                            color: Colors.white,
-                            fontSize: 36.0 * scale,
-                            fontWeight: FontWeight.bold,
+                        if (_isLoadingWallet)
+                          SizedBox(
+                            height: 36.0 * scale,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          Text(
+                            '₹${_formatBalance(walletBalance)}',
+                            style: GoogleFonts.interTight(
+                              color: Colors.white,
+                              fontSize: 36.0 * scale,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                        
+                        // 🔧 DEBUG: Show raw balance value
+                        if (kDebugMode)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              'Debug: $walletBalance (loading: $_isLoadingWallet)',
+                              style: GoogleFonts.inter(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 10.0,
+                              ),
+                            ),
+                          ),
+                        
                         SizedBox(height: 24.0 * scale),
 
                         // ⚡ Quick Actions Row
