@@ -1,6 +1,0 @@
-# Copy to android/key.properties and fill in your values.
-# NEVER commit key.properties to version control.
-storePassword=CHANGE_ME_STORE_PASSWORD
-keyPassword=CHANGE_ME_KEY_PASSWORD
-keyAlias=upload
-storeFile=/absolute/path/to/your/upload-keystore.jks

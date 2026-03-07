@@ -498,7 +498,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         final rideData = data is Map && data['data'] != null
             ? (data['data'] as Map<String, dynamic>)
             : (data is Map<String, dynamic> ? data : null);
-        if (rideData != null) handleNewRide(rideData);
+        if (rideData != null) {
+          // Keep local state such as bookingMode if the API doesn't return it
+          final existing = _activeRequests.firstWhere(
+            (r) => r.id == rideId,
+            orElse: () => RideRequest.fromJson(rideData),
+          );
+          
+          final updatedRide = RideRequest.fromJson(rideData).copyWith(
+            bookingMode: rideData.containsKey('booking_mode') 
+                ? rideData['booking_mode']?.toString().toLowerCase() ?? existing.bookingMode
+                : existing.bookingMode, // Preserve the booking mode from initial socket push if API doesn't return it
+          );
+          
+          handleNewRide(rideData..addAll({'booking_mode': updatedRide.bookingMode}));
+        }
       } catch (_) {}
     }
   }

@@ -21,15 +21,17 @@ class CashPaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isPro = ride.bookingMode == 'pro';
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: ugoOrange,
         automaticallyImplyLeading: false, // Prevents backing out until cash is collected
-        title: const Text(
-          'Ugo Ride',
+        title: Text(
+          isPro ? 'Pro Ride' : 'Ugo Ride',
           style: TextStyle(
-            color: Colors.white,
+            color: isPro ? Colors.black : Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 20,
           ),
@@ -45,17 +47,17 @@ class CashPaymentScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 64),
 
-              // ✅ Large Green Checkmark Circle
+              // ✅ Large Checkmark Circle
               Container(
                 width: 140,
                 height: 140,
-                decoration: const BoxDecoration(
-                  color: ugoGreen,
+                decoration: BoxDecoration(
+                  color: isPro ? const Color(0xFFE3CA43) : ugoGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check,
-                  color: Colors.white,
+                  color: isPro ? Colors.black : Colors.white,
                   size: 100,
                 ),
               ),
@@ -126,18 +128,18 @@ class CashPaymentScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onCollectConfirmed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ugoGreen,
+                    backgroundColor: isPro ? const Color(0xFFE3CA43) : ugoGreen,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'CASH COLLECTED',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: isPro ? Colors.black : Colors.white,
                       letterSpacing: 0.5,
                     ),
                   ),

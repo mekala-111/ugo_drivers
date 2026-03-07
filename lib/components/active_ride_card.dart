@@ -111,18 +111,18 @@ class RidePickupOverlay extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(16),
                       topRight: Radius.circular(16),
                     ),
-                    color: AppColors.success,
+                    color: ride.bookingMode == 'pro' ? const Color(0xFFE3CA43) : AppColors.success,
                   ),
                   child: Text(
                     FFLocalizations.of(context).getText('drv_go_to_pickup'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: ride.bookingMode == 'pro' ? Colors.black : Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       letterSpacing: 1.0,
@@ -275,7 +275,8 @@ class RidePickupOverlay extends StatelessWidget {
                         SlideToAction(
                           text: FFLocalizations.of(context)
                               .getText('drv_arrived'),
-                          outerColor: AppColors.success,
+                          outerColor: ride.bookingMode == 'pro' ? const Color(0xFFE3CA43) : AppColors.success,
+                          textColor: ride.bookingMode == 'pro' ? Colors.black : Colors.white,
                           onSubmitted: onSwipe,
                           height: Responsive.buttonHeight(context, base: 55),
                         ),
@@ -342,28 +343,35 @@ class ActiveRideCard extends StatelessWidget {
     Color btnColor = ugoGreen;
     bool showPickupBox = true;
 
+    bool isPro = ride.bookingMode == 'pro';
+    
     if (isArrived) {
       headerText =
       "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
       btnText = FFLocalizations.of(context).getText('drv_start_ride');
+      if (isPro) {
+        headerColor = const Color(0xFFE3CA43);
+        btnColor = const Color(0xFFE3CA43);
+      }
     } else if (isStarted) {
       headerText = FFLocalizations.of(context).getText('drv_go_to_drop');
       btnText = FFLocalizations.of(context).getText('drv_complete_ride');
       btnColor = ugoRed;
-      headerColor = ugoRed;
+      headerColor = ugoRed; // Red is universally used for Drop / Stop
       showPickupBox = false;
     }
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
               color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
+        border: Border.all(color: isPro ? const Color(0xFFE3CA43) : Colors.transparent, width: isPro ? 2 : 0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -375,15 +383,15 @@ class ActiveRideCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: headerColor,
               borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                  topLeft: Radius.circular(14), topRight: Radius.circular(14)),
             ),
             child: Text(
               headerText,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  color: Colors.white,
+              style: TextStyle(
+                  color: (isPro && headerColor == const Color(0xFFE3CA43)) ? Colors.black : Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   letterSpacing: 1.0),
@@ -509,6 +517,8 @@ class ActiveRideCard extends StatelessWidget {
                 SlideToAction(
                     text: btnText,
                     outerColor: btnColor,
+                    textColor: (isPro && btnColor == const Color(0xFFE3CA43)) ? Colors.black : Colors.white,
+                    isPro: isPro && btnColor == const Color(0xFFE3CA43),
                     onSubmitted: onSwipe,
                     height: Responsive.buttonHeight(context, base: 55)),
               ],
@@ -541,15 +551,19 @@ class ActiveRideCard extends StatelessWidget {
 class SlideToAction extends StatefulWidget {
   final String text;
   final Color outerColor;
+  final Color textColor;
   final VoidCallback onSubmitted;
   final double height;
+  final bool isPro; // ✅ Added isPro to show the crown icon
 
   const SlideToAction({
     super.key,
     required this.text,
     required this.outerColor,
+    this.textColor = Colors.white,
     required this.onSubmitted,
     this.height = 55.0,
+    this.isPro = false,
   });
 
   @override
@@ -574,17 +588,30 @@ class _SlideToActionState extends State<SlideToAction> {
           decoration: BoxDecoration(
             color: widget.outerColor,
             borderRadius: BorderRadius.circular(widget.height / 2),
+            border: Border.all(
+              color: widget.isPro ? const Color(0xFFE3CA43) : Colors.transparent, // ✅ Add gold border if Pro
+              width: widget.isPro ? 2 : 0,
+            ),
           ),
           child: Stack(
             children: [
               Center(
-                child: Text(
-                  widget.text,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 1.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.isPro) ...[
+                      const Icon(Icons.workspace_premium, color: Colors.black, size: 20), // Crown Icon
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      widget.text,
+                      style: TextStyle(
+                          color: widget.textColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 1.0),
+                    ),
+                  ],
                 ),
               ),
               Positioned(
@@ -619,17 +646,18 @@ class _SlideToActionState extends State<SlideToAction> {
                   child: Container(
                     width: sliderSize,
                     height: sliderSize,
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
+                    decoration: BoxDecoration(
+                        color: widget.isPro ? Colors.black : Colors.white, // ✅ Black circle for Pro
                         shape: BoxShape.circle,
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                               color: Colors.black26,
                               blurRadius: 3,
                               offset: Offset(1, 1))
                         ]),
                     child: Icon(Icons.arrow_forward,
-                        color: widget.outerColor, size: 24),
+                        color: widget.isPro ? const Color(0xFFE3CA43) : widget.outerColor, // ✅ Gold arrow inside black circle
+                        size: 24),
                   ),
                 ),
               ),

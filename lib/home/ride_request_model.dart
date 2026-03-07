@@ -24,6 +24,7 @@ class RideRequest {
   final double? estimatedFare;
   final double? finalFare;
   final PaymentMode paymentMode;
+  final String bookingMode; // 'pro' or 'normal'
 
   // 🚗 VEHICLE TYPE (to filter rides by driver vehicle)
   final String? vehicleType;
@@ -50,6 +51,7 @@ class RideRequest {
     this.estimatedFare,
     this.finalFare,
     this.paymentMode = PaymentMode.unknown,
+    this.bookingMode = 'normal',
     this.firstName,
     this.mobileNumber,
     this.vehicleType,
@@ -102,6 +104,7 @@ class RideRequest {
       paymentMode: parsePaymentMode(
         json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'],
       ),
+      bookingMode: json['booking_mode']?.toString().toLowerCase() ?? 'normal',
       vehicleType: json['vehicle_type'] ??
           json['rideType'] ??
           json['ride_type'] ??
@@ -133,6 +136,7 @@ class RideRequest {
     double? estimatedFare,
     double? finalFare,
     PaymentMode? paymentMode,
+    String? bookingMode,
     String? otp,
     String? vehicleType,
     int? vehicleTypeId,
@@ -155,6 +159,7 @@ class RideRequest {
       estimatedFare: estimatedFare ?? this.estimatedFare,
       finalFare: finalFare ?? this.finalFare,
       paymentMode: paymentMode ?? this.paymentMode,
+      bookingMode: bookingMode ?? this.bookingMode,
       vehicleType: vehicleType ?? this.vehicleType,
       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
       pickupCityId: pickupCityId ?? this.pickupCityId,

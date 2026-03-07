@@ -155,22 +155,24 @@ class StartRideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isStarted = ride.status == RideStatus.started;
+    bool isPro = ride.bookingMode == 'pro';
 
     String btnText = isStarted
         ? FFLocalizations.of(context).getText('drv_complete_ride')
         : FFLocalizations.of(context).getText('drv_start_ride');
-    Color btnColor = isStarted ? ugoRed : ugoGreen;
+    Color btnColor = isStarted ? ugoRed : (isPro ? const Color(0xFFE3CA43) : ugoGreen);
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
               color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
+        border: Border.all(color: isPro ? const Color(0xFFE3CA43) : Colors.transparent, width: isPro ? 2 : 0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -179,16 +181,16 @@ class StartRideCard extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: const BoxDecoration(
-              color: ugoGreen,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+            decoration: BoxDecoration(
+              color: isPro ? const Color(0xFFE3CA43) : ugoGreen,
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14), topRight: Radius.circular(14)),
             ),
             child: Text(
               "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime",
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: Colors.white,
+              style: TextStyle(
+                  color: isPro ? Colors.black : Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 15),
             ),
@@ -306,6 +308,8 @@ class StartRideCard extends StatelessWidget {
                 SlideToAction(
                   text: btnText,
                   outerColor: btnColor,
+                  textColor: (isPro && !isStarted) ? Colors.black : Colors.white,
+                  isPro: isPro && !isStarted, // only show crown when starting the ride
                   onSubmitted: onSwipe,
                   height: Responsive.buttonHeight(context, base: 55),
                 ),
@@ -339,15 +343,19 @@ class StartRideCard extends StatelessWidget {
 class SlideToAction extends StatefulWidget {
   final String text;
   final Color outerColor;
+  final Color textColor;
   final VoidCallback onSubmitted;
   final double height;
+  final bool isPro;
 
   const SlideToAction({
     super.key,
     required this.text,
     required this.outerColor,
+    this.textColor = Colors.white,
     required this.onSubmitted,
     this.height = 55.0,
+    this.isPro = false,
   });
 
   @override
@@ -372,17 +380,30 @@ class _SlideToActionState extends State<SlideToAction> {
           decoration: BoxDecoration(
             color: widget.outerColor,
             borderRadius: BorderRadius.circular(widget.height / 2),
+            border: Border.all(
+              color: widget.isPro ? const Color(0xFFE3CA43) : Colors.transparent, // ✅ Add gold border if Pro
+              width: widget.isPro ? 2 : 0,
+            ),
           ),
           child: Stack(
             children: [
               Center(
-                child: Text(
-                  widget.text,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 1.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.isPro) ...[
+                      const Icon(Icons.workspace_premium, color: Colors.black, size: 20), // Crown Icon
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      widget.text,
+                      style: TextStyle(
+                          color: widget.textColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 1.0),
+                    ),
+                  ],
                 ),
               ),
               Positioned(
@@ -417,10 +438,10 @@ class _SlideToActionState extends State<SlideToAction> {
                   child: Container(
                     width: sliderSize,
                     height: sliderSize,
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
+                    decoration: BoxDecoration(
+                        color: widget.isPro ? Colors.black : Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                               color: Colors.black26,
                               blurRadius: 3,
@@ -428,7 +449,7 @@ class _SlideToActionState extends State<SlideToAction> {
                         ]),
                     child: Icon(
                       Icons.arrow_forward,
-                      color: widget.outerColor,
+                      color: widget.isPro ? const Color(0xFFE3CA43) : widget.outerColor,
                       size: 24,
                     ),
                   ),

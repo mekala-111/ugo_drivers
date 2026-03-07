@@ -1,9 +1,5 @@
 import '/services/firebase_remote_config_service.dart';
 
-/// Application configuration and constants.
-///
-/// For production: use --dart-define for sensitive values.
-/// Example: flutter run --dart-define=API_BASE_URL=https://...
 class Config {
   static String get baseUrl {
     const defaultUrl = 'https://ugo-api.icacorp.org';
@@ -11,8 +7,6 @@ class Config {
     return const String.fromEnvironment('API_BASE_URL',
         defaultValue: defaultUrl);
   }
-
-  /// Build full URL for relative image paths from API (e.g. /uploads/licenses/...)
   static String? fullImageUrl(String? path) {
     if (path == null || path.trim().isEmpty) return null;
     final p = path.trim();
@@ -20,8 +14,6 @@ class Config {
     return '$baseUrl${p.startsWith('/') ? p : '/$p'}';
   }
 
-  /// Razorpay keys - fetched from Firebase Remote Config (secure)
-  /// Falls back to dart-define if remote config is not available
   static String get razorpayKeyId {
     // Try Firebase Remote Config first (secure)
     final remoteKey = FirebaseRemoteConfigService().razorpayKeyId;
@@ -46,9 +38,6 @@ class Config {
     return FirebaseRemoteConfigService().razorpayEnabled;
   }
 
-  /// Google Maps API key - get from Firebase Remote Config (primary) or dart-define (fallback)
-  /// For production: Firebase Remote Config should be initialized before this is called
-  /// For development: pass via --dart-define or use local.properties
   static String get googleMapsApiKey {
     // Primary: Firebase Remote Config (used in production and after initialization)
     final firebaseKey = FirebaseRemoteConfigService().googleMapsApiKey;
@@ -61,7 +50,6 @@ class Config {
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
   }
 
-  /// Alternative async method if Firebase hasn't initialized yet
   static Future<String> getGoogleMapsApiKey() async {
     try {
       final remoteKey = await FirebaseRemoteConfigService().googleMapsApiKeyAsync();
@@ -77,7 +65,6 @@ class Config {
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
   }
 
-  /// Synchronous fallback (only dart-define, for immediate access before Firebase init)
   static String get googleMapsApiKeySync {
     const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
         defaultValue: '');

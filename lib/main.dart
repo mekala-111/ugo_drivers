@@ -5,7 +5,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'auth/firebase_auth/firebase_user_provider.dart';
@@ -18,7 +17,6 @@ import 'flutter_flow/internationalization.dart';
 import '/services/voice_service.dart';
 import 'flutter_flow/firebase_app_check_util.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
 // ✅ IMPORT API MANAGER & LOGIN
 import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';

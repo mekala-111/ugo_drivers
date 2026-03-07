@@ -29,6 +29,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   // Driver Data State
   String _driverName = 'Loading...';
   bool _isLoading = true;
+  String? _qrImage;
 
   @override
   void initState() {
@@ -57,11 +58,30 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
       final token = FFAppState().accessToken;
 
       if (driverId == 0 || token.isEmpty) {
-        setState(() {
-          _driverName = 'Guest Driver';
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _driverName = 'Guest Driver';
+            _isLoading = false;
+          });
+        }
         return;
+      }
+
+      // Automatically generate/fetch the QR code for this driver
+      final qrResponse = await PostQRcodeCall.call(
+        driverId: driverId,
+        token: token,
+      );
+
+      if (qrResponse.succeeded == true) {
+        final newQr = PostQRcodeCall.qrimage(qrResponse.jsonBody);
+        if (newQr != null && newQr.isNotEmpty) {
+          FFAppState().qrImage = newQr;
+          _qrImage = newQr;
+        }
+      } else {
+        // fallback to app state if generation fails but we had one cached
+         _qrImage = FFAppState().qrImage;
       }
 
       final response = await DriverIdfetchCall.call(
@@ -77,22 +97,28 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
         // Combine them
         final fullName = '$firstName $lastName'.trim();
 
-        setState(() {
-          _driverName = fullName.isNotEmpty ? fullName : 'Driver';
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _driverName = fullName.isNotEmpty ? fullName : 'Driver';
+            _isLoading = false;
+          });
+        }
       } else {
-        setState(() {
-          _driverName = 'Driver'; // Fallback
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _driverName = 'Driver'; // Fallback
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       debugPrint('Error fetching driver data: $e');
-      setState(() {
-        _driverName = 'Driver';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _driverName = 'Driver';
+          _isLoading = false;
+        });
+      }
     }
   }
   @override
@@ -206,25 +232,27 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                             // The QR Image
                             ClipRRect(
                               borderRadius: BorderRadius.circular(16.0),
-                              child: Image.network(
-                                'https://ugo-api.icacorp.org/${FFAppState().qrImage}',
-                                width: 220.0,
-                                height: 220.0,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.qr_code_2_rounded,
-                                            size: 60, color: Colors.grey.shade300),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'QR not available',
-                                          style: TextStyle(color: Colors.grey.shade400),
-                                        )
-                                      ],
+                              child: _isLoading 
+                                  ? const Center(child: CircularProgressIndicator(color: brandPrimary))
+                                  : Image.network(
+                                      'https://ugo-api.icacorp.org/${_qrImage ?? FFAppState().qrImage}',
+                                      width: 220.0,
+                                      height: 220.0,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.qr_code_2_rounded,
+                                                  size: 60, color: Colors.grey.shade300),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                'QR not available',
+                                                style: TextStyle(color: Colors.grey.shade400),
+                                              )
+                                            ],
+                                          ),
                                     ),
-                              ),
                             ),
 
                             // Corner Accents

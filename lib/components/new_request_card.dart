@@ -91,6 +91,8 @@ class NewRequestCard extends StatelessWidget {
     final isNarrow = MediaQuery.sizeOf(context).width < 360;
     final pickupKm = _pickupDistanceKm(driverLocation, ride);
     final pickupDistStr = _formatDistance(pickupKm);
+    final isPro = ride.bookingMode == 'pro';
+
     return Container(
       margin: EdgeInsets.all(margin),
       decoration: BoxDecoration(
@@ -99,7 +101,9 @@ class NewRequestCard extends StatelessWidget {
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
         ],
-        border: Border.all(color: ugoOrange, width: 2),
+        border: Border.all(
+            color: isPro ? const Color(0xFFE3CA43) : ugoOrange,
+            width: 2), // Gold for Pro, Orange for Normal
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -107,20 +111,31 @@ class NewRequestCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(
                 horizontal: pad, vertical: Responsive.verticalSpacing(context)),
-            decoration: const BoxDecoration(
-                color: ugoGreen,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
+            decoration: BoxDecoration(
+                color: isPro
+                    ? const Color(0xFFE3CA43)
+                    : const Color(0xFF4CAF50), // Gold for Pro, Green for Normal
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(18))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(FFLocalizations.of(context).getText('drv_new_request'),
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: Responsive.fontSize(context, 16))),
+                Row(
+                  children: [
+                    Text(isPro ? 'NEW PRO REQUEST' : 'NEW REQUEST',
+                        style: TextStyle(
+                            color: isPro
+                                ? Colors.black
+                                : Colors.white, // Black text on Pro gold
+                            fontWeight: FontWeight.bold,
+                            fontSize: Responsive.fontSize(context, 16))),
+                  ],
+                ),
                 Text('${remainingTime}s',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: isPro
+                            ? Colors.black
+                            : Colors.white, // Black text on Pro gold
                         fontWeight: FontWeight.bold,
                         fontSize: Responsive.fontSize(context, 16))),
               ],
@@ -150,7 +165,8 @@ class NewRequestCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: MediaQuery.sizeOf(context).height * 0.015),
+                      SizedBox(
+                          height: MediaQuery.sizeOf(context).height * 0.015),
                       _buildFareBox(context),
                     ],
                   )
@@ -193,25 +209,31 @@ class NewRequestCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                        flex: 3,
                         child: _buildButton(
                             context,
-                            FFLocalizations.of(context).getText('drv_decline'),
-                            ugoRed,
-                            isLoading ? null : onDecline)),
+                            FFLocalizations.of(context)
+                                .getText('drv_decline')
+                                .toUpperCase(),
+                            const Color(0xFFF7220F), // Bright red from Figma
+                            isLoading ? null : onDecline,
+                            isPro: false)),
                     SizedBox(width: MediaQuery.sizeOf(context).width * 0.04),
                     Expanded(
-                        flex: 7,
                         child: isLoading
                             ? Center(
                                 child: Padding(
-                                  padding: EdgeInsets.all(MediaQuery.sizeOf(context).width * 0.03),
+                                  padding: EdgeInsets.all(
+                                      MediaQuery.sizeOf(context).width * 0.03),
                                   child: SizedBox(
-                                    width: MediaQuery.sizeOf(context).width * 0.06,
-                                    height: MediaQuery.sizeOf(context).width * 0.06,
-                                    child: const CircularProgressIndicator(
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.06,
+                                    height:
+                                        MediaQuery.sizeOf(context).width * 0.06,
+                                    child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: ugoGreen,
+                                      color: isPro
+                                          ? const Color(0xFFE3CA43)
+                                          : const Color(0xFF3C9A40),
                                     ),
                                   ),
                                 ),
@@ -219,9 +241,14 @@ class NewRequestCard extends StatelessWidget {
                             : _buildButton(
                                 context,
                                 FFLocalizations.of(context)
-                                    .getText('drv_accept'),
-                                ugoGreen,
-                                onAccept)),
+                                    .getText('drv_accept')
+                                    .toUpperCase(),
+                                isPro
+                                    ? const Color(0xFFE3CA43)
+                                    : const Color(
+                                        0xFF3C9A40), // Gold for Pro, Green for Normal
+                                onAccept,
+                                isPro: isPro)),
                   ],
                 )
               ],
@@ -257,7 +284,8 @@ class NewRequestCard extends StatelessWidget {
         Container(height: 1, color: Colors.grey[300]),
         const Icon(Icons.arrow_forward, size: 16),
         Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.sizeOf(context).height * 0.03),
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.sizeOf(context).height * 0.03),
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.sizeOf(context).width * 0.03,
@@ -289,8 +317,10 @@ class NewRequestCard extends StatelessWidget {
   ) {
     final hasDriverLocation = driverLocation != null;
     final displayLabel = hasDriverLocation ? '$label (current)' : label;
-    final originLat = hasDriverLocation ? driverLocation!.latitude : ride.pickupLat;
-    final originLng = hasDriverLocation ? driverLocation!.longitude : ride.pickupLng;
+    final originLat =
+        hasDriverLocation ? driverLocation!.latitude : ride.pickupLat;
+    final originLng =
+        hasDriverLocation ? driverLocation!.longitude : ride.pickupLng;
 
     // Always use Google Distance Matrix for accurate road distance (matches navigation).
     return FutureBuilder<double?>(
@@ -306,7 +336,7 @@ class NewRequestCard extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-                Text(displayLabel,
+              Text(displayLabel,
                   style: TextStyle(
                       color: Colors.grey[400],
                       fontSize: Responsive.fontSize(context, 12))),
@@ -344,7 +374,8 @@ class NewRequestCard extends StatelessWidget {
   }
 
   Widget _buildButton(
-      BuildContext context, String text, Color bg, VoidCallback? onTap) {
+      BuildContext context, String text, Color bg, VoidCallback? onTap,
+      {bool isPro = false}) {
     final btnH = Responsive.buttonHeight(context, base: 48);
     return SizedBox(
       height: btnH,
@@ -359,9 +390,12 @@ class NewRequestCard extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.white,
+            color: isPro
+                ? Colors.white
+                : Colors.white, // You can customize text color here
             fontWeight: FontWeight.bold,
-            fontSize: Responsive.fontSize(context, 15),
+            fontSize: Responsive.fontSize(context, 16),
+            letterSpacing: 0.5,
           ),
         ),
       ),
