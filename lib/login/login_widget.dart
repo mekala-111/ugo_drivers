@@ -10,7 +10,12 @@ import 'login_model.dart';
 export 'login_model.dart';
 
 class LoginWidget extends StatefulWidget {
-  const LoginWidget({super.key});
+  const LoginWidget({
+    super.key,
+    this.referalcode,
+  });
+
+  final String? referalcode;
 
   static String routeName = 'login';
   static String routePath = '/login';
@@ -30,6 +35,14 @@ class _LoginWidgetState extends State<LoginWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => LoginModel());
+
+    final incomingReferral = (widget.referalcode ?? '').trim();
+    if (incomingReferral.isNotEmpty) {
+      FFAppState().usedReferralCode = incomingReferral;
+      if (FFAppState().referralCode.trim().isEmpty) {
+        FFAppState().referralCode = incomingReferral;
+      }
+    }
 
     _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
@@ -607,6 +620,10 @@ class _LoginWidgetState extends State<LoginWidget> {
               'mobile': serializeParam(
                 int.tryParse(phoneText),
                 ParamType.int,
+              ),
+              'referalcode': serializeParam(
+                widget.referalcode,
+                ParamType.String,
               ),
             }.withoutNulls,
             ignoreRedirect: true,

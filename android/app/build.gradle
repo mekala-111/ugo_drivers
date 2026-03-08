@@ -120,6 +120,10 @@ dependencies {
 
     // Firebase App Check - Play Integrity Provider
     implementation "com.google.android.play:integrity:1.4.0"
+
+    // Play Install Referrer (for referral code auto-apply after fresh install)
+    implementation "com.android.installreferrer:installreferrer:2.2"
+
     // ML Kit Text Recognition language modules (add only what you use)
     implementation "com.google.mlkit:text-recognition:16.0.1"
     implementation "com.google.mlkit:text-recognition-chinese:16.0.1"

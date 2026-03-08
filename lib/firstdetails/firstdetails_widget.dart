@@ -11,9 +11,11 @@ class FirstdetailsWidget extends StatefulWidget {
   const FirstdetailsWidget({
     super.key,
     required this.mobile,
+    this.referalcode,
   });
 
   final int? mobile;
+  final String? referalcode;
 
   static String routeName = 'firstdetails';
   static String routePath = '/firstdetails';
@@ -32,6 +34,18 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
     super.initState();
     _model = createModel(context, () => FirstdetailsModel());
 
+    final incomingReferral = (widget.referalcode ?? '').trim();
+    if (incomingReferral.isNotEmpty) {
+      FFAppState().usedReferralCode = incomingReferral;
+      if (FFAppState().referralCode.trim().isEmpty) {
+        FFAppState().referralCode = incomingReferral;
+      }
+    }
+
+    final prefillReferral = FFAppState().referralCode.trim().isNotEmpty
+        ? FFAppState().referralCode
+        : FFAppState().usedReferralCode;
+
     // Mark current step for resume functionality
     FFAppState().registrationStep = 1;
 
@@ -46,8 +60,7 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
     _model.textController3 ??= TextEditingController(text: FFAppState().email);
     _model.textFieldFocusNode3 ??= FocusNode();
 
-    _model.textController4 ??=
-        TextEditingController(text: FFAppState().referralCode);
+    _model.textController4 ??= TextEditingController(text: prefillReferral);
     _model.textFieldFocusNode4 ??= FocusNode();
 
     _model.textController1?.addListener(() {
@@ -60,7 +73,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
       FFAppState().email = _model.textController3?.text ?? '';
     });
     _model.textController4?.addListener(() {
-      FFAppState().referralCode = _model.textController4?.text ?? '';
+      final value = _model.textController4?.text ?? '';
+      FFAppState().referralCode = value;
+      FFAppState().usedReferralCode = value.trim();
     });
   }
 
@@ -296,7 +311,9 @@ class _FirstdetailsWidgetState extends State<FirstdetailsWidget> {
                                         FFAppState().email =
                                             _model.textController3.text;
                                         FFAppState().referralCode =
-                                          FFAppState().referralCode = _model.textController4.text;
+                                          _model.textController4.text;
+                                        FFAppState().usedReferralCode =
+                                          _model.textController4.text.trim();
 
                                         // 3. Update registration step (for resume functionality)
                                         FFAppState().registrationStep = 1;

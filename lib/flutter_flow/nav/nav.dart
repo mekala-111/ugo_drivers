@@ -94,7 +94,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: LoginWidget.routeName,
           path: LoginWidget.routePath,
-          builder: (context, params) => const LoginWidget(),
+          builder: (context, params) => LoginWidget(
+            referalcode: params.getParam(
+              'referalcode',
+              ParamType.String,
+            ),
+          ),
         ),
         FFRoute(
           name: LanguageSelectWidget.routeName,
@@ -108,6 +113,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             mobile: params.getParam(
               'mobile',
               ParamType.int,
+            ),
+            referalcode: params.getParam(
+              'referalcode',
+              ParamType.String,
             ),
           ),
         ),
@@ -484,6 +493,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             mobile: params.getParam(
               'mobile',
               ParamType.int,
+            ),
+            referalcode: params.getParam(
+              'referalcode',
+              ParamType.String,
             ),
           ),
         ),
