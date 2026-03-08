@@ -21,6 +21,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';
 import '/services/firebase_remote_config_service.dart';
+import '/services/install_referrer_service.dart';
 import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
 
@@ -42,6 +43,7 @@ void main() {
 
     final appState = FFAppState();
     await appState.initializePersistedState();
+    await InstallReferrerService.captureReferralCodeIfAvailable();
 
     await FFLocalizations.initialize();
 

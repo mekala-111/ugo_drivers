@@ -3,6 +3,8 @@ package com.ugotaxi_rajkumar.driver
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import com.android.installreferrer.api.InstallReferrerClient
+import com.android.installreferrer.api.InstallReferrerStateListener
 import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -15,7 +17,9 @@ import androidx.annotation.NonNull
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "com.ugotaxi_rajkumar.driver/floating_bubble"
+    private val INSTALL_REFERRER_CHANNEL = "com.ugotaxi_rajkumar.driver/install_referrer"
     private lateinit var methodChannel: MethodChannel
+    private lateinit var installReferrerChannel: MethodChannel
     private val generalNotificationsChannelId = "general_notifications"
     private val rideRequestsChannelId = "ride_requests"
 
@@ -73,7 +77,53 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        installReferrerChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            INSTALL_REFERRER_CHANNEL
+        )
+        installReferrerChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getInstallReferrer" -> fetchInstallReferrer(result)
+                else -> result.notImplemented()
+            }
+        }
         handleRideActionFromIntent(intent)
+    }
+
+    private fun fetchInstallReferrer(result: MethodChannel.Result) {
+        val referrerClient = InstallReferrerClient.newBuilder(this).build()
+        referrerClient.startConnection(object : InstallReferrerStateListener {
+            override fun onInstallReferrerSetupFinished(responseCode: Int) {
+                when (responseCode) {
+                    InstallReferrerClient.InstallReferrerResponse.OK -> {
+                        try {
+                            val response = referrerClient.installReferrer
+                            result.success(response.installReferrer)
+                        } catch (e: Exception) {
+                            result.error("INSTALL_REFERRER_ERROR", e.message, null)
+                        } finally {
+                            referrerClient.endConnection()
+                        }
+                    }
+
+                    InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED,
+                    InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
+                        result.success(null)
+                        referrerClient.endConnection()
+                    }
+
+                    else -> {
+                        result.success(null)
+                        referrerClient.endConnection()
+                    }
+                }
+            }
+
+            override fun onInstallReferrerServiceDisconnected() {
+                // No-op
+            }
+        })
     }
 
     private fun createNotificationChannels() {

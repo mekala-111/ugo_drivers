@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/config.dart' as app_config;
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -6,6 +7,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -119,10 +121,23 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
     }
   }
 
+  String _buildReferralPlayStoreLink() {
+    final baseUri = Uri.parse(app_config.Config.playStoreUrl);
+    final referrerPayload = Uri(queryParameters: {
+      'referalcode': _referralCode.trim(),
+    }).query;
+
+    final query = Map<String, String>.from(baseUri.queryParameters);
+    query['referrer'] = referrerPayload;
+
+    return baseUri.replace(queryParameters: query).toString();
+  }
+
   /// 🚀 Helper to generate the optimized share text
   String _getShareText() {
-    // ✅ Updated share text as per your request (No Play Store link)
-    return 'Join UGO Taxi using my referral code: $_referralCode\nDownload the app and start earning! 🚗💰';
+    final referralLink = _buildReferralPlayStoreLink();
+    return 'Join UGO Taxi Driver and start earning! 🚗💰\n'
+        '$referralLink';
   }
 
   /// Share Logic
@@ -131,10 +146,18 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
     final shareText = _getShareText();
 
-    // Use generic share sheet as default fallback
-    final Uri smsUrl = Uri.parse('sms:?body=${Uri.encodeComponent(shareText)}');
-    if (await canLaunchUrl(smsUrl)) {
-      await launchUrl(smsUrl);
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: shareText,
+          subject: 'Join UGO Taxi Driver',
+        ),
+      );
+    } catch (_) {
+      final Uri smsUrl = Uri.parse('sms:?body=${Uri.encodeComponent(shareText)}');
+      if (await canLaunchUrl(smsUrl)) {
+        await launchUrl(smsUrl);
+      }
     }
   }
 

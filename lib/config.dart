@@ -2,8 +2,8 @@ import '/services/firebase_remote_config_service.dart';
 
 class Config {
   static String get baseUrl {
-    const defaultUrl = 'https://ugo-api.icacorp.org';
-    // const defaultUrl = 'https://ugotaxi.icacorp.org';
+    // const defaultUrl = 'https://ugo-api.icacorp.org';
+    const defaultUrl = 'https://ugotaxi.icacorp.org';
     return const String.fromEnvironment('API_BASE_URL',
         defaultValue: defaultUrl);
   }
@@ -70,5 +70,12 @@ class Config {
         defaultValue: '');
     if (primary.isNotEmpty) return primary;
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
+  }
+
+  /// Play Store app URL used in referral sharing
+  static String get playStoreUrl {
+    const defaultUrl =
+        'https://play.google.com/store/apps/details?id=com.ugotaxi_rajkumar.driver&hl=en_IN';
+    return const String.fromEnvironment('PLAY_STORE_URL', defaultValue: defaultUrl);
   }
 }

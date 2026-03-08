@@ -17,9 +17,11 @@ class OtpverificationWidget extends StatefulWidget {
   const OtpverificationWidget({
     super.key,
     required this.mobile,
+    this.referalcode,
   });
 
   final int? mobile;
+  final String? referalcode;
   static String routeName = 'otpverification';
   static String routePath = '/otpverification';
 
@@ -44,6 +46,14 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
     super.initState();
     _model = createModel(context, () => OtpverificationModel());
     _model.pinCodeFocusNode ??= FocusNode();
+
+    final incomingReferral = (widget.referalcode ?? '').trim();
+    if (incomingReferral.isNotEmpty) {
+      FFAppState().usedReferralCode = incomingReferral;
+      if (FFAppState().referralCode.trim().isEmpty) {
+        FFAppState().referralCode = incomingReferral;
+      }
+    }
 
     // Start the timer immediately when screen loads
     _startResendTimer();
@@ -521,6 +531,10 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                         'mobile': serializeParam(
                           widget.mobile,
                           ParamType.int,
+                        ),
+                        'referalcode': serializeParam(
+                          FFAppState().usedReferralCode,
+                          ParamType.String,
                         ),
                       }.withoutNulls,
                     );
