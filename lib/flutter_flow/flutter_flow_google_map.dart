@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -58,17 +59,50 @@ class MarkerImage {
   int get hashCode => Object.hash(imagePath, isAssetImage, size);
 }
 
+@immutable
+class MarkerIcon {
+  const MarkerIcon({
+    required this.icon,
+    required this.color,
+    this.backgroundColor = Colors.white,
+    this.borderColor = Colors.orange,
+    this.size = 120.0, // Default larger size for map markers
+  });
+  final IconData icon;
+  final Color color;
+  final Color backgroundColor;
+  final Color borderColor;
+  final double size;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MarkerIcon &&
+          icon == other.icon &&
+          color == other.color &&
+          backgroundColor == other.backgroundColor &&
+          borderColor == other.borderColor &&
+          size == other.size);
+
+  @override
+  int get hashCode => Object.hash(icon, color, backgroundColor, borderColor, size);
+}
+
 class FlutterFlowMarker {
   const FlutterFlowMarker(
     this.markerId,
     this.location, [
     this.onTap,
     this.color,
+    this.image,
+    this.icon,
   ]);
   final String markerId;
   final latlng.LatLng location;
   final Future Function()? onTap;
   final GoogleMarkerColor? color;
+  final MarkerImage? image;
+  final MarkerIcon? icon;
 }
 
 class FlutterFlowGoogleMap extends StatefulWidget {
@@ -127,9 +161,114 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   late Completer<GoogleMapController> _controller;
   BitmapDescriptor? _markerDescriptor;
   late LatLng currentMapCenter;
+  double _currentZoom = 16.0; // Tracks current zoom for dynamic marker sizing
+  double _lastRenderedZoom = 16.0; // Last zoom at which icons were rendered
   Set<Marker> _cachedMarkers = {};
   Set<Circle> _cachedCircles = {};
   Set<Polyline> _cachedPolylines = {};
+  Map<MarkerImage, BitmapDescriptor> _customIcons = {};
+  Map<MarkerIcon, BitmapDescriptor> _customFlutterIcons = {};
+
+  void _loadCustomIcons() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      for (final marker in widget.markers) {
+        if (marker.image != null && !_customIcons.containsKey(marker.image!)) {
+          final markerImage = marker.image!;
+          final markerImageSize = Size.square(markerImage.size);
+          var imageProvider = markerImage.isAssetImage
+              ? Image.asset(markerImage.imagePath).image
+              : CachedNetworkImageProvider(markerImage.imagePath);
+          if (!kIsWeb) {
+            final targetHeight =
+            (markerImage.size * MediaQuery.of(context).devicePixelRatio).toInt();
+            imageProvider = ResizeImage(
+              imageProvider,
+              height: targetHeight,
+              policy: ResizeImagePolicy.fit,
+              allowUpscaling: true,
+            );
+          }
+          final imageConfiguration =
+          createLocalImageConfiguration(context, size: markerImageSize);
+          imageProvider
+              .resolve(imageConfiguration)
+              .addListener(ImageStreamListener((img, _) async {
+            final bytes = await img.image.toByteData(format: ImageByteFormat.png);
+            if (bytes != null && mounted) {
+              _customIcons[markerImage] = BitmapDescriptor.bytes(
+                bytes.buffer.asUint8List(),
+                width: markerImageSize.width,
+                height: markerImageSize.height,
+              );
+              setState(() {});
+            }
+          }));
+        }
+
+        if (marker.icon != null && !_customFlutterIcons.containsKey(marker.icon!)) {
+          final markerIcon = marker.icon!;
+          _renderFlutterIcon(markerIcon).then((bitmap) {
+            if (mounted) {
+              _customFlutterIcons[markerIcon] = bitmap;
+              setState(() {});
+            }
+          });
+        }
+      }
+    });
+  }
+
+  // Returns icon pixel size scaled for the current zoom level.
+  // At the base zoom (16), uses markerIcon.size directly.
+  // Each zoom level up doubles the size; each level down halves it.
+  double _iconSizeForZoom(MarkerIcon markerIcon) {
+    final factor = pow(2.0, _currentZoom - 16.0).clamp(0.3, 6.0);
+    return (markerIcon.size * factor).clamp(10.0, 200.0);
+  }
+
+  Future<BitmapDescriptor> _renderFlutterIcon(MarkerIcon markerIcon) async {
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+    final double outSize = _iconSizeForZoom(markerIcon) * 1.5;
+    
+    // Draw white border circle
+    final Paint borderPaint = Paint()..color = markerIcon.borderColor;
+    canvas.drawCircle(Offset(outSize/2, outSize/2), outSize/2, borderPaint);
+
+    // Draw inner background circle
+    final Paint bgPaint = Paint()..color = markerIcon.backgroundColor;
+    canvas.drawCircle(Offset(outSize/2, outSize/2), (outSize/2) - (outSize * 0.1), bgPaint);
+
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(markerIcon.icon.codePoint),
+      style: TextStyle(
+        fontSize: _iconSizeForZoom(markerIcon),
+        fontFamily: markerIcon.icon.fontFamily,
+        package: markerIcon.icon.fontPackage,
+        color: markerIcon.color,
+      ),
+    );
+    textPainter.layout();
+    
+    // Center icon inside the circle
+    textPainter.paint(
+      canvas, 
+      Offset((outSize - textPainter.width) / 2, (outSize - textPainter.height) / 2)
+    );
+    
+    final ui.Picture picture = pictureRecorder.endRecording();
+    final ui.Image image = await picture.toImage(
+        outSize.toInt(), outSize.toInt());
+    final ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
+    
+    return BitmapDescriptor.bytes(
+      byteData!.buffer.asUint8List(),
+      width: outSize,
+      height: outSize,
+    );
+  }
 
   void initializeMarkerBitmap() {
     final markerImage = widget.markerImage;
@@ -182,9 +321,12 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   void initState() {
     super.initState();
     currentMapCenter = initialPosition;
+    _currentZoom = initialZoom;
+    _lastRenderedZoom = initialZoom;
     _controller = widget.controller;
     initializeMarkerBitmap();
-    print('🗺️ FlutterFlowGoogleMap initState - initialPosition: $initialPosition, zoom: $initialZoom');
+    _loadCustomIcons();
+    
   }
 
   @override
@@ -194,6 +336,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       initializeMarkerBitmap();
       setState(() {});
     }
+    _loadCustomIcons();
   }
 
   @override
@@ -206,12 +349,12 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       absorbing: !widget.allowInteraction,
       child: GoogleMap(
         onMapCreated: (controller) async {
-          print('🗺️ GoogleMap onMapCreated called');
+          
           if (!_controller.isCompleted) {
             _controller.complete(controller);
-            print('🗺️ GoogleMap controller completed');
+            
           } else {
-            print('🗺️ GoogleMap controller already completed');
+            
           }
           widget.onMapCreated?.call(controller);
         },
@@ -220,7 +363,20 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
             ? null
             : googleMapStyleStrings[widget.style],
         onCameraIdle: onCameraIdle,
-        onCameraMove: (position) => currentMapCenter = position.target,
+        onCameraMove: (position) {
+          currentMapCenter = position.target;
+          final newZoom = position.zoom;
+          // Re-render custom icons if zoom changed by >=0.5 levels
+          if ((newZoom - _lastRenderedZoom).abs() >= 0.5) {
+            _currentZoom = newZoom;
+            _lastRenderedZoom = newZoom;
+            // Clear cached custom flutter icons so they re-render at new size
+            _customFlutterIcons = {};
+            _loadCustomIcons();
+          } else {
+            _currentZoom = newZoom;
+          }
+        },
         initialCameraPosition: CameraPosition(
           target: initialPosition,
           zoom: initialZoom,
@@ -239,11 +395,18 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
                   (m) => Marker(
                     markerId: MarkerId(m.markerId),
                     position: m.location.toGoogleMaps(),
-                    icon: m.color != null
-                        ? BitmapDescriptor.defaultMarkerWithHue(
-                            googleMarkerColorMap[m.color]!,
-                          )
-                        : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
+                    anchor: (m.icon != null || m.image != null)
+                        ? const Offset(0.5, 0.5) // Center icon on GPS point
+                        : const Offset(0.5, 1.0), // Default pin anchors at bottom
+                    icon: m.icon != null
+                        ? _customFlutterIcons[m.icon!] ?? BitmapDescriptor.defaultMarker
+                        : m.image != null
+                            ? _customIcons[m.image!] ?? BitmapDescriptor.defaultMarker
+                            : m.color != null
+                                ? BitmapDescriptor.defaultMarkerWithHue(
+                                    googleMarkerColorMap[m.color]!,
+                                  )
+                                : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
                     onTap: () async {
                       if (widget.centerMapOnMarkerTap) {
                         final controller = await _controller.future;

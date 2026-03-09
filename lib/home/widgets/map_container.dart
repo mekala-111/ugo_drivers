@@ -14,6 +14,7 @@ class MapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showCaptainsPanel,
+    this.markers,
   });
 
   final GlobalKey<FlutterFlowGoogleMapState> mapKey;
@@ -23,10 +24,11 @@ class MapContainer extends StatelessWidget {
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
   final bool showCaptainsPanel;
+  final List<FlutterFlowMarker>? markers;
 
   @override
   Widget build(BuildContext context) {
-    print('🗺️ MapContainer building with location: ${mapCenter ?? initialLocation}');
+    
     
     return Stack(
       children: [
@@ -36,12 +38,14 @@ class MapContainer extends StatelessWidget {
           onCameraIdle: onCameraIdle,
           initialLocation: mapCenter ?? initialLocation,
           markerColor: GoogleMarkerColor.orange,
+          markers: markers ?? [],
           mapType: MapType.normal,
+          style: GoogleMapStyle.standard, // Back to regular style
           initialZoom: 16,
           allowInteraction: true,
           allowZoom: true,
           showZoomControls: false,
-          showLocation: true,
+          showLocation: false, // Turn off Google's blue dot
           showCompass: true,
           showMapToolbar: true,
           showTraffic: false,

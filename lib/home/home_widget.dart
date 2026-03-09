@@ -37,7 +37,7 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget>
-    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver, TickerProviderStateMixin {
   late HomeModel _model;
   late HomeController _controller;
 
@@ -50,6 +50,17 @@ class _HomeWidgetState extends State<HomeWidget>
   String? _activeRouteKey;
   bool _bubbleVisible = false;
   bool _lastOnlineState = false;
+  
+  // Pulsating ripple animation
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnim;
+  Set<Circle> _rippleCircles = {};
+
+  // Route flowing-dot animation
+  late AnimationController _routeAnimController;
+  List<latlng.LatLng> _routePoints = [];
+  Circle? _routeDotCircle;
+
   final MethodChannel _bubbleChannel =
       const MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
 
@@ -62,6 +73,21 @@ class _HomeWidgetState extends State<HomeWidget>
     _model = createModel(context, () => HomeModel());
     WidgetsBinding.instance.addObserver(this);
     _bubbleChannel.setMethodCallHandler(_handleBubbleMethod);
+
+    // Setup pulsating ripple animation (don't start yet — _controller not ready)
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+    _pulseAnim = CurvedAnimation(parent: _pulseController, curve: Curves.easeOut);
+    _pulseController.addListener(_updateRipple);
+
+    // Route animated dot (don't start yet)
+    _routeAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _routeAnimController.addListener(_updateRouteDot);
 
     _controller = HomeController(
       onShowKycDialog: () async {
@@ -187,6 +213,8 @@ class _HomeWidgetState extends State<HomeWidget>
       await _controller.init();
       _lastOnlineState = _controller.isOnline;
       _controller.addListener(_onControllerChange);
+      // Now safe to start animations — _controller is initialized
+      _pulseController.repeat();
       _syncFloatingBubble();
       _handlePendingRideFromNotification();
       _maybeShowPostLoginScreens();
@@ -250,14 +278,43 @@ class _HomeWidgetState extends State<HomeWidget>
   }
 
   void _onControllerChange() {
+    if (!mounted) return;
+    
+    // Auto-center map when going online
+    if (_controller.isOnline && !_lastOnlineState) {
+      if (_controller.currentUserLocation != null) {
+        _model.googleMapsController.future.then((ctrl) {
+          ctrl.animateCamera(CameraUpdate.newLatLngZoom(
+              _controller.currentUserLocation!.toGoogleMaps(), 16.0));
+        });
+      }
+    }
+
     if (!_controller.isOnline && _lastOnlineState) {
       _lastOnlineState = _controller.isOnline;
       _hideFloatingBubble();
       return;
     }
+    
     if (_controller.isOnline != _lastOnlineState) {
       _lastOnlineState = _controller.isOnline;
     }
+    
+    // Continuously update map center to driver's location if no ride is actively being handled
+    // and if we have a valid location. This gives the Uber-like continuous tracking effect.
+    if (_controller.isOnline && _controller.currentUserLocation != null) {
+      _model.googleMapsController.future.then((ctrl) {
+        // Only safely update camera if we haven't actively locked it to a pickup/drop point
+        if (_controller.currentRideStatus.toUpperCase() == 'IDLE' || 
+            _controller.currentRideStatus.toUpperCase() == 'SEARCHING') {
+          ctrl.animateCamera(CameraUpdate.newLatLng(
+            _controller.currentUserLocation!.toGoogleMaps(),
+          ));
+        }
+      });
+    }
+
+    setState(() {});
     _syncFloatingBubble();
   }
 
@@ -486,19 +543,43 @@ class _HomeWidgetState extends State<HomeWidget>
 
     if (points == null || points.isEmpty) {
       _mapKey.currentState?.updatePolylines(<Polyline>{});
+      _routePoints = [];
       return;
     }
 
+    // Store route points for the animated dot
+    _routePoints = points.toList(); // List<latlng.LatLng>
+
+    final googlePoints = points.map((p) => p.toGoogleMaps()).toList();
     final polylineId = isAccepted
         ? 'route_driver_pickup_${rr.id}'
         : 'route_pickup_drop_${rr.id}';
-    final polyline = Polyline(
+
+    // White outline layer (drawn underneath)
+    final outlinePolyline = Polyline(
+      polylineId: PolylineId('${polylineId}_outline'),
+      color: Colors.white,
+      width: 14,
+      points: googlePoints,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      jointType: JointType.round,
+      zIndex: 0,
+    );
+    // Orange route layer on top
+    final routePolyline = Polyline(
       polylineId: PolylineId(polylineId),
       color: AppColors.primary,
-      width: 5,
-      points: points.map((p) => p.toGoogleMaps()).toList(),
+      width: 8,
+      points: googlePoints,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      jointType: JointType.round,
+      zIndex: 1,
     );
-    _mapKey.currentState?.updatePolylines({polyline});
+    _mapKey.currentState?.updatePolylines({outlinePolyline, routePolyline});
+    // Restart the dot animation from 0
+    _routeAnimController.forward(from: 0.0);
   }
 
   String _getGreeting() {
@@ -508,8 +589,80 @@ class _HomeWidgetState extends State<HomeWidget>
     return FFLocalizations.of(context).getText('drv_good_evening');
   }
 
+  void _updateRipple() {
+    final loc = _controller.currentUserLocation;
+    if (!mounted || loc == null || !_controller.isOnline) {
+      if (_rippleCircles.isNotEmpty) {
+        _rippleCircles = {};
+        _mapKey.currentState?.updateCircles({});
+      }
+      return;
+    }
+    final radius = _pulseAnim.value * 80.0; // Starts at 0 (icon center) and grows to 80m
+    final opacity = 1.0 - _pulseAnim.value;  // Fades out as it expands
+    
+    // Inner icon-sized solid circle — pulses in opposite phase (breathes)
+    final innerRadius = 12.0 + (_pulseAnim.value * 6.0); // 12m → 18m (subtle breathing)
+    final innerOpacity = 0.8 - (_pulseAnim.value * 0.5); // Stays mostly visible
+
+    _rippleCircles = {
+      // Outer expanding ring
+      Circle(
+        circleId: const CircleId('driver_pulse_outer'),
+        center: loc.toGoogleMaps(),
+        radius: radius,
+        fillColor: Colors.orange.withValues(alpha: opacity * 0.2),
+        strokeColor: Colors.orange.withValues(alpha: opacity * 0.8),
+        strokeWidth: 2,
+      ),
+      // Inner solid icon-sized dot that also pulses
+      Circle(
+        circleId: const CircleId('driver_pulse_inner'),
+        center: loc.toGoogleMaps(),
+        radius: innerRadius,
+        fillColor: Colors.orange.withValues(alpha: innerOpacity * 0.6),
+        strokeColor: Colors.orange.withValues(alpha: innerOpacity),
+        strokeWidth: 3,
+      ),
+    };
+    _mapKey.currentState?.updateCircles(_rippleCircles);
+  }
+
+  void _updateRouteDot() {
+    if (!mounted || _routePoints.length < 2) {
+      if (_routeDotCircle != null) {
+        _routeDotCircle = null;
+        _mapKey.currentState?.updateCircles({});
+      }
+      return;
+    }
+    final t = _routeAnimController.value; // 0.0 → 1.0
+    final totalSegments = _routePoints.length - 1;
+    final scaledT = t * totalSegments;
+    final segmentIndex = scaledT.floor().clamp(0, totalSegments - 1);
+    final segmentT = scaledT - segmentIndex;
+    final from = _routePoints[segmentIndex];
+    final to = _routePoints[segmentIndex + 1];
+    final lat = from.latitude + (to.latitude - from.latitude) * segmentT;
+    final lng = from.longitude + (to.longitude - from.longitude) * segmentT;
+    _routeDotCircle = Circle(
+      circleId: const CircleId('route_dot'),
+      center: latlng.LatLng(lat, lng).toGoogleMaps(),
+      radius: 8.0,
+      fillColor: Colors.white,
+      strokeColor: AppColors.primary,
+      strokeWidth: 3,
+      zIndex: 10,
+    );
+    // Merge with ripple circles (don't overwrite pulsing animation)
+    final merged = {..._rippleCircles, _routeDotCircle!};
+    _mapKey.currentState?.updateCircles(merged);
+  }
+
   @override
   void dispose() {
+    _pulseController.dispose();
+    _routeAnimController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _bubbleChannel.setMethodCallHandler(null);
     _controller.removeListener(_onControllerChange);
@@ -585,11 +738,30 @@ class _HomeWidgetState extends State<HomeWidget>
                                   child: RideMapContainer(
                                     mapKey: _mapKey,
                                     controller: _model.googleMapsController,
-                                    initialLocation: userLocation,
+                                    initialLocation: c.currentUserLocation ?? userLocation,
                                     onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                                    mapCenter: _model.googleMapsCenter ?? userLocation,
+                                    mapCenter: c.currentUserLocation,
                                     availableDriversCount: c.availableDriversCount,
                                     showCaptainsPanel: shouldShowPanels,
+                                    // Inject custom driver marker
+                                    markers: (c.currentUserLocation != null && isOnline) 
+                                        ? [
+                                            FlutterFlowMarker(
+                                              'driver_current_location',
+                                              c.currentUserLocation!,
+                                              null,
+                                              null,
+                                              null, // image
+                                              const MarkerIcon(
+                                                icon: Icons.navigation,
+                                                color: Colors.white,
+                                                backgroundColor: Colors.orange,
+                                                borderColor: Colors.white,
+                                                size: 24.0,
+                                              )
+                                            )
+                                          ]
+                                        : [],
                                   ),
                                 ),
                               ),

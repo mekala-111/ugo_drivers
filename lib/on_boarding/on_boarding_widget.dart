@@ -592,7 +592,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         'first_name': FFAppState().firstName,
         'last_name': FFAppState().lastName,
         'email': FFAppState().email,
-        'referrer_code': referrerCode.isNotEmpty ? referrerCode : null,
+        'referral_code': referrerCode.isNotEmpty ? referrerCode : null,
         'preferred_city_id': FFAppState().preferredCityId > 0
             ? FFAppState().preferredCityId
             : null,

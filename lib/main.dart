@@ -43,6 +43,7 @@ void main() {
 
     final appState = FFAppState();
     await appState.initializePersistedState();
+
     await InstallReferrerService.captureReferralCodeIfAvailable();
 
     await FFLocalizations.initialize();

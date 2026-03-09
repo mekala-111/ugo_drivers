@@ -179,7 +179,7 @@ class RouteDistanceService {
 
     final element = elements.first as Map<String, dynamic>;
     if (element['status'] != 'OK') {
-      print('❌ Distance Matrix element status: ${element['status']}');
+      if (kDebugMode) debugPrint('❌ Distance Matrix element status: ${element['status']}');
       return null;
     }
 

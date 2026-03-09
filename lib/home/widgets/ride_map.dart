@@ -15,6 +15,7 @@ class RideMapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showCaptainsPanel,
+    this.markers,
   });
 
   final GlobalKey<FlutterFlowGoogleMapState> mapKey;
@@ -24,6 +25,7 @@ class RideMapContainer extends StatelessWidget {
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
   final bool showCaptainsPanel;
+  final List<FlutterFlowMarker>? markers;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class RideMapContainer extends StatelessWidget {
       mapCenter: mapCenter,
       availableDriversCount: availableDriversCount,
       showCaptainsPanel: showCaptainsPanel,
+      markers: markers,
     );
   }
 }

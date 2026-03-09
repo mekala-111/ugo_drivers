@@ -50,6 +50,8 @@ class HomeController extends ChangeNotifier {
   Timer? _availableDriversTimer;
   bool _socketInitialized = false;
   bool _disposed = false;
+  int _currentDistanceFilter = 50;
+
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -280,6 +282,8 @@ class HomeController extends ChangeNotifier {
       _notify();
       return;
     }
+    
+    // ONLY show disclosure if permission is actually denied
     if (permission == LocationPermission.denied) {
       final agreed = await onShowLocationDisclosure();
       if (!agreed) {
@@ -466,11 +470,30 @@ class HomeController extends ChangeNotifier {
     }
 
     _locationSub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
+      locationSettings: LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+        distanceFilter: _currentDistanceFilter,
       ),
     ).listen(_handleLocationUpdate);
+  }
+
+  void _adjustLocationFilter(String status) {
+    int newFilter = 50;
+    if (status == 'ACCEPTED' || status == 'ARRIVED' || status == 'STARTED' || status == 'ONTRIP') {
+      newFilter = 10;
+    }
+    
+    if (_currentDistanceFilter != newFilter && _isTrackingLocation) {
+      _currentDistanceFilter = newFilter;
+      _locationSub?.cancel();
+      _locationSub = Geolocator.getPositionStream(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: _currentDistanceFilter,
+        ),
+      ).listen(_handleLocationUpdate);
+      if (kDebugMode) debugPrint('Location tracking distance filter updated to: $_currentDistanceFilter meters');
+    }
   }
 
   Future<void> _handleLocationUpdate(Position newPosition) async {
@@ -598,7 +621,7 @@ void _initSocket() {
     });
 
     _socket.on('ride_updated', (data) {
-      print('🔔 Socket ride_updated event: $data');
+      if (kDebugMode) debugPrint('🔔 Socket ride_updated event: $data');
       if (!_disposed) onSocketRideData(data);
     });
 
@@ -804,6 +827,7 @@ void _initSocket() {
 
   void setRideStatus(String status) {
     currentRideStatus = status;
+    _adjustLocationFilter(status);
     _notify();
   }
 

@@ -57,7 +57,7 @@ class AppHeader extends StatelessWidget {
               if (switchValue)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),
-                  child: Icon(Icons.qr_code, color: Colors.black, size: iconSz),
+                  child: Icon(Icons.qr_code, color: Colors.white, size: iconSz),
                   minSize: minTap,
                 )
               else
