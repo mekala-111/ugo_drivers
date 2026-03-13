@@ -15,6 +15,7 @@ class RideMapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showCaptainsPanel,
+    this.onCenterCurrentLocation,
     this.markers,
   });
 
@@ -25,6 +26,7 @@ class RideMapContainer extends StatelessWidget {
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
   final bool showCaptainsPanel;
+  final Future<void> Function()? onCenterCurrentLocation;
   final List<FlutterFlowMarker>? markers;
 
   @override
@@ -37,6 +39,7 @@ class RideMapContainer extends StatelessWidget {
       mapCenter: mapCenter,
       availableDriversCount: availableDriversCount,
       showCaptainsPanel: showCaptainsPanel,
+      onCenterCurrentLocation: onCenterCurrentLocation,
       markers: markers,
     );
   }

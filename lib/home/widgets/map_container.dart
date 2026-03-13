@@ -14,6 +14,7 @@ class MapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showCaptainsPanel,
+    this.onCenterCurrentLocation,
     this.markers,
   });
 
@@ -24,12 +25,11 @@ class MapContainer extends StatelessWidget {
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
   final bool showCaptainsPanel;
+  final Future<void> Function()? onCenterCurrentLocation;
   final List<FlutterFlowMarker>? markers;
 
   @override
   Widget build(BuildContext context) {
-    
-    
     return Stack(
       children: [
         FlutterFlowGoogleMap(
@@ -53,6 +53,25 @@ class MapContainer extends StatelessWidget {
         ),
         if (showCaptainsPanel)
           RideStatusPanel(availableDriversCount: availableDriversCount),
+        if (onCenterCurrentLocation != null)
+          Positioned(
+            top: showCaptainsPanel ? 88.0 : 16.0,
+            right: 16.0,
+            child: Material(
+              color: Colors.white,
+              elevation: 6.0,
+              shadowColor: Colors.black26,
+              shape: const CircleBorder(),
+              child: IconButton(
+                tooltip: 'Current location',
+                onPressed: onCenterCurrentLocation,
+                icon: const Icon(
+                  Icons.my_location_rounded,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

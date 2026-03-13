@@ -34,9 +34,11 @@ Future<void> _showRideNotificationInBackground(RemoteMessage msg) async {
 
 Future<void> _showRideNotificationInBackgroundImpl(RemoteMessage msg) async {
   final data = msg.data;
-  final rideId = data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0';
+  final rideId =
+      data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0';
   final title = msg.notification?.title ?? data['title'] ?? 'New Ride Request!';
-  final body = msg.notification?.body ?? data['body'] ?? 'Tap to view ride details';
+  final body =
+      msg.notification?.body ?? data['body'] ?? 'Tap to view ride details';
   final fare = data['fare'] ?? data['estimated_fare'];
   final dist = data['distance'] ?? data['ride_distance_km'];
   String displayBody = body;
@@ -50,9 +52,10 @@ Future<void> _showRideNotificationInBackgroundImpl(RemoteMessage msg) async {
   final plugin = FlutterLocalNotificationsPlugin();
   const android = AndroidInitializationSettings('@mipmap/ic_launcher');
   const ios = DarwinInitializationSettings();
-  await plugin.initialize(const InitializationSettings(android: android, iOS: ios));
+  await plugin
+      .initialize(const InitializationSettings(android: android, iOS: ios));
 
-    if (Platform.isAndroid) {
+  if (Platform.isAndroid) {
     final channel = AndroidNotificationChannel(
       _kChannelId,
       _kChannelName,
@@ -63,7 +66,8 @@ Future<void> _showRideNotificationInBackgroundImpl(RemoteMessage msg) async {
       vibrationPattern: Int64List.fromList([0, 800, 400, 800, 400, 800]),
     );
     await plugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
@@ -111,25 +115,9 @@ class RideNotificationService {
 
   RideNotificationService._();
 
-  final FlutterLocalNotificationsPlugin _local = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _local =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
-
-  void _parseAndShowLocalNotification(RemoteMessage msg) {
-    final data = msg.data;
-    final rideId = data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0';
-    final title = msg.notification?.title ?? data['title'] ?? 'New Ride Request!';
-    final body = msg.notification?.body ?? data['body'] ?? 'Tap to view ride details';
-    final fare = data['fare'] ?? data['estimated_fare'];
-    final dist = data['distance'] ?? data['ride_distance_km'];
-    String displayBody = body;
-    if (fare != null || dist != null) {
-      final parts = <String>[];
-      if (fare != null) parts.add('Fare: ₹$fare');
-      if (dist != null) parts.add('$dist km');
-      if (parts.isNotEmpty) displayBody = parts.join(' • ');
-    }
-    _showLocalRideNotification(rideId: rideId, title: title, body: displayBody);
-  }
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -192,10 +180,13 @@ class RideNotificationService {
     if (initialMsg != null) _setPendingRideFromMessage(initialMsg);
 
     final launchDetails = await _local.getNotificationAppLaunchDetails();
-    if (launchDetails?.didNotificationLaunchApp == true && launchDetails?.notificationResponse?.payload != null) {
-      final rideId = int.tryParse(launchDetails!.notificationResponse!.payload!);
+    if (launchDetails?.didNotificationLaunchApp == true &&
+        launchDetails?.notificationResponse?.payload != null) {
+      final rideId =
+          int.tryParse(launchDetails!.notificationResponse!.payload!);
       if (rideId != null && rideId > 0) {
-        FFAppState().update(() => FFAppState().pendingRideIdFromNotification = rideId);
+        FFAppState()
+            .update(() => FFAppState().pendingRideIdFromNotification = rideId);
       }
     }
 
@@ -217,8 +208,12 @@ class RideNotificationService {
 
   void _onForegroundMessage(RemoteMessage msg) {
     if (msg.data.containsKey('type') && msg.data['type'] == 'ride_request') {
-      if (FFAppState().activeRideId != 0) return; // Driver on ride: no new requests
-      _parseAndShowLocalNotification(msg);
+      if (FFAppState().activeRideId != 0) {
+        return; // Driver on ride: no new requests
+      }
+      // App is already open, so avoid layering notification sound on top of
+      // the in-app ride request alert. The home screen/socket flow handles UI.
+      _setPendingRideFromMessage(msg);
     }
   }
 
@@ -230,9 +225,11 @@ class RideNotificationService {
   void _setPendingRideFromMessage(RemoteMessage msg) {
     final data = msg.data;
     if (data['type'] != 'ride_request') return;
-    final rideId = int.tryParse(data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0');
+    final rideId = int.tryParse(
+        data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0');
     if (rideId != null && rideId > 0) {
-      FFAppState().update(() => FFAppState().pendingRideIdFromNotification = rideId);
+      FFAppState()
+          .update(() => FFAppState().pendingRideIdFromNotification = rideId);
     }
   }
 
@@ -255,11 +252,15 @@ class RideNotificationService {
     double? estimatedFare,
     double? distance,
   }) async {
-    if (FFAppState().activeRideId != 0) return; // Driver on ride: no new requests
+    if (FFAppState().activeRideId != 0) {
+      return; // Driver on ride: no new requests
+    }
     String displayBody = body;
     if (estimatedFare != null || distance != null) {
       final parts = <String>[];
-      if (estimatedFare != null) parts.add('Fare: ₹${estimatedFare.toStringAsFixed(0)}');
+      if (estimatedFare != null) {
+        parts.add('Fare: ₹${estimatedFare.toStringAsFixed(0)}');
+      }
       if (distance != null) parts.add('${distance.toStringAsFixed(1)} km');
       if (parts.isNotEmpty) displayBody = parts.join(' • ');
     }
@@ -276,6 +277,7 @@ class RideNotificationService {
     required String body,
   }) async {
     if (!_initialized) return;
+    await cancelRideNotification();
 
     AndroidNotificationDetails androidDetails;
     if (Platform.isAndroid) {
@@ -296,7 +298,8 @@ class RideNotificationService {
         largeIcon: const DrawableResourceAndroidBitmap('ugo_notification'),
       );
     } else {
-      androidDetails = const AndroidNotificationDetails(_kChannelId, _kChannelName);
+      androidDetails =
+          const AndroidNotificationDetails(_kChannelId, _kChannelName);
     }
 
     const iosDetails = DarwinNotificationDetails(

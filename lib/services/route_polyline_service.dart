@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:http/http.dart' as http;
 import 'package:ugo_driver/config.dart';
 import 'package:ugo_driver/flutter_flow/lat_lng.dart' as latlng;
@@ -20,14 +21,12 @@ class RoutePolylineService {
     required double destLat,
     required double destLng,
   }) async {
-    if (originLat == 0 ||
-        originLng == 0 ||
-        destLat == 0 ||
-        destLng == 0) {
+    if (originLat == 0 || originLng == 0 || destLat == 0 || destLng == 0) {
       return null;
     }
 
-    final key = '${originLat.toStringAsFixed(4)}_${originLng.toStringAsFixed(4)}_'
+    final key =
+        '${originLat.toStringAsFixed(4)}_${originLng.toStringAsFixed(4)}_'
         '${destLat.toStringAsFixed(4)}_${destLng.toStringAsFixed(4)}';
     final cached = _cache[key];
     if (cached != null && !cached.isExpired) return cached.points;
@@ -50,14 +49,12 @@ class RoutePolylineService {
       try {
         final res = await http.get(uri);
         if (res.statusCode != 200) return null;
-        final data = jsonDecode(res.body) as Map<String, dynamic>;
-        if (data['status'] != 'OK') return null;
-        final routes = data['routes'] as List<dynamic>;
-        if (routes.isEmpty) return null;
-        final overview = routes.first['overview_polyline'] as Map<String, dynamic>?;
-        final encoded = overview?['points']?.toString();
-        if (encoded == null || encoded.isEmpty) return null;
-        final points = _decodePolyline(encoded);
+        final rawPoints =
+            await compute(_parseRoutePointsFromResponse, res.body);
+        if (rawPoints == null || rawPoints.isEmpty) return null;
+        final points = rawPoints
+            .map((p) => latlng.LatLng(p[0], p[1]))
+            .toList(growable: false);
         if (points.isEmpty) return null;
         _cache[key] = _CachedRoute(points: points);
         return points;
@@ -71,39 +68,59 @@ class RoutePolylineService {
     _inflight[key] = future;
     return future;
   }
+}
 
-  List<latlng.LatLng> _decodePolyline(String encoded) {
-    final points = <latlng.LatLng>[];
-    var index = 0;
-    var lat = 0;
-    var lng = 0;
+List<List<double>>? _parseRoutePointsFromResponse(String body) {
+  final data = jsonDecode(body) as Map<String, dynamic>;
+  if (data['status'] != 'OK') return null;
 
-    while (index < encoded.length) {
-      var shift = 0;
-      var result = 0;
-      int b;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20 && index < encoded.length);
-      final dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lat += dlat;
+  final routes = data['routes'] as List<dynamic>? ?? const [];
+  if (routes.isEmpty) return null;
 
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20 && index < encoded.length);
-      final dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lng += dlng;
+  final firstRoute = routes.first;
+  if (firstRoute is! Map<String, dynamic>) return null;
 
-      points.add(latlng.LatLng(lat / 1e5, lng / 1e5));
-    }
-    return points;
+  final overview = firstRoute['overview_polyline'];
+  if (overview is! Map<String, dynamic>) return null;
+
+  final encoded = overview['points']?.toString();
+  if (encoded == null || encoded.isEmpty) return null;
+
+  return _decodePolylineToPairs(encoded);
+}
+
+List<List<double>> _decodePolylineToPairs(String encoded) {
+  final points = <List<double>>[];
+  var index = 0;
+  var lat = 0;
+  var lng = 0;
+
+  while (index < encoded.length) {
+    var shift = 0;
+    var result = 0;
+    int b;
+    do {
+      b = encoded.codeUnitAt(index++) - 63;
+      result |= (b & 0x1F) << shift;
+      shift += 5;
+    } while (b >= 0x20 && index < encoded.length);
+    final dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.codeUnitAt(index++) - 63;
+      result |= (b & 0x1F) << shift;
+      shift += 5;
+    } while (b >= 0x20 && index < encoded.length);
+    final dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+    lng += dlng;
+
+    points.add(<double>[lat / 1e5, lng / 1e5]);
   }
+
+  return points;
 }
 
 class _CachedRoute {

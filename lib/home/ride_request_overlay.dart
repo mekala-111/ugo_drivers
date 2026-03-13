@@ -8,6 +8,7 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/services/voice_service.dart';
 import 'package:ugo_driver/services/ride_notification_service.dart';
 import 'package:ugo_driver/services/floating_bubble_service.dart';
+import 'package:ugo_driver/services/ride_alert_audio_service.dart';
 import 'package:ugo_driver/home/ride_request_model.dart';
 import '../models/ride_status.dart';
 import '../models/payment_mode.dart';
@@ -70,8 +71,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         .trim()
         .toLowerCase();
     final rideType = (ride.vehicleType ?? '').toString().trim().toLowerCase();
-    if (driverType.isEmpty || rideType.isEmpty)
+    if (driverType.isEmpty || rideType.isEmpty) {
       return true; // don't block if missing
+    }
     return driverType == rideType;
   }
 
@@ -81,13 +83,16 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     final preferredCityId = FFAppState().preferredCityId;
     if (preferredCityId <= 0) return true; // no preferred city set, allow all
     final ridePickupCityId = ride.pickupCityId;
-    if (ridePickupCityId == null)
+    if (ridePickupCityId == null) {
       return true; // backend didn't send city, allow
+    }
     return ridePickupCityId == preferredCityId;
   }
 
-  late AudioPlayer _audioPlayer;
+  AudioPlayer? _audioPlayer;
   bool _isAlerting = false;
+  int _alertSessionId = 0;
+  bool _isDisposed = false;
   Timer? _tickTimer;
   Timer?
       _searchingPollTimer; // Rapido-style: poll to remove when another driver accepts
@@ -95,7 +100,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   bool _isCompletingRide = false;
   bool _isCancellingRide = false;
   bool _isAppInForeground = true;
-  
+
   // ✅ Track completed incentives to detect newly completed ones
   final Set<int> _completedIncentiveIds = {};
 
@@ -103,7 +108,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _audioPlayer = AudioPlayer();
     _startTickTimer();
 
     if (FFAppState().activeRideId != 0) {
@@ -118,10 +122,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     _tickTimer?.cancel();
     _searchingPollTimer?.cancel();
-    _audioPlayer.dispose();
+    _stopAlert();
+    unawaited(_disposeAlertAudio());
     _requestPageController.dispose();
     for (var list in _otpControllers.values) {
       for (var c in list) {
@@ -377,7 +383,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   String _formatDropDistance(RideRequest ride) {
-    print("ride $ride");
     // ✅ Use backend distance first (more accurate than straight-line)
     if (ride.distance != null && ride.distance! > 0) {
       return 'Drop ${ride.distance!.toStringAsFixed(1)} km';
@@ -415,13 +420,78 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     });
   }
 
+  bool _isAlertSessionActive(int sessionId, {AudioPlayer? audioPlayer}) {
+    return _isAlerting &&
+        _alertSessionId == sessionId &&
+        !_isDisposed &&
+        (audioPlayer == null || identical(_audioPlayer, audioPlayer));
+  }
+
+  Future<AudioPlayer?> _replaceAlertAudio() async {
+    final previousPlayer = _audioPlayer;
+    _audioPlayer = null;
+    if (previousPlayer != null) {
+      try {
+        await previousPlayer.stop();
+      } catch (_) {}
+      try {
+        await previousPlayer.dispose();
+      } catch (_) {}
+    }
+
+    await RideAlertAudioService.stopLingeringAlertAudio();
+    if (_isDisposed) return null;
+
+    final audioPlayer = RideAlertAudioService.createPlayer();
+    if (_isDisposed) {
+      try {
+        await audioPlayer.dispose();
+      } catch (_) {}
+      return null;
+    }
+
+    _audioPlayer = audioPlayer;
+    try {
+      await audioPlayer.stop();
+    } catch (_) {}
+    try {
+      await audioPlayer.release();
+    } catch (_) {}
+    return audioPlayer;
+  }
+
+  Future<void> _disposeAlertAudio() async {
+    final audioPlayer = _audioPlayer;
+    _audioPlayer = null;
+    if (audioPlayer != null) {
+      try {
+        await audioPlayer.stop();
+      } catch (_) {}
+      try {
+        await audioPlayer.dispose();
+      } catch (_) {}
+    }
+    await RideAlertAudioService.stopLingeringAlertAudio();
+  }
+
   void _startAlert({RideRequest? ride}) async {
-    if (_isAlerting) return;
+    final sessionId = ++_alertSessionId;
     _isAlerting = true;
     try {
-      await _audioPlayer.stop();
-      if (ride != null && _isAlerting) {
+      await VoiceService().stop();
+      await RideNotificationService().cancelRideNotification();
+      final audioPlayer = await _replaceAlertAudio();
+      if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer) ||
+          audioPlayer == null) {
+        _isAlerting = false;
+        return;
+      }
+      if (ride != null &&
+          _isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
         for (var i = 0; i < 3; i++) {
+          if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
+            return;
+          }
           await VoiceService().speakNewRideAddress(
             pickupLat: ride.pickupLat,
             pickupLng: ride.pickupLng,
@@ -432,25 +502,32 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             estimatedFare: ride.estimatedFare,
             repeatCount: 1,
           );
-          if (!_isAlerting) return;
-          await _playAlertOnce();
-          if (!_isAlerting) return;
+          if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
+            return;
+          }
+          await _playAlertOnce(sessionId, audioPlayer);
+          if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
+            return;
+          }
         }
       }
-      if (!_isAlerting) return;
-      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
+      if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) return;
+      await audioPlayer.setReleaseMode(ReleaseMode.loop);
+      if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) return;
+      await audioPlayer.play(AssetSource('audios/ride_request.mp3'));
     } catch (_) {}
   }
 
-  Future<void> _playAlertOnce() async {
-    if (!_isAlerting) return;
+  Future<void> _playAlertOnce(int sessionId, AudioPlayer audioPlayer) async {
+    if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) return;
     try {
-      await _audioPlayer.setReleaseMode(ReleaseMode.stop);
-      await _audioPlayer.play(AssetSource('audios/ride_request.mp3'));
+      await audioPlayer.stop();
+      await audioPlayer.setReleaseMode(ReleaseMode.stop);
+      if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) return;
+      await audioPlayer.play(AssetSource('audios/ride_request.mp3'));
       // Use take(1)+listen to avoid "Bad state: No element" when stream
       // completes without emitting (e.g. if player is stopped early)
-      await _audioPlayer.onPlayerComplete
+      await audioPlayer.onPlayerComplete
           .take(1)
           .listen((_) {})
           .asFuture()
@@ -459,9 +536,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   void _stopAlert() {
-    if (!_isAlerting) return;
     _isAlerting = false;
-    _audioPlayer.stop();
+    _alertSessionId++;
+    unawaited(_stopAlertAudio());
+  }
+
+  Future<void> _stopAlertAudio() async {
+    try {
+      await _disposeAlertAudio();
+    } catch (_) {}
+    try {
+      await RideNotificationService().cancelRideNotification();
+    } catch (_) {}
+    try {
+      await VoiceService().stop();
+    } catch (_) {}
   }
 
   /// Rapido-style: Poll SEARCHING rides to remove when another driver accepts.
@@ -504,14 +593,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             (r) => r.id == rideId,
             orElse: () => RideRequest.fromJson(rideData),
           );
-          
+
           final updatedRide = RideRequest.fromJson(rideData).copyWith(
-            bookingMode: rideData.containsKey('booking_mode') 
-                ? rideData['booking_mode']?.toString().toLowerCase() ?? existing.bookingMode
-                : existing.bookingMode, // Preserve the booking mode from initial socket push if API doesn't return it
+            bookingMode: rideData.containsKey('booking_mode')
+                ? rideData['booking_mode']?.toString().toLowerCase() ??
+                    existing.bookingMode
+                : existing
+                    .bookingMode, // Preserve the booking mode from initial socket push if API doesn't return it
           );
-          
-          handleNewRide(rideData..addAll({'booking_mode': updatedRide.bookingMode}));
+
+          handleNewRide(
+              rideData..addAll({'booking_mode': updatedRide.bookingMode}));
         }
       } catch (_) {}
     }
@@ -655,8 +747,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (idx != -1) {
         var updated = _activeRequests[idx].copyWith(status: status);
         if (finalFare != null) updated = updated.copyWith(finalFare: finalFare);
-        if (paymentMode != null)
+        if (paymentMode != null) {
           updated = updated.copyWith(paymentMode: paymentMode);
+        }
         _activeRequests[idx] = updated;
         if (status == RideStatus.arrived) _waitTimers[rideId] = 0;
         if (status == RideStatus.completed) _paymentPendingRides.add(rideId);
@@ -729,58 +822,65 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
-      
+
       if (res.succeeded) {
         final incentives = DriverIncentivesCall.incentiveList(res.jsonBody);
-        debugPrint('✅ Incentives fetched successfully: ${incentives.length} incentives found');
-        
+        debugPrint(
+            '✅ Incentives fetched successfully: ${incentives.length} incentives found');
+
         // Extract ride count from incentives
         if (incentives.isNotEmpty) {
           int totalCompletedRides = 0;
           double newlyCompletedRewards = 0.0;
           List<String> completedIncentiveNames = [];
-          
+
           for (var incentive in incentives) {
             final incentiveId = incentive['id'] ?? 0;
-            final completedRides = DriverIncentivesCall.itemCompletedRides(incentive);
+            final completedRides =
+                DriverIncentivesCall.itemCompletedRides(incentive);
             final status = DriverIncentivesCall.itemProgressStatus(incentive);
             final name = DriverIncentivesCall.itemIncentiveName(incentive);
             final reward = DriverIncentivesCall.itemRewardAmount(incentive);
-            
+
             totalCompletedRides += completedRides;
-            debugPrint(
-              '📊 Incentive: $name - '
-              'Completed rides: $completedRides/${DriverIncentivesCall.itemTargetRides(incentive)} - '
-              'Status: $status - Reward: ₹$reward'
-            );
-            
+            debugPrint('📊 Incentive: $name - '
+                'Completed rides: $completedRides/${DriverIncentivesCall.itemTargetRides(incentive)} - '
+                'Status: $status - Reward: ₹$reward');
+
             // ✅ Check if incentive just completed
-            if (status == 'completed' && !_completedIncentiveIds.contains(incentiveId)) {
-              debugPrint('🎉 Incentive "$name" is now COMPLETED! Reward: ₹$reward');
+            if (status == 'completed' &&
+                !_completedIncentiveIds.contains(incentiveId)) {
+              debugPrint(
+                  '🎉 Incentive "$name" is now COMPLETED! Reward: ₹$reward');
               _completedIncentiveIds.add(incentiveId);
               newlyCompletedRewards += reward;
               completedIncentiveNames.add(name);
             }
           }
-          
-          debugPrint('🎉 Total completed rides across incentives: $totalCompletedRides');
-          
+
+          debugPrint(
+              '🎉 Total completed rides across incentives: $totalCompletedRides');
+
           // ✅ Add completed incentive rewards to wallet
           if (newlyCompletedRewards > 0 && mounted) {
-            debugPrint('💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives...');
-            _addIncentiveRewardToWallet(newlyCompletedRewards, completedIncentiveNames);
+            debugPrint(
+                '💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives...');
+            _addIncentiveRewardToWallet(
+                newlyCompletedRewards, completedIncentiveNames);
           }
         }
       } else {
-        debugPrint('⚠️ Failed to fetch incentives after ride completion: ${res.statusCode}');
+        debugPrint(
+            '⚠️ Failed to fetch incentives after ride completion: ${res.statusCode}');
       }
     } catch (e) {
       debugPrint('❌ Error fetching incentives after ride completion: $e');
     }
   }
-  
+
   /// Add completed incentive reward to wallet
-  Future<void> _addIncentiveRewardToWallet(double amount, List<String> incentiveNames) async {
+  Future<void> _addIncentiveRewardToWallet(
+      double amount, List<String> incentiveNames) async {
     try {
       final res = await AddMoneyToWalletCall.call(
         driverId: FFAppState().driverid,
@@ -788,10 +888,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         currency: 'INR',
         token: FFAppState().accessToken,
       );
-      
+
       if (res.succeeded) {
         debugPrint('✅ Incentive reward ₹$amount added to wallet successfully!');
-        
+
         if (mounted) {
           // Show success notification
           final incentiveList = incentiveNames.join(', ');
@@ -808,7 +908,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           );
         }
       } else {
-        debugPrint('⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
+        debugPrint(
+            '⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
       }
     } catch (e) {
       debugPrint('❌ Error adding incentive reward to wallet: $e');
@@ -834,10 +935,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _updateLocalRideStatus(rideId, RideStatus.completed,
             finalFare: fare, paymentMode: pm);
         VoiceService().rideCompleted();
-        
+
         // ✅ Fetch incentives immediately after ride completion
         // This ensures the incentive ride count is updated in real-time
-        debugPrint('🏁 Ride $rideId completed successfully. Fetching updated incentives...');
+        debugPrint(
+            '🏁 Ride $rideId completed successfully. Fetching updated incentives...');
         _fetchIncentivesAfterRideCompletion();
       } else {
         if (mounted) {

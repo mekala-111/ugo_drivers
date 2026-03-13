@@ -80,7 +80,8 @@ class NewRequestCard extends StatelessWidget {
     if (km == null) {
       return '--';
     }
-    return km < 1 ? '${(km * 1000).round()}m' : '${km.toStringAsFixed(1)}Km';
+    final normalizedKm = km > 0 && km < 0.1 ? 0.1 : km;
+    return '${normalizedKm.toStringAsFixed(1)}Km';
   }
 
   @override
@@ -403,6 +404,54 @@ class NewRequestCard extends StatelessWidget {
   }
 }
 
+Widget _buildHighlightedAddressText({
+  required String address,
+  required String? highlightSegment,
+  required TextStyle style,
+}) {
+  if (highlightSegment == null || highlightSegment.trim().isEmpty) {
+    return Text(
+      address,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+
+  final normalizedAddress = address.toLowerCase();
+  final normalizedHighlight = highlightSegment.toLowerCase();
+  final matchIndex = normalizedAddress.indexOf(normalizedHighlight);
+
+  if (matchIndex < 0) {
+    return Text(
+      address,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+
+  final matchEnd = matchIndex + highlightSegment.length;
+
+  return Text.rich(
+    TextSpan(
+      style: style,
+      children: [
+        if (matchIndex > 0) TextSpan(text: address.substring(0, matchIndex)),
+        TextSpan(
+          text: address.substring(matchIndex, matchEnd),
+          style: style.copyWith(
+              fontWeight: FontWeight.w800, color: Colors.black87),
+        ),
+        if (matchEnd < address.length)
+          TextSpan(text: address.substring(matchEnd)),
+      ],
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+  );
+}
+
 /// Rapido-style: area name highlighted with entrance animations.
 class _AddressRowFromLatLng extends StatefulWidget {
   final double lat;
@@ -467,6 +516,8 @@ class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
         final areaName = locality.isNotEmpty
             ? locality
             : widget.address.split(',').firstOrNull?.trim() ?? widget.address;
+        final highlightSegment =
+            LocationGeocodeService().getAddressHighlightSegment(widget.address);
         if (snapshot.hasData &&
             !_animController.isAnimating &&
             !_animController.isCompleted) {
@@ -523,10 +574,9 @@ class _AddressRowFromLatLngState extends State<_AddressRowFromLatLng>
                         color: widget.color,
                       ),
                       const SizedBox(height: 6),
-                      Text(
-                        widget.address,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      _buildHighlightedAddressText(
+                        address: widget.address,
+                        highlightSegment: highlightSegment,
                         style: TextStyle(
                           color: Colors.grey[700],
                           fontSize: Responsive.fontSize(context, 12),

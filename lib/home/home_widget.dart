@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
@@ -37,12 +39,17 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget>
-    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver, TickerProviderStateMixin {
+    with
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver,
+        TickerProviderStateMixin {
   late HomeModel _model;
   late HomeController _controller;
 
-  final GlobalKey<RideRequestOverlayState> _overlayKey = GlobalKey<RideRequestOverlayState>();
-  final GlobalKey<FlutterFlowGoogleMapState> _mapKey = GlobalKey<FlutterFlowGoogleMapState>();
+  final GlobalKey<RideRequestOverlayState> _overlayKey =
+      GlobalKey<RideRequestOverlayState>();
+  final GlobalKey<FlutterFlowGoogleMapState> _mapKey =
+      GlobalKey<FlutterFlowGoogleMapState>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isIncentivePanelExpanded = false;
@@ -50,10 +57,15 @@ class _HomeWidgetState extends State<HomeWidget>
   String? _activeRouteKey;
   bool _bubbleVisible = false;
   bool _lastOnlineState = false;
-  
+  DateTime? _lastCameraMoveTime;
+  latlng.LatLng? _lastCameraCenter;
+  DateTime? _lastCircleFlushTime;
+  Timer? _circleFlushTimer;
+
   // Pulsating ripple animation
   late AnimationController _pulseController;
   late Animation<double> _pulseAnim;
+  Set<Circle> _statusCircles = {};
   Set<Circle> _rippleCircles = {};
 
   // Route flowing-dot animation
@@ -63,6 +75,7 @@ class _HomeWidgetState extends State<HomeWidget>
 
   final MethodChannel _bubbleChannel =
       const MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
+  static const Duration _circleFlushInterval = Duration(milliseconds: 120);
 
   @override
   bool get wantKeepAlive => true;
@@ -79,7 +92,8 @@ class _HomeWidgetState extends State<HomeWidget>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    _pulseAnim = CurvedAnimation(parent: _pulseController, curve: Curves.easeOut);
+    _pulseAnim =
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeOut);
     _pulseController.addListener(_updateRipple);
 
     // Route animated dot (don't start yet)
@@ -95,7 +109,8 @@ class _HomeWidgetState extends State<HomeWidget>
         await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(FFLocalizations.of(context).getText('drv_kyc_not_approved')),
+            title: Text(
+                FFLocalizations.of(context).getText('drv_kyc_not_approved')),
             content: Text(FFLocalizations.of(context)
                 .getText('drv_kyc_complete')
                 .replaceAll('%1', FFAppState().kycStatus)),
@@ -125,7 +140,8 @@ class _HomeWidgetState extends State<HomeWidget>
               ),
               FilledButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
                 child: const Text('Agree'),
               ),
             ],
@@ -148,7 +164,8 @@ class _HomeWidgetState extends State<HomeWidget>
         await showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(FFLocalizations.of(context).getText('drv_location_needed'),
+            title: Text(
+                FFLocalizations.of(context).getText('drv_location_needed'),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             content: Text(
               FFLocalizations.of(context).getText('drv_location_body'),
@@ -164,8 +181,10 @@ class _HomeWidgetState extends State<HomeWidget>
                   Navigator.of(ctx).pop();
                   await Geolocator.openAppSettings();
                 },
-                style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-                child: Text(FFLocalizations.of(context).getText('drv_open_settings')),
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                child: Text(
+                    FFLocalizations.of(context).getText('drv_open_settings')),
               ),
             ],
           ),
@@ -204,11 +223,11 @@ class _HomeWidgetState extends State<HomeWidget>
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-    //  getCurrentUserLocation(
-    //   defaultLocation: const LatLng(0.0, 0.0),
-    //   cached: true,
-    // ).then((loc) => _controller.setUserLocation(loc));
-     await _initLocationSafely(); 
+      //  getCurrentUserLocation(
+      //   defaultLocation: const LatLng(0.0, 0.0),
+      //   cached: true,
+      // ).then((loc) => _controller.setUserLocation(loc));
+      await _initLocationSafely();
 
       await _controller.init();
       _lastOnlineState = _controller.isOnline;
@@ -220,44 +239,77 @@ class _HomeWidgetState extends State<HomeWidget>
       _maybeShowPostLoginScreens();
     });
   }
- Future<void> _initLocationSafely() async {
 
-  // Check if already asked
-  if (FFAppState().locationPermissionAsked == true) {
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+  Future<void> _initLocationSafely() async {
+    // Check if already asked
+    if (FFAppState().locationPermissionAsked == true) {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-    _controller.setUserLocation(
-      LatLng(position.latitude, position.longitude),
-    );
-    return;
+      _controller.setUserLocation(
+        LatLng(position.latitude, position.longitude),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      FFAppState().locationPermissionAsked = true;
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      _controller.setUserLocation(
+        LatLng(position.latitude, position.longitude),
+      );
+    }
   }
 
-  LocationPermission permission = await Geolocator.checkPermission();
-
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
+  Set<Circle> _mergedCircles() {
+    return {
+      ..._statusCircles,
+      ..._rippleCircles,
+      if (_routeDotCircle != null) _routeDotCircle!,
+    };
   }
 
-  if (permission == LocationPermission.deniedForever) {
-    return;
+  void _flushCircleUpdates() {
+    _circleFlushTimer?.cancel();
+    _circleFlushTimer = null;
+    if (!mounted) return;
+    _lastCircleFlushTime = DateTime.now();
+    _mapKey.currentState?.updateCircles(_mergedCircles());
   }
 
-  if (permission == LocationPermission.whileInUse ||
-      permission == LocationPermission.always) {
+  void _scheduleCircleUpdates({bool immediate = false}) {
+    if (!mounted) return;
+    final now = DateTime.now();
+    final lastFlush = _lastCircleFlushTime;
 
-    FFAppState().locationPermissionAsked = true;
+    if (immediate ||
+        lastFlush == null ||
+        now.difference(lastFlush) >= _circleFlushInterval) {
+      _flushCircleUpdates();
+      return;
+    }
 
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    if (_circleFlushTimer?.isActive ?? false) return;
 
-    _controller.setUserLocation(
-      LatLng(position.latitude, position.longitude),
-    );
+    final remaining = _circleFlushInterval - now.difference(lastFlush);
+    _circleFlushTimer = Timer(remaining, _flushCircleUpdates);
   }
-}
 
   Future<void> _handleBubbleMethod(MethodCall call) async {
     if (call.method != 'rideAction') return;
@@ -279,7 +331,7 @@ class _HomeWidgetState extends State<HomeWidget>
 
   void _onControllerChange() {
     if (!mounted) return;
-    
+
     // Auto-center map when going online
     if (_controller.isOnline && !_lastOnlineState) {
       if (_controller.currentUserLocation != null) {
@@ -295,23 +347,52 @@ class _HomeWidgetState extends State<HomeWidget>
       _hideFloatingBubble();
       return;
     }
-    
+
     if (_controller.isOnline != _lastOnlineState) {
       _lastOnlineState = _controller.isOnline;
     }
-    
+
     // Continuously update map center to driver's location if no ride is actively being handled
-    // and if we have a valid location. This gives the Uber-like continuous tracking effect.
+    // and if we have a valid location. This gives the Uber-like continuous tracking effect
+    // but we throttle updates by time + distance to avoid lag.
     if (_controller.isOnline && _controller.currentUserLocation != null) {
-      _model.googleMapsController.future.then((ctrl) {
-        // Only safely update camera if we haven't actively locked it to a pickup/drop point
-        if (_controller.currentRideStatus.toUpperCase() == 'IDLE' || 
-            _controller.currentRideStatus.toUpperCase() == 'SEARCHING') {
-          ctrl.animateCamera(CameraUpdate.newLatLng(
-            _controller.currentUserLocation!.toGoogleMaps(),
-          ));
+      final now = DateTime.now();
+      final currentLoc = _controller.currentUserLocation!;
+
+      // Throttle: at most once every 400ms
+      if (_lastCameraMoveTime != null &&
+          now.difference(_lastCameraMoveTime!) <
+              const Duration(milliseconds: 400)) {
+        // Too soon since last move; skip this update.
+      } else {
+        // Throttle also by distance: only move if we shifted > ~10m.
+        final lastCenter = _lastCameraCenter;
+        final movedFarEnough = lastCenter == null ||
+            Geolocator.distanceBetween(
+                  lastCenter.latitude,
+                  lastCenter.longitude,
+                  currentLoc.latitude,
+                  currentLoc.longitude,
+                ) >
+                10.0;
+
+        if (movedFarEnough) {
+          _lastCameraMoveTime = now;
+          _lastCameraCenter = currentLoc;
+
+          _model.googleMapsController.future.then((ctrl) {
+            // Only safely update camera if we haven't actively locked it to a pickup/drop point
+            if (_controller.currentRideStatus.toUpperCase() == 'IDLE' ||
+                _controller.currentRideStatus.toUpperCase() == 'SEARCHING') {
+              ctrl.moveCamera(
+                CameraUpdate.newLatLng(
+                  currentLoc.toGoogleMaps(),
+                ),
+              );
+            }
+          });
         }
-      });
+      }
     }
 
     setState(() {});
@@ -386,23 +467,32 @@ class _HomeWidgetState extends State<HomeWidget>
     }
 
     void process(Map<String, dynamic> rideData) {
-      final status = (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+      final status =
+          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
 
       // ✅ Driver gets rides only when online
       if (status == 'SEARCHING' && !_controller.isOnline) return;
 
       void clearMap() {
         _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
-        _mapKey.currentState?.updateCircles(<Circle>{});
+        _statusCircles = {};
+        _routePoints = [];
+        _routeDotCircle = null;
+        _routeAnimController.stop();
+        _scheduleCircleUpdates(immediate: true);
         _mapKey.currentState?.updatePolylines(<Polyline>{});
         _activeRouteKey = null;
       }
 
-      if (status == 'CANCELLED' || status == 'REJECTED' || status == 'DECLINED') {
+      if (status == 'CANCELLED' ||
+          status == 'REJECTED' ||
+          status == 'DECLINED') {
         _controller.setRideStatus('IDLE');
         Provider.of<RideState>(context, listen: false).clearRide();
         final rideId = rideData['id'] != null
-            ? (rideData['id'] is int ? rideData['id'] as int : int.tryParse(rideData['id'].toString()))
+            ? (rideData['id'] is int
+                ? rideData['id'] as int
+                : int.tryParse(rideData['id'].toString()))
             : null;
         if (rideId != null) _overlayKey.currentState?.removeRideById(rideId);
         clearMap();
@@ -410,7 +500,8 @@ class _HomeWidgetState extends State<HomeWidget>
       }
 
       _controller.setRideStatus(status);
-      Provider.of<RideState>(context, listen: false).updateRide(RideRequest.fromJson(rideData));
+      Provider.of<RideState>(context, listen: false)
+          .updateRide(RideRequest.fromJson(rideData));
       _overlayKey.currentState!.handleNewRide(rideData);
 
       if (status == 'SEARCHING') {
@@ -468,7 +559,8 @@ class _HomeWidgetState extends State<HomeWidget>
             strokeWidth: 2,
           ));
         }
-        _mapKey.currentState?.updateCircles(circles);
+        _statusCircles = circles;
+        _scheduleCircleUpdates(immediate: true);
 
         if (isAccepted || isStarted) {
           _updateRoutePolyline(rr: rr, status: status);
@@ -494,9 +586,35 @@ class _HomeWidgetState extends State<HomeWidget>
     if (!mounted) return;
     _controller.onRideComplete();
     _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
-    _mapKey.currentState?.updateCircles(<Circle>{});
+    _statusCircles = {};
+    _routePoints = [];
+    _routeDotCircle = null;
+    _routeAnimController.stop();
+    _scheduleCircleUpdates(immediate: true);
     _mapKey.currentState?.updatePolylines(<Polyline>{});
     _activeRouteKey = null;
+  }
+
+  Future<void> _centerMapOnCurrentLocation() async {
+    final currentLoc = _controller.currentUserLocation;
+    if (currentLoc == null) return;
+
+    final ctrl = await _model.googleMapsController.future;
+    if (!mounted) return;
+
+    _lastCameraCenter = currentLoc;
+    _lastCameraMoveTime = DateTime.now();
+    await ctrl.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: currentLoc.toGoogleMaps(),
+          zoom: 16.0,
+          tilt: 0.0,
+          bearing: 0.0,
+        ),
+      ),
+    );
+    _model.googleMapsCenter = currentLoc;
   }
 
   Future<void> _updateRoutePolyline({
@@ -509,6 +627,10 @@ class _HomeWidgetState extends State<HomeWidget>
     final isStarted = status == 'STARTED' || status == 'ONTRIP';
 
     if ((!isAccepted && !isStarted) || !hasPickup || (isStarted && !hasDrop)) {
+      _routeAnimController.stop();
+      _routePoints = [];
+      _routeDotCircle = null;
+      _scheduleCircleUpdates(immediate: true);
       _mapKey.currentState?.updatePolylines(<Polyline>{});
       _activeRouteKey = null;
       return;
@@ -530,6 +652,9 @@ class _HomeWidgetState extends State<HomeWidget>
     final routeKey = '${rr.id}_${status}_'
         '${origin.latitude.toStringAsFixed(4)}_${origin.longitude.toStringAsFixed(4)}_'
         '${destination.latitude.toStringAsFixed(4)}_${destination.longitude.toStringAsFixed(4)}';
+
+    if (_activeRouteKey == routeKey && _routePoints.isNotEmpty) return;
+
     _activeRouteKey = routeKey;
 
     final points = await RoutePolylineService().getRoutePoints(
@@ -542,8 +667,11 @@ class _HomeWidgetState extends State<HomeWidget>
     if (!mounted || _activeRouteKey != routeKey) return;
 
     if (points == null || points.isEmpty) {
+      _routeAnimController.stop();
       _mapKey.currentState?.updatePolylines(<Polyline>{});
       _routePoints = [];
+      _routeDotCircle = null;
+      _scheduleCircleUpdates(immediate: true);
       return;
     }
 
@@ -584,8 +712,12 @@ class _HomeWidgetState extends State<HomeWidget>
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return FFLocalizations.of(context).getText('drv_good_morning');
-    if (hour < 17) return FFLocalizations.of(context).getText('drv_good_afternoon');
+    if (hour < 12) {
+      return FFLocalizations.of(context).getText('drv_good_morning');
+    }
+    if (hour < 17) {
+      return FFLocalizations.of(context).getText('drv_good_afternoon');
+    }
     return FFLocalizations.of(context).getText('drv_good_evening');
   }
 
@@ -594,15 +726,17 @@ class _HomeWidgetState extends State<HomeWidget>
     if (!mounted || loc == null || !_controller.isOnline) {
       if (_rippleCircles.isNotEmpty) {
         _rippleCircles = {};
-        _mapKey.currentState?.updateCircles({});
+        _scheduleCircleUpdates(immediate: true);
       }
       return;
     }
-    final radius = _pulseAnim.value * 80.0; // Starts at 0 (icon center) and grows to 80m
-    final opacity = 1.0 - _pulseAnim.value;  // Fades out as it expands
-    
+    final radius =
+        _pulseAnim.value * 80.0; // Starts at 0 (icon center) and grows to 80m
+    final opacity = 1.0 - _pulseAnim.value; // Fades out as it expands
+
     // Inner icon-sized solid circle — pulses in opposite phase (breathes)
-    final innerRadius = 12.0 + (_pulseAnim.value * 6.0); // 12m → 18m (subtle breathing)
+    final innerRadius =
+        12.0 + (_pulseAnim.value * 6.0); // 12m → 18m (subtle breathing)
     final innerOpacity = 0.8 - (_pulseAnim.value * 0.5); // Stays mostly visible
 
     _rippleCircles = {
@@ -625,14 +759,14 @@ class _HomeWidgetState extends State<HomeWidget>
         strokeWidth: 3,
       ),
     };
-    _mapKey.currentState?.updateCircles(_rippleCircles);
+    _scheduleCircleUpdates();
   }
 
   void _updateRouteDot() {
     if (!mounted || _routePoints.length < 2) {
       if (_routeDotCircle != null) {
         _routeDotCircle = null;
-        _mapKey.currentState?.updateCircles({});
+        _scheduleCircleUpdates(immediate: true);
       }
       return;
     }
@@ -654,13 +788,12 @@ class _HomeWidgetState extends State<HomeWidget>
       strokeWidth: 3,
       zIndex: 10,
     );
-    // Merge with ripple circles (don't overwrite pulsing animation)
-    final merged = {..._rippleCircles, _routeDotCircle!};
-    _mapKey.currentState?.updateCircles(merged);
+    _scheduleCircleUpdates();
   }
 
   @override
   void dispose() {
+    _circleFlushTimer?.cancel();
     _pulseController.dispose();
     _routeAnimController.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -682,8 +815,14 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
-        final shouldShowPanels = !['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'COMPLETED', 'FETCHING']
-            .contains(c.currentRideStatus.toUpperCase());
+        final shouldShowPanels = ![
+          'ACCEPTED',
+          'ARRIVED',
+          'STARTED',
+          'ONTRIP',
+          'COMPLETED',
+          'FETCHING'
+        ].contains(c.currentRideStatus.toUpperCase());
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -699,10 +838,12 @@ class _HomeWidgetState extends State<HomeWidget>
               if (didPop) return;
               final now = DateTime.now();
               if (_lastBackPressed == null ||
-                  now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
+                  now.difference(_lastBackPressed!) >
+                      const Duration(seconds: 2)) {
                 _lastBackPressed = now;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(FFLocalizations.of(context).getText('drv_back_exit')),
+                  content: Text(
+                      FFLocalizations.of(context).getText('drv_back_exit')),
                   duration: const Duration(seconds: 2),
                 ));
               } else {
@@ -718,94 +859,102 @@ class _HomeWidgetState extends State<HomeWidget>
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     AppHeader(
-                          scaffoldKey: scaffoldKey,
-                          switchValue: c.isOnline,
-                          isDataLoaded: c.isDataLoaded,
-                          onToggleOnline: () => c.toggleOnlineStatus(),
-                          screenWidth: screenWidth,
-                          isSmallScreen: isSmallScreen,
-                          notificationCount: c.notificationUnreadCount,
-                        ),
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              // Map kept mounted when offline (hidden) to avoid GlobalKey/Completer
-                              // reuse issues when toggling online; markers/polylines need _mapKey.
-                              Opacity(
-                                opacity: isOnline ? 1.0 : 0.0,
-                                child: IgnorePointer(
-                                  ignoring: !isOnline,
-                                  child: RideMapContainer(
-                                    mapKey: _mapKey,
-                                    controller: _model.googleMapsController,
-                                    initialLocation: c.currentUserLocation ?? userLocation,
-                                    onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                                    mapCenter: c.currentUserLocation,
-                                    availableDriversCount: c.availableDriversCount,
-                                    showCaptainsPanel: shouldShowPanels,
-                                    // Inject custom driver marker
-                                    markers: (c.currentUserLocation != null && isOnline) 
-                                        ? [
-                                            FlutterFlowMarker(
-                                              'driver_current_location',
-                                              c.currentUserLocation!,
-                                              null,
-                                              null,
-                                              null, // image
-                                              const MarkerIcon(
-                                                icon: Icons.navigation,
-                                                color: Colors.white,
-                                                backgroundColor: Colors.orange,
-                                                borderColor: Colors.white,
-                                                size: 24.0,
-                                              )
-                                            )
-                                          ]
-                                        : [],
-                                  ),
-                                ),
+                      scaffoldKey: scaffoldKey,
+                      switchValue: c.isOnline,
+                      isDataLoaded: c.isDataLoaded,
+                      onToggleOnline: () => c.toggleOnlineStatus(),
+                      screenWidth: screenWidth,
+                      isSmallScreen: isSmallScreen,
+                      notificationCount: c.notificationUnreadCount,
+                    ),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          // Map kept mounted when offline (hidden) to avoid GlobalKey/Completer
+                          // reuse issues when toggling online; markers/polylines need _mapKey.
+                          Opacity(
+                            opacity: isOnline ? 1.0 : 0.0,
+                            child: IgnorePointer(
+                              ignoring: !isOnline,
+                              child: RideMapContainer(
+                                mapKey: _mapKey,
+                                controller: _model.googleMapsController,
+                                initialLocation:
+                                    c.currentUserLocation ?? userLocation,
+                                onCameraIdle: (latLng) =>
+                                    _model.googleMapsCenter = latLng,
+                                mapCenter: c.currentUserLocation,
+                                availableDriversCount: c.availableDriversCount,
+                                showCaptainsPanel: shouldShowPanels,
+                                onCenterCurrentLocation:
+                                    c.currentUserLocation != null
+                                        ? _centerMapOnCurrentLocation
+                                        : null,
+                                // Inject custom driver marker
+                                markers: (c.currentUserLocation != null &&
+                                        isOnline)
+                                    ? [
+                                        FlutterFlowMarker(
+                                            'driver_current_location',
+                                            c.currentUserLocation!,
+                                            null,
+                                            null,
+                                            null, // image
+                                            const MarkerIcon(
+                                              icon: Icons.navigation,
+                                              color: Colors.white,
+                                              backgroundColor: Colors.orange,
+                                              borderColor: Colors.white,
+                                              size: 20.0,
+                                            ))
+                                      ]
+                                    : [],
                               ),
-                              if (!isOnline)
-                                OfflineDashboard(
-                                  driverName: c.driverName,
-                                  greeting: _getGreeting(),
-                                  isDataLoaded: c.isDataLoaded,
-                                  onGoOnline: () => c.toggleOnlineStatus(),
-                                ),
-                              BottomRidePanel(
-                                overlayKey: _overlayKey,
-                                onRideComplete: _onRideComplete,
-                                driverLocation: c.currentUserLocation ?? userLocation,
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                        if (shouldShowPanels)
-                          IncentivePanel(
-                            isExpanded: _isIncentivePanelExpanded,
-                            isLoadingIncentives: c.isLoadingIncentives,
-                            incentiveTiers: c.incentiveTiers,
-                            currentRides: c.currentRides,
-                            totalIncentiveEarned: c.totalIncentiveEarned,
-                            onTap: () => setState(() => _isIncentivePanelExpanded = !_isIncentivePanelExpanded),
-                            screenWidth: screenWidth,
-                            isSmallScreen: isSmallScreen,
+                          if (!isOnline)
+                            OfflineDashboard(
+                              driverName: c.driverName,
+                              greeting: _getGreeting(),
+                              isDataLoaded: c.isDataLoaded,
+                              onGoOnline: () => c.toggleOnlineStatus(),
+                            ),
+                          BottomRidePanel(
+                            overlayKey: _overlayKey,
+                            onRideComplete: _onRideComplete,
+                            driverLocation:
+                                c.currentUserLocation ?? userLocation,
                           ),
-                        if (shouldShowPanels)
-                          EarningsSummary(
-                            todayTotal: c.todayTotal,
-                            teamEarnings: c.todayWallet,
-                            ridesToday: c.todayRideCount,
-                            lastRideEarnings: c.lastRideAmount,
-                            isLoading: c.isLoadingEarnings,
-                            isSmallScreen: isSmallScreen,
-                            onRideCountTap: () =>
-                                context.pushNamed(HistoryWidget.routeName),
-                            onWalletTap: () =>
-                                context.pushNamed(WalletWidget.routeName),
-                            onLastRideTap: () =>
-                                context.pushNamed(LastOrderWidget.routeName),
-                          ),
+                        ],
+                      ),
+                    ),
+                    if (shouldShowPanels)
+                      IncentivePanel(
+                        isExpanded: _isIncentivePanelExpanded,
+                        isLoadingIncentives: c.isLoadingIncentives,
+                        incentiveTiers: c.incentiveTiers,
+                        currentRides: c.currentRides,
+                        totalIncentiveEarned: c.totalIncentiveEarned,
+                        onTap: () => setState(() => _isIncentivePanelExpanded =
+                            !_isIncentivePanelExpanded),
+                        screenWidth: screenWidth,
+                        isSmallScreen: isSmallScreen,
+                      ),
+                    if (shouldShowPanels)
+                      EarningsSummary(
+                        todayTotal: c.todayTotal,
+                        teamEarnings: c.todayWallet,
+                        ridesToday: c.todayRideCount,
+                        lastRideEarnings: c.lastRideAmount,
+                        isLoading: c.isLoadingEarnings,
+                        isSmallScreen: isSmallScreen,
+                        onRideCountTap: () =>
+                            context.pushNamed(HistoryWidget.routeName),
+                        onWalletTap: () =>
+                            context.pushNamed(WalletWidget.routeName),
+                        onLastRideTap: () =>
+                            context.pushNamed(LastOrderWidget.routeName),
+                      ),
                     SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
                   ],
                 ),

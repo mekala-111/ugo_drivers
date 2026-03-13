@@ -50,10 +50,10 @@ class MarkerImage {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          (other is MarkerImage &&
-              imagePath == other.imagePath &&
-              isAssetImage == other.isAssetImage &&
-              size == other.size);
+      (other is MarkerImage &&
+          imagePath == other.imagePath &&
+          isAssetImage == other.isAssetImage &&
+          size == other.size);
 
   @override
   int get hashCode => Object.hash(imagePath, isAssetImage, size);
@@ -85,7 +85,8 @@ class MarkerIcon {
           size == other.size);
 
   @override
-  int get hashCode => Object.hash(icon, color, backgroundColor, borderColor, size);
+  int get hashCode =>
+      Object.hash(icon, color, backgroundColor, borderColor, size);
 }
 
 class FlutterFlowMarker {
@@ -163,15 +164,26 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   late LatLng currentMapCenter;
   double _currentZoom = 16.0; // Tracks current zoom for dynamic marker sizing
   double _lastRenderedZoom = 16.0; // Last zoom at which icons were rendered
+  List<FlutterFlowMarker> _overlayMarkers = const [];
   Set<Marker> _cachedMarkers = {};
   Set<Circle> _cachedCircles = {};
   Set<Polyline> _cachedPolylines = {};
-  Map<MarkerImage, BitmapDescriptor> _customIcons = {};
-  Map<MarkerIcon, BitmapDescriptor> _customFlutterIcons = {};
+  final Map<MarkerImage, BitmapDescriptor> _customIcons = {};
+  final Map<MarkerIcon, BitmapDescriptor> _customFlutterIcons = {};
 
-  void _loadCustomIcons() {
+  List<FlutterFlowMarker> get _activeMarkers {
+    final byId = <String, FlutterFlowMarker>{
+      for (final marker in widget.markers) marker.markerId: marker,
+    };
+    for (final marker in _overlayMarkers) {
+      byId[marker.markerId] = marker;
+    }
+    return List<FlutterFlowMarker>.unmodifiable(byId.values);
+  }
+
+  void _loadCustomIcons({bool rerenderFlutterIcons = false}) {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      for (final marker in widget.markers) {
+      for (final marker in _activeMarkers) {
         if (marker.image != null && !_customIcons.containsKey(marker.image!)) {
           final markerImage = marker.image!;
           final markerImageSize = Size.square(markerImage.size);
@@ -180,7 +192,8 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
               : CachedNetworkImageProvider(markerImage.imagePath);
           if (!kIsWeb) {
             final targetHeight =
-            (markerImage.size * MediaQuery.of(context).devicePixelRatio).toInt();
+                (markerImage.size * MediaQuery.of(context).devicePixelRatio)
+                    .toInt();
             imageProvider = ResizeImage(
               imageProvider,
               height: targetHeight,
@@ -189,28 +202,31 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
             );
           }
           final imageConfiguration =
-          createLocalImageConfiguration(context, size: markerImageSize);
+              createLocalImageConfiguration(context, size: markerImageSize);
           imageProvider
               .resolve(imageConfiguration)
               .addListener(ImageStreamListener((img, _) async {
-            final bytes = await img.image.toByteData(format: ImageByteFormat.png);
+            final bytes =
+                await img.image.toByteData(format: ImageByteFormat.png);
             if (bytes != null && mounted) {
               _customIcons[markerImage] = BitmapDescriptor.bytes(
                 bytes.buffer.asUint8List(),
                 width: markerImageSize.width,
                 height: markerImageSize.height,
               );
-              setState(() {});
+              _rebuildMarkers();
             }
           }));
         }
 
-        if (marker.icon != null && !_customFlutterIcons.containsKey(marker.icon!)) {
+        if (marker.icon != null &&
+            (rerenderFlutterIcons ||
+                !_customFlutterIcons.containsKey(marker.icon!))) {
           final markerIcon = marker.icon!;
           _renderFlutterIcon(markerIcon).then((bitmap) {
             if (mounted) {
               _customFlutterIcons[markerIcon] = bitmap;
-              setState(() {});
+              _rebuildMarkers();
             }
           });
         }
@@ -218,28 +234,69 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     });
   }
 
+  Marker _buildMarker(FlutterFlowMarker marker) {
+    return Marker(
+      markerId: MarkerId(marker.markerId),
+      position: marker.location.toGoogleMaps(),
+      anchor: (marker.icon != null || marker.image != null)
+          ? const Offset(0.5, 0.5)
+          : const Offset(0.5, 1.0),
+      icon: marker.icon != null
+          ? _customFlutterIcons[marker.icon!] ?? BitmapDescriptor.defaultMarker
+          : marker.image != null
+              ? _customIcons[marker.image!] ?? BitmapDescriptor.defaultMarker
+              : marker.color != null
+                  ? BitmapDescriptor.defaultMarkerWithHue(
+                      googleMarkerColorMap[marker.color]!,
+                    )
+                  : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
+      onTap: () async {
+        if (widget.centerMapOnMarkerTap) {
+          final controller = await _controller.future;
+          await controller.animateCamera(
+            CameraUpdate.newLatLng(marker.location.toGoogleMaps()),
+          );
+          currentMapCenter = marker.location.toGoogleMaps();
+          onCameraIdle();
+        }
+        await marker.onTap?.call();
+      },
+    );
+  }
+
+  void _rebuildMarkers() {
+    if (!mounted) return;
+    final rebuilt = _activeMarkers.map(_buildMarker).toSet();
+    if (!setEquals(rebuilt, _cachedMarkers)) {
+      setState(() => _cachedMarkers = rebuilt);
+    }
+  }
+
   // Returns icon pixel size scaled for the current zoom level.
-  // At the base zoom (16), uses markerIcon.size directly.
-  // Each zoom level up doubles the size; each level down halves it.
+  // Keep the driver icon responsive to zoom without letting it balloon.
   double _iconSizeForZoom(MarkerIcon markerIcon) {
-    final factor = pow(2.0, _currentZoom - 16.0).clamp(0.3, 6.0);
-    return (markerIcon.size * factor).clamp(10.0, 200.0);
+    final zoomDelta = (_currentZoom - 16.0).clamp(-4.0, 4.0);
+    final factor = (1.0 + (zoomDelta * 0.18)).clamp(0.75, 1.45);
+    return (markerIcon.size * factor).clamp(16.0, 44.0);
   }
 
   Future<BitmapDescriptor> _renderFlutterIcon(MarkerIcon markerIcon) async {
     final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
-    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    final TextPainter textPainter =
+        TextPainter(textDirection: TextDirection.ltr);
 
-    final double outSize = _iconSizeForZoom(markerIcon) * 1.5;
-    
+    final double outSize = _iconSizeForZoom(markerIcon) * 1.35;
+
     // Draw white border circle
     final Paint borderPaint = Paint()..color = markerIcon.borderColor;
-    canvas.drawCircle(Offset(outSize/2, outSize/2), outSize/2, borderPaint);
+    canvas.drawCircle(
+        Offset(outSize / 2, outSize / 2), outSize / 2, borderPaint);
 
     // Draw inner background circle
     final Paint bgPaint = Paint()..color = markerIcon.backgroundColor;
-    canvas.drawCircle(Offset(outSize/2, outSize/2), (outSize/2) - (outSize * 0.1), bgPaint);
+    canvas.drawCircle(Offset(outSize / 2, outSize / 2),
+        (outSize / 2) - (outSize * 0.1), bgPaint);
 
     textPainter.text = TextSpan(
       text: String.fromCharCode(markerIcon.icon.codePoint),
@@ -251,18 +308,19 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       ),
     );
     textPainter.layout();
-    
+
     // Center icon inside the circle
     textPainter.paint(
-      canvas, 
-      Offset((outSize - textPainter.width) / 2, (outSize - textPainter.height) / 2)
-    );
-    
+        canvas,
+        Offset((outSize - textPainter.width) / 2,
+            (outSize - textPainter.height) / 2));
+
     final ui.Picture picture = pictureRecorder.endRecording();
-    final ui.Image image = await picture.toImage(
-        outSize.toInt(), outSize.toInt());
-    final ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
-    
+    final ui.Image image =
+        await picture.toImage(outSize.toInt(), outSize.toInt());
+    final ByteData? byteData =
+        await image.toByteData(format: ImageByteFormat.png);
+
     return BitmapDescriptor.bytes(
       byteData!.buffer.asUint8List(),
       width: outSize,
@@ -287,8 +345,8 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
           : CachedNetworkImageProvider(markerImage.imagePath);
       if (!kIsWeb) {
         final targetHeight =
-        (markerImage.size * MediaQuery.of(context).devicePixelRatio)
-            .toInt();
+            (markerImage.size * MediaQuery.of(context).devicePixelRatio)
+                .toInt();
         imageProvider = ResizeImage(
           imageProvider,
           height: targetHeight,
@@ -297,7 +355,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         );
       }
       final imageConfiguration =
-      createLocalImageConfiguration(context, size: markerImageSize);
+          createLocalImageConfiguration(context, size: markerImageSize);
       imageProvider
           .resolve(imageConfiguration)
           .addListener(ImageStreamListener((img, _) async {
@@ -326,7 +384,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     _controller = widget.controller;
     initializeMarkerBitmap();
     _loadCustomIcons();
-    
+    _rebuildMarkers();
   }
 
   @override
@@ -334,7 +392,9 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     super.didUpdateWidget(oldWidget);
     if (widget.markerImage != oldWidget.markerImage) {
       initializeMarkerBitmap();
-      setState(() {});
+    }
+    if (!listEquals(widget.markers.toList(), oldWidget.markers.toList())) {
+      _rebuildMarkers();
     }
     _loadCustomIcons();
   }
@@ -349,13 +409,9 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       absorbing: !widget.allowInteraction,
       child: GoogleMap(
         onMapCreated: (controller) async {
-          
           if (!_controller.isCompleted) {
             _controller.complete(controller);
-            
-          } else {
-            
-          }
+          } else {}
           widget.onMapCreated?.call(controller);
         },
         // Use null for standard (default) map; '[]' can cause blank tiles on some devices
@@ -370,9 +426,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
           if ((newZoom - _lastRenderedZoom).abs() >= 0.5) {
             _currentZoom = newZoom;
             _lastRenderedZoom = newZoom;
-            // Clear cached custom flutter icons so they re-render at new size
-            _customFlutterIcons = {};
-            _loadCustomIcons();
+            _loadCustomIcons(rerenderFlutterIcons: true);
           } else {
             _currentZoom = newZoom;
           }
@@ -388,39 +442,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         compassEnabled: widget.showCompass,
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
-        markers: _cachedMarkers.isNotEmpty
-            ? _cachedMarkers
-            : widget.markers
-                .map(
-                  (m) => Marker(
-                    markerId: MarkerId(m.markerId),
-                    position: m.location.toGoogleMaps(),
-                    anchor: (m.icon != null || m.image != null)
-                        ? const Offset(0.5, 0.5) // Center icon on GPS point
-                        : const Offset(0.5, 1.0), // Default pin anchors at bottom
-                    icon: m.icon != null
-                        ? _customFlutterIcons[m.icon!] ?? BitmapDescriptor.defaultMarker
-                        : m.image != null
-                            ? _customIcons[m.image!] ?? BitmapDescriptor.defaultMarker
-                            : m.color != null
-                                ? BitmapDescriptor.defaultMarkerWithHue(
-                                    googleMarkerColorMap[m.color]!,
-                                  )
-                                : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
-                    onTap: () async {
-                      if (widget.centerMapOnMarkerTap) {
-                        final controller = await _controller.future;
-                        await controller.animateCamera(
-                          CameraUpdate.newLatLng(m.location.toGoogleMaps()),
-                        );
-                        currentMapCenter = m.location.toGoogleMaps();
-                        onCameraIdle();
-                      }
-                      await m.onTap?.call();
-                    },
-                  ),
-                )
-                .toSet(),
+        markers: _cachedMarkers,
         circles: _cachedCircles,
         polylines: _cachedPolylines,
         gestureRecognizers: {
@@ -430,49 +452,24 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
             ),
         },
         webGestureHandling:
-        mapHasGesturePreference ? WebGestureHandling.cooperative : null,
+            mapHasGesturePreference ? WebGestureHandling.cooperative : null,
       ),
     );
 
     return mapHasGesturePreference
         ? GestureDetector(
-      onVerticalDragStart: (_) {},
-      behavior: HitTestBehavior.opaque,
-      child: googleMapWidget,
-    )
+            onVerticalDragStart: (_) {},
+            behavior: HitTestBehavior.opaque,
+            child: googleMapWidget,
+          )
         : googleMapWidget;
   }
 
   /// Replace the set of markers shown on the map without rebuilding the parent.
   void updateMarkers(Iterable<FlutterFlowMarker> markers) {
-    final newSet = markers
-        .map(
-          (m) => Marker(
-            markerId: MarkerId(m.markerId),
-            position: m.location.toGoogleMaps(),
-            icon: m.color != null
-                ? BitmapDescriptor.defaultMarkerWithHue(
-                    googleMarkerColorMap[m.color]!,
-                  )
-                : (_markerDescriptor ?? BitmapDescriptor.defaultMarker),
-            onTap: () async {
-              if (widget.centerMapOnMarkerTap) {
-                final controller = await _controller.future;
-                await controller.animateCamera(
-                  CameraUpdate.newLatLng(m.location.toGoogleMaps()),
-                );
-                currentMapCenter = m.location.toGoogleMaps();
-                onCameraIdle();
-              }
-              await m.onTap?.call();
-            },
-          ),
-        )
-        .toSet();
-    if (!mounted) return;
-    if (!setEquals(newSet, _cachedMarkers)) {
-      setState(() => _cachedMarkers = newSet);
-    }
+    _overlayMarkers = List<FlutterFlowMarker>.unmodifiable(markers);
+    _loadCustomIcons();
+    _rebuildMarkers();
   }
 
   /// Replace the set of circles shown on the map (e.g. pickup/drop area highlights).
@@ -503,15 +500,15 @@ extension GoogleMapsToLatLng on LatLng {
 Map<GoogleMapStyle, String> googleMapStyleStrings = {
   GoogleMapStyle.standard: '[]',
   GoogleMapStyle.silver:
-  r'[{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]',
+      r'[{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]',
   GoogleMapStyle.retro:
-  r'[{"elementType":"geometry","stylers":[{"color":"#ebe3cd"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#523735"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f1e6"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#c9b2a6"}]},{"featureType":"administrative.land_parcel","elementType":"geometry.stroke","stylers":[{"color":"#dcd2be"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#ae9e90"}]},{"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#93817c"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#a5b076"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#447530"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#f5f1e6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#fdfcf8"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#f8c967"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#e9bc62"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"color":"#e98d58"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry.stroke","stylers":[{"color":"#db8555"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#806b63"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"transit.line","elementType":"labels.text.fill","stylers":[{"color":"#8f7d77"}]},{"featureType":"transit.line","elementType":"labels.text.stroke","stylers":[{"color":"#ebe3cd"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"water","elementType":"geometry.fill","stylers":[{"color":"#b9d3c2"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#92998d"}]}]',
+      r'[{"elementType":"geometry","stylers":[{"color":"#ebe3cd"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#523735"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f1e6"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#c9b2a6"}]},{"featureType":"administrative.land_parcel","elementType":"geometry.stroke","stylers":[{"color":"#dcd2be"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#ae9e90"}]},{"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#93817c"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#a5b076"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#447530"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#f5f1e6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#fdfcf8"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#f8c967"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#e9bc62"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"color":"#e98d58"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry.stroke","stylers":[{"color":"#db8555"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#806b63"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"transit.line","elementType":"labels.text.fill","stylers":[{"color":"#8f7d77"}]},{"featureType":"transit.line","elementType":"labels.text.stroke","stylers":[{"color":"#ebe3cd"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#dfd2ae"}]},{"featureType":"water","elementType":"geometry.fill","stylers":[{"color":"#b9d3c2"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#92998d"}]}]',
   GoogleMapStyle.dark:
-  r'[{"elementType":"geometry","stylers":[{"color":"#212121"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#212121"}]},{"featureType":"administrative","elementType":"geometry","stylers":[{"color":"#757575"}]},{"featureType":"administrative.country","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"administrative.land_parcel","stylers":[{"visibility":"off"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#181818"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"poi.park","elementType":"labels.text.stroke","stylers":[{"color":"#1b1b1b"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#2c2c2c"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#8a8a8a"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#373737"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#3c3c3c"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"color":"#4e4e4e"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#3d3d3d"}]}]',
+      r'[{"elementType":"geometry","stylers":[{"color":"#212121"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#212121"}]},{"featureType":"administrative","elementType":"geometry","stylers":[{"color":"#757575"}]},{"featureType":"administrative.country","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"administrative.land_parcel","stylers":[{"visibility":"off"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#181818"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"poi.park","elementType":"labels.text.stroke","stylers":[{"color":"#1b1b1b"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#2c2c2c"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#8a8a8a"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#373737"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#3c3c3c"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry","stylers":[{"color":"#4e4e4e"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#3d3d3d"}]}]',
   GoogleMapStyle.night:
-  r'[{"elementType":"geometry","stylers":[{"color":"#242f3e"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#746855"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#242f3e"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#263c3f"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#6b9a76"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#38414e"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#212a37"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#9ca5b3"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#746855"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#1f2835"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#f3d19c"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#2f3948"}]},{"featureType":"transit.station","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#17263c"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#515c6d"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"color":"#17263c"}]}]',
+      r'[{"elementType":"geometry","stylers":[{"color":"#242f3e"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#746855"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#242f3e"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#263c3f"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#6b9a76"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#38414e"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#212a37"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#9ca5b3"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#746855"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#1f2835"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#f3d19c"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#2f3948"}]},{"featureType":"transit.station","elementType":"labels.text.fill","stylers":[{"color":"#d59563"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#17263c"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#515c6d"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"color":"#17263c"}]}]',
   GoogleMapStyle.aubergine:
-  r'[{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#8ec3b9"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#1a3646"}]},{"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#64779e"}]},{"featureType":"administrative.province","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"landscape.man_made","elementType":"geometry.stroke","stylers":[{"color":"#334e87"}]},{"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#023e58"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#283d6a"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6f9ba5"}]},{"featureType":"poi","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#023e58"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#3C7680"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#304a7d"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#2c6675"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#255763"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#b0d5ce"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"color":"#023e58"}]},{"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"transit.line","elementType":"geometry.fill","stylers":[{"color":"#283d6a"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#3a4762"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#0e1626"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#4e6d70"}]}]',
+      r'[{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#8ec3b9"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#1a3646"}]},{"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#64779e"}]},{"featureType":"administrative.province","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"landscape.man_made","elementType":"geometry.stroke","stylers":[{"color":"#334e87"}]},{"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#023e58"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#283d6a"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6f9ba5"}]},{"featureType":"poi","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#023e58"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#3C7680"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#304a7d"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#2c6675"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#255763"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#b0d5ce"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"color":"#023e58"}]},{"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"transit.line","elementType":"geometry.fill","stylers":[{"color":"#283d6a"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#3a4762"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#0e1626"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#4e6d70"}]}]',
 };
 
 Map<GoogleMarkerColor, double> googleMarkerColorMap = {

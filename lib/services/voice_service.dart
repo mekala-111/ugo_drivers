@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ugo_driver/services/location_geocode_service.dart';
+import 'package:ugo_driver/services/ride_alert_audio_service.dart';
+import 'package:ugo_driver/services/ride_notification_service.dart';
 
 const String _kVoiceEnabledKey = 'ff_voice_enabled';
 
@@ -17,6 +19,7 @@ class VoiceService {
   bool _initialized = false;
   String _language = 'en';
   bool _voiceEnabled = true;
+  int _speechSessionId = 0;
 
   bool get voiceEnabled => _voiceEnabled;
 
@@ -104,9 +107,9 @@ class VoiceService {
     for (final locale in fallbacks) {
       try {
         final available = await _tts.isLanguageAvailable(locale).timeout(
-          const Duration(seconds: 2),
-          onTimeout: () => false,
-        );
+              const Duration(seconds: 2),
+              onTimeout: () => false,
+            );
         if (available == true) {
           await _tts.setLanguage(locale);
           localeSet = true;
@@ -132,30 +135,54 @@ class VoiceService {
   String _msg(String key) =>
       _voiceMessages[key]?[_language] ?? _voiceMessages[key]!['en']!;
 
+  int _startSpeechSession() => ++_speechSessionId;
+
+  bool _isSpeechSessionActive(int sessionId) {
+    return _speechSessionId == sessionId;
+  }
+
   /// Speak text (Rapido Captain style announcements). No-op if voice disabled.
-  Future<void> speak(String text) async {
+  Future<void> speak(String text, {int? sessionId}) async {
     if (!_voiceEnabled) return;
     if (text.isEmpty) return;
+    final activeSessionId = sessionId ?? _startSpeechSession();
     try {
       await _ensureInit();
-      await _tts.speak(text);
+      await RideNotificationService().cancelRideNotification();
+      await RideAlertAudioService.stopLingeringAlertAudio();
+      if (!_isSpeechSessionActive(activeSessionId)) return;
+      await _tts.stop();
+      if (!_isSpeechSessionActive(activeSessionId)) return;
+      await _tts.speak(text, focus: true);
     } catch (e) {
       if (kDebugMode) debugPrint('VoiceService: speak failed: $e');
     }
   }
 
-  Future<void> _speakRepeated(String text, {int times = 1}) async {
+  Future<void> _speakRepeated(String text,
+      {int times = 1, int? sessionId}) async {
     if (!_voiceEnabled || text.isEmpty || times <= 0) return;
+    final activeSessionId = sessionId ?? _startSpeechSession();
     for (var i = 0; i < times; i++) {
-      await speak(text);
+      if (!_isSpeechSessionActive(activeSessionId)) return;
+      await speak(text, sessionId: activeSessionId);
+      if (!_isSpeechSessionActive(activeSessionId)) return;
       if (i < times - 1) {
         await Future.delayed(const Duration(milliseconds: 600));
+        if (!_isSpeechSessionActive(activeSessionId)) return;
       }
     }
   }
 
   /// Stop any ongoing speech.
   Future<void> stop() async {
+    _speechSessionId++;
+    try {
+      await RideAlertAudioService.stopLingeringAlertAudio();
+    } catch (_) {}
+    try {
+      await RideNotificationService().cancelRideNotification();
+    } catch (_) {}
     try {
       await _tts.stop();
     } catch (_) {}
@@ -180,6 +207,7 @@ class VoiceService {
     int repeatCount = 1,
   }) async {
     if (!_voiceEnabled) return;
+    final sessionId = _startSpeechSession();
     try {
       final geocode = LocationGeocodeService();
       final pickupFuture = (pickupLat != 0 || pickupLng != 0)
@@ -190,24 +218,31 @@ class VoiceService {
           : Future.value((pincode: '', locality: ''));
       final pickup = await pickupFuture;
       final drop = await dropFuture;
-      final pickupArea = pickup.locality.isNotEmpty ? pickup.locality : _shortAddress(pickupAddress);
-      final dropArea = drop.locality.isNotEmpty ? drop.locality : _shortAddress(dropAddress);
+      if (!_isSpeechSessionActive(sessionId)) return;
+      final pickupArea = pickup.locality.isNotEmpty
+          ? pickup.locality
+          : _shortAddress(pickupAddress);
+      final dropArea =
+          drop.locality.isNotEmpty ? drop.locality : _shortAddress(dropAddress);
       final fare = estimatedFare?.toInt();
       final text = _formatRideDetailsSpeech(
         pickupArea: pickupArea,
         dropArea: dropArea,
         fare: fare,
       );
-      await _speakRepeated(text, times: repeatCount);
+      await _speakRepeated(text, times: repeatCount, sessionId: sessionId);
     } catch (e) {
-      if (kDebugMode) debugPrint('VoiceService: speakNewRideAddress failed: $e');
+      if (kDebugMode) {
+        debugPrint('VoiceService: speakNewRideAddress failed: $e');
+      }
+      if (!_isSpeechSessionActive(sessionId)) return;
       final fare = estimatedFare?.toInt();
       final fallback = _formatRideDetailsSpeech(
         pickupArea: _shortAddress(pickupAddress),
         dropArea: _shortAddress(dropAddress),
         fare: fare,
       );
-      await _speakRepeated(fallback, times: repeatCount);
+      await _speakRepeated(fallback, times: repeatCount, sessionId: sessionId);
     }
   }
 

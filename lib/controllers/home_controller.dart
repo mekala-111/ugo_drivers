@@ -10,7 +10,11 @@ import 'package:ugo_driver/config.dart';
 import 'package:ugo_driver/home/incentive_model.dart';
 import 'package:ugo_driver/repositories/driver_repository.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart'
-    show DriverIdfetchCall, GetAllDriversCall, NotificationHistoryCall, AddMoneyToWalletCall;
+    show
+        DriverIdfetchCall,
+        GetAllDriversCall,
+        NotificationHistoryCall,
+        AddMoneyToWalletCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -52,7 +56,6 @@ class HomeController extends ChangeNotifier {
   bool _disposed = false;
   int _currentDistanceFilter = 50;
 
-
   // ── State ───────────────────────────────────────────────────────────────────
 
   LatLng? currentUserLocation;
@@ -66,7 +69,7 @@ class HomeController extends ChangeNotifier {
   double totalIncentiveEarned = 0.0;
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
-  
+
   // ✅ Track completed incentives to detect newly completed ones
   final Set<int> _completedIncentiveIds = {};
 
@@ -175,12 +178,14 @@ class HomeController extends ChangeNotifier {
     int? parsedCityId;
     String? parsedCityName;
     if (body != null) {
-      final preferredCityIdRaw = getJsonField(body, r'''$.data.preferred_city_id''');
+      final preferredCityIdRaw =
+          getJsonField(body, r'''$.data.preferred_city_id''');
       if (preferredCityIdRaw != null) {
         parsedCityId = int.tryParse(preferredCityIdRaw.toString());
       }
       if (parsedCityId == null || parsedCityId <= 0) {
-        final preferredCityObj = getJsonField(body, r'''$.data.preferred_city''');
+        final preferredCityObj =
+            getJsonField(body, r'''$.data.preferred_city''');
         if (preferredCityObj != null && preferredCityObj is Map) {
           final id = preferredCityObj['id'];
           if (id != null) parsedCityId = int.tryParse(id.toString());
@@ -190,7 +195,8 @@ class HomeController extends ChangeNotifier {
       }
       if (parsedCityId == null || parsedCityId <= 0) {
         final cityIdRaw = getJsonField(body, r'''$.data.city_id''');
-        if (cityIdRaw != null) parsedCityId = int.tryParse(cityIdRaw.toString());
+        if (cityIdRaw != null)
+          parsedCityId = int.tryParse(cityIdRaw.toString());
       }
     }
     if (parsedCityId != null && parsedCityId > 0) {
@@ -282,7 +288,7 @@ class HomeController extends ChangeNotifier {
       _notify();
       return;
     }
-    
+
     // ONLY show disclosure if permission is actually denied
     if (permission == LocationPermission.denied) {
       final agreed = await onShowLocationDisclosure();
@@ -329,7 +335,8 @@ class HomeController extends ChangeNotifier {
     if (_disposed) return;
     if (res.succeeded) {
       isOnline = true;
-      _startLocationTracking(skipDisclosure: true); // Already shown in goOnline()
+      _startLocationTracking(
+          skipDisclosure: true); // Already shown in goOnline()
       _fetchAvailableDrivers();
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
@@ -410,7 +417,9 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    if (!skipDisclosure) {
+    var permission = await Geolocator.checkPermission();
+
+    if (!skipDisclosure && permission == LocationPermission.denied) {
       final agreed = await onShowLocationDisclosure();
       if (!agreed) {
         _isTrackingLocation = false;
@@ -418,7 +427,6 @@ class HomeController extends ChangeNotifier {
       }
     }
 
-    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -435,8 +443,8 @@ class HomeController extends ChangeNotifier {
     }
 
     // Rapido/Uber-style: require background location for ride matching when app is backgrounded
-    if (Platform.isAndroid && 
-        permission == LocationPermission.whileInUse && 
+    if (Platform.isAndroid &&
+        permission == LocationPermission.whileInUse &&
         !FFAppState().hasAskedBackgroundLocation) {
       FFAppState().hasAskedBackgroundLocation = true;
       final agreed = await onShowBackgroundLocationNotice();
@@ -479,10 +487,13 @@ class HomeController extends ChangeNotifier {
 
   void _adjustLocationFilter(String status) {
     int newFilter = 50;
-    if (status == 'ACCEPTED' || status == 'ARRIVED' || status == 'STARTED' || status == 'ONTRIP') {
+    if (status == 'ACCEPTED' ||
+        status == 'ARRIVED' ||
+        status == 'STARTED' ||
+        status == 'ONTRIP') {
       newFilter = 10;
     }
-    
+
     if (_currentDistanceFilter != newFilter && _isTrackingLocation) {
       _currentDistanceFilter = newFilter;
       _locationSub?.cancel();
@@ -492,7 +503,9 @@ class HomeController extends ChangeNotifier {
           distanceFilter: _currentDistanceFilter,
         ),
       ).listen(_handleLocationUpdate);
-      if (kDebugMode) debugPrint('Location tracking distance filter updated to: $_currentDistanceFilter meters');
+      if (kDebugMode)
+        debugPrint(
+            'Location tracking distance filter updated to: $_currentDistanceFilter meters');
     }
   }
 
@@ -533,11 +546,12 @@ class HomeController extends ChangeNotifier {
           _lastNotifyPosition == null ||
           DateTime.now().difference(_lastNotifyTime!) >= _notifyTimeThreshold ||
           Geolocator.distanceBetween(
-            _lastNotifyPosition!.latitude,
-            _lastNotifyPosition!.longitude,
-            newPosition.latitude,
-            newPosition.longitude,
-          ) >= _notifyDistanceThreshold;
+                _lastNotifyPosition!.latitude,
+                _lastNotifyPosition!.longitude,
+                newPosition.latitude,
+                newPosition.longitude,
+              ) >=
+              _notifyDistanceThreshold;
       if (shouldNotify) {
         _lastNotifyTime = DateTime.now();
         _lastNotifyPosition = newPosition;
@@ -577,7 +591,7 @@ class HomeController extends ChangeNotifier {
   }
 
   // ── Socket ─────────────────────────────────────────────────────────────────
-void _initSocket() {
+  void _initSocket() {
     if (_socketInitialized) return;
     _socketInitialized = true;
 
@@ -695,20 +709,26 @@ void _initSocket() {
           for (var item in incentivesArray) {
             final incentiveId = item['id'] ?? 0;
             final status = item['progress_status'] ?? '';
-            if (status == 'completed' && !_completedIncentiveIds.contains(incentiveId)) {
+            if (status == 'completed' &&
+                !_completedIncentiveIds.contains(incentiveId)) {
               _completedIncentiveIds.add(incentiveId);
               final name = item['incentive']?['name'] ?? 'Incentive';
-              final reward = double.tryParse((item['reward_amount'] ?? '0').toString()) ?? 0.0;
+              final reward =
+                  double.tryParse((item['reward_amount'] ?? '0').toString()) ??
+                      0.0;
               newlyCompletedRewards += reward;
               completedIncentiveNames.add(name);
-              debugPrint('🎉 Newly completed incentive detected: $name - Reward: ₹$reward');
+              debugPrint(
+                  '🎉 Newly completed incentive detected: $name - Reward: ₹$reward');
             }
           }
-          
+
           // ✅ Trigger wallet update for newly completed incentives
           if (newlyCompletedRewards > 0) {
-            debugPrint('💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives');
-            await _addIncentiveRewardToWallet(newlyCompletedRewards, completedIncentiveNames);
+            debugPrint(
+                '💰 Adding ₹$newlyCompletedRewards to wallet for completed incentives');
+            await _addIncentiveRewardToWallet(
+                newlyCompletedRewards, completedIncentiveNames);
           }
 
           // Calculate current rides count from running incentives
@@ -760,27 +780,31 @@ void _initSocket() {
   }
 
   /// Add completed incentive reward to wallet
-  Future<void> _addIncentiveRewardToWallet(double amount, List<String> incentiveNames) async {
+  Future<void> _addIncentiveRewardToWallet(
+      double amount, List<String> incentiveNames) async {
     try {
       if (kDebugMode) {
-        debugPrint('💰 Processing wallet update for ₹$amount (${incentiveNames.length} incentives)');
+        debugPrint(
+            '💰 Processing wallet update for ₹$amount (${incentiveNames.length} incentives)');
       }
-      
+
       final res = await AddMoneyToWalletCall.call(
         driverId: FFAppState().driverid,
         amount: amount,
         currency: 'INR',
         token: FFAppState().accessToken,
       );
-      
+
       if (res.succeeded) {
         if (kDebugMode) {
-          debugPrint('✅ Incentive reward ₹$amount added to wallet successfully!');
+          debugPrint(
+              '✅ Incentive reward ₹$amount added to wallet successfully!');
         }
         onShowSnackBar('incentive_reward_added', isError: false);
       } else {
         if (kDebugMode) {
-          debugPrint('⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
+          debugPrint(
+              '⚠️ Failed to add incentive reward to wallet: ${res.statusCode}');
         }
       }
     } catch (e) {

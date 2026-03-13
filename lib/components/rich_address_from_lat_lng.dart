@@ -2,6 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/services/location_geocode_service.dart';
 
+Widget _buildHighlightedAddressText({
+  required String address,
+  required String? highlightSegment,
+  required TextStyle style,
+}) {
+  if (highlightSegment == null || highlightSegment.trim().isEmpty) {
+    return Text(
+      address,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+
+  final normalizedAddress = address.toLowerCase();
+  final normalizedHighlight = highlightSegment.toLowerCase();
+  final matchIndex = normalizedAddress.indexOf(normalizedHighlight);
+
+  if (matchIndex < 0) {
+    return Text(
+      address,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+
+  final matchEnd = matchIndex + highlightSegment.length;
+
+  return Text.rich(
+    TextSpan(
+      style: style,
+      children: [
+        if (matchIndex > 0) TextSpan(text: address.substring(0, matchIndex)),
+        TextSpan(
+          text: address.substring(matchIndex, matchEnd),
+          style: style.copyWith(
+              fontWeight: FontWeight.w800, color: Colors.black87),
+        ),
+        if (matchEnd < address.length)
+          TextSpan(text: address.substring(matchEnd)),
+      ],
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+  );
+}
+
 /// Pincode & locality from lat/lon (reverse geocoding), not from address string.
 class RichAddressFromLatLng extends StatelessWidget {
   final double lat;
@@ -26,6 +74,8 @@ class RichAddressFromLatLng extends StatelessWidget {
       builder: (context, snapshot) {
         final pincode = snapshot.data?.pincode ?? '';
         final locality = snapshot.data?.locality ?? '';
+        final highlightedSegment = LocationGeocodeService()
+            .getAddressHighlightSegment(fallbackAddress);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,10 +101,9 @@ class RichAddressFromLatLng extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              fallbackAddress,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            _buildHighlightedAddressText(
+              address: fallbackAddress,
+              highlightSegment: highlightedSegment,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey[600],

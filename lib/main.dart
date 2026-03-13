@@ -22,12 +22,14 @@ import '/backend/api_requests/api_manager.dart';
 import '/services/ride_notification_service.dart';
 import '/services/firebase_remote_config_service.dart';
 import '/services/install_referrer_service.dart';
+import '/services/ride_alert_audio_service.dart';
 import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
 
 void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await RideAlertAudioService.stopLingeringAlertAudio();
     GoRouter.optionURLReflectsImperativeAPIs = true;
     usePathUrlStrategy();
     await WakelockPlus.enable();
@@ -37,7 +39,9 @@ void main() {
     await FirebaseRemoteConfigService().initialize();
 
     await RideNotificationService().initialize();
+    await RideNotificationService().cancelRideNotification();
     await VoiceService().initFromStorage();
+    await VoiceService().stop();
 
     await FlutterFlowTheme.initialize();
 

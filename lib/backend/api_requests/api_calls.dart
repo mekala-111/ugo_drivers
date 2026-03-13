@@ -349,7 +349,7 @@ class CreateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
-     String? fcmToken = '',
+    String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
 
@@ -527,7 +527,8 @@ class ReportIssueCall {
     final body = <String, dynamic>{
       'driver_id': driverId,
       'issue_category': issueCategory,
-      if (issueDescription != null && issueDescription.isNotEmpty) 'issue_description': issueDescription,
+      if (issueDescription != null && issueDescription.isNotEmpty)
+        'issue_description': issueDescription,
       if (rideId != null && rideId > 0) 'ride_id': rideId,
     };
     return ApiManager.instance.makeApiCall(
@@ -647,9 +648,8 @@ class EmergencySosCall {
     double? latitude,
     double? longitude,
   }) async {
-    final locationStr = (latitude != null && longitude != null)
-        ? '$latitude,$longitude'
-        : null;
+    final locationStr =
+        (latitude != null && longitude != null) ? '$latitude,$longitude' : null;
     final body = <String, dynamic>{
       'driver_id': driverId,
       if (rideId != null && rideId > 0) 'ride_id': rideId,
@@ -1535,7 +1535,6 @@ class GetDriverIncentivesCall {
       ) as List?;
 }
 
-
 class YesterdayStatisticsCall {
   static Future<ApiCallResponse> call({
     String? driverId = '',
@@ -2173,6 +2172,7 @@ class DriverIncentivesCall {
   static List<dynamic> filterRunningIncentives(List<dynamic> incentives) =>
       incentives.where((item) => itemIsRunning(item)).toList();
 }
+
 class ReferralDashboardCall {
   static Future<ApiCallResponse> call({
     required String token,
@@ -2180,8 +2180,7 @@ class ReferralDashboardCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'referralDashboard',
-      apiUrl:
-          '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
+      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -2200,14 +2199,15 @@ class ReferralDashboardCall {
 
   static int totalEarnings(dynamic response) =>
       castToType<int>(getJsonField(
-              response, r'$.lifetime_statistics.total_commission_earned')) ??
+          response, r'$.lifetime_statistics.total_commission_earned')) ??
       0;
 
   static List<dynamic> referrals(dynamic response) =>
       (getJsonField(response, r'$.yesterday_statistics.referrals', true)
-              as List?) ??
-          [];
+          as List?) ??
+      [];
 }
+
 class VehiclePricingCall {
   static Future<ApiCallResponse> call({
     required int driverId,
