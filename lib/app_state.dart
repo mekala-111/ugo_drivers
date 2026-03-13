@@ -22,6 +22,13 @@ class FFAppState extends ChangeNotifier {
   int _activeRideId = 0;
   String _activeRideStatus = '';
   bool locationPermissionAsked = false;
+  bool _autoAccept = false;
+  bool get autoAccept => _autoAccept;
+  set autoAccept(bool value) {
+    _autoAccept = value;
+    prefs.setBool('ff_autoAccept', value);
+    notifyListeners();
+  }
 
   /// Set when user taps ride request notification (Rapido-style). HomeWidget fetches and shows.
   int pendingRideIdFromNotification = 0;
@@ -108,6 +115,9 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _isonline = prefs.getBool('ff_isonline') ?? false;
+    });
+    _safeInit(() {
+      _autoAccept = prefs.getBool('ff_autoAccept') ?? false;
     });
     _safeInit(() {
       _activeRideId = prefs.getInt('ff_activeRideId') ?? 0;

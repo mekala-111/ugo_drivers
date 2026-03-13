@@ -5,6 +5,7 @@ import 'package:ugo_driver/team_earnings/all_orders_widget.dart';
 import 'package:ugo_driver/team_earnings/last_order_widget.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/team_earnings/view_rate_card_widget.dart';
+import 'package:ugo_driver/team_earnings/widgets/earnings_chart.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'team_earnings_model.dart';
@@ -60,12 +61,17 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   List<dynamic> referredDrivers = [];
   bool isLoadingTeam = true;
 
+  // Weekly Chart Data
+  List<double> dailyEarningsList = [0, 0, 0, 0, 0, 0, 0];
+  bool isLoadingWeekly = true;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TeamEarningsModel());
     _tabController = TabController(length: 2, vsync: this);
     _fetchEarningsData();
+    _fetchWeeklyEarnings();
     _fetchTeamData();
   }
 
@@ -148,6 +154,53 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
     }
   }
 
+  // 3. Fetch Weekly Earnings and Aggregate by Day
+  Future<void> _fetchWeeklyEarnings() async {
+    setState(() => isLoadingWeekly = true);
+    try {
+      final response = await DriverEarningsCall.call(
+        driverId: FFAppState().driverid,
+        token: FFAppState().accessToken,
+        period: 'weekly',
+      );
+      
+      if (response.succeeded) {
+        final rides = DriverEarningsCall.rides(response.jsonBody) ?? [];
+        final List<double> aggregated = [0, 0, 0, 0, 0, 0, 0];
+        
+        final now = DateTime.now();
+        final firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final startOfWeek = DateTime(firstDayOfWeek.year, firstDayOfWeek.month, firstDayOfWeek.day);
+
+        for (var ride in rides) {
+          final createdAtStr = ride['created_at'];
+          if (createdAtStr == null) continue;
+          
+          final createdAt = DateTime.tryParse(createdAtStr.toString());
+          if (createdAt == null) continue;
+          
+          if (createdAt.isAfter(startOfWeek.subtract(const Duration(seconds: 1)))) {
+            final dayIndex = createdAt.weekday - 1; // 0 for Mon, 6 for Sun
+            if (dayIndex >= 0 && dayIndex < 7) {
+              final fare = (ride['estimated_fare'] ?? 0).toDouble();
+              aggregated[dayIndex] += fare;
+            }
+          }
+        }
+        
+        setState(() {
+          dailyEarningsList = aggregated;
+          isLoadingWeekly = false;
+        });
+      } else {
+        setState(() => isLoadingWeekly = false);
+      }
+    } catch (e) {
+      debugPrint('Error fetching weekly earnings: $e');
+      setState(() => isLoadingWeekly = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color brand = AppColors.primary;
@@ -218,6 +271,16 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                           shadowColor: brand.withValues(alpha: 0.4),
                           icon: Icons.account_balance_wallet_rounded,
                         ),
+                      ),
+                      const SizedBox(height: 24),
+                      AnimatedListItem(
+                        index: 1,
+                        child: isLoadingWeekly 
+                          ? const SizedBox(
+                              height: 180, 
+                              child: Center(child: CircularProgressIndicator(strokeWidth: 2))
+                            )
+                          : WeeklyEarningsChart(dailyEarnings: dailyEarningsList),
                       ),
                       const SizedBox(height: 32),
                       AnimatedListItem(

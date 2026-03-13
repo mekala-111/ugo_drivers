@@ -340,6 +340,7 @@ class _HomeWidgetState extends State<HomeWidget>
               _controller.currentUserLocation!.toGoogleMaps(), 16.0));
         });
       }
+      _checkAndRequestOverlayPermission();
     }
 
     if (!_controller.isOnline && _lastOnlineState) {
@@ -406,8 +407,64 @@ class _HomeWidgetState extends State<HomeWidget>
 
   Future<void> _syncFloatingBubble() async {
     if (!mounted) return;
-    // Floating bubble disabled - always hide
-    await _hideFloatingBubble();
+
+    final appState = WidgetsBinding.instance.lifecycleState;
+    // Show bubble ONLY when (Online AND app is NOT in foreground)
+    // We check if appState is null (initial state) or not resumed.
+    // Usually, if it's null it means we are just starting, likely resumed soon.
+    final shouldShowBubble = _controller.isOnline &&
+        (appState != null && appState != AppLifecycleState.resumed);
+
+    if (shouldShowBubble) {
+      final granted = await FloatingBubbleService.checkOverlayPermission();
+      if (granted) {
+        if (!_bubbleVisible) {
+          await FloatingBubbleService.startFloatingBubble();
+          _bubbleVisible = true;
+        }
+      } else {
+        if (_bubbleVisible) {
+          await FloatingBubbleService.stopFloatingBubble();
+          _bubbleVisible = false;
+        }
+      }
+    } else {
+      if (_bubbleVisible) {
+        await FloatingBubbleService.stopFloatingBubble();
+        _bubbleVisible = false;
+      }
+    }
+  }
+
+  Future<void> _checkAndRequestOverlayPermission() async {
+    if (!mounted) return;
+    final granted = await FloatingBubbleService.checkOverlayPermission();
+    if (!granted && mounted) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Overlay Permission Required'),
+          content: const Text(
+            'The Captain Bubble needs permission to display over other apps so you can see ride requests while using navigation or other apps.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              child: const Text('Grant Permission'),
+            ),
+          ],
+        ),
+      );
+
+      if (proceed == true) {
+        await FloatingBubbleService.requestOverlayPermission();
+      }
+    }
   }
 
   Future<void> _hideFloatingBubble() async {

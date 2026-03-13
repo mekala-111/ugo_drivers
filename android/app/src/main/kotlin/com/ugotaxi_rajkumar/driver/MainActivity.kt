@@ -161,7 +161,7 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun startFloatingBubbleService() {
-        val serviceIntent = Intent(this, FloatingBubbleService::class.java)
+        val serviceIntent = Intent(this, CaptainBubbleService::class.java)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         } else {
@@ -170,7 +170,7 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun stopFloatingBubbleService() {
-        val serviceIntent = Intent(this, FloatingBubbleService::class.java)
+        val serviceIntent = Intent(this, CaptainBubbleService::class.java)
         stopService(serviceIntent)
     }
 
@@ -183,53 +183,19 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun showFloatingBubble() {
-        // Ensure service is running before trying to show
-        if (!isServiceRunning(FloatingBubbleService::class.java)) {
-            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
+        // Ensure service is running
+        if (!isServiceRunning(CaptainBubbleService::class.java)) {
+            startFloatingBubbleService()
         }
-
-        val intent = Intent(this, FloatingBubbleService::class.java)
-        intent.action = "SHOW_BUBBLE"
-        startService(intent)
     }
 
     private fun hideFloatingBubble() {
-        // Ensure service is running before trying to hide
-        if (!isServiceRunning(FloatingBubbleService::class.java)) {
-            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
-        }
-
-        val intent = Intent(this, FloatingBubbleService::class.java)
-        intent.action = "HIDE_BUBBLE"
-        startService(intent)
+        stopFloatingBubbleService()
+        RideEventRepository.clearState()
     }
 
     private fun updateBubbleContent(title: String, subtitle: String) {
-        // Ensure service is running before trying to update
-        if (!isServiceRunning(FloatingBubbleService::class.java)) {
-            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
-        }
-
-        val intent = Intent(this, FloatingBubbleService::class.java)
-        intent.action = "UPDATE_BUBBLE_CONTENT"
-        intent.putExtra("title", title)
-        intent.putExtra("subtitle", subtitle)
-        startService(intent)
+        // This can be used for extra info, but state is main driver
     }
 
     private fun showRideRequest(
@@ -240,32 +206,16 @@ class MainActivity: FlutterActivity() {
         pickup: String,
         drop: String
     ) {
-        if (!isServiceRunning(FloatingBubbleService::class.java)) {
-            val serviceIntent = Intent(this, FloatingBubbleService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
-        }
-        val intent = Intent(this, FloatingBubbleService::class.java)
-        intent.action = "SHOW_RIDE_REQUEST"
-        intent.putExtra("ride_id", rideId)
-        intent.putExtra("fare", fare)
-        intent.putExtra("pickup_distance", pickupDistance)
-        intent.putExtra("drop_distance", dropDistance)
-        intent.putExtra("pickup", pickup)
-        intent.putExtra("drop", drop)
-        startService(intent)
+        val data = RideData(rideId, fare, pickup, drop, pickupDistance, dropDistance)
+        RideRequestOverlayService.showNewRideRequest(this, data)
+        
+        RideEventRepository.updateState(
+            RideState.NewRequest(rideId, fare, pickupDistance, dropDistance, pickup, drop)
+        )
     }
 
     private fun hideRideRequest() {
-        if (!isServiceRunning(FloatingBubbleService::class.java)) {
-            return
-        }
-        val intent = Intent(this, FloatingBubbleService::class.java)
-        intent.action = "HIDE_RIDE_REQUEST"
-        startService(intent)
+        RideEventRepository.clearState()
     }
 
     override fun onNewIntent(intent: Intent) {

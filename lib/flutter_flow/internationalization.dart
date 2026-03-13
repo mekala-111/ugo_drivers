@@ -6207,6 +6207,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'మొత్తం ఛార్జీ'
     },
     'drv_submit': {'en': 'Submit', 'hi': 'जमा करें', 'te': 'సమర్పించండి'},
+    'drv_skip': {'en': 'Skip', 'hi': 'छोड़ें', 'te': 'దాటవేయి'},
+    'drv_rating_label': {'en': 'Rating', 'hi': 'रेटिंग', 'te': 'రేటింగ్'},
+    'drv_vehicle_label': {'en': 'Vehicle', 'hi': 'वाहन', 'te': 'వాహనం'},
     'drv_manage_prefs': {
       'en': 'Manage your Preferences.',
       'hi': 'अपनी प्राथमिकताएं प्रबंधित करें।',

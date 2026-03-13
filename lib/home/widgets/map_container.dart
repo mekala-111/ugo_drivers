@@ -56,7 +56,7 @@ class MapContainer extends StatelessWidget {
         if (onCenterCurrentLocation != null)
           Positioned(
             top: showCaptainsPanel ? 88.0 : 16.0,
-            right: 16.0,
+            left: 16.0,
             child: Material(
               color: Colors.white,
               elevation: 6.0,
@@ -67,7 +67,7 @@ class MapContainer extends StatelessWidget {
                 onPressed: onCenterCurrentLocation,
                 icon: const Icon(
                   Icons.my_location_rounded,
-                  color: Colors.black87,
+                  color: Colors.orange,
                 ),
               ),
             ),

@@ -52,6 +52,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        viewBinding = true
     }
 
     lintOptions {
@@ -117,6 +118,8 @@ tasks.withType(JavaCompile).configureEach {
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1"
 
     // Firebase App Check - Play Integrity Provider
     implementation "com.google.android.play:integrity:1.4.0"
@@ -130,4 +133,10 @@ dependencies {
     implementation "com.google.mlkit:text-recognition-devanagari:16.0.1"
     implementation "com.google.mlkit:text-recognition-japanese:16.0.1"
     implementation "com.google.mlkit:text-recognition-korean:16.0.1"
+
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.core:core-ktx:1.15.0"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.1"
+    implementation "androidx.cardview:cardview:1.0.0"
 }
