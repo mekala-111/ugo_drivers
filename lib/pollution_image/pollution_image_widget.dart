@@ -63,7 +63,8 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
       allowPhoto: true,
     );
     if (selectedMedia == null ||
-        !selectedMedia.every((m) => validateFileFormat(m.storagePath, context))) {
+        !selectedMedia.every((m) => validateFileFormat(m.storagePath, context)) ||
+        !selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
       return;
     }
     final file = FFUploadedFile(

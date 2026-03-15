@@ -669,7 +669,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           );
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
-                                  validateFileFormat(m.storagePath, context))) {
+                                  validateFileFormat(m.storagePath, context)) &&
+                              selectedMedia.every((m) =>
+                                  validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -754,7 +756,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           );
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
-                                  validateFileFormat(m.storagePath, context))) {
+                                  validateFileFormat(m.storagePath, context)) &&
+                              selectedMedia.every((m) =>
+                                  validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia

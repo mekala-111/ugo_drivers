@@ -241,6 +241,23 @@ bool validateFileFormat(String filePath, BuildContext context) {
   return false;
 }
 
+/// Max allowed image size: 5 MB (e.g. for Aadhaar, license, profile pic).
+const int maxImageSizeBytes = 5 * 1024 * 1024;
+
+/// Returns false and shows snackbar if [bytes] exceeds 5MB.
+bool validateImageSize(List<int>? bytes, BuildContext context) {
+  if (bytes == null) return true;
+  if (bytes.length <= maxImageSizeBytes) return true;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(const SnackBar(
+      content: Text(
+        'Your image size is more than 5MB. Please choose a smaller image.',
+      ),
+    ));
+  return false;
+}
+
 Future<SelectedFile?> selectFile({
   String? storageFolderPath,
   List<String>? allowedExtensions,

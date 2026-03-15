@@ -589,7 +589,9 @@ class _PanuploadScreenWidgetState extends State<PanuploadScreenWidget>
                           );
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
-                                  validateFileFormat(m.storagePath, context))) {
+                                  validateFileFormat(m.storagePath, context)) &&
+                              selectedMedia.every((m) =>
+                                  validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia

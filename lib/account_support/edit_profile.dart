@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/upload_data.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> driverData;
@@ -36,6 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (picked == null) return;
 
     final bytes = await picked.readAsBytes();
+    if (!validateImageSize(bytes, context)) return;
 
     profileImage = FFUploadedFile(
       name: picked.name,

@@ -434,7 +434,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
 
         if (selectedMedia != null &&
             selectedMedia.every(
-                    (m) => validateFileFormat(m.storagePath, context))) {
+                    (m) => validateFileFormat(m.storagePath, context)) &&
+          selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           final file = FFUploadedFile(
             name: selectedMedia.first.storagePath.split('/').last,
             bytes: selectedMedia.first.bytes,
@@ -1064,7 +1065,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           allowPhoto: true,
         );
         if (selectedMedia != null &&
-            selectedMedia.every((m) => validateFileFormat(m.storagePath, context))) {
+            selectedMedia.every((m) => validateFileFormat(m.storagePath, context)) &&
+          selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           var selectedUploadedFiles = <FFUploadedFile>[];
           try {
             selectedUploadedFiles = selectedMedia

@@ -411,7 +411,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             context: context, allowPhoto: true);
         if (selectedMedia != null &&
             selectedMedia
-                .every((m) => validateFileFormat(m.storagePath, context))) {
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           var files = <FFUploadedFile>[];
           try {
             files = selectedMedia
@@ -885,7 +886,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             context: context, allowPhoto: true);
         if (selectedMedia != null &&
             selectedMedia
-                .every((m) => validateFileFormat(m.storagePath, context))) {
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           try {
             final file = FFUploadedFile(
               name: selectedMedia.first.storagePath.split('/').last,
@@ -1017,7 +1019,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             context: context, allowPhoto: true);
         if (selectedMedia != null &&
             selectedMedia
-                .every((m) => validateFileFormat(m.storagePath, context))) {
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           final file = FFUploadedFile(
               name: selectedMedia.first.storagePath.split('/').last,
               bytes: selectedMedia.first.bytes);
@@ -1570,7 +1573,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             context: context, allowPhoto: true);
         if (selectedMedia != null &&
             selectedMedia
-                .every((m) => validateFileFormat(m.storagePath, context))) {
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           final file = FFUploadedFile(
             name: selectedMedia.first.storagePath.split('/').last,
             bytes: selectedMedia.first.bytes,
