@@ -40,9 +40,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _regNumberController = TextEditingController();
   final TextEditingController _regDateController = TextEditingController();
-  final TextEditingController _insuranceNumberController = TextEditingController();
-  final TextEditingController _insuranceExpiryController = TextEditingController();
-  final TextEditingController _pollutionExpiryController = TextEditingController();
+  final TextEditingController _insuranceNumberController =
+      TextEditingController();
+  final TextEditingController _insuranceExpiryController =
+      TextEditingController();
+  final TextEditingController _pollutionExpiryController =
+      TextEditingController();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -56,9 +59,21 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     {'name': 'White', 'color': AppColors.white, 'border': AppColors.greyBorder},
     {'name': 'Black', 'color': AppColors.black, 'border': AppColors.black},
     {'name': 'Silver', 'color': AppColors.silver, 'border': AppColors.greyMid},
-    {'name': 'Red', 'color': AppColors.accentRed, 'border': AppColors.accentRed},
-    {'name': 'Blue', 'color': AppColors.accentBlue, 'border': AppColors.accentBlue},
-    {'name': 'Grey', 'color': AppColors.greyVehicle, 'border': AppColors.greyVehicle},
+    {
+      'name': 'Red',
+      'color': AppColors.accentRed,
+      'border': AppColors.accentRed
+    },
+    {
+      'name': 'Blue',
+      'color': AppColors.accentBlue,
+      'border': AppColors.accentBlue
+    },
+    {
+      'name': 'Grey',
+      'color': AppColors.greyVehicle,
+      'border': AppColors.greyVehicle
+    },
   ];
 
   @override
@@ -127,12 +142,18 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     if (FFAppState().vehicleColor.isNotEmpty) {
       setState(() => _selectedColor = FFAppState().vehicleColor);
     }
-    if (FFAppState().licensePlate.isNotEmpty) _licensePlateController.text = FFAppState().licensePlate;
-    if (FFAppState().registrationNumber.isNotEmpty) _regNumberController.text = FFAppState().registrationNumber;
-    if (FFAppState().registrationDate.isNotEmpty) _regDateController.text = FFAppState().registrationDate;
-    if (FFAppState().insuranceNumber.isNotEmpty) _insuranceNumberController.text = FFAppState().insuranceNumber;
-    if (FFAppState().insuranceExpiryDate.isNotEmpty) _insuranceExpiryController.text = FFAppState().insuranceExpiryDate;
-    if (FFAppState().pollutionExpiryDate.isNotEmpty) _pollutionExpiryController.text = FFAppState().pollutionExpiryDate;
+    if (FFAppState().licensePlate.isNotEmpty)
+      _licensePlateController.text = FFAppState().licensePlate;
+    if (FFAppState().registrationNumber.isNotEmpty)
+      _regNumberController.text = FFAppState().registrationNumber;
+    if (FFAppState().registrationDate.isNotEmpty)
+      _regDateController.text = FFAppState().registrationDate;
+    if (FFAppState().insuranceNumber.isNotEmpty)
+      _insuranceNumberController.text = FFAppState().insuranceNumber;
+    if (FFAppState().insuranceExpiryDate.isNotEmpty)
+      _insuranceExpiryController.text = FFAppState().insuranceExpiryDate;
+    if (FFAppState().pollutionExpiryDate.isNotEmpty)
+      _pollutionExpiryController.text = FFAppState().pollutionExpiryDate;
     // Pollution Image
     if (FFAppState().pollutionBase64.isNotEmpty) {
       try {
@@ -215,7 +236,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
 
   @override
   Widget build(BuildContext context) {
-    bool hasImage = (_vehicleImage?.bytes != null && _vehicleImage!.bytes!.isNotEmpty);
+    bool hasImage =
+        (_vehicleImage?.bytes != null && _vehicleImage!.bytes!.isNotEmpty);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -398,7 +420,6 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
 
                     // const SizedBox(height: 32),
 
-
                     // // Submit Button
                     // _buildSubmitButton(hasImage),
 
@@ -413,17 +434,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
-
-
-
-
   Widget _buildExtraImageUpload({
     required FFUploadedFile? image,
     required bool isValid,
     required Function(FFUploadedFile?) onImageSelected,
   }) {
-    bool hasImage =
-    (image?.bytes != null && image!.bytes!.isNotEmpty);
+    bool hasImage = (image?.bytes != null && image!.bytes!.isNotEmpty);
 
     return GestureDetector(
       onTap: () async {
@@ -433,17 +449,16 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         );
 
         if (selectedMedia != null &&
-            selectedMedia.every(
-                    (m) => validateFileFormat(m.storagePath, context)) &&
-          selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
+            selectedMedia
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           final file = FFUploadedFile(
             name: selectedMedia.first.storagePath.split('/').last,
             bytes: selectedMedia.first.bytes,
           );
 
           onImageSelected(file);
-          _showSnackBar(
-              FFLocalizations.of(context).getText('upload0001'));
+          _showSnackBar(FFLocalizations.of(context).getText('upload0001'));
         }
       },
       child: Container(
@@ -459,38 +474,39 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         ),
         child: hasImage
             ? ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Image.memory(
-            image.bytes!,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-        )
+                borderRadius: BorderRadius.circular(14),
+                child: Image.memory(
+                  image.bytes!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              )
             : Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: AppColors.sectionOrangeLight,
-                  shape: BoxShape.circle,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        color: AppColors.sectionOrangeLight,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add_photo_alternate,
+                          size: 40, color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      FFLocalizations.of(context).getText('upload0002'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.greySlate,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.add_photo_alternate, size: 40, color: AppColors.primary),
               ),
-              const SizedBox(height: 12),
-              Text(
-                FFLocalizations.of(context).getText('upload0002'),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.greySlate,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -529,12 +545,14 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             ),
             child: Row(
               children: [
-                const Icon(Icons.cloud_off, color: AppColors.greySlate, size: 28),
+                const Icon(Icons.cloud_off,
+                    color: AppColors.greySlate, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     FFLocalizations.of(context).getText('veh0016'),
-                    style: const TextStyle(color: AppColors.greySlate, fontSize: 14),
+                    style: const TextStyle(
+                        color: AppColors.greySlate, fontSize: 14),
                   ),
                 ),
                 TextButton(
@@ -585,10 +603,17 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               imagePath = getJsonField(item, r'$["image"]')?.toString();
             }
             if (name.isEmpty) name = 'Unknown';
-            final imageUrl = (imagePath != null && imagePath.isNotEmpty && imagePath != 'null')
-                ? (imagePath.startsWith('http') ? imagePath : '${app_config.Config.baseUrl}${imagePath.startsWith('/') ? imagePath : '/$imagePath'}')
+            final imageUrl = (imagePath != null &&
+                    imagePath.isNotEmpty &&
+                    imagePath != 'null')
+                ? (imagePath.startsWith('http')
+                    ? imagePath
+                    : '${app_config.Config.baseUrl}${imagePath.startsWith('/') ? imagePath : '/$imagePath'}')
                 : null;
-            final isSelected = (_selectedVehicleType != null && _selectedVehicleType!.toLowerCase() == name.toLowerCase()) || _selectedVehicleTypeId == id;
+            final isSelected = (_selectedVehicleType != null &&
+                    _selectedVehicleType!.toLowerCase() ==
+                        name.toLowerCase()) ||
+                _selectedVehicleTypeId == id;
             return _buildVehicleTypeCard(name, id, imageUrl, isSelected);
           },
         );
@@ -596,7 +621,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     );
   }
 
-  Widget _buildVehicleTypeCard(String name, int id, String? imageUrl, bool isSelected) {
+  Widget _buildVehicleTypeCard(
+      String name, int id, String? imageUrl, bool isSelected) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -627,12 +653,25 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.sectionOrangeLight : AppColors.backgroundCard,
+                  color: isSelected
+                      ? AppColors.sectionOrangeLight
+                      : AppColors.backgroundCard,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: imageUrl != null
-                    ? Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(_getVehicleIcon(name), size: 28, color: isSelected ? AppColors.primary : AppColors.greySlate))
-                    : Icon(_getVehicleIcon(name), size: 28, color: isSelected ? AppColors.primary : AppColors.greySlate),
+                    ? Image.network(imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(
+                            _getVehicleIcon(name),
+                            size: 28,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.greySlate))
+                    : Icon(_getVehicleIcon(name),
+                        size: 28,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.greySlate),
               ),
             ),
             const SizedBox(width: 16),
@@ -688,8 +727,10 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   IconData _getVehicleIcon(String name) {
     final n = name.toLowerCase();
     if (n.contains('auto')) return Icons.local_taxi;
-    if (n.contains('bike') || n.contains('motorcycle')) return Icons.two_wheeler;
-    if (n.contains('car') || n.contains('sedan') || n.contains('suv')) return Icons.directions_car;
+    if (n.contains('bike') || n.contains('motorcycle'))
+      return Icons.two_wheeler;
+    if (n.contains('car') || n.contains('sedan') || n.contains('suv'))
+      return Icons.directions_car;
     if (n.contains('truck')) return Icons.local_shipping;
     return Icons.directions_car_rounded;
   }
@@ -724,7 +765,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           final apiList = GetVehicleMakesCall.names(snapshot.data!.jsonBody)!;
           if (apiList.isNotEmpty) options = apiList;
         }
-        if (_makeController.text.isNotEmpty && !options.contains(_makeController.text)) {
+        if (_makeController.text.isNotEmpty &&
+            !options.contains(_makeController.text)) {
           options = [_makeController.text, ...options];
         }
         return _buildDropdownField(
@@ -758,7 +800,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           final apiList = GetVehicleModelsCall.names(snapshot.data!.jsonBody)!;
           if (apiList.isNotEmpty) options = apiList;
         }
-        if (_modelController.text.isNotEmpty && !options.contains(_modelController.text)) {
+        if (_modelController.text.isNotEmpty &&
+            !options.contains(_modelController.text)) {
           options = [_modelController.text, ...options];
         }
         return _buildDropdownField(
@@ -804,26 +847,41 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: (value != null && value.isNotEmpty) ? AppColors.primary : AppColors.greyBorder,
+              color: (value != null && value.isNotEmpty)
+                  ? AppColors.primary
+                  : AppColors.greyBorder,
               width: 1.5,
             ),
           ),
           child: DropdownButtonFormField<String>(
-            initialValue: (value != null && value.isNotEmpty && items.contains(value)) ? value : null,
+            initialValue:
+                (value != null && value.isNotEmpty && items.contains(value))
+                    ? value
+                    : null,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(color: AppColors.greyLight, fontSize: 15),
+              hintStyle:
+                  const TextStyle(color: AppColors.greyLight, fontSize: 15),
               prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
               suffixIcon: (value != null && value.isNotEmpty)
-                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                  ? const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 20)
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.greySlate),
+            icon: const Icon(Icons.keyboard_arrow_down,
+                color: AppColors.greySlate),
             dropdownColor: AppColors.white,
             isExpanded: true,
-            items: items.map((s) => DropdownMenuItem<String>(value: s, child: Text(s, style: const TextStyle(fontSize: 15, color: AppColors.textDark)))).toList(),
+            items: items
+                .map((s) => DropdownMenuItem<String>(
+                    value: s,
+                    child: Text(s,
+                        style: const TextStyle(
+                            fontSize: 15, color: AppColors.textDark))))
+                .toList(),
             onChanged: onChanged,
           ),
         ),
@@ -856,7 +914,9 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: controller.text.isNotEmpty ? AppColors.primary : AppColors.greyBorder,
+              color: controller.text.isNotEmpty
+                  ? AppColors.primary
+                  : AppColors.greyBorder,
               width: 1.5,
             ),
           ),
@@ -876,10 +936,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               ),
               prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
               suffixIcon: controller.text.isNotEmpty
-                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                  ? const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 20)
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             onChanged: (value) {
               setState(() {});
@@ -1014,7 +1076,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.sectionOrangeLight : AppColors.white,
+              color:
+                  isSelected ? AppColors.sectionOrangeLight : AppColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? AppColors.primary : AppColors.greyBorder,
@@ -1042,7 +1105,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? AppColors.primary: AppColors.greySlate,
+                    color: isSelected ? AppColors.primary : AppColors.greySlate,
                   ),
                 ),
                 if (isSelected) ...[
@@ -1065,19 +1128,20 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           allowPhoto: true,
         );
         if (selectedMedia != null &&
-            selectedMedia.every((m) => validateFileFormat(m.storagePath, context)) &&
-          selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
+            selectedMedia
+                .every((m) => validateFileFormat(m.storagePath, context)) &&
+            selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
           var selectedUploadedFiles = <FFUploadedFile>[];
           try {
             selectedUploadedFiles = selectedMedia
                 .map((m) => FFUploadedFile(
-              name: m.storagePath.split('/').last,
-              bytes: m.bytes,
-              height: m.dimensions?.height,
-              width: m.dimensions?.width,
-              blurHash: m.blurHash,
-              originalFilename: m.originalFilename,
-            ))
+                      name: m.storagePath.split('/').last,
+                      bytes: m.bytes,
+                      height: m.dimensions?.height,
+                      width: m.dimensions?.width,
+                      blurHash: m.blurHash,
+                      originalFilename: m.originalFilename,
+                    ))
                 .toList();
           } catch (e) {
             debugPrint('❌ Error: $e');
@@ -1094,8 +1158,7 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
               FFAppState().vehicleBase64 = base64Encode(_vehicleImage!.bytes!);
             }
             FFAppState().update(() {});
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('upload0001'));
+            _showSnackBar(FFLocalizations.of(context).getText('upload0001'));
           }
         }
       },
@@ -1115,51 +1178,51 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
-              child: _vehicleImage?.bytes != null && _vehicleImage!.bytes!.isNotEmpty
+              child: _vehicleImage?.bytes != null &&
+                      _vehicleImage!.bytes!.isNotEmpty
                   ? Image.memory(
-                _vehicleImage!.bytes!,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
+                      _vehicleImage!.bytes!,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                    )
                   : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: AppColors.sectionOrangeLight,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add_photo_alternate,
-                        size: 40,
-                        color: AppColors.primary,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: const BoxDecoration(
+                              color: AppColors.sectionOrangeLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.add_photo_alternate,
+                              size: 40,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            FFLocalizations.of(context).getText('upload0003'),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.greySlate,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            FFLocalizations.of(context).getText('upload0004'),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.greyLight,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      FFLocalizations.of(context).getText('upload0003'),
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.greySlate,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      FFLocalizations.of(context).getText('upload0004'),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.greyLight,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
-
             if (hasImage)
               Positioned(
                 top: 8,
@@ -1174,8 +1237,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     FFAppState().vehicleBase64 = '';
                     FFAppState().update(() {});
                     _showSnackBar(
-                      FFLocalizations.of(context).getText('upload0008'),
-                      isError: true);
+                        FFLocalizations.of(context).getText('upload0008'),
+                        isError: true);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -1190,17 +1253,18 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.close, color: AppColors.white, size: 18),
+                    child: const Icon(Icons.close,
+                        color: AppColors.white, size: 18),
                   ),
                 ),
               ),
-
             if (hasImage && _isVehicleImageValid)
               Positioned(
                 top: 8,
                 left: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -1215,7 +1279,8 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle, color: AppColors.white, size: 16),
+                      const Icon(Icons.check_circle,
+                          color: AppColors.white, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         FFLocalizations.of(context).getText('upload0005'),
@@ -1236,9 +1301,10 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   }
 
   Widget _buildSubmitButton(bool hasImage) {
-    final hasVehicleType = (_selectedVehicleType != null && _selectedVehicleType!.isNotEmpty) ||
-        FFAppState().selectvehicle.isNotEmpty ||
-        FFAppState().vehicleType.isNotEmpty;
+    final hasVehicleType =
+        (_selectedVehicleType != null && _selectedVehicleType!.isNotEmpty) ||
+            FFAppState().selectvehicle.isNotEmpty ||
+            FFAppState().vehicleType.isNotEmpty;
     bool isFormValid = hasVehicleType &&
         _makeController.text.isNotEmpty &&
         _modelController.text.isNotEmpty &&
@@ -1252,21 +1318,21 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       decoration: BoxDecoration(
         gradient: isFormValid
             ? const LinearGradient(
-          colors: [AppColors.primary, AppColors.primary],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        )
+                colors: [AppColors.primary, AppColors.primary],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
             : null,
         color: isFormValid ? null : AppColors.greyBorder,
         borderRadius: BorderRadius.circular(12),
         boxShadow: isFormValid
             ? [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha:0.4),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ]
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ]
             : [],
       ),
       child: Material(
@@ -1275,67 +1341,72 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
           borderRadius: BorderRadius.circular(12),
           onTap: isFormValid
               ? () async {
-            final vType = _selectedVehicleType ?? (FFAppState().selectvehicle.isNotEmpty ? FFAppState().selectvehicle : FFAppState().vehicleType);
-            if (vType.isNotEmpty) {
-              FFAppState().vehicleType = vType;
-              FFAppState().selectvehicle = vType;
-              if (_selectedVehicleTypeId > 0) FFAppState().adminVehicleId = _selectedVehicleTypeId;
-            }
-            FFAppState().vehicleName = _makeController.text;
-            FFAppState().vehicleMake = _makeController.text;
-            FFAppState().vehicleModel = _modelController.text;
-            FFAppState().vehicleColor = _selectedColor ?? '';
-            FFAppState().licensePlate = _licensePlateController.text;
-            FFAppState().registrationNumber = _regNumberController.text;
-            FFAppState().registrationDate = _regDateController.text;
-            FFAppState().insuranceNumber = _insuranceNumberController.text;
-            FFAppState().insuranceExpiryDate = _insuranceExpiryController.text;
-            FFAppState().pollutionExpiryDate = _pollutionExpiryController.text;
-            FFAppState().vehicleImage = _vehicleImage;
-            FFAppState().pollutionImage = _pollutionImage;
-            FFAppState().insuranceImage = _insuranceImage;
+                  final vType = _selectedVehicleType ??
+                      (FFAppState().selectvehicle.isNotEmpty
+                          ? FFAppState().selectvehicle
+                          : FFAppState().vehicleType);
+                  if (vType.isNotEmpty) {
+                    FFAppState().vehicleType = vType;
+                    FFAppState().selectvehicle = vType;
+                    if (_selectedVehicleTypeId > 0)
+                      FFAppState().adminVehicleId = _selectedVehicleTypeId;
+                  }
+                  FFAppState().vehicleName = _makeController.text;
+                  FFAppState().vehicleMake = _makeController.text;
+                  FFAppState().vehicleModel = _modelController.text;
+                  FFAppState().vehicleColor = _selectedColor ?? '';
+                  FFAppState().licensePlate = _licensePlateController.text;
+                  FFAppState().registrationNumber = _regNumberController.text;
+                  FFAppState().registrationDate = _regDateController.text;
+                  FFAppState().insuranceNumber =
+                      _insuranceNumberController.text;
+                  FFAppState().insuranceExpiryDate =
+                      _insuranceExpiryController.text;
+                  FFAppState().pollutionExpiryDate =
+                      _pollutionExpiryController.text;
+                  FFAppState().vehicleImage = _vehicleImage;
+                  FFAppState().pollutionImage = _pollutionImage;
+                  FFAppState().insuranceImage = _insuranceImage;
 
-            if (_vehicleImage?.bytes != null) {
-              FFAppState().vehicleBase64 = base64Encode(_vehicleImage!.bytes!);
-            }
+                  if (_vehicleImage?.bytes != null) {
+                    FFAppState().vehicleBase64 =
+                        base64Encode(_vehicleImage!.bytes!);
+                  }
 
-            FFAppState().update(() {});
+                  FFAppState().update(() {});
 
-            _showSnackBar(
-              FFLocalizations.of(context).getText('veh0024'));
+                  _showSnackBar(FFLocalizations.of(context).getText('veh0024'));
 
-            await Future.delayed(const Duration(milliseconds: 600));
-            context.pop();
-          }
+                  await Future.delayed(const Duration(milliseconds: 600));
+                  context.pop();
+                }
               : () {
-            if (!hasVehicleType) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0025'),
-                  isError: true);
-            } else if (_makeController.text.isEmpty) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0026'),
-                  isError: true);
-            } else if (_modelController.text.isEmpty) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0027'),
-                  isError: true);
-            } else if (!hasImage) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0028'),
-                  isError: true);
-            }
-            else if (_pollutionImage == null) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0029'),
-                  isError: true);
-            }
-            else if (_insuranceImage == null) {
-              _showSnackBar(
-                  FFLocalizations.of(context).getText('veh0030'),
-                  isError: true);
-            }
-          },
+                  if (!hasVehicleType) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0025'),
+                        isError: true);
+                  } else if (_makeController.text.isEmpty) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0026'),
+                        isError: true);
+                  } else if (_modelController.text.isEmpty) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0027'),
+                        isError: true);
+                  } else if (!hasImage) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0028'),
+                        isError: true);
+                  } else if (_pollutionImage == null) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0029'),
+                        isError: true);
+                  } else if (_insuranceImage == null) {
+                    _showSnackBar(
+                        FFLocalizations.of(context).getText('veh0030'),
+                        isError: true);
+                  }
+                },
           child: Center(
             child: Text(
               FFLocalizations.of(context).getText('veh0023'),

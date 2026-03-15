@@ -83,7 +83,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         'RC Front (bytes): ${FFAppState().registrationImage?.bytes?.length ?? 0}');
     debugPrint('RC Front URL: ${FFAppState().rcFrontImageUrl}');
     debugPrint('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
-    debugPrint('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
+    debugPrint(
+        'RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
     debugPrint('RC Back URL: ${FFAppState().rcBackImageUrl}');
     debugPrint('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
     debugPrint('Registration Number: ${FFAppState().registrationNumber}');
@@ -180,9 +181,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
       await file.writeAsBytes(image.bytes!);
 
       final inputImage = InputImage.fromFile(file);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+      final textRecognizer =
+          TextRecognizer(script: TextRecognitionScript.latin);
       final RecognizedText recognizedText =
-
           await textRecognizer.processImage(inputImage);
 
       debugPrint('📝 OCR Text Extracted:');
@@ -200,13 +201,12 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         FFAppState().update(() {});
 
         _showSnackBar(FFLocalizations.of(context)
-          .getText('rc0009')
-          .replaceAll('%1', regNumber));
+            .getText('rc0009')
+            .replaceAll('%1', regNumber));
         debugPrint('✅ Registration Number extracted: $regNumber');
       } else {
-        _showSnackBar(
-          FFLocalizations.of(context).getText('rc0010'),
-          isError: true);
+        _showSnackBar(FFLocalizations.of(context).getText('rc0010'),
+            isError: true);
         debugPrint('❌ No valid registration number found in text');
       }
 
@@ -214,7 +214,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
       await file.delete();
     } catch (e) {
       debugPrint('❌ OCR Error: $e');
-        _showSnackBar(FFLocalizations.of(context).getText('rc0011'),
+      _showSnackBar(FFLocalizations.of(context).getText('rc0011'),
           isError: true);
     } finally {
       setState(() => _isProcessingOCR = false);
@@ -276,7 +276,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
               color: Colors.white,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(fontSize: 14))),
+            Expanded(
+                child: Text(message, style: const TextStyle(fontSize: 14))),
           ],
         ),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
@@ -308,7 +309,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -345,7 +346,10 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
               height: 180.0,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
+                  colors: [
+                    AppColors.backgroundLight,
+                    AppColors.backgroundMuted
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -353,7 +357,9 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
+                      : (hasImage
+                          ? AppColors.registrationOrange
+                          : Colors.grey[300]!),
                   width: 2,
                 ),
               ),
@@ -399,26 +405,27 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color:
-                                            AppColors.registrationOrange.withValues(alpha:0.1),
+                                        color: AppColors.registrationOrange
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.add_a_photo,
-                                          size: 40, color: AppColors.registrationOrange),
+                                          size: 40,
+                                          color: AppColors.registrationOrange),
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
                                       FFLocalizations.of(context)
-                                        .getText('doc0009')
-                                        .replaceAll('%1', title),
+                                          .getText('doc0009')
+                                          .replaceAll('%1', title),
                                       style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      FFLocalizations.of(context)
-                                        .getText('upload0004'),
+                                        FFLocalizations.of(context)
+                                            .getText('upload0004'),
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600])),
@@ -431,18 +438,18 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                   if (_isProcessingOCR && showOCROverlay)
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha:0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircularProgressIndicator(color: AppColors.registrationOrange),
+                            const CircularProgressIndicator(
+                                color: AppColors.registrationOrange),
                             const SizedBox(height: 16),
                             Text(
-                              FFLocalizations.of(context)
-                                  .getText('rc0008'),
+                              FFLocalizations.of(context).getText('rc0008'),
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -473,14 +480,14 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha:0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          child:
-                              const Icon(Icons.close, color: Colors.white, size: 18),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -501,7 +508,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                        isValid
+                      isValid
                           ? FFLocalizations.of(context).getText('doc0007')
                           : FFLocalizations.of(context).getText('doc0008'),
                       style: TextStyle(
@@ -540,8 +547,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 30.0,
             buttonSize: 60.0,
-            icon:
-                const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30.0),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 30.0),
             onPressed: () => context.pop(),
           ),
           title: Row(
@@ -579,24 +586,28 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha:0.1),
-                              AppColors.accentCoral.withValues(alpha:0.05)
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
+                              AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.description,
-                                  color: AppColors.registrationOrange, size: 32),
+                                  color: AppColors.registrationOrange,
+                                  size: 32),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -615,7 +626,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     FFLocalizations.of(context)
                                         .getText('aad0002'),
                                     style: const TextStyle(
-                                        fontSize: 13, color: AppColors.greyMedium),
+                                        fontSize: 13,
+                                        color: AppColors.greyMedium),
                                   ),
                                 ],
                               ),
@@ -629,8 +641,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                       // Front Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0001'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('rc0003'),
+                        subtitle: FFLocalizations.of(context).getText('rc0003'),
                         icon: Icons.credit_card,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
@@ -645,8 +656,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -677,7 +688,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     base64Encode(_frontImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('doc0003'));
 
                               // 🔥 AUTO-EXTRACT REGISTRATION NUMBER
@@ -696,7 +707,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           FFAppState().rcFrontImageUrl = '';
                           FFAppState().rcFrontBase64 = '';
                           FFAppState().update(() {});
-                            _showSnackBar(
+                          _showSnackBar(
                               FFLocalizations.of(context).getText('doc0005'),
                               isError: true);
                         },
@@ -707,8 +718,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                       // Back Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0002'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('rc0004'),
+                        subtitle: FFLocalizations.of(context).getText('rc0004'),
                         icon: Icons.contact_page,
                         image: _backImage,
                         imageUrl: _backImageUrl,
@@ -722,8 +732,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -752,7 +762,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                     base64Encode(_backImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('doc0004'));
                             }
                           }
@@ -767,7 +777,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           FFAppState().rcBackImageUrl = '';
                           FFAppState().rcBackBase64 = '';
                           FFAppState().update(() {});
-                            _showSnackBar(
+                          _showSnackBar(
                               FFLocalizations.of(context).getText('doc0006'),
                               isError: true);
                         },
@@ -782,7 +792,7 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -795,11 +805,12 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             Row(
                               children: [
                                 const Icon(Icons.confirmation_number,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  FFLocalizations.of(context)
-                                    .getText('rc0005'),
+                                    FFLocalizations.of(context)
+                                        .getText('rc0005'),
                                     style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
@@ -811,20 +822,21 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha:0.1),
+                                        color:
+                                            Colors.green.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: Colors.green, width: 1),
                                       ),
-                                        child: Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           const Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
                                           const SizedBox(width: 4),
                                           Text(
-                                            FFLocalizations.of(context)
-                                              .getText('dl0007'),
+                                              FFLocalizations.of(context)
+                                                  .getText('dl0007'),
                                               style: const TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
@@ -869,11 +881,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: _validateRegistrationNumber,
@@ -899,10 +913,10 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                                 Expanded(
                                   child: Text(
                                     _registrationNumberController.text.isEmpty
-                                      ? FFLocalizations.of(context)
-                                        .getText('rc0007')
-                                      : FFLocalizations.of(context)
-                                        .getText('rc0015'),
+                                        ? FFLocalizations.of(context)
+                                            .getText('rc0007')
+                                        : FFLocalizations.of(context)
+                                            .getText('rc0015'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: _registrationNumberController
@@ -927,7 +941,8 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -935,11 +950,12 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             Row(
                               children: [
                                 const Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
-                              Text(
-                                FFLocalizations.of(context)
-                                  .getText('guide0001'),
+                                Text(
+                                    FFLocalizations.of(context)
+                                        .getText('guide0001'),
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
@@ -947,17 +963,17 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             ),
                             const SizedBox(height: 12),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('dl0013')),
+                                FFLocalizations.of(context).getText('dl0013')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('rc0016')),
+                                FFLocalizations.of(context).getText('rc0016')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('rc0017')),
+                                FFLocalizations.of(context).getText('rc0017')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0003')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0003')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('rc0018')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0004')),
+                                FFLocalizations.of(context).getText('rc0018')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0004')),
                           ],
                         ),
                       ),
@@ -977,15 +993,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
 
                             if (!hasFrontImage) {
                               _showSnackBar(
-                                  FFLocalizations.of(context)
-                                      .getText('rc0019'),
+                                  FFLocalizations.of(context).getText('rc0019'),
                                   isError: true);
                               return;
                             }
                             if (!hasBackImage) {
                               _showSnackBar(
-                                  FFLocalizations.of(context)
-                                      .getText('rc0020'),
+                                  FFLocalizations.of(context).getText('rc0020'),
                                   isError: true);
                               return;
                             }
@@ -1014,10 +1028,11 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
                             FFAppState().update(() {});
 
                             debugPrint('✅ RC data saved');
-                            _showSnackBar(FFLocalizations.of(context)
-                              .getText('rc0021'));
+                            _showSnackBar(
+                                FFLocalizations.of(context).getText('rc0021'));
 
-                            await Future.delayed(const Duration(milliseconds: 500));
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
@@ -1053,11 +1068,13 @@ class _RegistrationImageWidgetState extends State<RegistrationImageWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
               child: Text(text,
-                  style: const TextStyle(fontSize: 13, color: AppColors.greyMedium))),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.greyMedium))),
         ],
       ),
     );
@@ -1072,7 +1089,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1096,7 +1113,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);

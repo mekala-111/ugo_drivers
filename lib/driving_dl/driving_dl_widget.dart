@@ -76,8 +76,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
           _licenseNumberController.text.trim().toUpperCase();
     });
     _licenseExpiryController.addListener(() {
-      FFAppState().licenseExpiryDate =
-          _licenseExpiryController.text.trim();
+      FFAppState().licenseExpiryDate = _licenseExpiryController.text.trim();
     });
   }
 
@@ -213,12 +212,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
         FFAppState().update(() {});
 
         _showSnackBar(FFLocalizations.of(context)
-          .getText('dl0023')
-          .replaceAll('%1', dlNumber));
+            .getText('dl0023')
+            .replaceAll('%1', dlNumber));
         debugPrint('✅ DL Number extracted: $dlNumber');
       } else {
         _showSnackBar(FFLocalizations.of(context).getText('dl0024'),
-          isError: true);
+            isError: true);
         debugPrint('❌ No valid DL number found in text');
       }
 
@@ -227,7 +226,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       await file.delete();
     } catch (e) {
       debugPrint('❌ OCR Error: $e');
-        _showSnackBar(FFLocalizations.of(context).getText('dl0025'),
+      _showSnackBar(FFLocalizations.of(context).getText('dl0025'),
           isError: true);
     } finally {
       setState(() => _isProcessingOCR = false);
@@ -309,7 +308,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
               color: Colors.white,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(fontSize: 14))),
+            Expanded(
+                child: Text(message, style: const TextStyle(fontSize: 14))),
           ],
         ),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
@@ -361,8 +361,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                   children: [
                     Text(
                       title,
-                      style:
-                          const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     Text(subtitle,
                         style:
@@ -380,7 +380,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
               height: 180.0,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
+                  colors: [
+                    AppColors.backgroundLight,
+                    AppColors.backgroundMuted
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -388,7 +391,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
+                      : (hasImage
+                          ? AppColors.registrationOrange
+                          : Colors.grey[300]!),
                   width: 2,
                 ),
               ),
@@ -438,21 +443,22 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(Icons.add_a_photo,
-                                        size: 40, color: AppColors.registrationOrange),
+                                        size: 40,
+                                        color: AppColors.registrationOrange),
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     FFLocalizations.of(context)
-                                      .getText('doc0009')
-                                      .replaceAll('%1', title),
+                                        .getText('doc0009')
+                                        .replaceAll('%1', title),
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 4),
-                                    Text(
+                                  Text(
                                       FFLocalizations.of(context)
-                                        .getText('upload0004'),
+                                          .getText('upload0004'),
                                       style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600])),
@@ -471,7 +477,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircularProgressIndicator(color: AppColors.registrationOrange),
+                            const CircularProgressIndicator(
+                                color: AppColors.registrationOrange),
                             const SizedBox(height: 16),
                             Text(
                               FFLocalizations.of(context).getText('dl0026'),
@@ -511,8 +518,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               ),
                             ],
                           ),
-                          child:
-                              const Icon(Icons.close, color: Colors.white, size: 18),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -572,8 +579,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 20.0,
             buttonSize: 40.0,
-            icon:
-                const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 24.0),
             onPressed: () => context.pop(),
           ),
           title: const Row(
@@ -613,24 +620,28 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha: 0.1),
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
                               AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha: 0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha: 0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.card_membership,
-                                  color: AppColors.registrationOrange, size: 32),
+                                  color: AppColors.registrationOrange,
+                                  size: 32),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -684,8 +695,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                FFLocalizations.of(context)
-                                    .getText('dl0003'),
+                                FFLocalizations.of(context).getText('dl0003'),
                                 style: TextStyle(
                                     fontSize: 13, color: Colors.blue[900]),
                               ),
@@ -699,8 +709,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                       // Front Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0001'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('dl0004'),
+                        subtitle: FFLocalizations.of(context).getText('dl0004'),
                         icon: Icons.badge,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
@@ -715,8 +724,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -747,7 +756,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                     base64Encode(_frontImage!.bytes!);
                               }
                               FFAppState().update(() {});
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('doc0003'));
 
                               // 🔥 AUTO-EXTRACT DL NUMBER
@@ -776,8 +785,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                       // Back Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0002'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('dl0005'),
+                        subtitle: FFLocalizations.of(context).getText('dl0005'),
                         icon: Icons.contact_mail,
                         image: _backImage,
                         imageUrl: _backImageUrl,
@@ -792,8 +800,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -865,11 +873,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             Row(
                               children: [
                                 const Icon(Icons.badge,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  FFLocalizations.of(context)
-                                    .getText('dl0006'),
+                                    FFLocalizations.of(context)
+                                        .getText('dl0006'),
                                     style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
@@ -892,9 +901,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                           const Icon(Icons.check_circle,
                                               size: 12, color: Colors.green),
                                           const SizedBox(width: 4),
-                                            Text(
+                                          Text(
                                               FFLocalizations.of(context)
-                                                .getText('dl0007'),
+                                                  .getText('dl0007'),
                                               style: const TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.green,
@@ -940,11 +949,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: _validateLicenseNumber,
@@ -969,10 +980,10 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 Expanded(
                                   child: Text(
                                     _licenseNumberController.text.isEmpty
-                                      ? FFLocalizations.of(context)
-                                        .getText('dl0009')
-                                      : FFLocalizations.of(context)
-                                        .getText('dl0010'),
+                                        ? FFLocalizations.of(context)
+                                            .getText('dl0009')
+                                        : FFLocalizations.of(context)
+                                            .getText('dl0010'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color:
@@ -1018,7 +1029,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.calendar_today,
                                     color: AppColors.registrationOrange),
-                                suffixIcon: const Icon(Icons.calendar_month, color: Colors.grey),
+                                suffixIcon: const Icon(Icons.calendar_month,
+                                    color: Colors.grey),
                                 filled: true,
                                 fillColor: AppColors.backgroundLight,
                                 border: OutlineInputBorder(
@@ -1034,11 +1046,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: (v) => v != null && v.isNotEmpty
@@ -1064,7 +1078,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha: 0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1072,11 +1087,12 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             Row(
                               children: [
                                 const Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
-                              Text(
-                                FFLocalizations.of(context)
-                                  .getText('guide0001'),
+                                Text(
+                                    FFLocalizations.of(context)
+                                        .getText('guide0001'),
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
@@ -1084,17 +1100,17 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                             ),
                             const SizedBox(height: 12),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('dl0013')),
+                                FFLocalizations.of(context).getText('dl0013')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0002')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0002')),
+                                FFLocalizations.of(context).getText('dl0014')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0003')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('dl0014')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0003')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('dl0015')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0004')),
+                                FFLocalizations.of(context).getText('dl0015')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0004')),
                           ],
                         ),
                       ),
@@ -1103,115 +1119,121 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
                       // Submit Button
                       FFButtonWidget(
-                        onPressed: _isSubmitting ? null : () async {
-                          if (!_formKey.currentState!.validate()) return;
+                        onPressed: _isSubmitting
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
 
-                          // 1. Verify driving license is uploaded (front + back + number)
-                          final hasFront = (_frontImage?.bytes != null &&
-                                  _frontImage!.bytes!.isNotEmpty) ||
-                              (_frontImageUrl != null &&
-                                  _frontImageUrl!.isNotEmpty);
-                          final hasBack = (_backImage?.bytes != null &&
-                                  _backImage!.bytes!.isNotEmpty) ||
-                              (_backImageUrl != null &&
-                                  _backImageUrl!.isNotEmpty);
+                                // 1. Verify driving license is uploaded (front + back + number)
+                                final hasFront = (_frontImage?.bytes != null &&
+                                        _frontImage!.bytes!.isNotEmpty) ||
+                                    (_frontImageUrl != null &&
+                                        _frontImageUrl!.isNotEmpty);
+                                final hasBack = (_backImage?.bytes != null &&
+                                        _backImage!.bytes!.isNotEmpty) ||
+                                    (_backImageUrl != null &&
+                                        _backImageUrl!.isNotEmpty);
 
-                          if (!hasFront) {
-                            _showSnackBar(
-                                FFLocalizations.of(context).getText('dl0016'),
-                                isError: true);
-                            return;
-                          }
-                          if (!hasBack) {
-                            _showSnackBar(
-                                FFLocalizations.of(context).getText('dl0017'),
-                                isError: true);
-                            return;
-                          }
+                                if (!hasFront) {
+                                  _showSnackBar(
+                                      FFLocalizations.of(context)
+                                          .getText('dl0016'),
+                                      isError: true);
+                                  return;
+                                }
+                                if (!hasBack) {
+                                  _showSnackBar(
+                                      FFLocalizations.of(context)
+                                          .getText('dl0017'),
+                                      isError: true);
+                                  return;
+                                }
 
-                          // Validate license number and expiry
-                          final licenseErr =
-                              InputValidators.licenseError(
-                                  _licenseNumberController.text.trim());
-                          if (licenseErr != null) {
-                            _showSnackBar(licenseErr, isError: true);
-                            return;
-                          }
-                          final expiryErr = _licenseExpiryController.text
-                                  .trim()
-                                  .isNotEmpty
-                              ? InputValidators.licenseExpiryError(
-                                  _licenseExpiryController.text.trim())
-                              : null;
-                          if (expiryErr != null) {
-                            _showSnackBar(expiryErr, isError: true);
-                            return;
-                          }
+                                // Validate license number and expiry
+                                final licenseErr = InputValidators.licenseError(
+                                    _licenseNumberController.text.trim());
+                                if (licenseErr != null) {
+                                  _showSnackBar(licenseErr, isError: true);
+                                  return;
+                                }
+                                final expiryErr = _licenseExpiryController.text
+                                        .trim()
+                                        .isNotEmpty
+                                    ? InputValidators.licenseExpiryError(
+                                        _licenseExpiryController.text.trim())
+                                    : null;
+                                if (expiryErr != null) {
+                                  _showSnackBar(expiryErr, isError: true);
+                                  return;
+                                }
 
-                          setState(() => _isSubmitting = true);
+                                setState(() => _isSubmitting = true);
 
-                          // 2. Save to FFAppState
-                          FFAppState().imageLicense = _frontImage;
-                          FFAppState().licenseFrontImage = _frontImage;
-                          FFAppState().licenseBackImage = _backImage;
-                          FFAppState().licenseNumber =
-                              _licenseNumberController.text.trim().toUpperCase();
-                          FFAppState().licenseExpiryDate =
-                              _licenseExpiryController.text.trim();
-                          if (_frontImage?.bytes != null) {
-                            FFAppState().licenseFrontBase64 =
-                                base64Encode(_frontImage!.bytes!);
-                          }
-                          if (_backImage?.bytes != null) {
-                            FFAppState().licenseBackBase64 =
-                                base64Encode(_backImage!.bytes!);
-                          }
-                          FFAppState().update(() {});
+                                // 2. Save to FFAppState
+                                FFAppState().imageLicense = _frontImage;
+                                FFAppState().licenseFrontImage = _frontImage;
+                                FFAppState().licenseBackImage = _backImage;
+                                FFAppState().licenseNumber =
+                                    _licenseNumberController.text
+                                        .trim()
+                                        .toUpperCase();
+                                FFAppState().licenseExpiryDate =
+                                    _licenseExpiryController.text.trim();
+                                if (_frontImage?.bytes != null) {
+                                  FFAppState().licenseFrontBase64 =
+                                      base64Encode(_frontImage!.bytes!);
+                                }
+                                if (_backImage?.bytes != null) {
+                                  FFAppState().licenseBackBase64 =
+                                      base64Encode(_backImage!.bytes!);
+                                }
+                                FFAppState().update(() {});
 
-                          // 3. Send to backend if user is logged in
-                          final driverId = FFAppState().driverid;
-                          final token = FFAppState().accessToken;
-                          if (driverId > 0 && token.isNotEmpty) {
-                            try {
-                              final res = await UpdateDriverCall.call(
-                                id: driverId,
-                                token: token,
-                                licenseimage: _frontImage,
-                                licenseFrontImage: _frontImage,
-                                licenseBackImage: _backImage,
-                              );
-                              if (!mounted) return;
-                              if (res.succeeded) {
-                                _showSnackBar(FFLocalizations.of(context)
-                                    .getText('dl0018'));
-                                await Future.delayed(
-                                    const Duration(milliseconds: 500));
-                                context.pop();
-                              } else {
-                                _showSnackBar(
-                                    FFLocalizations.of(context)
-                                        .getText('dl0019'),
-                                    isError: true);
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                _showSnackBar(
-                                    FFLocalizations.of(context)
-                                        .getText('dl0020'),
-                                    isError: true);
-                              }
-                            } finally {
-                              if (mounted) setState(() => _isSubmitting = false);
-                            }
-                          } else {
-                            setState(() => _isSubmitting = false);
-                            _showSnackBar(FFLocalizations.of(context)
-                                .getText('dl0021'));
-                            await Future.delayed(
-                                const Duration(milliseconds: 500));
-                            if (mounted) context.pop();
-                          }
-                        },
+                                // 3. Send to backend if user is logged in
+                                final driverId = FFAppState().driverid;
+                                final token = FFAppState().accessToken;
+                                if (driverId > 0 && token.isNotEmpty) {
+                                  try {
+                                    final res = await UpdateDriverCall.call(
+                                      id: driverId,
+                                      token: token,
+                                      licenseimage: _frontImage,
+                                      licenseFrontImage: _frontImage,
+                                      licenseBackImage: _backImage,
+                                    );
+                                    if (!mounted) return;
+                                    if (res.succeeded) {
+                                      _showSnackBar(FFLocalizations.of(context)
+                                          .getText('dl0018'));
+                                      await Future.delayed(
+                                          const Duration(milliseconds: 500));
+                                      context.pop();
+                                    } else {
+                                      _showSnackBar(
+                                          FFLocalizations.of(context)
+                                              .getText('dl0019'),
+                                          isError: true);
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      _showSnackBar(
+                                          FFLocalizations.of(context)
+                                              .getText('dl0020'),
+                                          isError: true);
+                                    }
+                                  } finally {
+                                    if (mounted)
+                                      setState(() => _isSubmitting = false);
+                                  }
+                                } else {
+                                  setState(() => _isSubmitting = false);
+                                  _showSnackBar(FFLocalizations.of(context)
+                                      .getText('dl0021'));
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 500));
+                                  if (mounted) context.pop();
+                                }
+                              },
                         text: _isSubmitting
                             ? FFLocalizations.of(context).getText('dl0022')
                             : FFLocalizations.of(context).getText('drv_submit'),
@@ -1246,11 +1268,13 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
               child: Text(text,
-                  style: const TextStyle(fontSize: 13, color: AppColors.greyMedium))),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.greyMedium))),
         ],
       ),
     );

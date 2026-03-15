@@ -60,8 +60,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
     );
 
     _aadhaarController.addListener(() {
-      FFAppState().aadharNumber =
-          _aadhaarController.text.replaceAll(' ', '');
+      FFAppState().aadharNumber = _aadhaarController.text.replaceAll(' ', '');
     });
 
     // Defer loading data and animations until after initState and first frame
@@ -117,7 +116,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
         _frontImageUrl = FFAppState().aadharFrontImageUrl;
         _isFrontValid = true;
       });
-      debugPrint('✅ Front image URL loaded: ${FFAppState().aadharFrontImageUrl}');
+      debugPrint(
+          '✅ Front image URL loaded: ${FFAppState().aadharFrontImageUrl}');
     } else if (FFAppState().aadharImage?.bytes != null &&
         FFAppState().aadharImage!.bytes!.isNotEmpty) {
       setState(() {
@@ -299,7 +299,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -342,7 +342,10 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
               height: 180.0,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
+                  colors: [
+                    AppColors.backgroundLight,
+                    AppColors.backgroundMuted
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -350,7 +353,9 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
+                      : (hasImage
+                          ? AppColors.registrationOrange
+                          : Colors.grey[300]!),
                   width: 2,
                   style: BorderStyle.solid,
                 ),
@@ -400,7 +405,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                       Text(
                                         FFLocalizations.of(context)
                                             .getText('upload0006'),
-                                        style: const TextStyle(color: Colors.red),
+                                        style:
+                                            const TextStyle(color: Colors.red),
                                       ),
                                     ],
                                   );
@@ -413,8 +419,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color:
-                                            AppColors.registrationOrange.withValues(alpha:0.1),
+                                        color: AppColors.registrationOrange
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -463,8 +469,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                       top: 8,
                       right: 8,
                       child: Tooltip(
-                        message: FFLocalizations.of(context)
-                            .getText('upload0007'),
+                        message:
+                            FFLocalizations.of(context).getText('upload0007'),
                         child: GestureDetector(
                           onTap: onRemove,
                           child: Container(
@@ -474,7 +480,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -595,15 +601,17 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha:0.1),
-                              AppColors.accentCoral.withValues(alpha:0.05)
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
+                              AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.registrationOrange.withValues(alpha:0.3),
+                            color: AppColors.registrationOrange
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -611,7 +619,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -655,8 +664,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                       // Front Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0001'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('aad0003'),
+                        subtitle:
+                            FFLocalizations.of(context).getText('aad0003'),
                         icon: Icons.credit_card,
                         image: _frontImage,
                         imageUrl: _frontImageUrl,
@@ -670,8 +679,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -709,9 +718,10 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               FFAppState().update(() {});
 
                               debugPrint('✅ Front image saved to FFAppState');
-                              debugPrint('   Bytes: ${_frontImage?.bytes?.length}');
+                              debugPrint(
+                                  '   Bytes: ${_frontImage?.bytes?.length}');
 
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('doc0003'));
                             }
                           }
@@ -731,7 +741,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                           debugPrint('❌ Front image removed from FFAppState');
 
-                            _showSnackBar(
+                          _showSnackBar(
                               FFLocalizations.of(context).getText('doc0005'),
                               isError: true);
                         },
@@ -742,8 +752,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                       // Back Side
                       _buildImageCard(
                         title: FFLocalizations.of(context).getText('doc0002'),
-                        subtitle: FFLocalizations.of(context)
-                          .getText('aad0004'),
+                        subtitle:
+                            FFLocalizations.of(context).getText('aad0004'),
                         icon: Icons.contact_mail,
                         image: _backImage,
                         imageUrl: _backImageUrl,
@@ -757,8 +767,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -796,9 +806,10 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                               FFAppState().update(() {});
 
                               debugPrint('✅ Back image saved to FFAppState');
-                              debugPrint('   Bytes: ${_backImage?.bytes?.length}');
+                              debugPrint(
+                                  '   Bytes: ${_backImage?.bytes?.length}');
 
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('doc0004'));
                             }
                           }
@@ -818,7 +829,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
 
                           debugPrint('❌ Back image removed from FFAppState');
 
-                            _showSnackBar(
+                          _showSnackBar(
                               FFLocalizations.of(context).getText('doc0006'),
                               isError: true);
                         },
@@ -833,7 +844,7 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -869,7 +880,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha:0.1),
+                                        color:
+                                            Colors.green.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: Colors.green,
@@ -936,16 +948,18 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide:
-                                      const BorderSide(color: Colors.red, width: 2),
+                                  borderSide: const BorderSide(
+                                      color: Colors.red, width: 2),
                                 ),
                               ),
                               validator: _validateAadhaar,
@@ -973,10 +987,10 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                                 Expanded(
                                   child: Text(
                                     _aadhaarController.text.isEmpty
-                                      ? FFLocalizations.of(context)
-                                        .getText('aad0007')
-                                      : FFLocalizations.of(context)
-                                        .getText('aad0008'),
+                                        ? FFLocalizations.of(context)
+                                            .getText('aad0007')
+                                        : FFLocalizations.of(context)
+                                            .getText('aad0008'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: _aadhaarController.text.isEmpty
@@ -1000,7 +1014,8 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1008,11 +1023,12 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             Row(
                               children: [
                                 const Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                FFLocalizations.of(context)
-                                  .getText('guide0001'),
+                                  FFLocalizations.of(context)
+                                      .getText('guide0001'),
                                   style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600),
@@ -1021,17 +1037,17 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             ),
                             const SizedBox(height: 12),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('dl0013')),
+                                FFLocalizations.of(context).getText('dl0013')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0002')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0003')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0002')),
+                                FFLocalizations.of(context).getText('aad0009')),
                             _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0003')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('aad0009')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('aad0010')),
-                            _buildGuideline(
-                              FFLocalizations.of(context).getText('guide0004')),
+                                FFLocalizations.of(context).getText('aad0010')),
+                            _buildGuideline(FFLocalizations.of(context)
+                                .getText('guide0004')),
                           ],
                         ),
                       ),
@@ -1101,21 +1117,25 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
                             debugPrint('✅ All data saved to FFAppState:');
                             debugPrint(
                                 '   Front: ${_frontImage?.bytes?.length ?? 0} bytes');
-                            debugPrint('   Front URL: ${_frontImageUrl ?? "None"}');
+                            debugPrint(
+                                '   Front URL: ${_frontImageUrl ?? "None"}');
                             debugPrint(
                                 '   Front Base64: ${FFAppState().aadharFrontBase64.length} chars');
                             debugPrint(
                                 '   Back: ${_backImage?.bytes?.length ?? 0} bytes');
-                            debugPrint('   Back URL: ${_backImageUrl ?? "None"}');
+                            debugPrint(
+                                '   Back URL: ${_backImageUrl ?? "None"}');
                             debugPrint(
                                 '   Back Base64: ${FFAppState().aadharBackBase64.length} chars');
-                            debugPrint('   Number: ${FFAppState().aadharNumber}');
+                            debugPrint(
+                                '   Number: ${FFAppState().aadharNumber}');
 
-                            _showSnackBar(FFLocalizations.of(context)
-                              .getText('aad0013'));
+                            _showSnackBar(
+                                FFLocalizations.of(context).getText('aad0013'));
 
                             // Navigate back to previous page
-                            await Future.delayed(const Duration(milliseconds: 500));
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
@@ -1151,11 +1171,13 @@ class _AdharUploadWidgetState extends State<AdharUploadWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 13, color: AppColors.greyMedium)),
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.greyMedium)),
           ),
         ],
       ),
@@ -1197,7 +1219,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Draw outer serrated circle (stamp edges)
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1227,7 +1249,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Fill background
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 
@@ -1284,7 +1306,7 @@ class VerifiedStampPainter extends CustomPainter {
 
     // Draw ribbon shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha:0.2)
+      ..color = Colors.black.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(

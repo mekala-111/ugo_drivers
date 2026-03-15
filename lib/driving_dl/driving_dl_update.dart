@@ -431,7 +431,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                   },
                                 )
                               : Center(
-                                child: Column(
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Container(
@@ -443,7 +443,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                         ),
                                         child: const Icon(Icons.add_a_photo,
                                             size: 40,
-                                            color: AppColors.registrationOrange),
+                                            color:
+                                                AppColors.registrationOrange),
                                       ),
                                       const SizedBox(height: 12),
                                       Text(
@@ -459,7 +460,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                               color: Colors.grey[600])),
                                     ],
                                   ),
-                              ),
+                                ),
                     ),
 
                     // OCR Processing Overlay
@@ -716,8 +717,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -788,8 +789,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -1006,7 +1007,8 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 prefixIcon: const Icon(Icons.calendar_today,
                                     color: AppColors.registrationOrange),
-                                suffixIcon: const Icon(Icons.calendar_month, color: Colors.grey),
+                                suffixIcon: const Icon(Icons.calendar_month,
+                                    color: Colors.grey),
                                 filled: true,
                                 fillColor: AppColors.backgroundLight,
                                 border: OutlineInputBorder(

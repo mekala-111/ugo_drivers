@@ -20,10 +20,12 @@ class PanuploadScreenUpdateWidget extends StatefulWidget {
   static String routePath = '/panuploadScreenUpdate';
 
   @override
-  State<PanuploadScreenUpdateWidget> createState() => _PanuploadScreenUpdateWidgetState();
+  State<PanuploadScreenUpdateWidget> createState() =>
+      _PanuploadScreenUpdateWidgetState();
 }
 
-class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidget>
+class _PanuploadScreenUpdateWidgetState
+    extends State<PanuploadScreenUpdateWidget>
     with SingleTickerProviderStateMixin {
   late PanuploadScreenModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -69,7 +71,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
     debugPrint('\n═══════════════════════════════════════');
     debugPrint('📊 PAN FFAppState Debug Info:');
     debugPrint('═══════════════════════════════════════');
-    debugPrint('PAN Image (bytes): ${FFAppState().panImage?.bytes?.length ?? 0}');
+    debugPrint(
+        'PAN Image (bytes): ${FFAppState().panImage?.bytes?.length ?? 0}');
     debugPrint('PAN Image URL: ${FFAppState().panImageUrl}');
     debugPrint('PAN Base64: ${FFAppState().panBase64.length} chars');
     debugPrint('PAN Number: ${FFAppState().panNumber}');
@@ -219,7 +222,7 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -262,7 +265,10 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
               height: 200.0,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
+                  colors: [
+                    AppColors.backgroundLight,
+                    AppColors.backgroundMuted
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -270,7 +276,9 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
+                      : (hasImage
+                          ? AppColors.registrationOrange
+                          : Colors.grey[300]!),
                   width: 2,
                   style: BorderStyle.solid,
                 ),
@@ -330,8 +338,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color:
-                                            AppColors.registrationOrange.withValues(alpha:0.1),
+                                        color: AppColors.registrationOrange
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -387,7 +395,7 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -506,15 +514,17 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha:0.1),
-                              AppColors.accentCoral.withValues(alpha:0.05)
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
+                              AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.registrationOrange.withValues(alpha:0.3),
+                            color: AppColors.registrationOrange
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -522,7 +532,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -578,8 +589,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -619,7 +630,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                               FFAppState().update(() {});
 
                               debugPrint('✅ PAN image saved to FFAppState');
-                              debugPrint('   Bytes: ${_panImage?.bytes?.length}');
+                              debugPrint(
+                                  '   Bytes: ${_panImage?.bytes?.length}');
 
                               _showSnackBar('PAN card uploaded!');
                             }
@@ -655,7 +667,7 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -690,7 +702,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha:0.1),
+                                        color:
+                                            Colors.green.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: Colors.green,
@@ -756,16 +769,18 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                                 focusedErrorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide:
-                                      const BorderSide(color: Colors.red, width: 2),
+                                  borderSide: const BorderSide(
+                                      color: Colors.red, width: 2),
                                 ),
                               ),
                               validator: _validatePan,
@@ -818,7 +833,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -826,7 +842,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                             const Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   'Important Guidelines',
@@ -897,7 +914,8 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
                             _showSnackBar('PAN verification completed!');
 
                             // Navigate back
-                            await Future.delayed(const Duration(milliseconds: 500));
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
@@ -933,11 +951,13 @@ class _PanuploadScreenUpdateWidgetState extends State<PanuploadScreenUpdateWidge
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 13, color: AppColors.greyMedium)),
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.greyMedium)),
           ),
         ],
       ),
@@ -968,7 +988,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -992,7 +1012,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);
@@ -1017,7 +1037,7 @@ class VerifiedStampPainter extends CustomPainter {
     final bannerLeft = center.dx - bannerWidth / 2;
 
     final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha:0.2)
+      ..color = Colors.black.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(

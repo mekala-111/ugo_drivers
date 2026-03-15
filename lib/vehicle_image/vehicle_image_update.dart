@@ -126,12 +126,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
       FFAppState().insuranceNumber = _insuranceNumberController.text.trim();
     });
     _insuranceExpiryController.addListener(() {
-      FFAppState().insuranceExpiryDate =
-          _insuranceExpiryController.text.trim();
+      FFAppState().insuranceExpiryDate = _insuranceExpiryController.text.trim();
     });
     _pollutionExpiryController.addListener(() {
-      FFAppState().pollutionExpiryDate =
-          _pollutionExpiryController.text.trim();
+      FFAppState().pollutionExpiryDate = _pollutionExpiryController.text.trim();
     });
     _vehicleNameController.addListener(() {
       FFAppState().vehicleName = _vehicleNameController.text.trim();
@@ -460,10 +458,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         Container(
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha:0.15),
+                            color: AppColors.primary.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.primary.withValues(alpha:0.4),
+                                color: AppColors.primary.withValues(alpha: 0.4),
                                 width: 2),
                           ),
                           child: const Icon(Icons.camera_alt_rounded,
@@ -497,7 +495,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      AppColors.black.withValues(alpha:0.6)
+                      AppColors.black.withValues(alpha: 0.6)
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -509,11 +507,12 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     padding: const EdgeInsets.all(12),
                     child: Row(children: [
                       Icon(Icons.edit_rounded,
-                          color: AppColors.white.withValues(alpha:0.9), size: 16),
+                          color: AppColors.white.withValues(alpha: 0.9),
+                          size: 16),
                       const SizedBox(width: 4),
                       Text('Tap to change',
                           style: TextStyle(
-                              color: AppColors.white.withValues(alpha:0.9),
+                              color: AppColors.white.withValues(alpha: 0.9),
                               fontSize: 12)),
                     ]),
                   ),
@@ -533,7 +532,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   color: _primary,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: _primary.withValues(alpha:0.5), blurRadius: 8)
+                    BoxShadow(
+                        color: _primary.withValues(alpha: 0.5), blurRadius: 8)
                   ],
                 ),
                 child: const Row(
@@ -574,7 +574,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                          color: AppColors.black.withValues(alpha:0.2),
+                          color: AppColors.black.withValues(alpha: 0.2),
                           blurRadius: 8)
                     ],
                   ),
@@ -652,10 +652,12 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                 color: AppColors.textDark),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(color: AppColors.greyLight, fontSize: 15),
+              hintStyle:
+                  const TextStyle(color: AppColors.greyLight, fontSize: 15),
               prefixIcon: Icon(icon, color: _primary, size: 20),
               suffixIcon: controller.text.isNotEmpty
-                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                  ? const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 20)
                   : null,
               border: InputBorder.none,
               contentPadding:
@@ -717,7 +719,9 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: controller.text.isNotEmpty ? _primary : AppColors.greyBorder,
+                color: controller.text.isNotEmpty
+                    ? _primary
+                    : AppColors.greyBorder,
                 width: 1.5,
               ),
             ),
@@ -732,12 +736,19 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: controller.text.isEmpty ? AppColors.greyLight : AppColors.textDark,
+                      color: controller.text.isEmpty
+                          ? AppColors.greyLight
+                          : AppColors.textDark,
                     ),
                   ),
                 ),
-                Icon(controller.text.isNotEmpty ? Icons.check_circle : Icons.calendar_month,
-                    color: controller.text.isNotEmpty ? AppColors.success : Colors.grey,
+                Icon(
+                    controller.text.isNotEmpty
+                        ? Icons.check_circle
+                        : Icons.calendar_month,
+                    color: controller.text.isNotEmpty
+                        ? AppColors.success
+                        : Colors.grey,
                     size: 20),
               ],
             ),
@@ -845,9 +856,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             ),
           ),
           child: DropdownButtonFormField<String>(
-            initialValue: (value != null && value.isNotEmpty && items.contains(value))
-                ? value
-                : null,
+            initialValue:
+                (value != null && value.isNotEmpty && items.contains(value))
+                    ? value
+                    : null,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle:
@@ -1110,7 +1122,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         border: Border.all(color: AppColors.greyBorder, width: 1),
         boxShadow: [
           BoxShadow(
-              color: AppColors.black.withValues(alpha:0.06),
+              color: AppColors.black.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 4)),
         ],
@@ -1122,10 +1134,11 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           Container(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
             decoration: BoxDecoration(
-              color: AppColors.sectionOrangeLight.withValues(alpha:0.3),
+              color: AppColors.sectionOrangeLight.withValues(alpha: 0.3),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(24)),
-              border: const Border(bottom: BorderSide(color: AppColors.greyBorder)),
+              border:
+                  const Border(bottom: BorderSide(color: AppColors.greyBorder)),
             ),
             child: Row(children: [
               Container(
@@ -1196,7 +1209,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   color: _textWhite, fontSize: 15, fontWeight: FontWeight.w500),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: const TextStyle(color: AppColors.greyLight, fontSize: 14),
+                hintStyle:
+                    const TextStyle(color: AppColors.greyLight, fontSize: 14),
                 prefixIcon: Icon(icon,
                     color: isFilled ? _primary : _textMuted, size: 20),
                 suffixIcon: isFilled
@@ -1281,7 +1295,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                          color: _primary.withValues(alpha:0.25), blurRadius: 10)
+                          color: _primary.withValues(alpha: 0.25),
+                          blurRadius: 10)
                     ]
                   : [],
             ),
@@ -1297,7 +1312,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     border: Border.all(color: colorData['border'], width: 2),
                     boxShadow: [
                       BoxShadow(
-                          color: AppColors.black.withValues(alpha:0.15),
+                          color: AppColors.black.withValues(alpha: 0.15),
                           blurRadius: 4)
                     ],
                   ),
@@ -1442,7 +1457,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           gradient: isSelected
               ? LinearGradient(colors: [
                   AppColors.sectionOrangeLight,
-                  AppColors.sectionOrangeLight.withValues(alpha:0.5)
+                  AppColors.sectionOrangeLight.withValues(alpha: 0.5)
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight)
               : null,
           borderRadius: BorderRadius.circular(20),
@@ -1453,7 +1468,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                      color: _primary.withValues(alpha:0.25),
+                      color: _primary.withValues(alpha: 0.25),
                       blurRadius: 16,
                       offset: const Offset(0, 4))
                 ]
@@ -1595,7 +1610,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
             width: hasImg ? 2 : 1,
           ),
           boxShadow: hasImg
-              ? [BoxShadow(color: _primary.withValues(alpha:0.2), blurRadius: 12)]
+              ? [
+                  BoxShadow(
+                      color: _primary.withValues(alpha: 0.2), blurRadius: 12)
+                ]
               : [],
         ),
         child: Stack(children: [
@@ -1615,9 +1633,9 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: _primary.withValues(alpha:0.1),
+                    color: _primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(color: _primary.withValues(alpha:0.3)),
+                    border: Border.all(color: _primary.withValues(alpha: 0.3)),
                   ),
                   child: Icon(icon, color: _primary, size: 36),
                 ),
@@ -1686,7 +1704,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         boxShadow: isFormValid
             ? [
                 BoxShadow(
-                    color: _primary.withValues(alpha:0.4),
+                    color: _primary.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6))
               ]
@@ -1742,7 +1760,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         vehicleImage: _vehicleImage,
                         registrationImage: FFAppState().registrationImage,
                         insuranceImage: _insuranceImage,
-                       pollutionImage: _pollutionImage,
+                        pollutionImage: _pollutionImage,
                         vehicleName: _makeController.text,
                         vehicleModel: _modelController.text,
                         vehicleColor: _selectedColor,

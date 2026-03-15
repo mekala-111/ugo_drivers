@@ -83,7 +83,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
         'RC Front (bytes): ${FFAppState().registrationImage?.bytes?.length ?? 0}');
     debugPrint('RC Front URL: ${FFAppState().rcFrontImageUrl}');
     debugPrint('RC Front Base64: ${FFAppState().rcFrontBase64.length} chars');
-    debugPrint('RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
+    debugPrint(
+        'RC Back (bytes): ${FFAppState().rcBackImage?.bytes?.length ?? 0}');
     debugPrint('RC Back URL: ${FFAppState().rcBackImageUrl}');
     debugPrint('RC Back Base64: ${FFAppState().rcBackBase64.length} chars');
     debugPrint('Registration Number: ${FFAppState().registrationNumber}');
@@ -180,9 +181,9 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
       await file.writeAsBytes(image.bytes!);
 
       final inputImage = InputImage.fromFile(file);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+      final textRecognizer =
+          TextRecognizer(script: TextRecognitionScript.latin);
       final RecognizedText recognizedText =
-
           await textRecognizer.processImage(inputImage);
 
       debugPrint('📝 OCR Text Extracted:');
@@ -274,7 +275,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
               color: Colors.white,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(fontSize: 14))),
+            Expanded(
+                child: Text(message, style: const TextStyle(fontSize: 14))),
           ],
         ),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
@@ -306,7 +308,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -343,7 +345,10 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
               height: 180.0,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.backgroundLight, AppColors.backgroundMuted],
+                  colors: [
+                    AppColors.backgroundLight,
+                    AppColors.backgroundMuted
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -351,7 +356,9 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                 border: Border.all(
                   color: isValid
                       ? Colors.green
-                      : (hasImage ? AppColors.registrationOrange : Colors.grey[300]!),
+                      : (hasImage
+                          ? AppColors.registrationOrange
+                          : Colors.grey[300]!),
                   width: 2,
                 ),
               ),
@@ -397,12 +404,13 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color:
-                                            AppColors.registrationOrange.withValues(alpha:0.1),
+                                        color: AppColors.registrationOrange
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.add_a_photo,
-                                          size: 40, color: AppColors.registrationOrange),
+                                          size: 40,
+                                          color: AppColors.registrationOrange),
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
@@ -425,14 +433,15 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                   if (_isProcessingOCR && showOCROverlay)
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha:0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(14.0),
                       ),
                       child: const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: AppColors.registrationOrange),
+                            CircularProgressIndicator(
+                                color: AppColors.registrationOrange),
                             SizedBox(height: 16),
                             Text(
                               'Reading Registration Number...',
@@ -466,14 +475,14 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha:0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          child:
-                              const Icon(Icons.close, color: Colors.white, size: 18),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -531,8 +540,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
           leading: FlutterFlowIconButton(
             borderRadius: 30.0,
             buttonSize: 60.0,
-            icon:
-                const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30.0),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 30.0),
             onPressed: () => context.pop(),
           ),
           title: const Row(
@@ -570,24 +579,28 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.registrationOrange.withValues(alpha:0.1),
-                              AppColors.accentCoral.withValues(alpha:0.05)
+                              AppColors.registrationOrange
+                                  .withValues(alpha: 0.1),
+                              AppColors.accentCoral.withValues(alpha: 0.05)
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                color: AppColors.registrationOrange
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.description,
-                                  color: AppColors.registrationOrange, size: 32),
+                                  color: AppColors.registrationOrange,
+                                  size: 32),
                             ),
                             const SizedBox(width: 16),
                             const Expanded(
@@ -604,7 +617,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                   Text(
                                     'Both sides required',
                                     style: TextStyle(
-                                        fontSize: 13, color: AppColors.greyMedium),
+                                        fontSize: 13,
+                                        color: AppColors.greyMedium),
                                   ),
                                 ],
                               ),
@@ -633,8 +647,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -706,8 +720,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                           if (selectedMedia != null &&
                               selectedMedia.every((m) =>
                                   validateFileFormat(m.storagePath, context)) &&
-                              selectedMedia.every((m) =>
-                                  validateImageSize(m.bytes, context))) {
+                              selectedMedia.every(
+                                  (m) => validateImageSize(m.bytes, context))) {
                             var selectedUploadedFiles = <FFUploadedFile>[];
                             try {
                               selectedUploadedFiles = selectedMedia
@@ -763,7 +777,7 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -776,7 +790,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             Row(
                               children: [
                                 const Icon(Icons.confirmation_number,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 const SizedBox(width: 8),
                                 const Text('Registration Number',
                                     style: TextStyle(
@@ -790,7 +805,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha:0.1),
+                                        color:
+                                            Colors.green.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: Colors.green, width: 1),
@@ -845,11 +861,13 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: AppColors.registrationOrange, width: 2),
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Colors.red),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
                                 ),
                               ),
                               validator: _validateRegistrationNumber,
@@ -901,7 +919,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                           color: AppColors.sectionOrangeLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.registrationOrange.withValues(alpha:0.3)),
+                              color: AppColors.registrationOrange
+                                  .withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -909,7 +928,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             const Row(
                               children: [
                                 Icon(Icons.lightbulb_outline,
-                                    color: AppColors.registrationOrange, size: 20),
+                                    color: AppColors.registrationOrange,
+                                    size: 20),
                                 SizedBox(width: 8),
                                 Text('Important Guidelines',
                                     style: TextStyle(
@@ -981,7 +1001,8 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                             debugPrint('✅ RC data saved');
                             _showSnackBar('Registration certificate uploaded!');
 
-                            await Future.delayed(const Duration(milliseconds: 500));
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
                             context.pop();
                           }
                         },
@@ -1017,11 +1038,13 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.arrow_right, size: 18, color: AppColors.registrationOrange),
+          const Icon(Icons.arrow_right,
+              size: 18, color: AppColors.registrationOrange),
           const SizedBox(width: 4),
           Expanded(
               child: Text(text,
-                  style: const TextStyle(fontSize: 13, color: AppColors.greyMedium))),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.greyMedium))),
         ],
       ),
     );
@@ -1036,7 +1059,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1060,7 +1083,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);
