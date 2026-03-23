@@ -55,6 +55,11 @@
 
 # --- Geolocator ---
 -keep class com.baseflow.geolocator.** { *; }
+-dontwarn com.baseflow.geolocator.**
+
+# --- Geocoding ---
+-keep class com.baseflow.geocoding.** { *; }
+-dontwarn com.baseflow.geocoding.**
 
 # --- OkHttp (used by many plugins) ---
 -dontwarn okhttp3.**
@@ -71,4 +76,6 @@
     public static int i(...);
 }
 
-
+# --- Java 8 Desugaring ---
+-keep class j$.** { *; }
+-dontwarn j$.**

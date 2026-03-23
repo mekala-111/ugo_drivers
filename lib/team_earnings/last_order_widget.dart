@@ -109,8 +109,8 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    String dateStr = "Unknown Date";
-    String timeStr = "";
+    String dateStr = 'Unknown Date';
+    String timeStr = '';
     final dateVal = lastRide != null
         ? (lastRide!['completedAt'] ?? lastRide!['createdAt'] ?? lastRide!['date'])
         : null;
@@ -138,7 +138,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
         title: Column(
           children: [
             Text(
-              "Ride Details",
+              'Ride Details',
               style: GoogleFonts.interTight(
                 color: Colors.black87,
                 fontSize: 18,
@@ -147,7 +147,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
             ),
             if (timeStr.isNotEmpty)
               Text(
-                "$dateStr • $timeStr",
+                '$dateStr • $timeStr',
                 style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.w500),
               ),
           ],
@@ -164,7 +164,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
               children: [
                 const Icon(Icons.headset_mic_rounded, size: 16, color: AppColors.primary),
                 const SizedBox(width: 6),
-                Text("Help", style: GoogleFonts.inter(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                Text('Help', style: GoogleFonts.inter(color: AppColors.primary, fontWeight: FontWeight.w700)),
               ],
             ),
           )
@@ -179,7 +179,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
           children: [
             Icon(Icons.history_rounded, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
-            Text("No recent orders found", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 16)),
+            Text('No recent orders found', style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 16)),
           ],
         ),
       )
@@ -206,7 +206,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      "Completed",
+                      'Completed',
                       style: GoogleFonts.interTight(fontSize: 13, color: AppColors.success, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -239,7 +239,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                   child: ExpansionTile(
                     iconColor: AppColors.primary,
                     collapsedIconColor: Colors.grey.shade400,
-                    title: Text("Payment info", style: GoogleFonts.interTight(fontWeight: FontWeight.bold, fontSize: 16)),
+                    title: Text('Payment info', style: GoogleFonts.interTight(fontWeight: FontWeight.bold, fontSize: 16)),
                     initiallyExpanded: true,
                     children: [
                       Padding(
@@ -247,7 +247,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Total Earning", style: GoogleFonts.inter(color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                            Text('Total Earning', style: GoogleFonts.inter(color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
                             Text("₹${lastRide!['fare'] ?? lastRide!['amount'] ?? '0'}", style: GoogleFonts.interTight(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.success)),
                           ],
                         ),
@@ -285,7 +285,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Your Earnings", style: GoogleFonts.inter(color: Colors.orange.shade800, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text('Your Earnings', style: GoogleFonts.inter(color: Colors.orange.shade800, fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -324,8 +324,8 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                     children: [
                       const Icon(Icons.verified_rounded, color: Colors.blue, size: 20),
                       const SizedBox(height: 2),
-                      Text("Fixed", style: GoogleFonts.interTight(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 10)),
-                      Text("Comm.", style: GoogleFonts.interTight(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 10)),
+                      Text('Fixed', style: GoogleFonts.interTight(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 10)),
+                      Text('Comm.', style: GoogleFonts.interTight(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 10)),
                     ],
                   ),
                 ),
@@ -354,8 +354,8 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
   }
 
   Widget _buildRouteInfoCard() {
-    String pickup = lastRide!['pickupAddress'] ?? lastRide!['pickup_address'] ?? lastRide!['from'] ?? "Unknown Pickup Location";
-    String drop = lastRide!['dropAddress'] ?? lastRide!['drop_address'] ?? lastRide!['to'] ?? "Unknown Drop Location";
+    String pickup = lastRide!['pickupAddress'] ?? lastRide!['pickup_address'] ?? lastRide!['from'] ?? 'Unknown Pickup Location';
+    String drop = lastRide!['dropAddress'] ?? lastRide!['drop_address'] ?? lastRide!['to'] ?? 'Unknown Drop Location';
 
     return Container(
       width: double.infinity,
@@ -370,7 +370,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Trip Route", style: GoogleFonts.interTight(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+          Text('Trip Route', style: GoogleFonts.interTight(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
           const SizedBox(height: 24),
           IntrinsicHeight(
             child: Row(
@@ -408,7 +408,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Pickup", style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                          Text('Pickup', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 4),
                           Text(pickup, style: GoogleFonts.inter(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500, height: 1.4)),
                         ],
@@ -417,7 +417,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Drop-off", style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                          Text('Drop-off', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 4),
                           Text(drop, style: GoogleFonts.inter(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500, height: 1.4)),
                         ],

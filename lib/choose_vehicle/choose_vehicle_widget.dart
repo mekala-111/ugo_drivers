@@ -71,7 +71,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 24 + 56 + 16), // padding for button height + margin
+                  padding: const EdgeInsets.only(bottom: 24 + 56 + 16), // padding for button height + margin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -193,7 +193,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                   }
                                   return ListView.separated(
                                     shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
+                                    physics: const NeverScrollableScrollPhysics(),
                                     padding: const EdgeInsets.all(20),
                                     itemCount: vehicleList.length,
                                     separatorBuilder: (_, __) => const SizedBox(height: 16),

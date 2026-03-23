@@ -5,8 +5,6 @@ import 'package:ugo_driver/account_support/refer_friend.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import '/constants/app_colors.dart';
-import '/constants/responsive.dart';
 
 // ✅ Custom Staggered Animation Widget
 class AnimatedMenuDrop extends StatelessWidget {

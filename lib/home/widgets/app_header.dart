@@ -35,7 +35,7 @@ class AppHeader extends StatelessWidget {
     final iconSz = Responsive.iconSize(context, base: isSmallScreen ? 24 : 28);
     final headerH = Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
     final hPad = Responsive.horizontalPadding(context);
-    final minTap = Responsive.minTouchTarget;
+    const minTap = Responsive.minTouchTarget;
     final avatarR = Responsive.value(context, small: 16.0, medium: 18.0, large: 20.0);
 
     return Container(

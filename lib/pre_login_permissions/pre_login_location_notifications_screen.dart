@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '/constants/app_colors.dart';
 import '/index.dart';
 
 /// Before login: Location first, then Notifications permission.

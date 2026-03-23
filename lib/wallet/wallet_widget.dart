@@ -158,7 +158,7 @@ class _WalletWidgetState extends State<WalletWidget> {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ Exception fetching wallet: $e');
-        debugPrint('❌ Stack trace: ${e}');
+        debugPrint('❌ Stack trace: $e');
       }
       setState(() => _isLoadingWallet = false);
     }

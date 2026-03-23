@@ -16,6 +16,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
 
+  cupertino_icons: ^1.0.8
+
   # --- Core Utils ---
   auto_size_text: 3.0.0
   cached_network_image: 3.4.1
@@ -132,3 +134,4 @@ flutter:
     - assets/rive_animations/
     - assets/pdfs/
     - assets/jsons/
+    - android/key.properties

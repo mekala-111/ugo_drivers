@@ -195,8 +195,9 @@ class HomeController extends ChangeNotifier {
       }
       if (parsedCityId == null || parsedCityId <= 0) {
         final cityIdRaw = getJsonField(body, r'''$.data.city_id''');
-        if (cityIdRaw != null)
+        if (cityIdRaw != null) {
           parsedCityId = int.tryParse(cityIdRaw.toString());
+        }
       }
     }
     if (parsedCityId != null && parsedCityId > 0) {
@@ -503,9 +504,10 @@ class HomeController extends ChangeNotifier {
           distanceFilter: _currentDistanceFilter,
         ),
       ).listen(_handleLocationUpdate);
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
             'Location tracking distance filter updated to: $_currentDistanceFilter meters');
+      }
     }
   }
 

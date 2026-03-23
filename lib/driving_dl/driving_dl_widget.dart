@@ -1222,8 +1222,9 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                           isError: true);
                                     }
                                   } finally {
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() => _isSubmitting = false);
+                                    }
                                   }
                                 } else {
                                   setState(() => _isSubmitting = false);

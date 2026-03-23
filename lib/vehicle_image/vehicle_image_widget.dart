@@ -142,18 +142,24 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
     if (FFAppState().vehicleColor.isNotEmpty) {
       setState(() => _selectedColor = FFAppState().vehicleColor);
     }
-    if (FFAppState().licensePlate.isNotEmpty)
+    if (FFAppState().licensePlate.isNotEmpty) {
       _licensePlateController.text = FFAppState().licensePlate;
-    if (FFAppState().registrationNumber.isNotEmpty)
+    }
+    if (FFAppState().registrationNumber.isNotEmpty) {
       _regNumberController.text = FFAppState().registrationNumber;
-    if (FFAppState().registrationDate.isNotEmpty)
+    }
+    if (FFAppState().registrationDate.isNotEmpty) {
       _regDateController.text = FFAppState().registrationDate;
-    if (FFAppState().insuranceNumber.isNotEmpty)
+    }
+    if (FFAppState().insuranceNumber.isNotEmpty) {
       _insuranceNumberController.text = FFAppState().insuranceNumber;
-    if (FFAppState().insuranceExpiryDate.isNotEmpty)
+    }
+    if (FFAppState().insuranceExpiryDate.isNotEmpty) {
       _insuranceExpiryController.text = FFAppState().insuranceExpiryDate;
-    if (FFAppState().pollutionExpiryDate.isNotEmpty)
+    }
+    if (FFAppState().pollutionExpiryDate.isNotEmpty) {
       _pollutionExpiryController.text = FFAppState().pollutionExpiryDate;
+    }
     // Pollution Image
     if (FFAppState().pollutionBase64.isNotEmpty) {
       try {
@@ -727,10 +733,12 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
   IconData _getVehicleIcon(String name) {
     final n = name.toLowerCase();
     if (n.contains('auto')) return Icons.local_taxi;
-    if (n.contains('bike') || n.contains('motorcycle'))
+    if (n.contains('bike') || n.contains('motorcycle')) {
       return Icons.two_wheeler;
-    if (n.contains('car') || n.contains('sedan') || n.contains('suv'))
+    }
+    if (n.contains('car') || n.contains('sedan') || n.contains('suv')) {
       return Icons.directions_car;
+    }
     if (n.contains('truck')) return Icons.local_shipping;
     return Icons.directions_car_rounded;
   }
@@ -1348,8 +1356,9 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                   if (vType.isNotEmpty) {
                     FFAppState().vehicleType = vType;
                     FFAppState().selectvehicle = vType;
-                    if (_selectedVehicleTypeId > 0)
+                    if (_selectedVehicleTypeId > 0) {
                       FFAppState().adminVehicleId = _selectedVehicleTypeId;
+                    }
                   }
                   FFAppState().vehicleName = _makeController.text;
                   FFAppState().vehicleMake = _makeController.text;

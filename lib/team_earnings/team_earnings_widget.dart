@@ -5,7 +5,6 @@ import 'package:ugo_driver/team_earnings/all_orders_widget.dart';
 import 'package:ugo_driver/team_earnings/last_order_widget.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/team_earnings/view_rate_card_widget.dart';
-import 'package:ugo_driver/team_earnings/widgets/earnings_chart.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'team_earnings_model.dart';
@@ -140,7 +139,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
             (getJsonField(body, r'$.yesterday_statistics.referrals', true) as List?) ?? [];
 
         setState(() {
-          teamEarnings = "₹$lifetimeCommission";
+          teamEarnings = '₹$lifetimeCommission';
           totalReferrals = referredCount;
           referredDrivers = drivers;
           isLoadingTeam = false;
@@ -271,16 +270,6 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                           shadowColor: brand.withValues(alpha: 0.4),
                           icon: Icons.account_balance_wallet_rounded,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      AnimatedListItem(
-                        index: 1,
-                        child: isLoadingWeekly 
-                          ? const SizedBox(
-                              height: 180, 
-                              child: Center(child: CircularProgressIndicator(strokeWidth: 2))
-                            )
-                          : WeeklyEarningsChart(dailyEarnings: dailyEarningsList),
                       ),
                       const SizedBox(height: 32),
                       AnimatedListItem(
@@ -565,7 +554,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                     children: [
                                       // ✅ commission_earned_by_72
                                       Text(
-                                        "₹${commission.toStringAsFixed(0)}",
+                                        '₹${commission.toStringAsFixed(0)}',
                                         style: GoogleFonts.interTight(
                                             fontWeight: FontWeight.bold,
                                             color: const Color(0xFF2ECC71),
@@ -573,7 +562,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                       ),
                                       // ✅ ride_earnings
                                       Text(
-                                        "₹$rideEarnings earned",
+                                        '₹$rideEarnings earned',
                                         style: GoogleFonts.inter(
                                             fontSize: 10,
                                             color: Colors.grey.shade400),

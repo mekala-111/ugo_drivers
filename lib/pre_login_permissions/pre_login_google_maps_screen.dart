@@ -75,7 +75,7 @@ class PreLoginGoogleMapsScreen extends StatelessWidget {
                               ),
                               TextSpan(
                                 text: 'terms',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -86,7 +86,7 @@ class PreLoginGoogleMapsScreen extends StatelessWidget {
                               const TextSpan(text: ' and '),
                               TextSpan(
                                 text: 'privacy policy',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -155,7 +155,7 @@ class PreLoginGoogleMapsScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Icon(Icons.map_outlined, size: 80, color: Colors.grey[300]),
-          Icon(Icons.location_on, size: 32, color: AppColors.primary),
+          const Icon(Icons.location_on, size: 32, color: AppColors.primary),
         ],
       ),
     );

@@ -239,7 +239,7 @@ class _PreLoginLocationPermissionWidgetState
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.location_on_outlined, size: 20, color: AppColors.primary),
+          const Icon(Icons.location_on_outlined, size: 20, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
