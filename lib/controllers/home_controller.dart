@@ -59,6 +59,7 @@ class HomeController extends ChangeNotifier {
   // ── State ───────────────────────────────────────────────────────────────────
 
   LatLng? currentUserLocation;
+  double driverHeading = 0.0;
   bool isDataLoaded = false;
   String driverName = '';
   String profileImageUrl = '';
@@ -473,6 +474,7 @@ class HomeController extends ChangeNotifier {
       if (_disposed) return;
       currentUserLocation =
           LatLng(initialPosition.latitude, initialPosition.longitude);
+      driverHeading = initialPosition.heading;
       _notify();
     } catch (e) {
       if (kDebugMode) debugPrint('Error getting position: $e');
@@ -520,6 +522,7 @@ class HomeController extends ChangeNotifier {
       await _updateLocationToServer(newPosition);
       if (_disposed) return;
       currentUserLocation = LatLng(newPosition.latitude, newPosition.longitude);
+      driverHeading = newPosition.heading;
       _lastNotifyTime = DateTime.now();
       _lastNotifyPosition = newPosition;
       _notify();
@@ -540,6 +543,7 @@ class HomeController extends ChangeNotifier {
 
     if (_disposed) return;
     currentUserLocation = LatLng(newPosition.latitude, newPosition.longitude);
+    driverHeading = newPosition.heading;
 
     if (hasActiveRide) {
       _notify();

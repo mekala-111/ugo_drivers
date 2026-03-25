@@ -385,9 +385,14 @@ class _HomeWidgetState extends State<HomeWidget>
             // Only safely update camera if we haven't actively locked it to a pickup/drop point
             if (_controller.currentRideStatus.toUpperCase() == 'IDLE' ||
                 _controller.currentRideStatus.toUpperCase() == 'SEARCHING') {
-              ctrl.moveCamera(
-                CameraUpdate.newLatLng(
-                  currentLoc.toGoogleMaps(),
+              ctrl.animateCamera(
+                CameraUpdate.newCameraPosition(
+                  CameraPosition(
+                    target: currentLoc.toGoogleMaps(),
+                    bearing: _controller.driverHeading,
+                    tilt: 45.0,
+                    zoom: 17.5,
+                  )
                 ),
               );
             }
