@@ -130,8 +130,8 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                     ].divide(const SizedBox(width: 12.0)),
                   ),
                   Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        32.0, 0.0, 32.0, 0.0),
                     child: Text(
                       FFLocalizations.of(context).getText(
                         'ic5f70x5' /* Share your live location with ... */,
@@ -196,8 +196,8 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                     ].divide(const SizedBox(width: 12.0)),
                   ),
                   Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(32.0, 0.0, 32.0, 0.0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        32.0, 0.0, 32.0, 0.0),
                     child: Text(
                       FFLocalizations.of(context).getText(
                         'vmbbzyy4' /* Share your live location with ... */,
@@ -227,7 +227,8 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                 color: AppColors.greyBg,
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                 child: FFButtonWidget(
                   onPressed: () {
                     debugPrint('Button pressed ...');
@@ -239,8 +240,8 @@ class _TrustedcontactsWidgetState extends State<TrustedcontactsWidget> {
                     width: double.infinity,
                     height: 56.0,
                     padding: const EdgeInsets.all(8.0),
-                    iconPadding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                        0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium

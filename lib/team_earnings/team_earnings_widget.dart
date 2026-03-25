@@ -131,12 +131,15 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                 .toString();
 
         // Lifetime commission earned
-        final lifetimeCommission =
-            getJsonField(body, r'$.lifetime_statistics.total_commission_earned') ?? 0;
+        final lifetimeCommission = getJsonField(
+                body, r'$.lifetime_statistics.total_commission_earned') ??
+            0;
 
         // Referrals list (yesterday's activity)
         final List<dynamic> drivers =
-            (getJsonField(body, r'$.yesterday_statistics.referrals', true) as List?) ?? [];
+            (getJsonField(body, r'$.yesterday_statistics.referrals', true)
+                    as List?) ??
+                [];
 
         setState(() {
           teamEarnings = '₹$lifetimeCommission';
@@ -162,23 +165,25 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
         token: FFAppState().accessToken,
         period: 'weekly',
       );
-      
+
       if (response.succeeded) {
         final rides = DriverEarningsCall.rides(response.jsonBody) ?? [];
         final List<double> aggregated = [0, 0, 0, 0, 0, 0, 0];
-        
+
         final now = DateTime.now();
         final firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        final startOfWeek = DateTime(firstDayOfWeek.year, firstDayOfWeek.month, firstDayOfWeek.day);
+        final startOfWeek = DateTime(
+            firstDayOfWeek.year, firstDayOfWeek.month, firstDayOfWeek.day);
 
         for (var ride in rides) {
           final createdAtStr = ride['created_at'];
           if (createdAtStr == null) continue;
-          
+
           final createdAt = DateTime.tryParse(createdAtStr.toString());
           if (createdAt == null) continue;
-          
-          if (createdAt.isAfter(startOfWeek.subtract(const Duration(seconds: 1)))) {
+
+          if (createdAt
+              .isAfter(startOfWeek.subtract(const Duration(seconds: 1)))) {
             final dayIndex = createdAt.weekday - 1; // 0 for Mon, 6 for Sun
             if (dayIndex >= 0 && dayIndex < 7) {
               final fare = (ride['estimated_fare'] ?? 0).toDouble();
@@ -186,7 +191,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
             }
           }
         }
-        
+
         setState(() {
           dailyEarningsList = aggregated;
           isLoadingWeekly = false;
@@ -409,8 +414,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color:
-                                      Colors.orange.withValues(alpha: 0.1),
+                                  color: Colors.orange.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.people_alt_rounded,
@@ -462,8 +466,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           itemCount: referredDrivers.length,
                           itemBuilder: (context, index) {
                             final driver =
@@ -497,17 +500,16 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black
-                                          .withValues(alpha: 0.03),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.03),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     )
                                   ],
                                 ),
                                 child: ListTile(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 8),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                   leading: Container(
                                     width: 48,
                                     height: 48,
@@ -547,10 +549,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                         color: Colors.grey.shade500),
                                   ),
                                   trailing: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       // ✅ commission_earned_by_72
                                       Text(
@@ -602,7 +602,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
             end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: shadowColor, blurRadius: 20, offset: const Offset(0, 10))
+          BoxShadow(
+              color: shadowColor, blurRadius: 20, offset: const Offset(0, 10))
         ],
       ),
       child: Column(

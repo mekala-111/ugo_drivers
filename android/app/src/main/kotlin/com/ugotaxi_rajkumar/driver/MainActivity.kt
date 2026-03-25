@@ -55,11 +55,12 @@ class MainActivity: FlutterActivity() {
                 "showRideRequest" -> {
                     val rideId = call.argument<Int>("rideId") ?: 0
                     val fare = call.argument<String>("fare") ?: ""
+                    val paymentMethod = call.argument<String>("paymentMethod") ?: ""
                     val pickupDistance = call.argument<String>("pickupDistance") ?: ""
                     val dropDistance = call.argument<String>("dropDistance") ?: ""
                     val pickup = call.argument<String>("pickup") ?: ""
                     val drop = call.argument<String>("drop") ?: ""
-                    showRideRequest(rideId, fare, pickupDistance, dropDistance, pickup, drop)
+                    showRideRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop)
                     result.success("Ride request shown")
                 }
                 "hideRideRequest" -> {
@@ -201,16 +202,18 @@ class MainActivity: FlutterActivity() {
     private fun showRideRequest(
         rideId: Int,
         fare: String,
+        paymentMethod: String,
         pickupDistance: String,
         dropDistance: String,
         pickup: String,
         drop: String
     ) {
-        val data = RideData(rideId, fare, pickup, drop, pickupDistance, dropDistance)
-        RideRequestOverlayService.showNewRideRequest(this, data)
+        if (!isServiceRunning(CaptainBubbleService::class.java)) {
+            startFloatingBubbleService()
+        }
         
         RideEventRepository.updateState(
-            RideState.NewRequest(rideId, fare, pickupDistance, dropDistance, pickup, drop)
+            RideState.NewRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop)
         )
     }
 

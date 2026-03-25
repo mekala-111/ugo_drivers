@@ -6,10 +6,11 @@ Future initializeFirebaseAppCheck() async {
   // Re-enable after registering debug token in Firebase Console
   if (kDebugMode) {
     debugPrint('⚠️ Firebase App Check DISABLED in debug mode');
-    debugPrint('📋 To enable: Register device in Firebase Console > App Check > Apps > Manage debug tokens');
+    debugPrint(
+        '📋 To enable: Register device in Firebase Console > App Check > Apps > Manage debug tokens');
     return;
   }
-  
+
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
     appleProvider: AppleProvider.deviceCheck,

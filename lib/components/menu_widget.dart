@@ -61,7 +61,7 @@ class _MenuWidgetState extends State<MenuWidget> {
       if (mounted) {
         setState(() {
           _name =
-          '${DriverIdfetchCall.firstName(res.jsonBody)} ${DriverIdfetchCall.lastName(res.jsonBody)}';
+              '${DriverIdfetchCall.firstName(res.jsonBody)} ${DriverIdfetchCall.lastName(res.jsonBody)}';
           _image = DriverIdfetchCall.profileImage(res.jsonBody) ?? '';
           _rating = DriverIdfetchCall.driverRating(res.jsonBody) ?? '';
         });
@@ -159,7 +159,10 @@ class _MenuWidgetState extends State<MenuWidget> {
         ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.8)
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -179,8 +182,10 @@ class _MenuWidgetState extends State<MenuWidget> {
           children: [
             // Glowing Avatar
             Container(
-              width: Responsive.value(context, small: 64.0, medium: 72.0, large: 80.0),
-              height: Responsive.value(context, small: 64.0, medium: 72.0, large: 80.0),
+              width: Responsive.value(context,
+                  small: 64.0, medium: 72.0, large: 80.0),
+              height: Responsive.value(context,
+                  small: 64.0, medium: 72.0, large: 80.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 3),
@@ -196,17 +201,17 @@ class _MenuWidgetState extends State<MenuWidget> {
                 child: _image.isNotEmpty
                     ? Image.network(img(_image), fit: BoxFit.cover)
                     : Container(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _name.isNotEmpty ? _name[0].toUpperCase() : '?',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: Responsive.fontSize(context, 28),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                        color: Colors.white.withValues(alpha: 0.2),
+                        alignment: Alignment.center,
+                        child: Text(
+                          _name.isNotEmpty ? _name[0].toUpperCase() : '?',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: Responsive.fontSize(context, 28),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 16),
@@ -237,7 +242,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                   const SizedBox(height: 6),
                   if (_rating.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -245,7 +251,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                          const Icon(Icons.star_rounded,
+                              color: Colors.amber, size: 16),
                           const SizedBox(width: 4),
                           Text(
                             _rating,
@@ -267,7 +274,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 24),
+              child: const Icon(Icons.chevron_right_rounded,
+                  color: Colors.white, size: 24),
             ),
           ],
         ),
@@ -276,13 +284,13 @@ class _MenuWidgetState extends State<MenuWidget> {
   }
 
   Widget _buildMenuTile(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required String sub,
-        required String route,
-        required Color color,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String sub,
+    required String route,
+    required Color color,
+  }) {
     final hPad = Responsive.horizontalPadding(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 8),
@@ -317,7 +325,9 @@ class _MenuWidgetState extends State<MenuWidget> {
                       color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Icon(icon, color: color, size: Responsive.iconSize(context, base: 26)),
+                    child: Icon(icon,
+                        color: color,
+                        size: Responsive.iconSize(context, base: 26)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -345,7 +355,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400, size: 26),
+                  Icon(Icons.chevron_right_rounded,
+                      color: Colors.grey.shade400, size: 26),
                 ],
               ),
             ),
@@ -361,17 +372,23 @@ class _MenuWidgetState extends State<MenuWidget> {
         Responsive.horizontalPadding(context),
         8,
         Responsive.horizontalPadding(context),
-        Responsive.verticalSpacing(context) + MediaQuery.of(context).padding.bottom + 16,
+        Responsive.verticalSpacing(context) +
+            MediaQuery.of(context).padding.bottom +
+            16,
       ),
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFF4E6), Color(0xFFFFE0B2)], // Lovely warm peach gradient
+            colors: [
+              Color(0xFFFFF4E6),
+              Color(0xFFFFE0B2)
+            ], // Lovely warm peach gradient
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 1.5),
+          border: Border.all(
+              color: Colors.orange.withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.orange.withValues(alpha: 0.15),
@@ -387,7 +404,8 @@ class _MenuWidgetState extends State<MenuWidget> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ReferFriendWidget()),
+                MaterialPageRoute(
+                    builder: (context) => const ReferFriendWidget()),
               );
             },
             child: Padding(
@@ -400,7 +418,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.redeem_rounded, color: AppColors.primary, size: 28),
+                    child: const Icon(Icons.redeem_rounded,
+                        color: AppColors.primary, size: 28),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -417,7 +436,8 @@ class _MenuWidgetState extends State<MenuWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          FFLocalizations.of(context).getText('menu0010'), // "Refer a friend..."
+                          FFLocalizations.of(context)
+                              .getText('menu0010'), // "Refer a friend..."
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
@@ -430,13 +450,15 @@ class _MenuWidgetState extends State<MenuWidget> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      FFLocalizations.of(context).getText('menu0011'), // "Refer"
+                      FFLocalizations.of(context)
+                          .getText('menu0011'), // "Refer"
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

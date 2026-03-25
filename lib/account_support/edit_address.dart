@@ -71,7 +71,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       if (!context.mounted) return;
       if (!serviceEnabled) {
         setState(() => isFetchingLocation = false);
-        _showSnackBar('Location services are disabled. Please enable them.', Colors.orange);
+        _showSnackBar('Location services are disabled. Please enable them.',
+            Colors.orange);
         return;
       }
 
@@ -90,12 +91,14 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       if (permission == LocationPermission.deniedForever) {
         if (!context.mounted) return;
         setState(() => isFetchingLocation = false);
-        _showSnackBar('Location permissions are permanently denied', AppColors.error);
+        _showSnackBar(
+            'Location permissions are permanently denied', AppColors.error);
         return;
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       if (!context.mounted) return;
@@ -105,7 +108,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         isFetchingLocation = false;
       });
 
-      _showSnackBar('Current location fetched successfully!', AppColors.success);
+      _showSnackBar(
+          'Current location fetched successfully!', AppColors.success);
     } catch (e) {
       if (!context.mounted) return;
       setState(() => isFetchingLocation = false);
@@ -149,7 +153,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+        content: Text(message,
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -160,7 +165,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasCoordinates = _latitudeController.text.isNotEmpty && _longitudeController.text.isNotEmpty;
+    final bool hasCoordinates = _latitudeController.text.isNotEmpty &&
+        _longitudeController.text.isNotEmpty;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -173,7 +179,8 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
           leading: FlutterFlowIconButton(
             borderRadius: 30.0,
             buttonSize: 60.0,
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26.0),
+            icon: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 26.0),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
@@ -204,7 +211,10 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16.0),
                         boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              offset: Offset(0, 4)),
                         ],
                       ),
                       child: Column(
@@ -215,22 +225,30 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.location_on, color: AppColors.primary, size: 20.0),
+                                child: const Icon(Icons.location_on,
+                                    color: AppColors.primary, size: 20.0),
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 'Current Registered Address',
-                                style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                                style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             getFullAddress(),
-                            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700], height: 1.5),
+                            style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                                height: 1.5),
                           ),
                         ],
                       ),
@@ -241,12 +259,16 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                     // --- Action Section Header ---
                     Text(
                       'Update GPS Location',
-                      style: GoogleFonts.interTight(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: GoogleFonts.interTight(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Tap the button below to accurately pinpoint your current location for rides.',
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], height: 1.4),
+                      style: GoogleFonts.inter(
+                          fontSize: 13, color: Colors.grey[600], height: 1.4),
                     ),
 
                     const SizedBox(height: 20),
@@ -256,22 +278,32 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       width: double.infinity,
                       height: 54,
                       child: ElevatedButton.icon(
-                        onPressed: isFetchingLocation || isUpdating ? null : getCurrentLocation,
+                        onPressed: isFetchingLocation || isUpdating
+                            ? null
+                            : getCurrentLocation,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryLightBg, // Soft orange background
-                          foregroundColor: AppColors.primary, // Orange text/icon
+                          backgroundColor: AppColors
+                              .primaryLightBg, // Soft orange background
+                          foregroundColor:
+                              AppColors.primary, // Orange text/icon
                           elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         icon: isFetchingLocation
                             ? const SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2.5),
-                        )
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    color: AppColors.primary, strokeWidth: 2.5),
+                              )
                             : const Icon(Icons.my_location, size: 22),
                         label: Text(
-                          isFetchingLocation ? 'Fetching Location...' : 'Use Current Location',
-                          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+                          isFetchingLocation
+                              ? 'Fetching Location...'
+                              : 'Use Current Location',
+                          style: GoogleFonts.inter(
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -284,34 +316,44 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       curve: Curves.easeOutQuart,
                       child: hasCoordinates
                           ? Container(
-                        margin: const EdgeInsets.only(top: 8, bottom: 16),
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1.5),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.check_circle, color: AppColors.success, size: 20.0),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Location Detected',
-                                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _buildCoordinateRow('Latitude', _latitudeController.text),
-                            const SizedBox(height: 8),
-                            _buildCoordinateRow('Longitude', _longitudeController.text),
-                          ],
-                        ),
-                      )
+                              margin: const EdgeInsets.only(top: 8, bottom: 16),
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.success.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(
+                                    color: AppColors.success
+                                        .withValues(alpha: 0.3),
+                                    width: 1.5),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.check_circle,
+                                          color: AppColors.success, size: 20.0),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        'Location Detected',
+                                        style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.success),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildCoordinateRow(
+                                      'Latitude', _latitudeController.text),
+                                  const SizedBox(height: 8),
+                                  _buildCoordinateRow(
+                                      'Longitude', _longitudeController.text),
+                                ],
+                              ),
+                            )
                           : const SizedBox.shrink(),
                     ),
 
@@ -322,22 +364,31 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       width: double.infinity,
                       height: 54,
                       child: ElevatedButton(
-                        onPressed: isUpdating || isFetchingLocation || !hasCoordinates ? null : updateDriverLocation,
+                        onPressed:
+                            isUpdating || isFetchingLocation || !hasCoordinates
+                                ? null
+                                : updateDriverLocation,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           disabledBackgroundColor: Colors.grey.shade300,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                           elevation: 2,
                         ),
                         child: isUpdating
                             ? const SizedBox(
-                          width: 24, height: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                        )
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2.5),
+                              )
                             : Text(
-                          'Save Location',
-                          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
+                                'Save Location',
+                                style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
                       ),
                     ),
 
@@ -347,13 +398,19 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       width: double.infinity,
                       height: 54,
                       child: TextButton(
-                        onPressed: isUpdating || isFetchingLocation ? null : () => Navigator.pop(context),
+                        onPressed: isUpdating || isFetchingLocation
+                            ? null
+                            : () => Navigator.pop(context),
                         style: TextButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
                           'Cancel',
-                          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                          style: GoogleFonts.inter(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade700),
                         ),
                       ),
                     ),
@@ -376,11 +433,15 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+          style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700]),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
+          style: GoogleFonts.inter(
+              fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
         ),
       ],
     );

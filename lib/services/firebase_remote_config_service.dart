@@ -101,7 +101,8 @@ class FirebaseRemoteConfigService {
     try {
       final key = _remoteConfig?.getString('google_maps_api_key') ?? '';
       if (key.isNotEmpty && kDebugMode) {
-        print('✅ Google Maps API Key loaded from Firebase Remote Config (length: ${key.length})');
+        print(
+            '✅ Google Maps API Key loaded from Firebase Remote Config (length: ${key.length})');
       }
       return key;
     } catch (e) {

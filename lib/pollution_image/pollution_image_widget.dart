@@ -63,7 +63,8 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
       allowPhoto: true,
     );
     if (selectedMedia == null ||
-        !selectedMedia.every((m) => validateFileFormat(m.storagePath, context)) ||
+        !selectedMedia
+            .every((m) => validateFileFormat(m.storagePath, context)) ||
         !selectedMedia.every((m) => validateImageSize(m.bytes, context))) {
       return;
     }
@@ -235,9 +236,13 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
         accessToken ??=
             getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
         accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.access_token''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.accessToken''')?.toString();
-        if (accessToken == 'null' || accessToken == null || accessToken.isEmpty) {
+        accessToken ??=
+            getJsonField(jsonBody, r'''$.access_token''')?.toString();
+        accessToken ??=
+            getJsonField(jsonBody, r'''$.accessToken''')?.toString();
+        if (accessToken == 'null' ||
+            accessToken == null ||
+            accessToken.isEmpty) {
           accessToken = null;
         }
 
@@ -311,9 +316,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
                   getJsonField(loginRes.jsonBody, r'''$.data.id'''),
                 ) ??
                 0;
-            if (accessToken != null &&
-                accessToken.isNotEmpty &&
-                driverId > 0) {
+            if (accessToken != null && accessToken.isNotEmpty && driverId > 0) {
               FFAppState().update(() {
                 FFAppState().isLoggedIn = true;
                 FFAppState().isRegistered = true;
@@ -357,8 +360,8 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = _pollutionImage?.bytes != null &&
-        _pollutionImage!.bytes!.isNotEmpty;
+    final hasImage =
+        _pollutionImage?.bytes != null && _pollutionImage!.bytes!.isNotEmpty;
 
     return GestureDetector(
       onTap: () {
@@ -417,7 +420,8 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: hasImage ? AppColors.primary : AppColors.greyBorder,
+                        color:
+                            hasImage ? AppColors.primary : AppColors.greyBorder,
                         width: 1.5,
                       ),
                     ),

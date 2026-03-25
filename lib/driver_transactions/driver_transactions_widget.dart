@@ -54,12 +54,10 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
     });
 
     try {
-      final driverId = widget.driverId > 0
-          ? widget.driverId
-          : FFAppState().driverid;
-      final token = widget.token.isNotEmpty
-          ? widget.token
-          : FFAppState().accessToken;
+      final driverId =
+          widget.driverId > 0 ? widget.driverId : FFAppState().driverid;
+      final token =
+          widget.token.isNotEmpty ? widget.token : FFAppState().accessToken;
       final response = await GetDriverTransactionsCall.call(
         driverId: driverId,
         token: token,

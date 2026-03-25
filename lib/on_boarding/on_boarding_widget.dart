@@ -87,8 +87,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
 
   int _calculateCompletionPercentage() {
     int completed = 0;
-    int total =
-        6; // License, Profile, Aadhar, Pan, Vehicle, RC
+    int total = 6; // License, Profile, Aadhar, Pan, Vehicle, RC
 
     final hasLicense = _isDocumentUploaded(FFAppState().imageLicense) ||
         _isDocumentUploaded(FFAppState().licenseFrontImage) ||
@@ -637,7 +636,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             FFAppState().emergencyContactPhone;
       }
       if (FFAppState().adminVehicleId > 0) {
-       
         driverJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
       }
 

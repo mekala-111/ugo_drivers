@@ -145,80 +145,82 @@ class _PreLoginLocationNotificationsScreenState
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(false),
           ),
-        title: Text(
-          'Permissions required',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+          title: Text(
+            'Permissions required',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  'UGO TAXI collects your data only for the purposes described below.',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: Colors.black87,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // 1. Location (first) – User Data policy: describe what we collect and why before request
+                _buildPermissionCard(
+                  icon: Icons.location_on,
+                  title: 'Location',
+                  subtitle:
+                      'We collect your location to find nearby rides, show you on the map, and navigate to pickup and drop-off. You can change this anytime in device settings.',
+                  requested: _locationRequested,
+                  onTap: _requestLocation,
+                  isRequesting: _isRequesting && !_locationRequested,
+                ),
+                const SizedBox(height: 16),
+                // 2. Notifications
+                _buildPermissionCard(
+                  icon: Icons.notifications,
+                  title: 'Notifications',
+                  subtitle:
+                      'We use notifications to send you ride requests and important alerts when you are online. You can change this anytime in device settings.',
+                  requested: _notificationRequested,
+                  onTap: _requestNotifications,
+                  isRequesting: _isRequesting &&
+                      _locationRequested &&
+                      !_notificationRequested,
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton(
+                    onPressed: _isRequesting ? null : _onContinue,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                'UGO TAXI collects your data only for the purposes described below.',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: Colors.black87,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-              // 1. Location (first) – User Data policy: describe what we collect and why before request
-              _buildPermissionCard(
-                icon: Icons.location_on,
-                title: 'Location',
-                subtitle:
-                    'We collect your location to find nearby rides, show you on the map, and navigate to pickup and drop-off. You can change this anytime in device settings.',
-                requested: _locationRequested,
-                onTap: _requestLocation,
-                isRequesting: _isRequesting && !_locationRequested,
-              ),
-              const SizedBox(height: 16),
-              // 2. Notifications
-              _buildPermissionCard(
-                icon: Icons.notifications,
-                title: 'Notifications',
-                subtitle:
-                    'We use notifications to send you ride requests and important alerts when you are online. You can change this anytime in device settings.',
-                requested: _notificationRequested,
-                onTap: _requestNotifications,
-                isRequesting: _isRequesting && _locationRequested && !_notificationRequested,
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: _isRequesting ? null : _onContinue,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Continue',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    ),
     );
   }
 

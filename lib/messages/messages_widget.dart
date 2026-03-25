@@ -91,7 +91,8 @@ class _MessagesWidgetState extends State<MessagesWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                 child: Text(
                   FFLocalizations.of(context).getText(
                     '0rdq2ugn' /* No new messages right now. Che... */,

@@ -69,9 +69,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1002601441010',
     projectId: 'ugo-user-8ff52',
     storageBucket: 'ugo-user-8ff52.firebasestorage.app',
-    androidClientId: '1002601441010-201hun9q43ttimgmmrgcv98t0e5b5nbv.apps.googleusercontent.com',
-    iosClientId: '1002601441010-p31r1rm4s1ps8g7l62ef3jmk11e8c547.apps.googleusercontent.com',
+    androidClientId:
+        '1002601441010-201hun9q43ttimgmmrgcv98t0e5b5nbv.apps.googleusercontent.com',
+    iosClientId:
+        '1002601441010-p31r1rm4s1ps8g7l62ef3jmk11e8c547.apps.googleusercontent.com',
     iosBundleId: 'com.ugotaxi_rajkumar.driver',
   );
-
 }

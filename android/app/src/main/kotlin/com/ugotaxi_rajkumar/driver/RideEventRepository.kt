@@ -9,6 +9,7 @@ sealed class RideState {
     data class NewRequest(
         val id: Int,
         val fare: String,
+        val paymentMethod: String,
         val pickupDistance: String,
         val dropDistance: String,
         val pickup: String,

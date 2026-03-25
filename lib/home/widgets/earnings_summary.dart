@@ -6,7 +6,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 class EarningsSummary extends StatefulWidget {
   final double todayTotal;
   final double teamEarnings; // Maps to Wallet
-  final int ridesToday;      // Maps to Ride Count
+  final int ridesToday; // Maps to Ride Count
   final double lastRideEarnings; // Matches the Figma "Last Ride" box
   final bool isLoading;
   final bool isSmallScreen;
@@ -73,7 +73,8 @@ class _EarningsSummaryState extends State<EarningsSummary> {
                     Text(
                       FFLocalizations.of(context).getText('drv_today_total'),
                       style: TextStyle(
-                        fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 15 : 17),
+                        fontSize: Responsive.fontSize(
+                            context, widget.isSmallScreen ? 15 : 17),
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                         letterSpacing: 0.3,
@@ -81,9 +82,12 @@ class _EarningsSummaryState extends State<EarningsSummary> {
                     ),
                     const Spacer(),
                     Text(
-                      widget.isLoading ? '...' : '₹${widget.todayTotal.toStringAsFixed(2)}',
+                      widget.isLoading
+                          ? '...'
+                          : '₹${widget.todayTotal.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: Responsive.fontSize(context, widget.isSmallScreen ? 16 : 18),
+                        fontSize: Responsive.fontSize(
+                            context, widget.isSmallScreen ? 16 : 18),
                         fontWeight: FontWeight.w800,
                         color: Colors.black87,
                       ),
@@ -96,7 +100,9 @@ class _EarningsSummaryState extends State<EarningsSummary> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
                         color: Colors.black87,
                         size: 22,
                       ),
@@ -113,39 +119,48 @@ class _EarningsSummaryState extends State<EarningsSummary> {
             curve: Curves.easeOutQuart,
             child: _isExpanded
                 ? Padding(
-              padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_ride_count'),
-                      value: widget.isLoading ? '...' : widget.ridesToday.toString(),
-                      isSmallScreen: widget.isSmallScreen,
-                      onTap: widget.onRideCountTap,
+                    padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _SummaryCard(
+                            title: FFLocalizations.of(context)
+                                .getText('drv_ride_count'),
+                            value: widget.isLoading
+                                ? '...'
+                                : widget.ridesToday.toString(),
+                            isSmallScreen: widget.isSmallScreen,
+                            onTap: widget.onRideCountTap,
+                          ),
+                        ),
+                        SizedBox(width: gap),
+                        Expanded(
+                          child: _SummaryCard(
+                            title: FFLocalizations.of(context)
+                                .getText('drv_wallet'),
+                            value: widget.isLoading
+                                ? '...'
+                                : '₹${widget.teamEarnings.toStringAsFixed(2)}',
+                            isSmallScreen: widget.isSmallScreen,
+                            onTap: widget.onWalletTap,
+                          ),
+                        ),
+                        SizedBox(width: gap),
+                        Expanded(
+                          child: _SummaryCard(
+                            title: FFLocalizations.of(context)
+                                .getText('drv_last_ride'),
+                            value: widget.isLoading
+                                ? '...'
+                                : '₹${widget.lastRideEarnings.toStringAsFixed(0)}',
+                            isSmallScreen: widget.isSmallScreen,
+                            onTap: widget.onLastRideTap,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: gap),
-                  Expanded(
-                    child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_wallet'),
-                      value: widget.isLoading ? '...' : '₹${widget.teamEarnings.toStringAsFixed(2)}',
-                      isSmallScreen: widget.isSmallScreen,
-                      onTap: widget.onWalletTap,
-                    ),
-                  ),
-                  SizedBox(width: gap),
-                  Expanded(
-                    child: _SummaryCard(
-                      title: FFLocalizations.of(context).getText('drv_last_ride'),
-                      value: widget.isLoading ? '...' : '₹${widget.lastRideEarnings.toStringAsFixed(0)}',
-                      isSmallScreen: widget.isSmallScreen,
-                      onTap: widget.onLastRideTap,
-                    ),
-                  ),
-                ],
-              ),
-            )
+                  )
                 : const SizedBox(width: double.infinity, height: 0),
           ),
         ],
@@ -192,7 +207,8 @@ class _SummaryCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black87,
-                  fontSize: Responsive.fontSize(context, isSmallScreen ? 12 : 13),
+                  fontSize:
+                      Responsive.fontSize(context, isSmallScreen ? 12 : 13),
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.2,
                 ),
@@ -207,7 +223,8 @@ class _SummaryCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: Responsive.fontSize(context, isSmallScreen ? 16 : 18),
+                    fontSize:
+                        Responsive.fontSize(context, isSmallScreen ? 16 : 18),
                     fontWeight: FontWeight.w800,
                   ),
                   maxLines: 1,

@@ -80,7 +80,8 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
     return fallback(error, stack ?? StackTrace.current, _retry);
   }
 
-  Widget _defaultFallback(Object error, StackTrace stack, VoidCallback onRetry) {
+  Widget _defaultFallback(
+      Object error, StackTrace stack, VoidCallback onRetry) {
     return Scaffold(
       body: SafeArea(
         child: Padding(

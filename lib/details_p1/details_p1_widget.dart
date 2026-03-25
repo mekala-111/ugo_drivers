@@ -58,7 +58,6 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         body: SafeArea(
           top: true,
@@ -68,8 +67,8 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
               Container(
                 decoration: const BoxDecoration(),
                 child: Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                      24.0, 24.0, 24.0, 24.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +241,6 @@ class _DetailsP1WidgetState extends State<DetailsP1Widget> {
                                 widget.email,
                                 ParamType.String,
                               ),
-
                             }.withoutNulls,
                           );
                         },

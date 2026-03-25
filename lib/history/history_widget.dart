@@ -154,7 +154,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    FFLocalizations.of(context).getText('c0vu40lh'), // e.g., "Past Bookings"
+                    FFLocalizations.of(context)
+                        .getText('c0vu40lh'), // e.g., "Past Bookings"
                     style: GoogleFonts.interTight(
                       color: Colors.white,
                       fontSize: 18.0,
@@ -170,7 +171,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                         color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.refresh, color: Colors.white, size: 22),
+                      child: const Icon(Icons.refresh,
+                          color: Colors.white, size: 22),
                     ),
                   ),
                 ],
@@ -180,33 +182,37 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             // Main Content Area
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(color: AppColors.primary))
                   : _error != null
-                  ? _buildErrorState()
-                  : _rides.isEmpty
-                  ? _buildEmptyState()
-                  : RefreshIndicator(
-                onRefresh: _loadHistory,
-                color: AppColors.primary,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics()),
-                  itemCount: _rides.length,
-                  itemBuilder: (context, index) {
-                    final ride = _rides[index] as RideHistoryItem;
-                    return FadeInAndSlide(
-                      index: index,
-                      child: _HistoryRideCard(
-                        ride: ride,
-                        onViewPressed: () {
-                          context.pushNamed(RideOverviewWidget.routeName);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      ? _buildErrorState()
+                      : _rides.isEmpty
+                          ? _buildEmptyState()
+                          : RefreshIndicator(
+                              onRefresh: _loadHistory,
+                              color: AppColors.primary,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 16),
+                                physics: const AlwaysScrollableScrollPhysics(
+                                    parent: BouncingScrollPhysics()),
+                                itemCount: _rides.length,
+                                itemBuilder: (context, index) {
+                                  final ride = _rides[index] as RideHistoryItem;
+                                  return FadeInAndSlide(
+                                    index: index,
+                                    child: _HistoryRideCard(
+                                      ride: ride,
+                                      onViewPressed: () {
+                                        context.pushNamed(
+                                            RideOverviewWidget.routeName);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
             ),
           ],
         ),
@@ -225,7 +231,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.history_rounded, size: 80, color: Colors.grey.shade300),
+                Icon(Icons.history_rounded,
+                    size: 80, color: Colors.grey.shade300),
                 const SizedBox(height: 16),
                 Text(
                   FFLocalizations.of(context).getText('hist0001'),
@@ -258,7 +265,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
           ElevatedButton(
             onPressed: _loadHistory,
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Try Again', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Try Again', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -278,7 +286,8 @@ class _HistoryRideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateStr = DateFormat('MMM d, yyyy • h:mm a').format(ride.date);
-    final pickup = ride.pickupAddress.isNotEmpty ? ride.pickupAddress : 'Unknown Location';
+    final pickup =
+        ride.pickupAddress.isNotEmpty ? ride.pickupAddress : 'Unknown Location';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -370,7 +379,8 @@ class _HistoryRideCard extends StatelessWidget {
               children: [
                 // Optional Status Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -390,13 +400,15 @@ class _HistoryRideCard extends StatelessWidget {
                   onTap: onViewPressed ?? () {},
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLightBg, // Soft orange background
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      FFLocalizations.of(context).getText('8rlnckeh'), // 'View Details'
+                      FFLocalizations.of(context)
+                          .getText('8rlnckeh'), // 'View Details'
                       style: GoogleFonts.inter(
                         color: AppColors.primary,
                         fontSize: 13.0,

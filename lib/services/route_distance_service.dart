@@ -21,14 +21,12 @@ class RouteDistanceService {
     required double destLat,
     required double destLng,
   }) async {
-    if (originLat == 0 ||
-        originLng == 0 ||
-        destLat == 0 ||
-        destLng == 0) {
+    if (originLat == 0 || originLng == 0 || destLat == 0 || destLng == 0) {
       return null;
     }
 
-    final key = '${originLat.toStringAsFixed(4)}_${originLng.toStringAsFixed(4)}_'
+    final key =
+        '${originLat.toStringAsFixed(4)}_${originLng.toStringAsFixed(4)}_'
         '${destLat.toStringAsFixed(4)}_${destLng.toStringAsFixed(4)}';
     final cached = _cache[key];
     if (cached != null && !cached.isExpired) return cached.km;
@@ -43,7 +41,8 @@ class RouteDistanceService {
         apiKey = await Config.getGoogleMapsApiKey();
       }
       if (apiKey.isEmpty) {
-        debugPrint('❌ Google Maps API key is EMPTY. Set "google_maps_api_key" in Firebase Remote Config and publish.');
+        debugPrint(
+            '❌ Google Maps API key is EMPTY. Set "google_maps_api_key" in Firebase Remote Config and publish.');
         return null;
       }
 
@@ -101,7 +100,8 @@ class RouteDistanceService {
       '&key=$apiKey',
     );
 
-    debugPrint('🧭 Calling Google Directions API: $originLat,$originLng → $destLat,$destLng');
+    debugPrint(
+        '🧭 Calling Google Directions API: $originLat,$originLng → $destLat,$destLng');
     final res = await http.get(uri);
     if (res.statusCode != 200) {
       debugPrint('❌ Directions non-200: ${res.statusCode}');
@@ -135,7 +135,8 @@ class RouteDistanceService {
     if (meters <= 0) return null;
 
     final km = meters / 1000;
-    debugPrint('✅ Directions returned: ${km.toStringAsFixed(2)}km (${meters.round()}m)');
+    debugPrint(
+        '✅ Directions returned: ${km.toStringAsFixed(2)}km (${meters.round()}m)');
     return km;
   }
 
@@ -155,7 +156,8 @@ class RouteDistanceService {
       '&key=$apiKey',
     );
 
-    debugPrint('🌐 Calling Google Distance Matrix API: $originLat,$originLng → $destLat,$destLng');
+    debugPrint(
+        '🌐 Calling Google Distance Matrix API: $originLat,$originLng → $destLat,$destLng');
     final res = await http.get(uri);
     if (res.statusCode != 200) {
       debugPrint('❌ Distance Matrix non-200: ${res.statusCode}');
@@ -174,12 +176,14 @@ class RouteDistanceService {
     final rows = data['rows'] as List<dynamic>?;
     if (rows == null || rows.isEmpty) return null;
 
-    final elements = (rows.first as Map<String, dynamic>)['elements'] as List<dynamic>?;
+    final elements =
+        (rows.first as Map<String, dynamic>)['elements'] as List<dynamic>?;
     if (elements == null || elements.isEmpty) return null;
 
     final element = elements.first as Map<String, dynamic>;
     if (element['status'] != 'OK') {
-      if (kDebugMode) debugPrint('❌ Distance Matrix element status: ${element['status']}');
+      if (kDebugMode)
+        debugPrint('❌ Distance Matrix element status: ${element['status']}');
       return null;
     }
 
@@ -188,7 +192,8 @@ class RouteDistanceService {
 
     final meters = (distance['value'] as num).toDouble();
     final km = meters / 1000;
-    debugPrint('✅ Distance Matrix returned: ${km.toStringAsFixed(2)}km (${meters.round()}m)');
+    debugPrint(
+        '✅ Distance Matrix returned: ${km.toStringAsFixed(2)}km (${meters.round()}m)');
     return km;
   }
 }

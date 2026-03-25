@@ -17,7 +17,8 @@ class WeeklyEarningsChart extends StatelessWidget {
       );
     }
 
-    final double maxEarning = dailyEarnings.reduce((curr, next) => curr > next ? curr : next);
+    final double maxEarning =
+        dailyEarnings.reduce((curr, next) => curr > next ? curr : next);
     // Add 10% padding to max so the highest bar doesn't touch the top
     final double maxY = maxEarning > 0 ? maxEarning * 1.1 : 100;
 
@@ -55,7 +56,8 @@ class WeeklyEarningsChart extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(7, (index) {
                 final val = dailyEarnings[index];
-                final heightFactor = val > 0 ? val / maxY : 0.05; // tiny height if 0
+                final heightFactor =
+                    val > 0 ? val / maxY : 0.05; // tiny height if 0
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,

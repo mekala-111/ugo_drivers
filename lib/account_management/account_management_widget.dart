@@ -260,7 +260,10 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                               FFLocalizations.of(context)
                                   .getText('drv_manage_prefs'),
                               style: TextStyle(
-                                fontSize: MediaQuery.of(context).size.width < 360 ? 22 : 28,
+                                fontSize:
+                                    MediaQuery.of(context).size.width < 360
+                                        ? 22
+                                        : 28,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 height: 1.1,

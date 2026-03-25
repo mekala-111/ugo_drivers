@@ -1321,9 +1321,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'లైవ్ కెమెరా మాత్రమే - మోసాల నివారణ',
     },
     'face0005': {
-      'en': 'Your profile photo helps others recognize you and builds trust with passengers.',
-      'hi': 'आपकी प्रोफ़ाइल फोटो दूसरों को आपको पहचानने में मदद करती है और यात्रियों के साथ भरोसा बनाती है।',
-      'te': 'మీ ప్రొఫైల్ ఫోటో ఇతరులకు మిమ్మల్ని గుర్తించడంలో సహాయం చేస్తుంది మరియు ప్రయాణికులతో నమ్మకం పెంచుతుంది.',
+      'en':
+          'Your profile photo helps others recognize you and builds trust with passengers.',
+      'hi':
+          'आपकी प्रोफ़ाइल फोटो दूसरों को आपको पहचानने में मदद करती है और यात्रियों के साथ भरोसा बनाती है।',
+      'te':
+          'మీ ప్రొఫైల్ ఫోటో ఇతరులకు మిమ్మల్ని గుర్తించడంలో సహాయం చేస్తుంది మరియు ప్రయాణికులతో నమ్మకం పెంచుతుంది.',
     },
     'face0006': {
       'en': 'Security Notice',
@@ -1331,9 +1334,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'భద్రతా సూచన',
     },
     'face0007': {
-      'en': 'For fraud prevention, you must take a live photo using your camera. Gallery photos are not allowed.',
-      'hi': 'धोखाधड़ी रोकथाम के लिए, आपको कैमरे से लाइव फोटो लेनी होगी। गैलरी फोटो की अनुमति नहीं है।',
-      'te': 'మోసాల నివారణ కోసం, మీరు కెమెరాతో లైవ్ ఫోటో తీయాలి. గ్యాలరీ ఫోటోలు అనుమతించబడవు.',
+      'en':
+          'For fraud prevention, you must take a live photo using your camera. Gallery photos are not allowed.',
+      'hi':
+          'धोखाधड़ी रोकथाम के लिए, आपको कैमरे से लाइव फोटो लेनी होगी। गैलरी फोटो की अनुमति नहीं है।',
+      'te':
+          'మోసాల నివారణ కోసం, మీరు కెమెరాతో లైవ్ ఫోటో తీయాలి. గ్యాలరీ ఫోటోలు అనుమతించబడవు.',
     },
     'face0008': {
       'en': 'Photo Guidelines',
@@ -1471,12 +1477,14 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'rc0010': {
       'en': 'Could not detect registration number. Please enter manually.',
       'hi': 'पंजीकरण नंबर नहीं मिला। कृपया मैन्युअली दर्ज करें।',
-      'te': 'రిజిస్ట్రేషన్ నంబర్ గుర్తించబడలేదు. దయచేసి మాన్యువల్‌గా నమోదు చేయండి.',
+      'te':
+          'రిజిస్ట్రేషన్ నంబర్ గుర్తించబడలేదు. దయచేసి మాన్యువల్‌గా నమోదు చేయండి.',
     },
     'rc0011': {
       'en': 'OCR failed. Please enter registration number manually.',
       'hi': 'OCR असफल। कृपया पंजीकरण नंबर मैन्युअली दर्ज करें।',
-      'te': 'OCR విఫలమైంది. దయచేసి రిజిస్ట్రేషన్ నంబర్ మాన్యువల్‌గా నమోదు చేయండి.',
+      'te':
+          'OCR విఫలమైంది. దయచేసి రిజిస్ట్రేషన్ నంబర్ మాన్యువల్‌గా నమోదు చేయండి.',
     },
     'rc0012': {
       'en': 'Please enter registration number',
@@ -1718,7 +1726,8 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'ride0001': {
       'en': 'Failed to accept ride. Please check your connection.',
       'hi': 'राइड स्वीकार करने में विफल। कृपया अपना कनेक्शन जांचें।',
-      'te': 'రైడ్‌ను అంగీకరించడం విఫలమైంది. దయచేసి మీ కనెక్షన్‌ను తనిఖీ చేయండి.',
+      'te':
+          'రైడ్‌ను అంగీకరించడం విఫలమైంది. దయచేసి మీ కనెక్షన్‌ను తనిఖీ చేయండి.',
     },
     'ride0002': {
       'en': 'Invalid OTP',
@@ -3339,9 +3348,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'లాగ్ అవుట్',
     },
     'accsup0017': {
-      'en': 'Are you sure you want to logout? You will need to sign in again to receive ride requests.',
-      'hi': 'क्या आप वाकई लॉग आउट करना चाहते हैं? राइड अनुरोध प्राप्त करने के लिए आपको फिर से साइन इन करना होगा।',
-      'te': 'మీరు నిజంగా లాగ్ అవుట్ కావాలనుకుంటున్నారా? రైడ్ అభ్యర్థనలు పొందడానికి మళ్లీ సైన్ ఇన్ చేయాలి.',
+      'en':
+          'Are you sure you want to logout? You will need to sign in again to receive ride requests.',
+      'hi':
+          'क्या आप वाकई लॉग आउट करना चाहते हैं? राइड अनुरोध प्राप्त करने के लिए आपको फिर से साइन इन करना होगा।',
+      'te':
+          'మీరు నిజంగా లాగ్ అవుట్ కావాలనుకుంటున్నారా? రైడ్ అభ్యర్థనలు పొందడానికి మళ్లీ సైన్ ఇన్ చేయాలి.',
     },
     'accsup0018': {
       'en': 'Cancel',
@@ -3354,9 +3366,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'ఖాతా తొలగించండి',
     },
     'accsup0020': {
-      'en': 'This action cannot be undone. All your data including ride history, earnings, and documents will be permanently deleted.\n\nAre you sure you want to delete your account?',
-      'hi': 'यह कार्रवाई वापस नहीं की जा सकती। आपकी राइड हिस्ट्री, कमाई और दस्तावेज़ सहित सभी डेटा स्थायी रूप से हट जाएगा।\n\nक्या आप वाकई अपना खाता हटाना चाहते हैं?',
-      'te': 'ఈ చర్యను తిరిగి రద్దు చేయలేము. మీ రైడ్ చరిత్ర, ఆదాయం మరియు పత్రాలు సహా మీ డేటా మొత్తం శాశ్వతంగా తొలగించబడుతుంది.\n\nమీరు నిజంగా మీ ఖాతాను తొలగించాలనుకుంటున్నారా?',
+      'en':
+          'This action cannot be undone. All your data including ride history, earnings, and documents will be permanently deleted.\n\nAre you sure you want to delete your account?',
+      'hi':
+          'यह कार्रवाई वापस नहीं की जा सकती। आपकी राइड हिस्ट्री, कमाई और दस्तावेज़ सहित सभी डेटा स्थायी रूप से हट जाएगा।\n\nक्या आप वाकई अपना खाता हटाना चाहते हैं?',
+      'te':
+          'ఈ చర్యను తిరిగి రద్దు చేయలేము. మీ రైడ్ చరిత్ర, ఆదాయం మరియు పత్రాలు సహా మీ డేటా మొత్తం శాశ్వతంగా తొలగించబడుతుంది.\n\nమీరు నిజంగా మీ ఖాతాను తొలగించాలనుకుంటున్నారా?',
     },
     'accsup0021': {
       'en': 'Account deleted successfully',
@@ -3369,9 +3384,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'ఖాతా తొలగించడం విఫలమైంది',
     },
     'accsup0023': {
-      'en': 'Account deletion is not available. Your account has linked data. Please contact support.',
-      'hi': 'खाता हटाना उपलब्ध नहीं है। आपके खाते से डेटा जुड़ा हुआ है। कृपया सहायता से संपर्क करें।',
-      'te': 'ఖాతా తొలగింపు అందుబాటులో లేదు. మీ ఖాతాతో డేటా లింక్ అయి ఉంది. దయచేసి సహాయాన్ని సంప్రదించండి.',
+      'en':
+          'Account deletion is not available. Your account has linked data. Please contact support.',
+      'hi':
+          'खाता हटाना उपलब्ध नहीं है। आपके खाते से डेटा जुड़ा हुआ है। कृपया सहायता से संपर्क करें।',
+      'te':
+          'ఖాతా తొలగింపు అందుబాటులో లేదు. మీ ఖాతాతో డేటా లింక్ అయి ఉంది. దయచేసి సహాయాన్ని సంప్రదించండి.',
     },
     'accsup0024': {
       'en': 'Error: ',
@@ -4128,9 +4146,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'అపూర్ణ ప్రొఫైల్',
     },
     'ob0011': {
-      'en': "You won't be able to go online until all documents are verified. Continue anyway?",
-      'hi': 'जब तक सभी दस्तावेज़ सत्यापित नहीं होते, आप ऑनलाइन नहीं जा सकेंगे। फिर भी जारी रखें?',
-      'te': 'అన్ని పత్రాలు ధృవీకరించబడే వరకు మీరు ఆన్‌లైన్‌లోకి వెళ్లలేరు. అయినా కొనసాగాలా?',
+      'en':
+          "You won't be able to go online until all documents are verified. Continue anyway?",
+      'hi':
+          'जब तक सभी दस्तावेज़ सत्यापित नहीं होते, आप ऑनलाइन नहीं जा सकेंगे। फिर भी जारी रखें?',
+      'te':
+          'అన్ని పత్రాలు ధృవీకరించబడే వరకు మీరు ఆన్‌లైన్‌లోకి వెళ్లలేరు. అయినా కొనసాగాలా?',
     },
     'ob0012': {
       'en': 'Registration complete. Please sign in to continue.',
@@ -6337,10 +6358,22 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     'drv_review_worst': {'en': 'Worst', 'hi': 'सबसे खराब', 'te': 'చెత్త'},
     'drv_review_fast': {'en': 'Fast', 'hi': 'तेज़', 'te': 'వేగంగా'},
     'drv_review_clean': {'en': 'Clean', 'hi': 'साफ', 'te': 'శుభ్రంగా'},
-    'drv_review_affordable': {'en': 'Affordable', 'hi': 'किफायती', 'te': 'సరసమైనది'},
-    'drv_optional_comments': {'en': 'Optional Comments', 'hi': 'वैकल्पिक टिप्पणियाँ', 'te': 'ఐచ్ఛిక వ్యాఖ్యలు'},
+    'drv_review_affordable': {
+      'en': 'Affordable',
+      'hi': 'किफायती',
+      'te': 'సరసమైనది'
+    },
+    'drv_optional_comments': {
+      'en': 'Optional Comments',
+      'hi': 'वैकल्पिक टिप्पणियाँ',
+      'te': 'ఐచ్ఛిక వ్యాఖ్యలు'
+    },
     'drv_collect': {'en': 'Collect', 'hi': 'संग्रह करें', 'te': 'సేకరించండి'},
-    'drv_payment_method': {'en': 'Payment Method', 'hi': 'भुगतान विधि', 'te': 'చెల్లింపు పద్ధతి'},
+    'drv_payment_method': {
+      'en': 'Payment Method',
+      'hi': 'भुगतान विधि',
+      'te': 'చెల్లింపు పద్ధతి'
+    },
     'drv_cash': {'en': 'Cash', 'hi': 'नकद', 'te': 'నగదు'},
     'drv_online': {'en': 'Online', 'hi': 'ऑनलाइन', 'te': 'ఆన్‌లైన్'},
     'drv_received': {'en': 'Received', 'hi': 'प्राप्त', 'te': 'అందుకున్నారు'},
@@ -6397,9 +6430,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'ఆన్‌లైన్ కావడానికి మీ ప్రాధాన్య నగరాన్ని ఎంచుకోండి'
     },
     'drv_preferred_city_locked': {
-      'en': 'Preferred city is locked after initial set. Request admin approval to change it.',
-      'hi': 'पसंदीदा शहर पहली बार सेट होने के बाद लॉक हो जाता है। बदलने के लिए एडमिन अनुमोदन मांगें।',
-      'te': 'ప్రాధాన్య నగరం ఒకసారి సెట్ చేసిన తర్వాత లాక్ అవుతుంది. మార్చడానికి అడ్మిన్ అనుమతి కోరండి.'
+      'en':
+          'Preferred city is locked after initial set. Request admin approval to change it.',
+      'hi':
+          'पसंदीदा शहर पहली बार सेट होने के बाद लॉक हो जाता है। बदलने के लिए एडमिन अनुमोदन मांगें।',
+      'te':
+          'ప్రాధాన్య నగరం ఒకసారి సెట్ చేసిన తర్వాత లాక్ అవుతుంది. మార్చడానికి అడ్మిన్ అనుమతి కోరండి.'
     },
     'drv_request_approval': {
       'en': 'Request approval',

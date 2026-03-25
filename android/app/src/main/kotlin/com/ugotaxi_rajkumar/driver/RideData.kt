@@ -8,6 +8,7 @@ import java.io.Serializable
 data class RideData(
     val id: Int,
     val fare: String,
+    val paymentMethod: String = "",
     val pickup: String = "",
     val drop: String = "",
     val pickupDistance: String = "",

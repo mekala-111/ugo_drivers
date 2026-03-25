@@ -50,12 +50,14 @@ class HomeHeader extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () => scaffoldKey.currentState?.openDrawer(),
-                      child: Icon(Icons.menu, color: Colors.white, size: iconSize),
+                      child:
+                          Icon(Icons.menu, color: Colors.white, size: iconSize),
                     ),
                     SizedBox(width: isSmallScreen ? 16 : 20),
                     if (switchValue)
                       InkWell(
-                        onTap: () => context.pushNamed(ScanToBookWidget.routeName),
+                        onTap: () =>
+                            context.pushNamed(ScanToBookWidget.routeName),
                         child: Container(
                           width: isSmallScreen ? 36 : 40,
                           height: isSmallScreen ? 36 : 40,

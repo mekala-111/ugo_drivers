@@ -11,7 +11,8 @@ class RideState extends ChangeNotifier {
   RideRequest? get currentRide => _currentRide;
   RideStatus get status => _status;
 
-  bool get hasActiveRide => _currentRide != null &&
+  bool get hasActiveRide =>
+      _currentRide != null &&
       _status != RideStatus.completed &&
       _status != RideStatus.cancelled &&
       _status != RideStatus.rejected;

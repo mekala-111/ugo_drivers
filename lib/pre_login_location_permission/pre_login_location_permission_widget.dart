@@ -122,10 +122,10 @@ class _PreLoginLocationPermissionWidgetState
                 const SizedBox(height: 12),
                 _buildPurposeItem('App functionality',
                     'Ride matching, navigation, driver tracking during trips'),
+                _buildPurposeItem('Ride requests',
+                    'Show you on the map and match nearby rides'),
                 _buildPurposeItem(
-                    'Ride requests', 'Show you on the map and match nearby rides'),
-                _buildPurposeItem('Navigation',
-                    'Guide you to pickup and drop-off points'),
+                    'Navigation', 'Guide you to pickup and drop-off points'),
                 const SizedBox(height: 16),
                 _buildInfoCard(
                   icon: Icons.description_outlined,
@@ -137,7 +137,8 @@ class _PreLoginLocationPermissionWidgetState
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _isRequesting ? null : _requestPermissionAndComplete,
+                    onPressed:
+                        _isRequesting ? null : _requestPermissionAndComplete,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -239,7 +240,8 @@ class _PreLoginLocationPermissionWidgetState
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.location_on_outlined, size: 20, color: AppColors.primary),
+          const Icon(Icons.location_on_outlined,
+              size: 20, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

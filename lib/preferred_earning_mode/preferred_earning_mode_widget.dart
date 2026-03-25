@@ -55,7 +55,8 @@ class PaymentModeCard extends StatelessWidget {
             ),
           ],
           border: Border.all(
-            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.2),
+            color:
+                isSelected ? Colors.white : Colors.white.withValues(alpha: 0.2),
             width: isSelected ? 2.5 : 1,
           ),
         ),
@@ -102,13 +103,11 @@ class PaymentModeCard extends StatelessWidget {
               duration: const Duration(milliseconds: 250),
               child: isSelected
                   ? const Icon(Icons.check_circle,
-                  key: ValueKey('checked'),
-                  color: Colors.white,
-                  size: 28)
+                      key: ValueKey('checked'), color: Colors.white, size: 28)
                   : const Icon(Icons.radio_button_unchecked,
-                  key: ValueKey('unchecked'),
-                  color: Colors.white70,
-                  size: 28),
+                      key: ValueKey('unchecked'),
+                      color: Colors.white70,
+                      size: 28),
             ),
           ],
         ),
@@ -131,8 +130,8 @@ class PreferredEarningModeWidget extends StatefulWidget {
       _PreferredEarningModeWidgetState();
 }
 
-class _PreferredEarningModeWidgetState
-    extends State<PreferredEarningModeWidget> with TickerProviderStateMixin {
+class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
+    with TickerProviderStateMixin {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _selected = '';
 
@@ -211,7 +210,7 @@ class _PreferredEarningModeWidgetState
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: brandPrimary.withValues(alpha:0.3),
+                    color: brandPrimary.withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )
@@ -232,7 +231,8 @@ class _PreferredEarningModeWidgetState
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.arrow_back, color: Colors.white),
+                        child:
+                            const Icon(Icons.arrow_back, color: Colors.white),
                       ),
                     ),
                     const Spacer(),
@@ -274,7 +274,7 @@ class _PreferredEarningModeWidgetState
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       )
@@ -289,8 +289,10 @@ class _PreferredEarningModeWidgetState
                         value: 'cash',
                         selectedValue: _selected,
                         // Vibrant Green for Cash
-                        gradientColors: const [Color(0xFFECCFA8), Color(
-                            0xFFF3A739)],
+                        gradientColors: const [
+                          Color(0xFFECCFA8),
+                          Color(0xFFF3A739)
+                        ],
                         onSelect: _selectMode,
                       ),
                       const SizedBox(height: 16),
@@ -301,7 +303,10 @@ class _PreferredEarningModeWidgetState
                         value: 'online',
                         selectedValue: _selected,
                         // Vibrant Blue for Digital/Online
-                        gradientColors: const [Color(0xFFFFFFFF), Color(0xFF2563EB)],
+                        gradientColors: const [
+                          Color(0xFFFFFFFF),
+                          Color(0xFF2563EB)
+                        ],
                         onSelect: _selectMode,
                       ),
                       const SizedBox(height: 16),
@@ -312,8 +317,10 @@ class _PreferredEarningModeWidgetState
                         value: 'both',
                         selectedValue: _selected,
                         // Vibrant Purple/Indigo for Both
-                        gradientColors: const [Color(0xFFB8DFB2), Color(
-                            0xFF67ED3A)],
+                        gradientColors: const [
+                          Color(0xFFB8DFB2),
+                          Color(0xFF67ED3A)
+                        ],
                         onSelect: _selectMode,
                       ),
                       const Spacer(),
@@ -364,7 +371,7 @@ class _PreferredEarningModeWidgetState
             child: LinearProgressIndicator(
               value: 1.0, // Assuming this is the final step
               minHeight: 6,
-              backgroundColor: Colors.white.withValues(alpha:0.25),
+              backgroundColor: Colors.white.withValues(alpha: 0.25),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ),

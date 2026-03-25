@@ -119,12 +119,14 @@ class _WalletWidgetState extends State<WalletWidget> {
       if (response.succeeded) {
         // Extract wallet balance from response
         final rawBalance = GetWalletCall.walletBalance(response.jsonBody);
-        final rechargeAmount = GetWalletCall.totalRechargeAmount(response.jsonBody);
+        final rechargeAmount =
+            GetWalletCall.totalRechargeAmount(response.jsonBody);
         final spentAmount = GetWalletCall.totalSpentAmount(response.jsonBody);
         final transactionDate = GetWalletCall.lastUpdated(response.jsonBody);
 
         if (kDebugMode) {
-          debugPrint('💰 Raw balance from API: $rawBalance (type: ${rawBalance.runtimeType})');
+          debugPrint(
+              '💰 Raw balance from API: $rawBalance (type: ${rawBalance.runtimeType})');
           debugPrint('📊 Recharge: $rechargeAmount');
           debugPrint('📊 Spent: $spentAmount');
           debugPrint('📅 Last Transaction: $transactionDate');
@@ -137,7 +139,7 @@ class _WalletWidgetState extends State<WalletWidget> {
           } else {
             walletBalance = '0';
           }
-          
+
           totalRechargeAmount = rechargeAmount ?? '0';
           totalSpentAmount = spentAmount ?? '0';
           lastTransactionDate = transactionDate;
@@ -173,7 +175,8 @@ class _WalletWidgetState extends State<WalletWidget> {
   // 💰 Format wallet balance to display as currency
   String _formatBalance(String? balance) {
     if (balance == null || balance.isEmpty) {
-      if (kDebugMode) debugPrint('⚠️ Format Balance: input is null/empty, returning 0.00');
+      if (kDebugMode)
+        debugPrint('⚠️ Format Balance: input is null/empty, returning 0.00');
       return '0.00';
     }
     try {
@@ -325,7 +328,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        
+
                         // 🔧 DEBUG: Show raw balance value
                         if (kDebugMode)
                           Padding(
@@ -338,7 +341,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                               ),
                             ),
                           ),
-                        
+
                         SizedBox(height: 24.0 * scale),
 
                         // ⚡ Quick Actions Row

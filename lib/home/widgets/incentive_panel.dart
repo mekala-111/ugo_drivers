@@ -53,7 +53,8 @@ class IncentivePanel extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isSmallScreen ? 16 : 20,
-                  vertical: isSmallScreen ? 14 : 18, // Fat-finger friendly padding
+                  vertical:
+                      isSmallScreen ? 14 : 18, // Fat-finger friendly padding
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,23 +75,28 @@ class IncentivePanel extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary),
                             ),
                           )
                         else
                           Text(
                             hasIncentives
                                 ? '₹${totalIncentiveEarned.toStringAsFixed(0)}'
-                                : FFLocalizations.of(context).getText('drv_coming_soon'),
+                                : FFLocalizations.of(context)
+                                    .getText('drv_coming_soon'),
                             style: TextStyle(
                               fontSize: isSmallScreen ? 16 : 18,
                               fontWeight: FontWeight.bold,
-                              color: hasIncentives ? Colors.black87 : Colors.grey,
+                              color:
+                                  hasIncentives ? Colors.black87 : Colors.grey,
                             ),
                           ),
                         SizedBox(width: isSmallScreen ? 8 : 12),
                         Icon(
-                          isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                          isExpanded
+                              ? Icons.keyboard_arrow_down
+                              : Icons.keyboard_arrow_up,
                           size: isSmallScreen ? 24 : 28,
                           color: Colors.black87,
                         ),
@@ -108,10 +114,10 @@ class IncentivePanel extends StatelessWidget {
             curve: Curves.easeInOut,
             child: isExpanded
                 ? (isLoadingIncentives
-                ? _buildLoadingIndicator()
-                : hasIncentives
-                ? _buildIncentiveProgressBars(context)
-                : _buildComingSoonMessage(context))
+                    ? _buildLoadingIndicator()
+                    : hasIncentives
+                        ? _buildIncentiveProgressBars(context)
+                        : _buildComingSoonMessage(context))
                 : const SizedBox(width: double.infinity, height: 0),
           ),
         ],
@@ -130,7 +136,9 @@ class IncentivePanel extends StatelessWidget {
 
   Widget _buildIncentiveProgressBars(BuildContext context) {
     final totalRequiredRides = incentiveTiers.isNotEmpty
-        ? incentiveTiers.map((t) => t.targetRides).reduce((a, b) => a > b ? a : b)
+        ? incentiveTiers
+            .map((t) => t.targetRides)
+            .reduce((a, b) => a > b ? a : b)
         : 0;
 
     return Padding(
@@ -165,7 +173,7 @@ class IncentivePanel extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ...incentiveTiers.map(
-                (tier) => _IncentiveTierBar(
+            (tier) => _IncentiveTierBar(
               tier: tier,
               currentRides: currentRides,
               isSmallScreen: isSmallScreen,
@@ -253,7 +261,8 @@ class _IncentiveTierBar extends StatelessWidget {
                     style: TextStyle(
                       fontSize: isSmallScreen ? 14 : 15,
                       fontWeight: FontWeight.w600,
-                      color: tier.isLocked ? Colors.grey.shade600 : Colors.black87,
+                      color:
+                          tier.isLocked ? Colors.grey.shade600 : Colors.black87,
                     ),
                   ),
                 ],
@@ -270,7 +279,8 @@ class _IncentiveTierBar extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Container(
-            height: isSmallScreen ? 14 : 16, // Slightly thicker for glanceability
+            height:
+                isSmallScreen ? 14 : 16, // Slightly thicker for glanceability
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(10),
@@ -290,8 +300,14 @@ class _IncentiveTierBar extends StatelessWidget {
                               colors: tier.isLocked
                                   ? [Colors.grey.shade400, Colors.grey.shade500]
                                   : isCompleted
-                                  ? [AppColors.success, Colors.green.shade600] // Green if done
-                                  : [AppColors.primaryLightBg, AppColors.primary], // Orange if in-progress
+                                      ? [
+                                          AppColors.success,
+                                          Colors.green.shade600
+                                        ] // Green if done
+                                      : [
+                                          AppColors.primaryLightBg,
+                                          AppColors.primary
+                                        ], // Orange if in-progress
                             ),
                           ),
                         ),

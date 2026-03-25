@@ -4,6 +4,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/components/rich_address_from_lat_lng.dart';
+import 'package:ugo_driver/models/payment_mode.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -29,7 +30,7 @@ class RidePickupOverlay extends StatelessWidget {
     }
     final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri browserUrl =
-    Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -116,13 +117,17 @@ class RidePickupOverlay extends StatelessWidget {
                       topLeft: Radius.circular(16),
                       topRight: Radius.circular(16),
                     ),
-                    color: ride.bookingMode == 'pro' ? const Color(0xFFE3CA43) : AppColors.success,
+                    color: ride.bookingMode == 'pro'
+                        ? const Color(0xFFE3CA43)
+                        : AppColors.success,
                   ),
                   child: Text(
                     FFLocalizations.of(context).getText('drv_go_to_pickup'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: ride.bookingMode == 'pro' ? Colors.black : Colors.white,
+                      color: ride.bookingMode == 'pro'
+                          ? Colors.black
+                          : Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       letterSpacing: 1.0,
@@ -162,22 +167,74 @@ class RidePickupOverlay extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    ride.firstName ??
-                                        FFLocalizations.of(context)
-                                            .getText('drv_passenger'),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          ride.firstName ??
+                                              FFLocalizations.of(context)
+                                                  .getText('drv_passenger'),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            '₹${ride.estimatedFare?.toInt() ?? 0}',
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: ride.paymentMode.isCash
+                                                  ? Colors.green.shade50
+                                                  : Colors.blue.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: ride.paymentMode.isCash
+                                                    ? Colors.green.shade200
+                                                    : Colors.blue.shade200,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              ride.rawPaymentMode.toUpperCase(),
+                                              style: TextStyle(
+                                                color: ride.paymentMode.isCash
+                                                    ? Colors.green.shade700
+                                                    : Colors.blue.shade700,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 16),
                                   Row(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Pickup icon Box
                                       Container(
@@ -192,11 +249,11 @@ class RidePickupOverlay extends StatelessWidget {
                                             width: 1,
                                           ),
                                           borderRadius:
-                                          BorderRadius.circular(8),
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Column(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                           children: [
                                             Icon(
                                               Icons.location_on,
@@ -223,7 +280,7 @@ class RidePickupOverlay extends StatelessWidget {
                                           lng: ride.pickupLng,
                                           fallbackAddress: ride.pickupAddress,
                                           fallbackLabel: FFLocalizations.of(
-                                              context)
+                                                  context)
                                               .getText('drv_unknown_location'),
                                         ),
                                       ),
@@ -241,19 +298,23 @@ class RidePickupOverlay extends StatelessWidget {
                                   Icon(
                                     Icons.call,
                                     color: Colors.black,
-                                    size: Responsive.iconSize(context, base: 24),
+                                    size:
+                                        Responsive.iconSize(context, base: 24),
                                   ),
-                                      () => launchUrl(
+                                  () => launchUrl(
                                     Uri.parse('tel:${ride.mobileNumber ?? ''}'),
                                   ),
                                 ),
                                 SizedBox(
-                                    height: Responsive.verticalSpacing(context)),
+                                    height:
+                                        Responsive.verticalSpacing(context)),
                                 _buildSquareIconBtn(
                                   context,
                                   Container(
-                                    width: Responsive.iconSize(context, base: 24),
-                                    height: Responsive.iconSize(context, base: 24),
+                                    width:
+                                        Responsive.iconSize(context, base: 24),
+                                    height:
+                                        Responsive.iconSize(context, base: 24),
                                     decoration: const BoxDecoration(
                                       color: AppColors.error,
                                       shape: BoxShape.circle,
@@ -261,7 +322,8 @@ class RidePickupOverlay extends StatelessWidget {
                                     child: Icon(
                                       Icons.close,
                                       color: Colors.white,
-                                      size: Responsive.iconSize(context, base: 16),
+                                      size: Responsive.iconSize(context,
+                                          base: 16),
                                     ),
                                   ),
                                   onCancel ?? () {},
@@ -275,8 +337,12 @@ class RidePickupOverlay extends StatelessWidget {
                         SlideToAction(
                           text: FFLocalizations.of(context)
                               .getText('drv_arrived'),
-                          outerColor: ride.bookingMode == 'pro' ? const Color(0xFFE3CA43) : AppColors.success,
-                          textColor: ride.bookingMode == 'pro' ? Colors.black : Colors.white,
+                          outerColor: ride.bookingMode == 'pro'
+                              ? const Color(0xFFE3CA43)
+                              : AppColors.success,
+                          textColor: ride.bookingMode == 'pro'
+                              ? Colors.black
+                              : Colors.white,
                           onSubmitted: onSwipe,
                           height: Responsive.buttonHeight(context, base: 55),
                         ),
@@ -293,10 +359,10 @@ class RidePickupOverlay extends StatelessWidget {
   }
 
   Widget _buildSquareIconBtn(
-      BuildContext context,
-      Widget iconWidget,
-      VoidCallback onTap,
-      ) {
+    BuildContext context,
+    Widget iconWidget,
+    VoidCallback onTap,
+  ) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
@@ -344,10 +410,10 @@ class ActiveRideCard extends StatelessWidget {
     bool showPickupBox = true;
 
     bool isPro = ride.bookingMode == 'pro';
-    
+
     if (isArrived) {
       headerText =
-      "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
+          "${FFLocalizations.of(context).getText('drv_waiting_time')} : $formattedWaitTime";
       btnText = FFLocalizations.of(context).getText('drv_start_ride');
       if (isPro) {
         headerColor = const Color(0xFFE3CA43);
@@ -371,7 +437,9 @@ class ActiveRideCard extends StatelessWidget {
           BoxShadow(
               color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
-        border: Border.all(color: isPro ? const Color(0xFFE3CA43) : Colors.transparent, width: isPro ? 2 : 0),
+        border: Border.all(
+            color: isPro ? const Color(0xFFE3CA43) : Colors.transparent,
+            width: isPro ? 2 : 0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -391,7 +459,9 @@ class ActiveRideCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                  color: (isPro && headerColor == const Color(0xFFE3CA43)) ? Colors.black : Colors.white,
+                  color: (isPro && headerColor == const Color(0xFFE3CA43))
+                      ? Colors.black
+                      : Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   letterSpacing: 1.0),
@@ -432,9 +502,9 @@ class ActiveRideCard extends StatelessWidget {
                               // Icon Box
                               Container(
                                 width:
-                                Responsive.buttonHeight(context, base: 46),
+                                    Responsive.buttonHeight(context, base: 46),
                                 height:
-                                Responsive.buttonHeight(context, base: 46),
+                                    Responsive.buttonHeight(context, base: 46),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(
@@ -447,15 +517,15 @@ class ActiveRideCard extends StatelessWidget {
                                   children: [
                                     Icon(Icons.location_on,
                                         color:
-                                        showPickupBox ? ugoGreen : ugoRed,
+                                            showPickupBox ? ugoGreen : ugoRed,
                                         size: Responsive.iconSize(context,
                                             base: 22)),
                                     Text(
                                       showPickupBox
                                           ? FFLocalizations.of(context)
-                                          .getText('drv_pickup')
+                                              .getText('drv_pickup')
                                           : FFLocalizations.of(context)
-                                          .getText('drv_drop'),
+                                              .getText('drv_drop'),
                                       style: const TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey,
@@ -490,11 +560,13 @@ class ActiveRideCard extends StatelessWidget {
                       children: [
                         _buildSquareIconBtn(
                             context,
-                            Icon(Icons.call, color: Colors.black, size: Responsive.iconSize(context, base: 24)),
-                                () {
-                              launchUrl(
-                                  Uri.parse("tel:${ride.mobileNumber ?? ''}"));
-                            }),
+                            Icon(Icons.call,
+                                color: Colors.black,
+                                size: Responsive.iconSize(context, base: 24)),
+                            () {
+                          launchUrl(
+                              Uri.parse("tel:${ride.mobileNumber ?? ''}"));
+                        }),
                         SizedBox(height: Responsive.verticalSpacing(context)),
                         _buildSquareIconBtn(
                             context,
@@ -505,7 +577,9 @@ class ActiveRideCard extends StatelessWidget {
                                 color: AppColors.error,
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.close, color: Colors.white, size: Responsive.iconSize(context, base: 16)),
+                              child: Icon(Icons.close,
+                                  color: Colors.white,
+                                  size: Responsive.iconSize(context, base: 16)),
                             ),
                             onCancel ?? () {}),
                       ],
@@ -517,7 +591,9 @@ class ActiveRideCard extends StatelessWidget {
                 SlideToAction(
                     text: btnText,
                     outerColor: btnColor,
-                    textColor: (isPro && btnColor == const Color(0xFFE3CA43)) ? Colors.black : Colors.white,
+                    textColor: (isPro && btnColor == const Color(0xFFE3CA43))
+                        ? Colors.black
+                        : Colors.white,
                     isPro: isPro && btnColor == const Color(0xFFE3CA43),
                     onSubmitted: onSwipe,
                     height: Responsive.buttonHeight(context, base: 55)),
@@ -589,7 +665,9 @@ class _SlideToActionState extends State<SlideToAction> {
             color: widget.outerColor,
             borderRadius: BorderRadius.circular(widget.height / 2),
             border: Border.all(
-              color: widget.isPro ? const Color(0xFFE3CA43) : Colors.transparent, // ✅ Add gold border if Pro
+              color: widget.isPro
+                  ? const Color(0xFFE3CA43)
+                  : Colors.transparent, // ✅ Add gold border if Pro
               width: widget.isPro ? 2 : 0,
             ),
           ),
@@ -600,7 +678,8 @@ class _SlideToActionState extends State<SlideToAction> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.isPro) ...[
-                      const Icon(Icons.workspace_premium, color: Colors.black, size: 20), // Crown Icon
+                      const Icon(Icons.workspace_premium,
+                          color: Colors.black, size: 20), // Crown Icon
                       const SizedBox(width: 6),
                     ],
                     Text(
@@ -647,7 +726,9 @@ class _SlideToActionState extends State<SlideToAction> {
                     width: sliderSize,
                     height: sliderSize,
                     decoration: BoxDecoration(
-                        color: widget.isPro ? Colors.black : Colors.white, // ✅ Black circle for Pro
+                        color: widget.isPro
+                            ? Colors.black
+                            : Colors.white, // ✅ Black circle for Pro
                         shape: BoxShape.circle,
                         boxShadow: const [
                           BoxShadow(
@@ -656,7 +737,10 @@ class _SlideToActionState extends State<SlideToAction> {
                               offset: Offset(1, 1))
                         ]),
                     child: Icon(Icons.arrow_forward,
-                        color: widget.isPro ? const Color(0xFFE3CA43) : widget.outerColor, // ✅ Gold arrow inside black circle
+                        color: widget.isPro
+                            ? const Color(0xFFE3CA43)
+                            : widget
+                                .outerColor, // ✅ Gold arrow inside black circle
                         size: 24),
                   ),
                 ),

@@ -90,10 +90,10 @@ class _TeampageWidgetState extends State<TeampageWidget>
   List<dynamic> get _referralsList {
     if (_model.referralData == null) return [];
     return (getJsonField(
-              _model.referralData,
-              r'$.yesterday_statistics.referrals',
-              true,
-            ) as List?) ??
+          _model.referralData,
+          r'$.yesterday_statistics.referrals',
+          true,
+        ) as List?) ??
         [];
   }
 
@@ -153,8 +153,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 borderRadius: 30.0,
                                 borderWidth: 1.0,
                                 buttonSize: 45.0,
-                                fillColor:
-                                    Colors.white.withValues(alpha: 0.2),
+                                fillColor: Colors.white.withValues(alpha: 0.2),
                                 icon: const Icon(Icons.arrow_back_rounded,
                                     color: Colors.white, size: 24.0),
                                 onPressed: () => context.pop(),
@@ -175,8 +174,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 borderRadius: 30.0,
                                 borderWidth: 1.0,
                                 buttonSize: 42.0,
-                                fillColor:
-                                    Colors.white.withValues(alpha: 0.2),
+                                fillColor: Colors.white.withValues(alpha: 0.2),
                                 icon: const Icon(Icons.refresh_rounded,
                                     color: Colors.white, size: 20.0),
                                 onPressed: _loadReferralData,
@@ -187,21 +185,17 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
                         // Header summary
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Total Referrals',
                                     style: GoogleFonts.inter(
-                                        color: Colors.white70,
-                                        fontSize: 12),
+                                        color: Colors.white70, fontSize: 12),
                                   ),
                                   Text(
                                     _referredCount,
@@ -217,10 +211,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white
-                                      .withValues(alpha: 0.2),
-                                  borderRadius:
-                                      BorderRadius.circular(20),
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
                                   children: [
@@ -245,8 +237,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
                         // Stat cards
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Row(
                             children: [
                               Expanded(
@@ -293,8 +284,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                               ),
                             ),
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
@@ -321,15 +311,11 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                     ),
                                     const Spacer(),
                                     Container(
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: ugoOrange
-                                            .withValues(alpha: 0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(10),
+                                        color: ugoOrange.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
                                         '${_referralsList.length} drivers',
@@ -364,8 +350,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         width: double.infinity,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(16),
@@ -379,8 +364,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_rounded,
-                color: ugoOrange, size: 16),
+            Icon(Icons.calendar_today_rounded, color: ugoOrange, size: 16),
             const SizedBox(width: 8),
             Text(
               'Yesterday',
@@ -407,9 +391,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
   }
 
   Widget _miniStat(
-      {required String label,
-      required String value,
-      required Color color}) {
+      {required String label, required String value, required Color color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -422,8 +404,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
           ),
         ),
         Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 10, color: Colors.grey[500])),
+            style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500])),
       ],
     );
   }
@@ -518,8 +499,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
             const SizedBox(height: 4),
             Text(
               'Share your code to grow your team',
-              style: GoogleFonts.inter(
-                  fontSize: 12, color: Colors.grey[400]),
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[400]),
             ),
           ],
         ),
@@ -535,15 +515,12 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
         // ✅ Keys from actual API response
         final name = driver['name']?.toString() ?? 'Unknown';
-        final proRides =
-            (driver['pro_rides_completed'] as num?)?.toInt() ?? 0;
+        final proRides = (driver['pro_rides_completed'] as num?)?.toInt() ?? 0;
         final normalRides =
             (driver['normal_rides_completed'] as num?)?.toInt() ?? 0;
-        final rideEarnings =
-            (driver['ride_earnings'] as num?)?.toInt() ?? 0;
+        final rideEarnings = (driver['ride_earnings'] as num?)?.toInt() ?? 0;
         final commission =
-            (driver['commission_earned_by_72'] as num?)?.toDouble() ??
-                0.0;
+            (driver['commission_earned_by_72'] as num?)?.toDouble() ?? 0.0;
         final totalRides = proRides + normalRides;
         final bool isActive = totalRides > 0;
 
@@ -582,12 +559,9 @@ class _TeampageWidgetState extends State<TeampageWidget>
                         ),
                         child: Center(
                           child: Text(
-                            name.isNotEmpty
-                                ? name[0].toUpperCase()
-                                : '?',
+                            name.isNotEmpty ? name[0].toUpperCase() : '?',
                             style: GoogleFonts.interTight(
-                              color:
-                                  isActive ? ugoGreen : ugoOrange,
+                              color: isActive ? ugoGreen : ugoOrange,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
@@ -599,8 +573,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                       // Info
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
@@ -617,29 +590,20 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(
-                                          horizontal: 7,
-                                          vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 7, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: isActive
-                                        ? ugoGreen.withValues(
-                                            alpha: 0.12)
-                                        : Colors.grey.withValues(
-                                            alpha: 0.12),
-                                    borderRadius:
-                                        BorderRadius.circular(6),
+                                        ? ugoGreen.withValues(alpha: 0.12)
+                                        : Colors.grey.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
-                                    isActive
-                                        ? 'Active'
-                                        : 'Inactive',
+                                    isActive ? 'Active' : 'Inactive',
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
-                                      color: isActive
-                                          ? ugoGreen
-                                          : Colors.grey,
+                                      color: isActive ? ugoGreen : Colors.grey,
                                     ),
                                   ),
                                 ),
@@ -649,8 +613,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             Row(
                               children: [
                                 _rideChip(
-                                    label: '$proRides Pro',
-                                    color: ugoBlue),
+                                    label: '$proRides Pro', color: ugoBlue),
                                 const SizedBox(width: 6),
                                 _rideChip(
                                     label: '$normalRides Normal',
@@ -671,17 +634,15 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
                       // Commission
                       Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
                             '₹${commission.toStringAsFixed(0)}',
                             style: GoogleFonts.interTight(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: commission > 0
-                                  ? ugoGreen
-                                  : Colors.grey[400],
+                              color:
+                                  commission > 0 ? ugoGreen : Colors.grey[400],
                             ),
                           ),
                           // Text(
@@ -704,11 +665,9 @@ class _TeampageWidgetState extends State<TeampageWidget>
     );
   }
 
-  Widget _rideChip(
-      {required String label, required Color color}) {
+  Widget _rideChip({required String label, required Color color}) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),

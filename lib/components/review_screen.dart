@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/models/payment_mode.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import '../home/ride_request_model.dart';
 
@@ -92,14 +93,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              RateRideCall.message(res.jsonBody) ?? 'Thank you! Rating submitted.',
+              RateRideCall.message(res.jsonBody) ??
+                  'Thank you! Rating submitted.',
             ),
             backgroundColor: AppColors.success,
           ),
         );
         widget.onSubmit();
       } else {
-        final msg = RateRideCall.message(res.jsonBody) ?? 'Failed to submit rating';
+        final msg =
+            RateRideCall.message(res.jsonBody) ?? 'Failed to submit rating';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), backgroundColor: AppColors.primary),
         );
@@ -161,7 +164,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               // Rider Info Card
               _buildRiderCard(),
               const SizedBox(height: 32),
-              
+
               // Review Section
               Text(
                 FFLocalizations.of(context).getText('drv_review'),
@@ -173,7 +176,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ),
               const SizedBox(height: 16),
               _buildStarRating(),
-              
+
               const SizedBox(height: 32),
               // Optional Comments
               Text(
@@ -186,11 +189,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ),
               const SizedBox(height: 16),
               _buildReviewTags(),
-              
+
               const SizedBox(height: 40),
               // Fare Display
               _buildFareCard(),
-              
+
               const SizedBox(height: 40),
               // Submit Button
               _buildSubmitButton(),
@@ -225,7 +228,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 40),
+            child: const Icon(Icons.person_rounded,
+                color: AppColors.primary, size: 40),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -253,7 +257,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   children: [
                     Text(
                       '${FFLocalizations.of(context).getText('drv_rating_label')} : ',
-                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.grey[600]),
                     ),
                     Text(
                       '5.0', // Standard or fetch if available
@@ -270,7 +275,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     children: [
                       Text(
                         '${FFLocalizations.of(context).getText('drv_vehicle_label')} : ',
-                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+                        style: GoogleFonts.poppins(
+                            fontSize: 14, color: Colors.grey[600]),
                       ),
                       Text(
                         widget.ride.vehicleType!,
@@ -331,7 +337,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white,
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
                 color: isSelected ? AppColors.primary : Colors.grey[200]!,
@@ -366,13 +374,44 @@ class _ReviewScreenState extends State<ReviewScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  FFLocalizations.of(context).getText('drv_total_fare'),
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      FFLocalizations.of(context).getText('drv_total_fare'),
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: widget.ride.paymentMode.isCash
+                            ? Colors.green.shade50
+                            : Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                            color: widget.ride.paymentMode.isCash
+                                ? Colors.green.shade200
+                                : Colors.blue.shade200),
+                      ),
+                      child: Text(
+                        widget.ride.rawPaymentMode.toUpperCase(),
+                        style: GoogleFonts.poppins(
+                          color: widget.ride.paymentMode.isCash
+                              ? Colors.green.shade700
+                              : Colors.blue.shade700,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   children: [
@@ -385,7 +424,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey[400]),
+                    Icon(Icons.keyboard_arrow_down_rounded,
+                        color: Colors.grey[400]),
                   ],
                 ),
               ],
@@ -415,7 +455,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                    color: Colors.white, strokeWidth: 2),
               )
             : Text(
                 FFLocalizations.of(context).getText('drv_submit'),

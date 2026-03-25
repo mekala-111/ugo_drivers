@@ -22,7 +22,8 @@ class OfflineDashboard extends StatefulWidget {
   State<OfflineDashboard> createState() => _OfflineDashboardState();
 }
 
-class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerProviderStateMixin {
+class _OfflineDashboardState extends State<OfflineDashboard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _breathingController;
   late Animation<double> _breathingAnimation;
 
@@ -49,7 +50,8 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final pad = Responsive.horizontalPadding(context);
-    final btnH = Responsive.buttonHeight(context, base: 56); // Slightly taller for premium feel
+    final btnH = Responsive.buttonHeight(context,
+        base: 56); // Slightly taller for premium feel
 
     return Container(
       width: double.infinity,
@@ -114,8 +116,10 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
                   );
                 },
                 child: Container(
-                  width: Responsive.value(context, small: 160.0, medium: 180.0, large: 200.0),
-                  height: Responsive.value(context, small: 160.0, medium: 180.0, large: 200.0),
+                  width: Responsive.value(context,
+                      small: 160.0, medium: 180.0, large: 200.0),
+                  height: Responsive.value(context,
+                      small: 160.0, medium: 180.0, large: 200.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -142,8 +146,10 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
                           ),
                         ),
                         Icon(
-                          Icons.bedtime_rounded, // Changed to a lovely moon/sleep icon
-                          size: Responsive.value(context, small: 70.0, medium: 80.0, large: 90.0),
+                          Icons
+                              .bedtime_rounded, // Changed to a lovely moon/sleep icon
+                          size: Responsive.value(context,
+                              small: 70.0, medium: 80.0, large: 90.0),
                           color: Colors.grey.shade400,
                         ),
                       ],
@@ -188,7 +194,10 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: widget.isDataLoaded
-                          ? [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)]
+                          ? [
+                              AppColors.primary,
+                              AppColors.primary.withValues(alpha: 0.8)
+                            ]
                           : [Colors.grey.shade400, Colors.grey.shade300],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -196,13 +205,13 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: widget.isDataLoaded
                         ? [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.4),
-                        blurRadius: 20,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 8),
-                      ),
-                    ]
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 8),
+                            ),
+                          ]
                         : [],
                   ),
                   child: Row(
@@ -214,7 +223,8 @@ class _OfflineDashboardState extends State<OfflineDashboard> with SingleTickerPr
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.power_settings_new_rounded, color: Colors.white, size: 22),
+                        child: const Icon(Icons.power_settings_new_rounded,
+                            color: Colors.white, size: 22),
                       ),
                       const SizedBox(width: 12),
                       Text(

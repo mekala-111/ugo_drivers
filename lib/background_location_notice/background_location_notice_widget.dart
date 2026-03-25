@@ -124,17 +124,15 @@ class _BackgroundLocationNoticeWidgetState
                   style: FlutterFlowTheme.of(context).bodySmall.override(
                         font: GoogleFonts.inter(
                           fontWeight: FontWeight.w500,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .bodySmall
-                              .fontStyle,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).bodySmall.fontStyle,
                         ),
                         color: Colors.black87,
                         fontSize: 12,
                         letterSpacing: 0.0,
                         fontWeight: FontWeight.w500,
-                        fontStyle: FlutterFlowTheme.of(context)
-                            .bodySmall
-                            .fontStyle,
+                        fontStyle:
+                            FlutterFlowTheme.of(context).bodySmall.fontStyle,
                         lineHeight: 1.4,
                       ),
                 ),

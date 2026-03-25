@@ -506,6 +506,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const PanuploadScreenWidget(),
         ),
         FFRoute(
+          name: PanuploadScreenUpdateWidget.routeName,
+          path: PanuploadScreenUpdateWidget.routePath,
+          builder: (context, params) => const PanuploadScreenUpdateWidget(),
+        ),
+        FFRoute(
           name: VehicleImageWidget.routeName,
           path: VehicleImageWidget.routePath,
           builder: (context, params) => const VehicleImageWidget(),

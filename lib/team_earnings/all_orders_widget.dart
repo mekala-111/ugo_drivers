@@ -17,7 +17,7 @@ class AllOrdersScreen extends StatefulWidget {
 class _AllOrdersScreenState extends State<AllOrdersScreen> {
   // --- State Variables ---
   bool loading = true;
-  List<dynamic> allRides = [];      // Raw data from API
+  List<dynamic> allRides = []; // Raw data from API
   List<dynamic> filteredRides = []; // Data displayed in list
 
   // Filters
@@ -88,21 +88,26 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       }
 
       // B. Date Check (API: createdAt, completedAt)
-      String dateStr = r['completedAt'] ?? r['createdAt'] ?? r['created_at'] ?? r['date'] ?? DateTime.now().toString();
+      String dateStr = r['completedAt'] ??
+          r['createdAt'] ??
+          r['created_at'] ??
+          r['date'] ??
+          DateTime.now().toString();
       DateTime rDate = DateTime.tryParse(dateStr.toString()) ?? DateTime.now();
 
       bool dateMatch = false;
       if (timeFilter == 'Day') {
-        // Match exact day
         dateMatch = isSameDay(rDate, selectedDate);
       } else if (timeFilter == 'Week') {
-        // Match week range (simplified: within 7 days of selected)
-        // In a real app, you'd calculate week start/end
-        dateMatch = rDate.isAfter(selectedDate.subtract(const Duration(days: 7))) &&
-            rDate.isBefore(selectedDate.add(const Duration(days: 1)));
+        // selectedDate is the Monday/start of the week
+        DateTime weekEnd =
+            selectedDate.add(const Duration(days: 6, hours: 23, minutes: 59));
+        dateMatch =
+            rDate.isAfter(selectedDate.subtract(const Duration(minutes: 1))) &&
+                rDate.isBefore(weekEnd);
       } else {
-        // Match Month
-        dateMatch = rDate.month == selectedDate.month && rDate.year == selectedDate.year;
+        dateMatch = rDate.month == selectedDate.month &&
+            rDate.year == selectedDate.year;
       }
 
       return statusMatch && dateMatch;
@@ -112,7 +117,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     double earnings = 0;
     for (var r in temp) {
       final val = r['fare'] ?? r['amount'];
-      earnings += (val is num) ? val.toDouble() : (double.tryParse(val?.toString() ?? '0') ?? 0);
+      earnings += (val is num)
+          ? val.toDouble()
+          : (double.tryParse(val?.toString() ?? '0') ?? 0);
     }
 
     setState(() {
@@ -140,8 +147,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
         title: Text(
           'All Orders',
           style: GoogleFonts.inter(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20
-          ),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         actions: [
           Container(
@@ -153,15 +159,17 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.headset_mic_outlined, size: 18, color: Colors.black),
+                const Icon(Icons.headset_mic_outlined,
+                    size: 18, color: Colors.black),
                 const SizedBox(width: 6),
-                Text('Help', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black)),
+                Text('Help',
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600, color: Colors.black)),
               ],
             ),
           )
         ],
       ),
-
       body: Column(
         children: [
           const SizedBox(height: 10),
@@ -184,7 +192,10 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Order History',
-                  style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.w500)),
+                  style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500)),
             ),
           ),
           const SizedBox(height: 12),
@@ -194,12 +205,16 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           // 5. Date Header
           if (filteredRides.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   DateFormat('dd MMMM, yyyy').format(selectedDate),
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.infoDark),
+                  style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.infoDark),
                 ),
               ),
             ),
@@ -207,16 +222,20 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           // 6. Orders List
           Expanded(
             child: loading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.teamEarningsYellow))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.teamEarningsYellow))
                 : filteredRides.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: filteredRides.length,
-              itemBuilder: (context, i) {
-                return _buildOrderCard(filteredRides[i], statusFilter);
-              },
-            ),
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        itemCount: filteredRides.length,
+                        itemBuilder: (context, i) {
+                          return _buildOrderCard(
+                              filteredRides[i], statusFilter);
+                        },
+                      ),
           ),
         ],
       ),
@@ -231,21 +250,48 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: lightGreyBg, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+          color: lightGreyBg, borderRadius: BorderRadius.circular(24)),
       child: Row(
         children: ['Day', 'Week', 'Month'].map((filter) {
           bool isActive = timeFilter == filter;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() { timeFilter = filter; _applyFilters(); }),
+              onTap: () {
+                setState(() {
+                  timeFilter = filter;
+                  // Reset selectedDate based on selection so UI doesn't crash
+                  if (filter == 'Week') {
+                    DateTime now = DateTime.now();
+                    selectedDate =
+                        now.subtract(Duration(days: now.weekday - 1));
+                  } else if (filter == 'Month') {
+                    selectedDate =
+                        DateTime(DateTime.now().year, DateTime.now().month, 1);
+                  } else {
+                    selectedDate = DateTime.now();
+                  }
+                  _applyFilters();
+                });
+              },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isActive ? ugoYellow : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(filter, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black)),
+                    color: isActive ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2))
+                          ]
+                        : []),
+                child: Text(filter,
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        color: isActive ? Colors.black : Colors.grey[600])),
               ),
             ),
           );
@@ -255,63 +301,114 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
   }
 
   Widget _buildDatePickerStrip() {
-  List<DateTime> dates = List.generate(5, (index) => DateTime.now().subtract(Duration(days: 2 - index)));
+    ScrollController _scrollController = ScrollController();
 
-  return SizedBox(
-    height: 60,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blue),
-          onPressed: () {},
+    // Auto-scroll to end (most recent)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+
+    List<Widget> items = [];
+
+    if (timeFilter == 'Day') {
+      // Past 14 days
+      for (int i = 13; i >= 0; i--) {
+        DateTime date = DateTime.now().subtract(Duration(days: i));
+        bool isSelected = isSameDay(date, selectedDate);
+        items.add(_buildDateItem(
+            DateFormat('EEE').format(date),
+            DateFormat('d').format(date),
+            isSelected,
+            () => setState(() {
+                  selectedDate = date;
+                  _applyFilters();
+                })));
+      }
+    } else if (timeFilter == 'Week') {
+      // Past 6 weeks
+      for (int i = 5; i >= 0; i--) {
+        // Start week on Monday
+        DateTime now = DateTime.now();
+        int daysSinceMonday = now.weekday - 1;
+        DateTime thisMonday = now.subtract(Duration(days: daysSinceMonday));
+        DateTime weekStart = thisMonday.subtract(Duration(days: i * 7));
+        DateTime weekEnd = weekStart.add(const Duration(days: 6));
+
+        // Initial selectedDate check for week mode
+        bool isSelected = isSameDay(selectedDate, weekStart);
+        String label =
+            "${DateFormat('d MMM').format(weekStart)} - ${DateFormat('d MMM').format(weekEnd)}";
+        items.add(_buildDateItem(
+            '',
+            label,
+            isSelected,
+            () => setState(() {
+                  selectedDate = weekStart;
+                  _applyFilters();
+                })));
+      }
+    } else {
+      // Past 6 Months
+      for (int i = 5; i >= 0; i--) {
+        DateTime monthDate =
+            DateTime(DateTime.now().year, DateTime.now().month - i, 1);
+        bool isSelected = selectedDate.year == monthDate.year &&
+            selectedDate.month == monthDate.month;
+        items.add(_buildDateItem(
+            '',
+            DateFormat('MMM yyyy').format(monthDate),
+            isSelected,
+            () => setState(() {
+                  selectedDate = monthDate;
+                  _applyFilters();
+                })));
+      }
+    }
+
+    return SizedBox(
+      height: 60,
+      child: ListView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: items,
+      ),
+    );
+  }
+
+  Widget _buildDateItem(
+      String topText, String bottomText, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+            color: isSelected ? ugoYellow : lightGreyBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: isSelected ? Colors.transparent : Colors.grey.shade300)),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (topText.isNotEmpty)
+              Text(topText,
+                  style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: isSelected ? Colors.black : Colors.grey[600])),
+            Text(bottomText,
+                style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black)),
+          ],
         ),
-        Expanded(  // ✅ Fixes overflow
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: dates.map((date) {
-              bool isSelected = isSameDay(date, selectedDate);
-              return GestureDetector(
-                onTap: () => setState(() { selectedDate = date; _applyFilters(); }),
-                child: Container(
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: isSelected ? ugoYellow : lightGreyBg,  // ✅ Yellow instead of green
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('EEE').format(date),
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: isSelected ? Colors.black : Colors.grey[600],  // ✅ Black text on yellow
-                        ),
-                      ),
-                      Text(
-                        DateFormat('d').format(date),
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.black : Colors.black,  // ✅ Black on yellow
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.arrow_forward, color: Colors.blue),
-          onPressed: () {},
-        ),
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
   Widget _buildStatsCard() {
     bool isCancelled = statusFilter == 'Cancelled';
@@ -329,10 +426,15 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
             Expanded(
               child: Column(
                 children: [
-                  Text('$totalCount', style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+                  Text('$totalCount',
+                      style: GoogleFonts.inter(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
                   const SizedBox(height: 4),
                   Text(isCancelled ? 'Cancelled Orders' : 'Completed Orders',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                      style: GoogleFonts.inter(
+                          fontSize: 12, color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -341,10 +443,14 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               child: Column(
                 children: [
                   Text('₹${totalEarnings.toStringAsFixed(0)}',
-                      style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: ugoYellow)),
+                      style: GoogleFonts.inter(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: ugoYellow)),
                   const SizedBox(height: 4),
                   Text(isCancelled ? 'Cancellation Fare' : 'Order Earnings',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                      style: GoogleFonts.inter(
+                          fontSize: 12, color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -367,14 +473,20 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: GestureDetector(
-              onTap: () => setState(() { statusFilter = status; _applyFilters(); }),
+              onTap: () => setState(() {
+                statusFilter = status;
+                _applyFilters();
+              }),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(status, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
+                child: Text(status,
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600, color: Colors.black87)),
               ),
             ),
           );
@@ -387,48 +499,103 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     bool isCancelled = status == 'Cancelled';
 
     // Extract Data (API: orderType, fare, pickupAddress, dropAddress, completedAt/createdAt)
-    String type = (r['orderType'] ?? r['rideType'] ?? r['vehicle_type'] ?? 'bike').toString().toUpperCase();
-    String time = 'N/A';
-    final dateVal = r['completedAt'] ?? r['createdAt'] ?? r['created_at'] ?? r['date'];
+    String type =
+        (r['orderType'] ?? r['rideType'] ?? r['vehicle_type'] ?? 'Bike')
+            .toString()
+            .toUpperCase();
+    String time = '00:00';
+    String dateLabel = '';
+    final dateVal =
+        r['completedAt'] ?? r['createdAt'] ?? r['created_at'] ?? r['date'];
     if (dateVal != null) {
       try {
-        time = DateFormat('h:mm a').format(DateTime.parse(dateVal.toString()));
-      } catch (e) { time = '00:00'; }
+        DateTime parsed = DateTime.parse(dateVal.toString());
+        time = DateFormat('h:mm a').format(parsed);
+        dateLabel = DateFormat('d MMM yyyy').format(parsed);
+      } catch (e) {
+        time = '00:00';
+      }
     }
     String amount = "₹${r['fare'] ?? r['amount'] ?? '0'}";
-    String from = r['pickupAddress'] ?? r['pickup_address'] ?? r['from'] ?? 'Unknown Pickup';
-    String to = r['dropAddress'] ?? r['drop_address'] ?? r['to'] ?? 'Unknown Drop';
+    String from = r['pickupAddress'] ??
+        r['pickup_address'] ??
+        r['from'] ??
+        'Unknown Pickup';
+    String to =
+        r['dropAddress'] ?? r['drop_address'] ?? r['to'] ?? 'Unknown Drop';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black)),
-              const SizedBox(width: 6),
-              const Icon(Icons.wb_sunny_outlined, size: 14, color: Colors.orange),
-              const SizedBox(width: 4),
-              Text(time, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 13)),
-              const Spacer(),
-              Text(amount, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15, color: ugoYellow
-              )),
-              if (!isCancelled) ...[
-                const SizedBox(width: 4),
-                const Icon(Icons.check_circle, size: 16, color: AppColors.successAlt),
-              ]
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(dateLabel,
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.grey[800])),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(type,
+                          style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: Colors.black)),
+                      const SizedBox(width: 8),
+                      Text("•", style: TextStyle(color: Colors.grey[400])),
+                      const SizedBox(width: 8),
+                      Text(time,
+                          style: GoogleFonts.inter(
+                              color: Colors.grey[600], fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(amount,
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black)),
+                  if (status == 'Completed') ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.successAlt.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('Completed',
+                          style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.successAlt)),
+                    )
+                  ]
+                ],
+              ),
             ],
           ),
-          const Divider(height: 24, color: AppColors.divider),
-
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+          ),
           if (isCancelled)
             _buildCancelledContent(from)
           else
@@ -444,9 +611,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       children: [
         Column(
           children: [
-            const Icon(Icons.circle, size: 10, color: AppColors.successAlt),
-            Container(width: 1, height: 25, color: Colors.grey[300]),
-            const Icon(Icons.circle, size: 10, color: Colors.red),
+            const Icon(Icons.circle, size: 10, color: Color(0xFF4CAF50)),
+            Container(width: 1, height: 28, color: Colors.grey[300]),
+            const Icon(Icons.square, size: 10, color: Color(0xFFF44336)),
           ],
         ),
         const SizedBox(width: 12),
@@ -454,9 +621,21 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
-              const SizedBox(height: 14),
-              Text(to, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+              Text(from,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87)),
+              const SizedBox(height: 20),
+              Text(to,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87)),
             ],
           ),
         )
@@ -473,8 +652,9 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           children: [
             Column(
               children: [
-                const Icon(Icons.check_circle_outline, size: 14, color: Colors.blue),
-                Container(width: 1, height: 16, color: Colors.grey[300]), // Short Line
+                const Icon(Icons.check_circle_outline,
+                    size: 14, color: Colors.blue),
+                Container(width: 1, height: 20, color: Colors.grey[300]),
               ],
             ),
             const SizedBox(width: 10),
@@ -482,8 +662,16 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Accepted', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
-                  Text(from, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800])),
+                  Text('Accepted',
+                      style: GoogleFonts.inter(
+                          fontSize: 13, color: Colors.grey[600])),
+                  Text(from,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87)),
                 ],
               ),
             ),
@@ -494,7 +682,8 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
           children: [
             const Icon(Icons.cancel_outlined, size: 14, color: Colors.red),
             const SizedBox(width: 10),
-            Text('Cancelled by Captain', style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
+            Text('Cancelled by Captain',
+                style: GoogleFonts.inter(fontSize: 13, color: Colors.red)),
           ],
         ),
       ],
@@ -507,13 +696,18 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            height: 120, width: 120,
-            decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
+            height: 120,
+            width: 120,
+            decoration:
+                BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
             child: const Icon(Icons.receipt_long, size: 60, color: Colors.grey),
           ),
           const SizedBox(height: 20),
           Text('You have not completed any orders',
-              style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+              style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );

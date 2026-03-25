@@ -37,21 +37,16 @@ void main() {
 
     // Initialize Firebase Remote Config (for secure Razorpay keys)
     await FirebaseRemoteConfigService().initialize();
-
     await RideNotificationService().initialize();
     await RideNotificationService().cancelRideNotification();
     await VoiceService().initFromStorage();
     await VoiceService().stop();
 
     await FlutterFlowTheme.initialize();
-
     final appState = FFAppState();
     await appState.initializePersistedState();
-
     await InstallReferrerService.captureReferralCodeIfAvailable();
-
     await FFLocalizations.initialize();
-
     await initializeFirebaseAppCheck();
 
     // Error handling: present + report to Crashlytics
@@ -101,7 +96,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
 
-  // ✅ GLOBAL MESSENGER KEY FOR SNACKBARS
+  // ✅ GLOBAL MESSENGER KEY FOR SNACK BARS
   final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 

@@ -28,9 +28,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
   @override
   void initState() {
     super.initState();
-    _selectedCityId = FFAppState().preferredCityId > 0
-        ? FFAppState().preferredCityId
-        : null;
+    _selectedCityId =
+        FFAppState().preferredCityId > 0 ? FFAppState().preferredCityId : null;
     _selectedCityName = FFAppState().preferredCityName;
     _fetchCities();
   }
@@ -40,7 +39,9 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
     super.didChangeDependencies();
     if (!_didInitDependencies) {
       final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is Map && args['referalcode'] != null && (args['referalcode'] as String).isNotEmpty) {
+      if (args is Map &&
+          args['referalcode'] != null &&
+          (args['referalcode'] as String).isNotEmpty) {
         FFAppState().referralCode = args['referalcode'] as String;
       }
       _didInitDependencies = true;
@@ -81,13 +82,15 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: Text(FFLocalizations.of(context).getText('drv_request_approval')),
+          title:
+              Text(FFLocalizations.of(context).getText('drv_request_approval')),
           content: StatefulBuilder(
             builder: (context, setState) {
               return DropdownButtonFormField<int>(
                 initialValue: requestedCityId,
                 decoration: InputDecoration(
-                  labelText: FFLocalizations.of(context).getText('drv_select_city'),
+                  labelText:
+                      FFLocalizations.of(context).getText('drv_select_city'),
                 ),
                 items: _cities.map<DropdownMenuItem<int>>((city) {
                   final id = city['id'] is int
@@ -118,7 +121,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(FFLocalizations.of(context).getText('drv_send_request')),
+              child:
+                  Text(FFLocalizations.of(context).getText('drv_send_request')),
             ),
           ],
         );
@@ -168,7 +172,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
           PreferredEarningModeWidget.routeName,
           queryParameters: {
             'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-            'referalcode': serializeParam(FFAppState().referralCode, ParamType.String),
+            'referalcode':
+                serializeParam(FFAppState().referralCode, ParamType.String),
           }.withoutNulls,
           extra: const TransitionInfo(
             hasTransition: true,
@@ -238,7 +243,8 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                         border: Border.all(color: AppColors.accentAmber),
                       ),
                       child: Text(
-                        FFLocalizations.of(context).getText('drv_preferred_city_locked'),
+                        FFLocalizations.of(context)
+                            .getText('drv_preferred_city_locked'),
                         style: const TextStyle(fontSize: 13),
                       ),
                     ),
@@ -270,13 +276,15 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                             value: id ?? -1,
                             groupValue: _selectedCityId,
                             title: Text(name.isNotEmpty ? name : 'City'),
-                            onChanged: _isLocked ? null : (val) {
-                              if (val == null || val <= 0) return;
-                              setState(() {
-                                _selectedCityId = val;
-                                _selectedCityName = name;
-                              });
-                            },
+                            onChanged: _isLocked
+                                ? null
+                                : (val) {
+                                    if (val == null || val <= 0) return;
+                                    setState(() {
+                                      _selectedCityId = val;
+                                      _selectedCityName = name;
+                                    });
+                                  },
                           );
                         },
                       ),
@@ -287,9 +295,11 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                       width: double.infinity,
                       height: 48,
                       child: OutlinedButton(
-                        onPressed: _requestingApproval ? null : _requestApproval,
+                        onPressed:
+                            _requestingApproval ? null : _requestApproval,
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.primary, width: 1.5),
+                          side: const BorderSide(
+                              color: AppColors.primary, width: 1.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -298,11 +308,14 @@ class _PreferredCityWidgetState extends State<PreferredCityWidget> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(
-                                FFLocalizations.of(context).getText('drv_request_approval'),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                FFLocalizations.of(context)
+                                    .getText('drv_request_approval'),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                       ),
                     ),

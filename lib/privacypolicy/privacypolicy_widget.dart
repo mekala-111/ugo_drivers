@@ -49,7 +49,8 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
         body: SafeArea(
           top: true,
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(20.0, 60.0, 20.0, 40.0),
+            padding:
+                const EdgeInsetsDirectional.fromSTEB(20.0, 60.0, 20.0, 40.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,8 +396,8 @@ class _PrivacypolicyWidgetState extends State<PrivacypolicyWidget> {
                       width: double.infinity,
                       height: 56.0,
                       padding: const EdgeInsets.all(8.0),
-                      iconPadding:
-                          const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                          0.0, 0.0, 0.0, 0.0),
                       color: AppColors.primary,
                       textStyle:
                           FlutterFlowTheme.of(context).titleMedium.override(

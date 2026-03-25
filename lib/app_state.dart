@@ -102,7 +102,8 @@ class FFAppState extends ChangeNotifier {
       _isRegistered = prefs.getBool('ff_isRegistered') ?? false;
     });
     _safeInit(() {
-      _registrationStep = prefs.getInt('ff_registrationStep') ?? _registrationStep;
+      _registrationStep =
+          prefs.getInt('ff_registrationStep') ?? _registrationStep;
     });
     _safeInit(() {
       _selectvehicle = prefs.getString('ff_selectvehicle') ?? _selectvehicle;
@@ -171,7 +172,8 @@ class FFAppState extends ChangeNotifier {
       _emergencyContactName = prefs.getString('ff_emergencyContactName') ?? '';
     });
     _safeInit(() {
-      _emergencyContactPhone = prefs.getString('ff_emergencyContactPhone') ?? '';
+      _emergencyContactPhone =
+          prefs.getString('ff_emergencyContactPhone') ?? '';
     });
     _safeInit(() {
       _fcmToken = prefs.getString('ff_fcmToken') ?? '';
@@ -285,65 +287,63 @@ class FFAppState extends ChangeNotifier {
     _restoreUploadedFilesFromBase64();
   }
 
-
-
   void _restoreUploadedFilesFromBase64() {
-  if (_licenseFrontBase64.isNotEmpty) {
-    _licenseFrontImage = FFUploadedFile(
-      name: 'license_front.jpg',
-      bytes: base64Decode(_licenseFrontBase64),
-    );
-  }
+    if (_licenseFrontBase64.isNotEmpty) {
+      _licenseFrontImage = FFUploadedFile(
+        name: 'license_front.jpg',
+        bytes: base64Decode(_licenseFrontBase64),
+      );
+    }
 
-  if (_licenseBackBase64.isNotEmpty) {
-    _licenseBackImage = FFUploadedFile(
-      name: 'license_back.jpg',
-      bytes: base64Decode(_licenseBackBase64),
-    );
-  }
+    if (_licenseBackBase64.isNotEmpty) {
+      _licenseBackImage = FFUploadedFile(
+        name: 'license_back.jpg',
+        bytes: base64Decode(_licenseBackBase64),
+      );
+    }
 
-  if (_profilePhotoBase64.isNotEmpty) {
-    _profilePhoto = FFUploadedFile(
-      name: 'profile.jpg',
-      bytes: base64Decode(_profilePhotoBase64),
-    );
-  }
+    if (_profilePhotoBase64.isNotEmpty) {
+      _profilePhoto = FFUploadedFile(
+        name: 'profile.jpg',
+        bytes: base64Decode(_profilePhotoBase64),
+      );
+    }
 
-  if (_vehicleBase64.isNotEmpty) {
-    _vehicleImage = FFUploadedFile(
-      name: 'vehicle.jpg',
-      bytes: base64Decode(_vehicleBase64),
-    );
-  }
+    if (_vehicleBase64.isNotEmpty) {
+      _vehicleImage = FFUploadedFile(
+        name: 'vehicle.jpg',
+        bytes: base64Decode(_vehicleBase64),
+      );
+    }
 
-  if (_rcFrontBase64.isNotEmpty) {
-    _rcFrontImage = FFUploadedFile(
-      name: 'rc_front.jpg',
-      bytes: base64Decode(_rcFrontBase64),
-    );
-  }
+    if (_rcFrontBase64.isNotEmpty) {
+      _rcFrontImage = FFUploadedFile(
+        name: 'rc_front.jpg',
+        bytes: base64Decode(_rcFrontBase64),
+      );
+    }
 
-  if (_rcBackBase64.isNotEmpty) {
-    _rcBackImage = FFUploadedFile(
-      name: 'rc_back.jpg',
-      bytes: base64Decode(_rcBackBase64),
-    );
-  }
+    if (_rcBackBase64.isNotEmpty) {
+      _rcBackImage = FFUploadedFile(
+        name: 'rc_back.jpg',
+        bytes: base64Decode(_rcBackBase64),
+      );
+    }
 
-  if (_insuranceBase64.isNotEmpty) {
-    _insuranceImage = FFUploadedFile(
-      name: 'insurance.jpg',
-      bytes: base64Decode(_insuranceBase64),
-    );
-  }
+    if (_insuranceBase64.isNotEmpty) {
+      _insuranceImage = FFUploadedFile(
+        name: 'insurance.jpg',
+        bytes: base64Decode(_insuranceBase64),
+      );
+    }
 
-  if (_pollutionBase64.isNotEmpty) {
-    _pollutioncertificateImage = FFUploadedFile(
-      name: 'pollution.jpg',
-      bytes: base64Decode(_pollutionBase64),
-    );
+    if (_pollutionBase64.isNotEmpty) {
+      _pollutioncertificateImage = FFUploadedFile(
+        name: 'pollution.jpg',
+        bytes: base64Decode(_pollutionBase64),
+      );
+    }
   }
-}
 
   Future<void> _loadAadharPanFromSecureStorage() async {
     final sec = SecureStorageService.instance;
@@ -364,7 +364,8 @@ class FFAppState extends ChangeNotifier {
       if (v == null || v.isEmpty) {
         final fromPrefs = prefs.getString('ff_aadharFrontImageUrl');
         if (fromPrefs != null && fromPrefs.isNotEmpty) {
-          await sec.write(SecureStorageService.keyAadharFrontImageUrl, fromPrefs);
+          await sec.write(
+              SecureStorageService.keyAadharFrontImageUrl, fromPrefs);
           await prefs.remove('ff_aadharFrontImageUrl');
           v = fromPrefs;
         } else {
@@ -378,7 +379,8 @@ class FFAppState extends ChangeNotifier {
       if (v == null || v.isEmpty) {
         final fromPrefs = prefs.getString('ff_aadharBackImageUrl');
         if (fromPrefs != null && fromPrefs.isNotEmpty) {
-          await sec.write(SecureStorageService.keyAadharBackImageUrl, fromPrefs);
+          await sec.write(
+              SecureStorageService.keyAadharBackImageUrl, fromPrefs);
           await prefs.remove('ff_aadharBackImageUrl');
         }
         v = fromPrefs ?? '';
@@ -801,7 +803,8 @@ class FFAppState extends ChangeNotifier {
   String get aadharFrontImageUrl => _aadharFrontImageUrl;
   set aadharFrontImageUrl(String value) {
     _aadharFrontImageUrl = value;
-    SecureStorageService.instance.write(SecureStorageService.keyAadharFrontImageUrl, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyAadharFrontImageUrl, value);
     notifyListeners();
   }
 
@@ -809,7 +812,8 @@ class FFAppState extends ChangeNotifier {
   String get aadharBackImageUrl => _aadharBackImageUrl;
   set aadharBackImageUrl(String value) {
     _aadharBackImageUrl = value;
-    SecureStorageService.instance.write(SecureStorageService.keyAadharBackImageUrl, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyAadharBackImageUrl, value);
     notifyListeners();
   }
 
@@ -818,7 +822,8 @@ class FFAppState extends ChangeNotifier {
   String get aadharFrontBase64 => _aadharFrontBase64;
   set aadharFrontBase64(String value) {
     _aadharFrontBase64 = value;
-    SecureStorageService.instance.write(SecureStorageService.keyAadharFrontBase64, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyAadharFrontBase64, value);
     notifyListeners();
   }
 
@@ -826,7 +831,8 @@ class FFAppState extends ChangeNotifier {
   String get aadharBackBase64 => _aadharBackBase64;
   set aadharBackBase64(String value) {
     _aadharBackBase64 = value;
-    SecureStorageService.instance.write(SecureStorageService.keyAadharBackBase64, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyAadharBackBase64, value);
     notifyListeners();
   }
 
@@ -835,7 +841,8 @@ class FFAppState extends ChangeNotifier {
   String get aadharNumber => _aadharNumber;
   set aadharNumber(String value) {
     _aadharNumber = value;
-    SecureStorageService.instance.write(SecureStorageService.keyAadharNumber, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyAadharNumber, value);
     notifyListeners();
   }
 
@@ -854,7 +861,8 @@ class FFAppState extends ChangeNotifier {
   String get panImageUrl => _panImageUrl;
   set panImageUrl(String value) {
     _panImageUrl = value;
-    SecureStorageService.instance.write(SecureStorageService.keyPanImageUrl, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyPanImageUrl, value);
     notifyListeners();
   }
 
@@ -863,7 +871,8 @@ class FFAppState extends ChangeNotifier {
   String get panBase64 => _panBase64;
   set panBase64(String value) {
     _panBase64 = value;
-    SecureStorageService.instance.write(SecureStorageService.keyPanBase64, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyPanBase64, value);
     notifyListeners();
   }
 
@@ -872,7 +881,8 @@ class FFAppState extends ChangeNotifier {
   String get panNumber => _panNumber;
   set panNumber(String value) {
     _panNumber = value;
-    SecureStorageService.instance.write(SecureStorageService.keyPanNumber, value);
+    SecureStorageService.instance
+        .write(SecureStorageService.keyPanNumber, value);
     notifyListeners();
   }
 
@@ -1344,103 +1354,101 @@ class FFAppState extends ChangeNotifier {
     prefs.setString('ff_qrImage', value);
     notifyListeners();
   }
-  
+
   Future<void> clearAppState() async {
-  await prefs.clear();
+    await prefs.clear();
 
-  // Auth
-  _accessToken = '';
-  _driverid = 0;
-  _isLoggedIn = false;
-  _isRegistered = false;
-  _registrationStep = 0;
-  _selectvehicle = '';
-  _adminVehicleId = 0;
+    // Auth
+    _accessToken = '';
+    _driverid = 0;
+    _isLoggedIn = false;
+    _isRegistered = false;
+    _registrationStep = 0;
+    _selectvehicle = '';
+    _adminVehicleId = 0;
 
-  // Basic info
-  _mobileNo = 0;
-  _firstName = '';
-  _lastName = '';
-  _email = '';
-  _referralCode = '';
-  _usedReferralCode = '';
-  _preferredCityId = 0;
-  _preferredCityName = '';
-  _preferredEarningMode = '';
+    // Basic info
+    _mobileNo = 0;
+    _firstName = '';
+    _lastName = '';
+    _email = '';
+    _referralCode = '';
+    _usedReferralCode = '';
+    _preferredCityId = 0;
+    _preferredCityName = '';
+    _preferredEarningMode = '';
 
-  // Ride
-  _activeRideId = 0;
-  _activeRideStatus = '';
-  _kycStatus = '';
-  _isonline = false;
+    // Ride
+    _activeRideId = 0;
+    _activeRideStatus = '';
+    _kycStatus = '';
+    _isonline = false;
 
-  // 🔥 Profile
-  _profilePhotoUrl = '';
-  _profilePhotoBase64 = '';
-  _profilePhoto = null;
+    // 🔥 Profile
+    _profilePhotoUrl = '';
+    _profilePhotoBase64 = '';
+    _profilePhoto = null;
 
-  // 🔥 PAN
-  _panImageUrl = '';
-  _panBase64 = '';
-  _panNumber = '';
-  _panImage = null;
+    // 🔥 PAN
+    _panImageUrl = '';
+    _panBase64 = '';
+    _panNumber = '';
+    _panImage = null;
 
-  // 🔥 Aadhar
-  _aadharFrontImageUrl = '';
-  _aadharBackImageUrl = '';
-  _aadharFrontBase64 = '';
-  _aadharBackBase64 = '';
-  _aadharNumber = '';
-  _aadharBackImage = null;
+    // 🔥 Aadhar
+    _aadharFrontImageUrl = '';
+    _aadharBackImageUrl = '';
+    _aadharFrontBase64 = '';
+    _aadharBackBase64 = '';
+    _aadharNumber = '';
+    _aadharBackImage = null;
 
-  // Clear secure storage for JWT, Aadhaar/PAN
-  final sec = SecureStorageService.instance;
-  await sec.delete(SecureStorageService.keyAccessToken);
-  await sec.delete(SecureStorageService.keyAadharNumber);
-  await sec.delete(SecureStorageService.keyAadharFrontImageUrl);
-  await sec.delete(SecureStorageService.keyAadharBackImageUrl);
-  await sec.delete(SecureStorageService.keyAadharFrontBase64);
-  await sec.delete(SecureStorageService.keyAadharBackBase64);
-  await sec.delete(SecureStorageService.keyPanImageUrl);
-  await sec.delete(SecureStorageService.keyPanBase64);
-  await sec.delete(SecureStorageService.keyPanNumber);
+    // Clear secure storage for JWT, Aadhaar/PAN
+    final sec = SecureStorageService.instance;
+    await sec.delete(SecureStorageService.keyAccessToken);
+    await sec.delete(SecureStorageService.keyAadharNumber);
+    await sec.delete(SecureStorageService.keyAadharFrontImageUrl);
+    await sec.delete(SecureStorageService.keyAadharBackImageUrl);
+    await sec.delete(SecureStorageService.keyAadharFrontBase64);
+    await sec.delete(SecureStorageService.keyAadharBackBase64);
+    await sec.delete(SecureStorageService.keyPanImageUrl);
+    await sec.delete(SecureStorageService.keyPanBase64);
+    await sec.delete(SecureStorageService.keyPanNumber);
 
-  // 🔥 License
-  _licenseFrontImageUrl = '';
-  _licenseBackImageUrl = '';
-  _licenseFrontBase64 = '';
-  _licenseBackBase64 = '';
-  _licenseFrontImage = null;
-  _licenseBackImage = null;
+    // 🔥 License
+    _licenseFrontImageUrl = '';
+    _licenseBackImageUrl = '';
+    _licenseFrontBase64 = '';
+    _licenseBackBase64 = '';
+    _licenseFrontImage = null;
+    _licenseBackImage = null;
 
-  // 🔥 Vehicle / RC
-  _vehicleImageUrl = '';
-  _vehicleImage = null;
-  _vehicleName = '';
-  _licensePlate = '';
-  _registrationDate = '';
-  _insuranceNumber = '';
-  _insuranceExpiryDate = '';
-  _pollutionExpiryDate = '';
-  _overlayBubbleEnabled = false;
+    // 🔥 Vehicle / RC
+    _vehicleImageUrl = '';
+    _vehicleImage = null;
+    _vehicleName = '';
+    _licensePlate = '';
+    _registrationDate = '';
+    _insuranceNumber = '';
+    _insuranceExpiryDate = '';
+    _pollutionExpiryDate = '';
+    _overlayBubbleEnabled = false;
 
-  _rcFrontImageUrl = '';
-  _rcBackImageUrl = '';
-  _rcFrontBase64 = '';
-  _rcBackBase64 = '';
-  _rcFrontImage = null;
-  _rcBackImage = null;
-  _insuranceBase64 = '';
-  _insurancePdf = null;
-  _pollutionBase64 = '';
+    _rcFrontImageUrl = '';
+    _rcBackImageUrl = '';
+    _rcFrontBase64 = '';
+    _rcBackBase64 = '';
+    _rcFrontImage = null;
+    _rcBackImage = null;
+    _insuranceBase64 = '';
+    _insurancePdf = null;
+    _pollutionBase64 = '';
 
-  // Reset registration step
-  _registrationStep = 0;
+    // Reset registration step
+    _registrationStep = 0;
 
-  notifyListeners();
-}
-
-
+    notifyListeners();
+  }
 }
 
 void _safeInit(Function() initializeField) {

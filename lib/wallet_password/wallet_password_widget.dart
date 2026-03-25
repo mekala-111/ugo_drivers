@@ -145,8 +145,7 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                   ].divide(const SizedBox(height: 8.0)),
                 ),
                 FFButtonWidget(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   text: FFLocalizations.of(context).getText(
                     '3tili4xw' /* Next */,
                   ),
@@ -154,8 +153,8 @@ class _WalletPasswordWidgetState extends State<WalletPasswordWidget> {
                     width: double.infinity,
                     height: 56.0,
                     padding: const EdgeInsets.all(8.0),
-                    iconPadding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                        0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium

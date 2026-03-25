@@ -33,10 +33,12 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSz = Responsive.iconSize(context, base: isSmallScreen ? 24 : 28);
-    final headerH = Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
+    final headerH =
+        Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
     final hPad = Responsive.horizontalPadding(context);
     const minTap = Responsive.minTouchTarget;
-    final avatarR = Responsive.value(context, small: 16.0, medium: 18.0, large: 20.0);
+    final avatarR =
+        Responsive.value(context, small: 16.0, medium: 18.0, large: 20.0);
 
     return Container(
       width: double.infinity,
@@ -72,14 +74,16 @@ class AppHeader extends StatelessWidget {
                   label: Text('$notificationCount'),
                   child: _tapTarget(
                     onTap: () => context.pushNamed(InboxPageWidget.routeName),
-                    child: Icon(Icons.notifications, color: Colors.white, size: iconSz),
+                    child: Icon(Icons.notifications,
+                        color: Colors.white, size: iconSz),
                     minSize: minTap,
                   ),
                 )
               else
                 _tapTarget(
                   onTap: () => context.pushNamed(InboxPageWidget.routeName),
-                  child: Icon(Icons.notifications_none, color: Colors.white, size: iconSz),
+                  child: Icon(Icons.notifications_none,
+                      color: Colors.white, size: iconSz),
                   minSize: minTap,
                 ),
               _tapTarget(

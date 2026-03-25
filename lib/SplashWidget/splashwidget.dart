@@ -27,7 +27,7 @@ class _SplashWidgetState extends State<SplashWidget> {
         } else {
           // ⚠️ Logged In BUT Not Registered -> Resume from where user stopped
           final registrationStep = FFAppState().registrationStep;
-          
+
           // Route based on current registration step
           if (registrationStep >= 4) {
             // Step 4+: OnBoarding (final registration page)
@@ -35,7 +35,8 @@ class _SplashWidgetState extends State<SplashWidget> {
               OnBoardingWidget.routeName,
               queryParameters: {
                 'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-                'referalcode': serializeParam(FFAppState().usedReferralCode, ParamType.String),
+                'referalcode': serializeParam(
+                    FFAppState().usedReferralCode, ParamType.String),
               }.withoutNulls,
             );
           } else if (registrationStep >= 2) {

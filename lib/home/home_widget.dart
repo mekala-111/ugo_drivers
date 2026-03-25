@@ -386,14 +386,12 @@ class _HomeWidgetState extends State<HomeWidget>
             if (_controller.currentRideStatus.toUpperCase() == 'IDLE' ||
                 _controller.currentRideStatus.toUpperCase() == 'SEARCHING') {
               ctrl.animateCamera(
-                CameraUpdate.newCameraPosition(
-                  CameraPosition(
-                    target: currentLoc.toGoogleMaps(),
-                    bearing: _controller.driverHeading,
-                    tilt: 45.0,
-                    zoom: 17.5,
-                  )
-                ),
+                CameraUpdate.newCameraPosition(CameraPosition(
+                  target: currentLoc.toGoogleMaps(),
+                  bearing: _controller.driverHeading,
+                  tilt: 45.0,
+                  zoom: 17.5,
+                )),
               );
             }
           });

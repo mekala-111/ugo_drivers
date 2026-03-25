@@ -154,7 +154,8 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
         ),
       );
     } catch (_) {
-      final Uri smsUrl = Uri.parse('sms:?body=${Uri.encodeComponent(shareText)}');
+      final Uri smsUrl =
+          Uri.parse('sms:?body=${Uri.encodeComponent(shareText)}');
       if (await canLaunchUrl(smsUrl)) {
         await launchUrl(smsUrl);
       }

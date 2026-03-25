@@ -215,18 +215,17 @@ class _VoucherWidgetState extends State<VoucherWidget> {
                       .addToStart(const SizedBox(height: 32.0)),
                 ),
                 FFButtonWidget(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   text: FFLocalizations.of(context).getText(
                     'zflfzuy8' /* Continue */,
                   ),
                   options: FFButtonOptions(
                     width: double.infinity,
                     height: 56.0,
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                    iconPadding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        24.0, 0.0, 24.0, 0.0),
+                    iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                        0.0, 0.0, 0.0, 0.0),
                     color: FlutterFlowTheme.of(context).primary,
                     textStyle: FlutterFlowTheme.of(context)
                         .titleMedium

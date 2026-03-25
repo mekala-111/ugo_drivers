@@ -13,7 +13,8 @@ class InstallReferrerService {
     }
 
     try {
-      final rawReferrer = await _channel.invokeMethod<String>('getInstallReferrer');
+      final rawReferrer =
+          await _channel.invokeMethod<String>('getInstallReferrer');
       final referralCode = _extractReferralCode(rawReferrer);
       if (referralCode == null || referralCode.isEmpty) return;
 
@@ -40,7 +41,8 @@ class InstallReferrerService {
     final candidates = <String>[raw, decoded];
 
     for (final candidate in candidates) {
-      final query = candidate.startsWith('?') ? candidate.substring(1) : candidate;
+      final query =
+          candidate.startsWith('?') ? candidate.substring(1) : candidate;
       if (!query.contains('=')) continue;
 
       try {

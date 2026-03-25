@@ -71,7 +71,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 24 + 56 + 16), // padding for button height + margin
+                  padding: const EdgeInsets.only(
+                      bottom:
+                          24 + 56 + 16), // padding for button height + margin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -105,11 +107,13 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                               const SizedBox(height: 16),
                               InkWell(
                                 onTap: () {
-                                  final mobile = widget.mobile ?? FFAppState().mobileNo;
+                                  final mobile =
+                                      widget.mobile ?? FFAppState().mobileNo;
                                   context.goNamed(
                                     FirstdetailsWidget.routeName,
                                     queryParameters: {
-                                      'mobile': serializeParam(mobile, ParamType.int),
+                                      'mobile':
+                                          serializeParam(mobile, ParamType.int),
                                     }.withoutNulls,
                                   );
                                 },
@@ -119,7 +123,8 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                                     color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: Colors.white),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -159,7 +164,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha:0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 15,
                                 offset: const Offset(0, 5),
                               )
@@ -171,53 +176,79 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                               if (!snapshot.hasData) {
                                 return const Center(
                                   child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(brandPrimary),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        brandPrimary),
                                   ),
                                 );
                               }
-                              if (snapshot.hasError || snapshot.data?.statusCode != 200) {
+                              if (snapshot.hasError ||
+                                  snapshot.data?.statusCode != 200) {
                                 return _buildErrorState(brandPrimary, context);
                               }
                               final response = snapshot.data!;
                               return Builder(
                                 builder: (context) {
-                                  final rawList = ChoosevehicleCall.data(response.jsonBody);
-                                  final vehicleList = (rawList is List) ? rawList : [];
+                                  final rawList =
+                                      ChoosevehicleCall.data(response.jsonBody);
+                                  final vehicleList =
+                                      (rawList is List) ? rawList : [];
                                   if (vehicleList.isEmpty) {
                                     return Center(
                                       child: Text(
-                                        FFLocalizations.of(context).getText('cv0003'),
-                                        style: GoogleFonts.inter(color: Colors.grey),
+                                        FFLocalizations.of(context)
+                                            .getText('cv0003'),
+                                        style: GoogleFonts.inter(
+                                            color: Colors.grey),
                                       ),
                                     );
                                   }
                                   return ListView.separated(
                                     shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     padding: const EdgeInsets.all(20),
                                     itemCount: vehicleList.length,
-                                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(height: 16),
                                     itemBuilder: (context, index) {
                                       final item = vehicleList[index];
                                       String vehicleName = '';
                                       int vehicleId = 0;
                                       String? imagePath;
                                       if (item is Map) {
-                                        vehicleName = item['name']?.toString() ?? '';
-                                        vehicleId = castToType<int>(item['id']) ?? 0;
+                                        vehicleName =
+                                            item['name']?.toString() ?? '';
+                                        vehicleId =
+                                            castToType<int>(item['id']) ?? 0;
                                         imagePath = item['image']?.toString();
                                       } else {
-                                        vehicleName = getJsonField(item, r'$["name"]')?.toString() ?? '';
-                                        vehicleId = castToType<int>(getJsonField(item, r'$["id"]')) ?? 0;
-                                        imagePath = getJsonField(item, r'$["image"]')?.toString();
+                                        vehicleName =
+                                            getJsonField(item, r'$["name"]')
+                                                    ?.toString() ??
+                                                '';
+                                        vehicleId = castToType<int>(
+                                                getJsonField(
+                                                    item, r'$["id"]')) ??
+                                            0;
+                                        imagePath =
+                                            getJsonField(item, r'$["image"]')
+                                                ?.toString();
                                       }
                                       if (vehicleName.isEmpty) {
-                                        vehicleName = FFLocalizations.of(context).getText('cv0004');
+                                        vehicleName =
+                                            FFLocalizations.of(context)
+                                                .getText('cv0004');
                                       }
-                                      final imageUrl = (imagePath != null && imagePath.isNotEmpty && imagePath != 'null')
-                                          ? (imagePath.startsWith('http') ? imagePath : '${app_config.Config.baseUrl}$imagePath')
+                                      final imageUrl = (imagePath != null &&
+                                              imagePath.isNotEmpty &&
+                                              imagePath != 'null')
+                                          ? (imagePath.startsWith('http')
+                                              ? imagePath
+                                              : '${app_config.Config.baseUrl}$imagePath')
                                           : null;
-                                      final isSelected = FFAppState().selectvehicle == vehicleName;
+                                      final isSelected =
+                                          FFAppState().selectvehicle ==
+                                              vehicleName;
                                       return _buildVehicleCard(
                                         vehicleName,
                                         vehicleId,
@@ -246,7 +277,7 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       )
@@ -259,26 +290,39 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                       onPressed: FFAppState().selectvehicle.isEmpty
                           ? null
                           : () {
-                        FFAppState().registrationStep = 3;
-                        context.pushNamed(
-                          PreferredCityWidget.routeName,
-                          extra: const TransitionInfo(
-                            hasTransition: true,
-                            transitionType: PageTransitionType.rightToLeft,
-                            duration: Duration(milliseconds: 300),
-                          ),
-                          queryParameters: <String, String?>{
-                            'mobile': serializeParam(widget.mobile, ParamType.int),
-                            'firstname': serializeParam(widget.firstname, ParamType.String),
-                            'lastname': serializeParam(widget.lastname, ParamType.String),
-                            'email': serializeParam(widget.email, ParamType.String),
-                            'referalcode': serializeParam(widget.referalcode ?? FFAppState().referralCode, ParamType.String),
-                            'vehicletype': serializeParam(FFAppState().selectvehicle, ParamType.String),
-                            'isRegistrationFlow': serializeParam(true, ParamType.bool),
-                            'vehicleid': serializeParam(FFAppState().adminVehicleId, ParamType.int),
-                          }.withoutNulls,
-                        );
-                      },
+                              FFAppState().registrationStep = 3;
+                              context.pushNamed(
+                                PreferredCityWidget.routeName,
+                                extra: const TransitionInfo(
+                                  hasTransition: true,
+                                  transitionType:
+                                      PageTransitionType.rightToLeft,
+                                  duration: Duration(milliseconds: 300),
+                                ),
+                                queryParameters: <String, String?>{
+                                  'mobile': serializeParam(
+                                      widget.mobile, ParamType.int),
+                                  'firstname': serializeParam(
+                                      widget.firstname, ParamType.String),
+                                  'lastname': serializeParam(
+                                      widget.lastname, ParamType.String),
+                                  'email': serializeParam(
+                                      widget.email, ParamType.String),
+                                  'referalcode': serializeParam(
+                                      widget.referalcode ??
+                                          FFAppState().referralCode,
+                                      ParamType.String),
+                                  'vehicletype': serializeParam(
+                                      FFAppState().selectvehicle,
+                                      ParamType.String),
+                                  'isRegistrationFlow':
+                                      serializeParam(true, ParamType.bool),
+                                  'vehicleid': serializeParam(
+                                      FFAppState().adminVehicleId,
+                                      ParamType.int),
+                                }.withoutNulls,
+                              );
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: brandPrimary,
                         foregroundColor: Colors.white,
@@ -308,7 +352,8 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   }
 
   // Uber-style vehicle type card (matches vehicle details screen)
-  Widget _buildVehicleCard(String name, int vehicleId, String? imageUrl, bool isSelected, Color brandColor) {
+  Widget _buildVehicleCard(String name, int vehicleId, String? imageUrl,
+      bool isSelected, Color brandColor) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -337,7 +382,9 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: isSelected ? brandColor.withValues(alpha: 0.2) : Colors.grey.shade100,
+                  color: isSelected
+                      ? brandColor.withValues(alpha: 0.2)
+                      : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: imageUrl != null
@@ -407,9 +454,12 @@ class _ChooseVehicleWidgetState extends State<ChooseVehicleWidget> {
   // 🔹 Icon Mapping Logic
   IconData _getVehicleIcon(String vehicleName) {
     final name = vehicleName.toLowerCase();
-    if (name.contains('auto')) return Icons.local_taxi; // Or use FontAwesomeIcons.taxi
-    if (name.contains('bike') || name.contains('motorcycle')) return Icons.two_wheeler;
-    if (name.contains('car') || name.contains('sedan') || name.contains('suv')) return Icons.directions_car;
+    if (name.contains('auto'))
+      return Icons.local_taxi; // Or use FontAwesomeIcons.taxi
+    if (name.contains('bike') || name.contains('motorcycle'))
+      return Icons.two_wheeler;
+    if (name.contains('car') || name.contains('sedan') || name.contains('suv'))
+      return Icons.directions_car;
     if (name.contains('truck')) return Icons.local_shipping;
     return Icons.directions_car_rounded;
   }

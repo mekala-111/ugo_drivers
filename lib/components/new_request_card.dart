@@ -3,6 +3,7 @@ import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
+import 'package:ugo_driver/models/payment_mode.dart';
 import 'package:ugo_driver/services/location_geocode_service.dart';
 import 'package:ugo_driver/services/route_distance_service.dart';
 import '../home/ride_request_model.dart';
@@ -304,6 +305,32 @@ class NewRequestCard extends StatelessWidget {
                       color: ugoBlue,
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: ride.paymentMode.isCash
+                      ? Colors.green.shade50
+                      : Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: ride.paymentMode.isCash
+                        ? Colors.green.shade200
+                        : Colors.blue.shade200,
+                  ),
+                ),
+                child: Text(
+                  ride.rawPaymentMode.toUpperCase(),
+                  style: TextStyle(
+                    color: ride.paymentMode.isCash
+                        ? Colors.green.shade700
+                        : Colors.blue.shade700,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
             ]),
           ),
         ),

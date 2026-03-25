@@ -17,15 +17,16 @@ class Responsive {
   static const double refDiagonal = 828.0;
 
   // ── Breakpoints (mobile < 600, tablet7 600–900, tablet10 ≥ 900) ──
-  static const double breakpointSmall = 360.0;   // Small phones
-  static const double breakpointMedium = 480.0;  // Regular phones
-  static const double breakpointLarge = 600.0;   // 7" tablet start
-  static const double breakpointXLarge = 900.0;  // 10" tablet start
+  static const double breakpointSmall = 360.0; // Small phones
+  static const double breakpointMedium = 480.0; // Regular phones
+  static const double breakpointLarge = 600.0; // 7" tablet start
+  static const double breakpointXLarge = 900.0; // 10" tablet start
 
   // ── Height breakpoints (for tall/short screens) ──
-  static const double heightShort = 600.0;   // Short screens (e.g. landscape, small devices)
-  static const double heightMedium = 700.0;  // Average phone height
-  static const double heightTall = 800.0;    // Tall phones
+  static const double heightShort =
+      600.0; // Short screens (e.g. landscape, small devices)
+  static const double heightMedium = 700.0; // Average phone height
+  static const double heightTall = 800.0; // Tall phones
 
   /// Screen width from MediaQuery (use MediaQuery.sizeOf for performance).
   static double screenWidth(BuildContext context) =>
@@ -76,20 +77,16 @@ class Responsive {
   }
 
   /// Predefined spacing: xs=8, sm=16, md=24, lg=32, xl=40.
-  static double spacingXl(BuildContext context) =>
-      spacing(context, scale: 5);
-  static double spacingLg(BuildContext context) =>
-      spacing(context, scale: 4);
-  static double spacingMd(BuildContext context) =>
-      spacing(context, scale: 3);
-  static double spacingSm(BuildContext context) =>
-      spacing(context, scale: 2);
-  static double spacingXs(BuildContext context) =>
-      spacing(context, scale: 1);
+  static double spacingXl(BuildContext context) => spacing(context, scale: 5);
+  static double spacingLg(BuildContext context) => spacing(context, scale: 4);
+  static double spacingMd(BuildContext context) => spacing(context, scale: 3);
+  static double spacingSm(BuildContext context) => spacing(context, scale: 2);
+  static double spacingXs(BuildContext context) => spacing(context, scale: 1);
 
   /// Returns a value based on screen width (media-query style).
   /// Uses min-width logic: picks the smallest breakpoint that the width satisfies.
-  static T valueByWidth<T>(BuildContext context, {
+  static T valueByWidth<T>(
+    BuildContext context, {
     T? at360,
     T? at480,
     T? at600,
@@ -105,7 +102,8 @@ class Responsive {
   }
 
   /// Returns a value based on screen height (media-query style).
-  static T valueByHeight<T>(BuildContext context, {
+  static T valueByHeight<T>(
+    BuildContext context, {
     T? at600,
     T? at700,
     T? at800,
@@ -231,7 +229,8 @@ class Responsive {
       EdgeInsets.symmetric(horizontal: horizontalPadding(context));
 
   /// EdgeInsets for all sides with responsive values.
-  static EdgeInsets padding(BuildContext context, {
+  static EdgeInsets padding(
+    BuildContext context, {
     double? top,
     double? bottom,
     double? left,

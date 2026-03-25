@@ -91,7 +91,8 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                 child: Text(
                   FFLocalizations.of(context).getText(
                     'xlfqyvqa' /* Comfortable Rides, Anytime */,
@@ -114,7 +115,8 @@ class _ServiceoptionsWidgetState extends State<ServiceoptionsWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [

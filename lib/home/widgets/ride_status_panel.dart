@@ -44,7 +44,9 @@ class RideStatusPanel extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.people, color: AppColors.primary, size: Responsive.iconSize(context, base: 20)),
+              Icon(Icons.people,
+                  color: AppColors.primary,
+                  size: Responsive.iconSize(context, base: 20)),
               SizedBox(width: w * 0.02),
               Text(
                 '$availableDriversCount $caption',

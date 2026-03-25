@@ -24,6 +24,7 @@ class RideRequest {
   final double? estimatedFare;
   final double? finalFare;
   final PaymentMode paymentMode;
+  final String rawPaymentMode;
   final String bookingMode; // 'pro' or 'normal'
 
   // 🚗 VEHICLE TYPE (to filter rides by driver vehicle)
@@ -34,7 +35,6 @@ class RideRequest {
   final int? pickupCityId;
 
   /// 4-digit OTP for ride start verification (from backend if provided)
-
 
   RideRequest({
     required this.id,
@@ -51,6 +51,7 @@ class RideRequest {
     this.estimatedFare,
     this.finalFare,
     this.paymentMode = PaymentMode.unknown,
+    this.rawPaymentMode = 'Online',
     this.bookingMode = 'normal',
     this.firstName,
     this.mobileNumber,
@@ -75,8 +76,12 @@ class RideRequest {
           ? json['user']['mobile_number']
           : json['mobile_number'],
 
-      pickupAddress: json['pickup_location_address'] ?? json['pickup_address'] ?? 'Unknown Pickup',
-      dropAddress: json['drop_location_address'] ?? json['drop_address'] ?? 'Unknown Dropoff',
+      pickupAddress: json['pickup_location_address'] ??
+          json['pickup_address'] ??
+          'Unknown Pickup',
+      dropAddress: json['drop_location_address'] ??
+          json['drop_address'] ??
+          'Unknown Dropoff',
 
       // 🛡️ ROBUST COORDINATE PARSING (Checks ALL possible keys)
       // This ensures we never get 0.0 if the backend sends data
@@ -97,13 +102,15 @@ class RideRequest {
           0.0,
 
       distance: _parseToDouble(json['ride_distance_km']),
-      estimatedFare: _parseToDouble(json['estimated_fare']) ?? _parseToDouble(json['fare']),
+      estimatedFare: _parseToDouble(json['estimated_fare']) ??
+          _parseToDouble(json['fare']),
       finalFare: _parseToDouble(json['final_fare']) ??
           _parseToDouble(json['ride_amount']) ??
           _parseToDouble(json['amount']),
       paymentMode: parsePaymentMode(
         json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'],
       ),
+      rawPaymentMode: (json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'])?.toString() ?? 'Online',
       bookingMode: json['booking_mode']?.toString().toLowerCase() ?? 'normal',
       vehicleType: json['vehicle_type'] ??
           json['rideType'] ??
@@ -112,11 +119,12 @@ class RideRequest {
       vehicleTypeId: _parseToInt(json['vehicle_type_id']) ??
           _parseToInt(json['vehicleTypeId']) ??
           _parseToInt(json['admin_vehicle_id']) ??
-          (json['vehicle'] != null ? _parseToInt(json['vehicle']['vehicle_type_id']) : null),
+          (json['vehicle'] != null
+              ? _parseToInt(json['vehicle']['vehicle_type_id'])
+              : null),
       pickupCityId: _parseToInt(json['pickup_city_id']),
     );
   }
-
 
   /// Provide a copy where the status can be updated either via RideStatus or raw string
   RideRequest copyWith({
@@ -136,6 +144,7 @@ class RideRequest {
     double? estimatedFare,
     double? finalFare,
     PaymentMode? paymentMode,
+    String? rawPaymentMode,
     String? bookingMode,
     String? otp,
     String? vehicleType,
@@ -159,6 +168,7 @@ class RideRequest {
       estimatedFare: estimatedFare ?? this.estimatedFare,
       finalFare: finalFare ?? this.finalFare,
       paymentMode: paymentMode ?? this.paymentMode,
+      rawPaymentMode: rawPaymentMode ?? this.rawPaymentMode,
       bookingMode: bookingMode ?? this.bookingMode,
       vehicleType: vehicleType ?? this.vehicleType,
       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,

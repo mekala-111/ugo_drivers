@@ -15,6 +15,7 @@ PaymentMode parsePaymentMode(dynamic value) {
   if (value == null) return PaymentMode.unknown;
   final s = value.toString().toLowerCase();
   if (s == 'cash') return PaymentMode.cash;
-  if (s == 'online' || s == 'wallet' || s == 'upi' || s == 'card') return PaymentMode.online;
+  if (s == 'online' || s == 'wallet' || s == 'upi' || s == 'card')
+    return PaymentMode.online;
   return PaymentMode.unknown;
 }

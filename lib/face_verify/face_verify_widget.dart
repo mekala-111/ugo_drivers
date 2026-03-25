@@ -16,7 +16,7 @@ class FaceVerifyWidget extends StatefulWidget {
   const FaceVerifyWidget({super.key});
 
   static String routeName = 'face_verify';
- // 
+  //
   static String routePath = '/faceVerify';
 
   @override
@@ -95,7 +95,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
           _model.uploadedLocalFile_uploadDataFvd = _profilePhoto!;
           _isProfilePhotoValid = true;
         });
-        debugPrint('✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
+        debugPrint(
+            '✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
         debugPrint('❌ Error decoding profile photo Base64: $e');
       }
@@ -274,15 +275,16 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.registrationOrange.withValues(alpha:0.1),
-                            AppColors.accentCoral.withValues(alpha:0.05)
+                            AppColors.registrationOrange.withValues(alpha: 0.1),
+                            AppColors.accentCoral.withValues(alpha: 0.05)
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppColors.registrationOrange.withValues(alpha:0.3),
+                          color: AppColors.registrationOrange
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -293,7 +295,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                  color: AppColors.registrationOrange
+                                      .withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
@@ -412,7 +415,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -424,11 +427,11 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           Row(
                             children: [
                               const Icon(Icons.tips_and_updates,
-                                  color: AppColors.registrationOrange, size: 20),
+                                  color: AppColors.registrationOrange,
+                                  size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                FFLocalizations.of(context)
-                                    .getText('face0008'),
+                                FFLocalizations.of(context).getText('face0008'),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -437,17 +440,17 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                             ],
                           ),
                           const SizedBox(height: 16),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0009')),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0010')),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0011')),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0012')),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0013')),
-                            _buildGuideline(
+                          _buildGuideline(
                               FFLocalizations.of(context).getText('face0014')),
                         ],
                       ),
@@ -465,7 +468,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -502,7 +505,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                       color: (_isProfilePhotoValid
                                               ? Colors.green
                                               : AppColors.registrationOrange)
-                                          .withValues(alpha:0.2),
+                                          .withValues(alpha: 0.2),
                                       blurRadius: 20,
                                       offset: const Offset(0, 8),
                                     ),
@@ -529,7 +532,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                   fit: BoxFit.cover,
                                                   loadingBuilder: (context,
                                                       child, loadingProgress) {
-                                                    if (loadingProgress == null) {
+                                                    if (loadingProgress ==
+                                                        null) {
                                                       return child;
                                                     }
                                                     return Center(
@@ -543,8 +547,8 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                                 loadingProgress
                                                                     .expectedTotalBytes!
                                                             : null,
-                                                        color:
-                                                            AppColors.registrationOrange,
+                                                        color: AppColors
+                                                            .registrationOrange,
                                                       ),
                                                     );
                                                   },
@@ -559,15 +563,17 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                             Icons.error_outline,
                                                             size: 48,
                                                             color: Colors.red),
-                                                        const SizedBox(height: 8),
-                                                      Text(
-                                                        FFLocalizations.of(
-                                                            context)
-                                                          .getText(
-                                                            'upload0006'),
-                                                        style: const TextStyle(
-                                                          color: Colors
-                                                            .red)),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Text(
+                                                            FFLocalizations.of(
+                                                                    context)
+                                                                .getText(
+                                                                    'upload0006'),
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ],
                                                     );
                                                   },
@@ -580,37 +586,45 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                     children: [
                                                       Container(
                                                         padding:
-                                                            const EdgeInsets.all(20),
+                                                            const EdgeInsets
+                                                                .all(20),
                                                         decoration:
                                                             BoxDecoration(
-                                                          color: AppColors.registrationOrange
-                                                              .withValues(alpha:0.1),
+                                                          color: AppColors
+                                                              .registrationOrange
+                                                              .withValues(
+                                                                  alpha: 0.1),
                                                           shape:
                                                               BoxShape.circle,
                                                         ),
                                                         child: const Icon(
                                                           Icons.camera_front,
                                                           size: 48,
-                                                          color:
-                                                              AppColors.registrationOrange,
+                                                          color: AppColors
+                                                              .registrationOrange,
                                                         ),
                                                       ),
-                                                      const SizedBox(height: 16),
+                                                      const SizedBox(
+                                                          height: 16),
                                                       Text(
-                                                        FFLocalizations.of(context)
-                                                            .getText('face0015'),
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getText(
+                                                                'face0015'),
                                                         style: const TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          color:
-                                                              AppColors.textNearBlack,
+                                                          color: AppColors
+                                                              .textNearBlack,
                                                         ),
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        FFLocalizations.of(context)
-                                                            .getText('face0016'),
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getText(
+                                                                'face0016'),
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color:
@@ -661,9 +675,9 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                                 '❌ Profile photo removed from FFAppState');
 
                                             _showSnackBar(
-                                              FFLocalizations.of(context)
-                                                .getText('face0019'),
-                                              isError: true);
+                                                FFLocalizations.of(context)
+                                                    .getText('face0019'),
+                                                isError: true);
                                           },
                                           child: Container(
                                             padding: const EdgeInsets.all(8),
@@ -673,7 +687,7 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withValues(alpha:0.3),
+                                                      .withValues(alpha: 0.3),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -708,11 +722,11 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                        _isProfilePhotoValid
+                                      _isProfilePhotoValid
                                           ? FFLocalizations.of(context)
-                                            .getText('face0017')
+                                              .getText('face0017')
                                           : FFLocalizations.of(context)
-                                            .getText('face0018'),
+                                              .getText('face0018'),
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: _isProfilePhotoValid
@@ -775,22 +789,25 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
 
                               FFAppState().update(() {});
 
-                              debugPrint('✅ Profile photo saved to FFAppState:');
+                              debugPrint(
+                                  '✅ Profile photo saved to FFAppState:');
                               debugPrint(
                                   '   Image: ${_profilePhoto?.bytes?.length ?? 0} bytes');
-                              debugPrint('   URL: ${_profilePhotoUrl ?? "None"}');
+                              debugPrint(
+                                  '   URL: ${_profilePhotoUrl ?? "None"}');
                               debugPrint(
                                   '   Base64: ${FFAppState().profilePhotoBase64.length} chars');
 
-                                _showSnackBar(FFLocalizations.of(context)
+                              _showSnackBar(FFLocalizations.of(context)
                                   .getText('face0021'));
 
                               // Navigate back
-                              await Future.delayed(const Duration(milliseconds: 500));
+                              await Future.delayed(
+                                  const Duration(milliseconds: 500));
                               context.pop();
                             },
                             text:
-                              FFLocalizations.of(context).getText('face0022'),
+                                FFLocalizations.of(context).getText('face0022'),
                             icon: const Icon(Icons.arrow_forward, size: 20),
                             options: FFButtonOptions(
                               width: double.infinity,
@@ -808,10 +825,10 @@ class _FaceVerifyWidgetState extends State<FaceVerifyWidget>
                           const SizedBox(height: 12),
                           TextButton.icon(
                             onPressed: _takeCameraPhoto,
-                            icon: const Icon(Icons.refresh, color: AppColors.registrationOrange),
+                            icon: const Icon(Icons.refresh,
+                                color: AppColors.registrationOrange),
                             label: Text(
-                              FFLocalizations.of(context)
-                                  .getText('face0023'),
+                              FFLocalizations.of(context).getText('face0023'),
                               style: const TextStyle(
                                 color: AppColors.registrationOrange,
                                 fontWeight: FontWeight.w600,
@@ -870,7 +887,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -894,7 +911,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);

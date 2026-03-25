@@ -354,7 +354,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                                 border: InputBorder.none,
-                                                contentPadding: const EdgeInsets.symmetric(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 12,
                                                   vertical: 16,
                                                 ),

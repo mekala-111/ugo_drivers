@@ -38,9 +38,8 @@ class _PreLoginPermissionsScreenState extends State<PreLoginPermissionsScreen> {
     setState(() {});
 
     final battery = await Permission.ignoreBatteryOptimizations.isGranted;
-    final locAlways =
-        await Permission.locationWhenInUse.isGranted &&
-            (await Permission.locationAlways.isGranted);
+    final locAlways = await Permission.locationWhenInUse.isGranted &&
+        (await Permission.locationAlways.isGranted);
     final locWhenInUse = await Permission.locationWhenInUse.isGranted;
 
     if (mounted) {
@@ -94,84 +93,84 @@ class _PreLoginPermissionsScreenState extends State<PreLoginPermissionsScreen> {
         widget.onBack?.call();
       },
       child: Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => widget.onBack?.call(),
-        ),
-        title: Text(
-          'Give all permissions to proceed',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: () => widget.onBack?.call(),
           ),
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              // Help - could open support
-            },
-            icon: const Icon(Icons.headset_mic, color: Colors.white, size: 20),
-            label: Text(
-              'Help',
-              style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+          title: Text(
+            'Give all permissions to proceed',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            _buildPermissionCard(
-              icon: Icons.battery_charging_full,
-              title: 'Battery Usage',
-              subtitle: 'Helps app run in background',
-              granted: _batteryGranted,
-              onTap: _requestBattery,
+          actions: [
+            TextButton.icon(
+              onPressed: () {
+                // Help - could open support
+              },
+              icon:
+                  const Icon(Icons.headset_mic, color: Colors.white, size: 20),
+              label: Text(
+                'Help',
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+              ),
             ),
-            const SizedBox(height: 12),
-            _buildPermissionCard(
-              icon: Icons.location_on,
-              title: 'Background Location',
-              subtitle: 'Helps find rides based on location',
-              granted: _locationGranted,
-              onTap: _requestLocation,
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: FilledButton(
-                onPressed: _onSubmit,
-                style: FilledButton.styleFrom(
-                  backgroundColor: allGranted
-                      ? AppColors.primary
-                      : Colors.grey[400],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildPermissionCard(
+                icon: Icons.battery_charging_full,
+                title: 'Battery Usage',
+                subtitle: 'Helps app run in background',
+                granted: _batteryGranted,
+                onTap: _requestBattery,
+              ),
+              const SizedBox(height: 12),
+              _buildPermissionCard(
+                icon: Icons.location_on,
+                title: 'Background Location',
+                subtitle: 'Helps find rides based on location',
+                granted: _locationGranted,
+                onTap: _requestLocation,
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: _onSubmit,
+                  style: FilledButton.styleFrom(
+                    backgroundColor:
+                        allGranted ? AppColors.primary : Colors.grey[400],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-                child: Text(
-                  'Submit',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  child: Text(
+                    'Submit',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

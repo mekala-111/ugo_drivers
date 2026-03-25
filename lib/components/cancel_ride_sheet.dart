@@ -27,8 +27,14 @@ class _CancelRideSheetState extends State<_CancelRideSheet> {
   static const List<Map<String, String>> _reasons = [
     {'key': 'drv_cancel_reason_emergency', 'value': 'Personal emergency'},
     {'key': 'drv_cancel_reason_vehicle', 'value': 'Vehicle issues'},
-    {'key': 'drv_cancel_reason_passenger_no_show', 'value': 'Passenger no-show'},
-    {'key': 'drv_cancel_reason_wrong_pickup', 'value': 'Incorrect pickup location'},
+    {
+      'key': 'drv_cancel_reason_passenger_no_show',
+      'value': 'Passenger no-show'
+    },
+    {
+      'key': 'drv_cancel_reason_wrong_pickup',
+      'value': 'Incorrect pickup location'
+    },
     {'key': 'drv_cancel_reason_long_wait', 'value': 'Long waiting time'},
     {'key': 'drv_cancel_reason_wrong_address', 'value': 'Wrong address'},
     {'key': 'drv_cancel_reason_change_plans', 'value': 'Change of plans'},
@@ -88,7 +94,9 @@ class _CancelRideSheetState extends State<_CancelRideSheet> {
                     selected: isSelected,
                     selectedTileColor: AppColors.primary.withValues(alpha: 0.1),
                     leading: Icon(
-                      isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                      isSelected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
                       color: isSelected ? AppColors.primary : Colors.grey[400],
                       size: 24,
                     ),
@@ -96,7 +104,8 @@ class _CancelRideSheetState extends State<_CancelRideSheet> {
                       displayText,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                         color: isSelected ? AppColors.primary : Colors.black87,
                       ),
                     ),

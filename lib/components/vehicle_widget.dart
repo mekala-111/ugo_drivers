@@ -55,9 +55,12 @@ class _VehicleWidgetState extends State<VehicleWidget> {
 
   String _vehicleSubtitle() {
     final parts = <String>[];
-    if (FFAppState().vehicleColor.isNotEmpty) parts.add(FFAppState().vehicleColor);
-    if (FFAppState().vehicleYear.isNotEmpty) parts.add(FFAppState().vehicleYear);
-    if (FFAppState().licensePlate.isNotEmpty) parts.add(FFAppState().licensePlate);
+    if (FFAppState().vehicleColor.isNotEmpty)
+      parts.add(FFAppState().vehicleColor);
+    if (FFAppState().vehicleYear.isNotEmpty)
+      parts.add(FFAppState().vehicleYear);
+    if (FFAppState().licensePlate.isNotEmpty)
+      parts.add(FFAppState().licensePlate);
     return parts.join(' • ');
   }
 
@@ -97,7 +100,8 @@ class _VehicleWidgetState extends State<VehicleWidget> {
           children: [
             Row(
               children: [
-                const Icon(Icons.directions_car, color: AppColors.primary, size: 22),
+                const Icon(Icons.directions_car,
+                    color: AppColors.primary, size: 22),
                 const SizedBox(width: 8),
                 Text(
                   'Vehicle Details',
@@ -129,7 +133,8 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                               width: 64,
                               height: 64,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _buildPlaceholderIcon(),
+                              errorBuilder: (_, __, ___) =>
+                                  _buildPlaceholderIcon(),
                             )
                           : FFAppState().vehicleImage?.bytes != null
                               ? Image.memory(
@@ -179,14 +184,16 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                     if (widget.onEditTap != null)
                       IconButton(
                         onPressed: widget.onEditTap,
-                        icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
+                        icon: const Icon(Icons.edit_outlined,
+                            color: AppColors.primary),
                       ),
                   ],
                 ),
               ),
             ] else
               GestureDetector(
-                onTap: widget.onEditTap ?? () => context.pushNamed(VehicleImageUpdateWidget.routeName),
+                onTap: widget.onEditTap ??
+                    () => context.pushNamed(VehicleImageUpdateWidget.routeName),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 24),
@@ -197,7 +204,8 @@ class _VehicleWidgetState extends State<VehicleWidget> {
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.add_circle_outline, size: 40, color: Colors.grey[400]),
+                      Icon(Icons.add_circle_outline,
+                          size: 40, color: Colors.grey[400]),
                       const SizedBox(height: 8),
                       Text(
                         'Add Vehicle Details',

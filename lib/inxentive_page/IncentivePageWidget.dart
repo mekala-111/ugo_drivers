@@ -83,16 +83,15 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _dailyDates.isNotEmpty
-          ? _dailyDates[_selectedDailyIndex]
-          : now,
+      initialDate:
+          _dailyDates.isNotEmpty ? _dailyDates[_selectedDailyIndex] : now,
       firstDate: DateTime(now.year - 1, 1, 1),
       lastDate: now,
     );
     if (picked != null && mounted) {
       setState(() {
-        _dailyDates = List.generate(
-            7, (i) => picked.subtract(Duration(days: 3 - i)));
+        _dailyDates =
+            List.generate(7, (i) => picked.subtract(Duration(days: 3 - i)));
         _selectedDailyIndex = 3;
       });
       _fetchDailyData();
@@ -813,69 +812,70 @@ class _DateSelectorBar extends StatelessWidget {
         children: [
           Expanded(
             child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: dates.length,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemBuilder: (context, i) {
-          final date = dates[i];
-          final selected = i == selectedIndex;
-          final dayName = DateFormat('E').format(date);
-          final dayNum = DateFormat('d').format(date);
+              scrollDirection: Axis.horizontal,
+              itemCount: dates.length,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemBuilder: (context, i) {
+                final date = dates[i];
+                final selected = i == selectedIndex;
+                final dayName = DateFormat('E').format(date);
+                final dayNum = DateFormat('d').format(date);
 
-          return GestureDetector(
-            onTap: () => onDateSelected(i),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  selected
-                      ? Container(
-                          width: selectedSize,
-                          height: selectedSize,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(selectedSize / 2),
-                            border: Border.all(
-                                color: AppColors.registrationOrange, width: 2),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(dayName,
-                                  style: GoogleFonts.inter(
-                                      fontSize: isSmall ? 9 : 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
-                              Text(dayNum,
-                                  style: GoogleFonts.inter(
-                                      fontSize: isSmall ? 14 : 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
-                            ],
-                          ),
-                        )
-                      : Column(
-                          children: [
-                            Text(dayName,
-                                style: GoogleFonts.inter(
-                                    fontSize: isSmall ? 9 : 10,
-                                    color: Colors.black87)),
-                            const SizedBox(height: 4),
-                            Text(dayNum,
-                                style: GoogleFonts.inter(
-                                    fontSize: isSmall ? 12 : 14,
-                                    color: Colors.black87)),
-                          ],
-                        ),
-                ],
-              ),
+                return GestureDetector(
+                  onTap: () => onDateSelected(i),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        selected
+                            ? Container(
+                                width: selectedSize,
+                                height: selectedSize,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius:
+                                      BorderRadius.circular(selectedSize / 2),
+                                  border: Border.all(
+                                      color: AppColors.registrationOrange,
+                                      width: 2),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(dayName,
+                                        style: GoogleFonts.inter(
+                                            fontSize: isSmall ? 9 : 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange)),
+                                    Text(dayNum,
+                                        style: GoogleFonts.inter(
+                                            fontSize: isSmall ? 14 : 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange)),
+                                  ],
+                                ),
+                              )
+                            : Column(
+                                children: [
+                                  Text(dayName,
+                                      style: GoogleFonts.inter(
+                                          fontSize: isSmall ? 9 : 10,
+                                          color: Colors.black87)),
+                                  const SizedBox(height: 4),
+                                  Text(dayNum,
+                                      style: GoogleFonts.inter(
+                                          fontSize: isSmall ? 12 : 14,
+                                          color: Colors.black87)),
+                                ],
+                              ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
-    ),
+          ),
           if (onCalendarTap != null)
             IconButton(
               icon: const Icon(Icons.calendar_month, color: Colors.white),

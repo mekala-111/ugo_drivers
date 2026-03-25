@@ -69,9 +69,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           locale: const Locale('en'),
-          supportedLocales: FFLocalizations.languages()
-              .map((l) => Locale(l))
-              .toList(),
+          supportedLocales:
+              FFLocalizations.languages().map((l) => Locale(l)).toList(),
           localizationsDelegates: const [
             FFLocalizationsDelegate(),
             GlobalMaterialLocalizations.delegate,
@@ -95,9 +94,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           locale: const Locale('en'),
-          supportedLocales: FFLocalizations.languages()
-              .map((l) => Locale(l))
-              .toList(),
+          supportedLocales:
+              FFLocalizations.languages().map((l) => Locale(l)).toList(),
           localizationsDelegates: const [
             FFLocalizationsDelegate(),
             GlobalMaterialLocalizations.delegate,

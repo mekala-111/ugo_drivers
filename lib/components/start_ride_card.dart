@@ -5,6 +5,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ugo_driver/components/rich_address_from_lat_lng.dart';
+import 'package:ugo_driver/models/payment_mode.dart';
 import '../home/ride_request_model.dart';
 import '../models/ride_status.dart';
 
@@ -34,7 +35,7 @@ class RideBottomOverlay extends StatelessWidget {
 
     final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     final Uri fallbackUrl =
-    Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -96,11 +97,11 @@ class RideBottomOverlay extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       (ride.status == RideStatus.started ||
-                          ride.status == RideStatus.onTrip)
-                          ? FFLocalizations.of(context)
-                          .getText('drv_nav_to_drop') // Assuming this translates to "Drop"
+                              ride.status == RideStatus.onTrip)
+                          ? FFLocalizations.of(context).getText(
+                              'drv_nav_to_drop') // Assuming this translates to "Drop"
                           : FFLocalizations.of(context)
-                          .getText('drv_nav_to_pickup'),
+                              .getText('drv_nav_to_pickup'),
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -160,7 +161,8 @@ class StartRideCard extends StatelessWidget {
     String btnText = isStarted
         ? FFLocalizations.of(context).getText('drv_complete_ride')
         : FFLocalizations.of(context).getText('drv_start_ride');
-    Color btnColor = isStarted ? ugoRed : (isPro ? const Color(0xFFE3CA43) : ugoGreen);
+    Color btnColor =
+        isStarted ? ugoRed : (isPro ? const Color(0xFFE3CA43) : ugoGreen);
 
     return Container(
       width: double.infinity,
@@ -172,7 +174,9 @@ class StartRideCard extends StatelessWidget {
           BoxShadow(
               color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
-        border: Border.all(color: isPro ? const Color(0xFFE3CA43) : Colors.transparent, width: isPro ? 2 : 0),
+        border: Border.all(
+            color: isPro ? const Color(0xFFE3CA43) : Colors.transparent,
+            width: isPro ? 2 : 0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -214,16 +218,64 @@ class StartRideCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            ride.firstName ??
-                                FFLocalizations.of(context)
-                                    .getText('drv_passenger'),
-                            style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  ride.firstName ??
+                                      FFLocalizations.of(context)
+                                          .getText('drv_passenger'),
+                                  style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '₹${ride.estimatedFare?.toInt() ?? 0}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: ride.paymentMode.isCash
+                                          ? Colors.green.shade50
+                                          : Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: ride.paymentMode.isCash
+                                            ? Colors.green.shade200
+                                            : Colors.blue.shade200,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      ride.rawPaymentMode.toUpperCase(),
+                                      style: TextStyle(
+                                        color: ride.paymentMode.isCash
+                                            ? Colors.green.shade700
+                                            : Colors.blue.shade700,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -231,12 +283,15 @@ class StartRideCard extends StatelessWidget {
                             children: [
                               // Pickup/Drop Box
                               Container(
-                                width: Responsive.buttonHeight(context, base: 46),
-                                height: Responsive.buttonHeight(context, base: 46),
+                                width:
+                                    Responsive.buttonHeight(context, base: 46),
+                                height:
+                                    Responsive.buttonHeight(context, base: 46),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(
-                                      color: isStarted ? ugoRed : ugoGreen, width: 1.5),
+                                      color: isStarted ? ugoRed : ugoGreen,
+                                      width: 1.5),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Column(
@@ -244,11 +299,14 @@ class StartRideCard extends StatelessWidget {
                                   children: [
                                     Icon(Icons.location_on,
                                         color: isStarted ? ugoRed : ugoGreen,
-                                        size: Responsive.iconSize(context, base: 22)),
+                                        size: Responsive.iconSize(context,
+                                            base: 22)),
                                     Text(
                                       isStarted
-                                          ? FFLocalizations.of(context).getText('drv_drop')
-                                          : FFLocalizations.of(context).getText('drv_pickup'),
+                                          ? FFLocalizations.of(context)
+                                              .getText('drv_drop')
+                                          : FFLocalizations.of(context)
+                                              .getText('drv_pickup'),
                                       style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[700],
@@ -261,10 +319,13 @@ class StartRideCard extends StatelessWidget {
                               // Address text
                               Expanded(
                                 child: RichAddressFromLatLng(
-                                  lat: isStarted ? ride.dropLat : ride.pickupLat,
-                                  lng: isStarted ? ride.dropLng : ride.pickupLng,
-                                  fallbackAddress:
-                                  isStarted ? ride.dropAddress : ride.pickupAddress,
+                                  lat:
+                                      isStarted ? ride.dropLat : ride.pickupLat,
+                                  lng:
+                                      isStarted ? ride.dropLng : ride.pickupLng,
+                                  fallbackAddress: isStarted
+                                      ? ride.dropAddress
+                                      : ride.pickupAddress,
                                   fallbackLabel: FFLocalizations.of(context)
                                       .getText('drv_unknown_location'),
                                 ),
@@ -280,7 +341,9 @@ class StartRideCard extends StatelessWidget {
                       children: [
                         _buildSquareIconBtn(
                           context,
-                          Icon(Icons.call, color: Colors.black, size: Responsive.iconSize(context, base: 24)),
+                          Icon(Icons.call,
+                              color: Colors.black,
+                              size: Responsive.iconSize(context, base: 24)),
                           onCall,
                         ),
                         SizedBox(height: Responsive.verticalSpacing(context)),
@@ -293,7 +356,9 @@ class StartRideCard extends StatelessWidget {
                               color: AppColors.error,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.close, color: Colors.white, size: Responsive.iconSize(context, base: 16)),
+                            child: Icon(Icons.close,
+                                color: Colors.white,
+                                size: Responsive.iconSize(context, base: 16)),
                           ),
                           onCancel,
                         ),
@@ -308,8 +373,10 @@ class StartRideCard extends StatelessWidget {
                 SlideToAction(
                   text: btnText,
                   outerColor: btnColor,
-                  textColor: (isPro && !isStarted) ? Colors.black : Colors.white,
-                  isPro: isPro && !isStarted, // only show crown when starting the ride
+                  textColor:
+                      (isPro && !isStarted) ? Colors.black : Colors.white,
+                  isPro: isPro &&
+                      !isStarted, // only show crown when starting the ride
                   onSubmitted: onSwipe,
                   height: Responsive.buttonHeight(context, base: 55),
                 ),
@@ -331,7 +398,8 @@ class StartRideCard extends StatelessWidget {
         width: sz,
         height: sz,
         decoration: BoxDecoration(
-            color: const Color(0xFFE2E2E2), // Matching the light gray box from Figma
+            color: const Color(
+                0xFFE2E2E2), // Matching the light gray box from Figma
             borderRadius: BorderRadius.circular(10)),
         child: Center(child: iconWidget),
       ),
@@ -381,7 +449,9 @@ class _SlideToActionState extends State<SlideToAction> {
             color: widget.outerColor,
             borderRadius: BorderRadius.circular(widget.height / 2),
             border: Border.all(
-              color: widget.isPro ? const Color(0xFFE3CA43) : Colors.transparent, // ✅ Add gold border if Pro
+              color: widget.isPro
+                  ? const Color(0xFFE3CA43)
+                  : Colors.transparent, // ✅ Add gold border if Pro
               width: widget.isPro ? 2 : 0,
             ),
           ),
@@ -392,7 +462,8 @@ class _SlideToActionState extends State<SlideToAction> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.isPro) ...[
-                      const Icon(Icons.workspace_premium, color: Colors.black, size: 20), // Crown Icon
+                      const Icon(Icons.workspace_premium,
+                          color: Colors.black, size: 20), // Crown Icon
                       const SizedBox(width: 6),
                     ],
                     Text(
@@ -449,7 +520,9 @@ class _SlideToActionState extends State<SlideToAction> {
                         ]),
                     child: Icon(
                       Icons.arrow_forward,
-                      color: widget.isPro ? const Color(0xFFE3CA43) : widget.outerColor,
+                      color: widget.isPro
+                          ? const Color(0xFFE3CA43)
+                          : widget.outerColor,
                       size: 24,
                     ),
                   ),

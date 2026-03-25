@@ -107,7 +107,8 @@ class _RateCardWidgetState extends State<RateCardWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.headset_mic_outlined, size: 16, color: Colors.grey[800]),
+              Icon(Icons.headset_mic_outlined,
+                  size: 16, color: Colors.grey[800]),
               const SizedBox(width: 6),
               Text(
                 'Help',
@@ -172,7 +173,7 @@ class _RateCardWidgetState extends State<RateCardWidget> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -244,8 +245,10 @@ class _RateCardWidgetState extends State<RateCardWidget> {
     final List<Widget> children = [];
 
     if (baseFare != null) {
-      children.add(_buildFareRow('Base Fare', 'For completing an order', '₹$baseFare'));
-      if (baseKmStart != null || baseKmEnd != null) children.add(_buildDivider());
+      children.add(
+          _buildFareRow('Base Fare', 'For completing an order', '₹$baseFare'));
+      if (baseKmStart != null || baseKmEnd != null)
+        children.add(_buildDivider());
     }
     if (baseKmStart != null || baseKmEnd != null) {
       children.add(_buildFareRow(
@@ -286,7 +289,7 @@ class _RateCardWidgetState extends State<RateCardWidget> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -300,7 +303,8 @@ class _RateCardWidgetState extends State<RateCardWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Text(
               title,

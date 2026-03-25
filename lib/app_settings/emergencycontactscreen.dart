@@ -12,7 +12,8 @@ class EmergencyContactsScreen extends StatefulWidget {
   static String routePath = '/emergencyContacts';
 
   @override
-  State<EmergencyContactsScreen> createState() => _EmergencyContactsScreenState();
+  State<EmergencyContactsScreen> createState() =>
+      _EmergencyContactsScreenState();
 }
 
 class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
@@ -45,7 +46,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          contacts = data.map((json) => EmergencyContact.fromJson(json)).toList();
+          contacts =
+              data.map((json) => EmergencyContact.fromJson(json)).toList();
           isLoading = false;
         });
       } else {
@@ -72,12 +74,11 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
   Future<void> _saveContact(EmergencyContact contact, int? existingId) async {
     try {
-      final url = existingId != null 
-          ? '$_baseUrl/$existingId'
-          : '$_baseUrl/post';
-      
+      final url =
+          existingId != null ? '$_baseUrl/$existingId' : '$_baseUrl/post';
+
       final method = existingId != null ? 'PUT' : 'POST';
-      
+
       final response = await (method == 'POST'
           ? http.post(
               Uri.parse(url),
@@ -227,7 +228,8 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                 if (contact.isPrimary) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(4),
@@ -289,9 +291,12 @@ class _AddEditContactScreenState extends State<AddEditContactScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.contact?.contactName ?? '');
-    _phoneController = TextEditingController(text: widget.contact?.contactPhone ?? '');
-    _relationshipController = TextEditingController(text: widget.contact?.contactRelationship ?? '');
+    _nameController =
+        TextEditingController(text: widget.contact?.contactName ?? '');
+    _phoneController =
+        TextEditingController(text: widget.contact?.contactPhone ?? '');
+    _relationshipController =
+        TextEditingController(text: widget.contact?.contactRelationship ?? '');
     _isPrimary = widget.contact?.isPrimary ?? false;
   }
 
@@ -329,7 +334,8 @@ class _AddEditContactScreenState extends State<AddEditContactScreen> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('SAVE', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text('SAVE',
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

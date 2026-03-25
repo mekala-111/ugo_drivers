@@ -74,21 +74,6 @@
             android:foregroundServiceType="dataSync">
         </service>
 
-        <service
-            android:name=".RideRequestOverlayService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="dataSync">
-        </service>
-
-        <activity
-            android:name=".RideRequestActivity"
-            android:theme="@style/RideRequestTheme"
-            android:launchMode="singleTask"
-            android:exported="false"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"/>
-
         <activity
             android:name=".OngoingRideActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

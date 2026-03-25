@@ -80,8 +80,8 @@ class PreLoginGoogleMapsScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                                 recognizer: TapGestureRecognizer()
-                                  ..onTap = () =>
-                                      _launchUrl('https://policies.google.com/terms'),
+                                  ..onTap = () => _launchUrl(
+                                      'https://policies.google.com/terms'),
                               ),
                               const TextSpan(text: ' and '),
                               TextSpan(

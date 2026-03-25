@@ -27,7 +27,8 @@ class RideCompleteOverlay extends StatelessWidget {
     }
 
     final Uri googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
-    final Uri browserUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    final Uri browserUrl =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
     try {
       if (await canLaunchUrl(googleMapsUrl)) {
@@ -48,7 +49,8 @@ class RideCompleteOverlay extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
-        top: false, // Ensures it doesn't add padding to the top, only respects bottom notches
+        top:
+            false, // Ensures it doesn't add padding to the top, only respects bottom notches
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -80,11 +82,9 @@ class RideCompleteOverlay extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                            Icons.navigation,
+                        Icon(Icons.navigation,
                             color: Colors.black,
-                            size: Responsive.iconSize(context, base: 20)
-                        ),
+                            size: Responsive.iconSize(context, base: 20)),
                         const SizedBox(width: 8),
                         Text(
                           FFLocalizations.of(context).getText('drv_drop'),
@@ -137,7 +137,8 @@ class CompleteRideCard extends StatelessWidget {
 
     if (phoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(FFLocalizations.of(context).getText('ride0007'))),
+        SnackBar(
+            content: Text(FFLocalizations.of(context).getText('ride0007'))),
       );
       return;
     }
@@ -148,7 +149,9 @@ class CompleteRideCard extends StatelessWidget {
         await launchUrl(phoneUri);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(FFLocalizations.of(context).getText('drv_dialer_fail'))),
+          SnackBar(
+              content:
+                  Text(FFLocalizations.of(context).getText('drv_dialer_fail'))),
         );
       }
     } catch (e) {
@@ -159,7 +162,7 @@ class CompleteRideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isPro = ride.bookingMode == 'pro';
-    
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -170,7 +173,9 @@ class CompleteRideCard extends StatelessWidget {
           BoxShadow(
               color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))
         ],
-        border: Border.all(color: isPro ? const Color(0xFFE3CA43) : Colors.transparent, width: isPro ? 2 : 0),
+        border: Border.all(
+            color: isPro ? const Color(0xFFE3CA43) : Colors.transparent,
+            width: isPro ? 2 : 0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -180,7 +185,9 @@ class CompleteRideCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isPro ? const Color(0xFFE3CA43) : ugoGreen, // Gold background for pro, Green for normal
+              color: isPro
+                  ? const Color(0xFFE3CA43)
+                  : ugoGreen, // Gold background for pro, Green for normal
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(14), topRight: Radius.circular(14)),
             ),
@@ -213,7 +220,9 @@ class CompleteRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ride.firstName ?? FFLocalizations.of(context).getText('drv_passenger'),
+                            ride.firstName ??
+                                FFLocalizations.of(context)
+                                    .getText('drv_passenger'),
                             style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -222,14 +231,15 @@ class CompleteRideCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 16),
-
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Drop Icon Box (White with Red Border)
                               Container(
-                                width: Responsive.buttonHeight(context, base: 46),
-                                height: Responsive.buttonHeight(context, base: 46),
+                                width:
+                                    Responsive.buttonHeight(context, base: 46),
+                                height:
+                                    Responsive.buttonHeight(context, base: 46),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(color: ugoRed, width: 1.5),
@@ -240,9 +250,11 @@ class CompleteRideCard extends StatelessWidget {
                                   children: [
                                     Icon(Icons.location_on,
                                         color: ugoRed,
-                                        size: Responsive.iconSize(context, base: 22)),
+                                        size: Responsive.iconSize(context,
+                                            base: 22)),
                                     Text(
-                                      FFLocalizations.of(context).getText('drv_drop'),
+                                      FFLocalizations.of(context)
+                                          .getText('drv_drop'),
                                       style: const TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey,
@@ -259,7 +271,8 @@ class CompleteRideCard extends StatelessWidget {
                                   lat: ride.dropLat,
                                   lng: ride.dropLng,
                                   fallbackAddress: ride.dropAddress,
-                                  fallbackLabel: FFLocalizations.of(context).getText('drv_drop_location'),
+                                  fallbackLabel: FFLocalizations.of(context)
+                                      .getText('drv_drop_location'),
                                 ),
                               ),
                             ],
@@ -274,8 +287,10 @@ class CompleteRideCard extends StatelessWidget {
                       children: [
                         _buildSquareIconBtn(
                           context,
-                          Icon(Icons.call, color: Colors.black, size: Responsive.iconSize(context, base: 24)),
-                              () => _makePhoneCall(context),
+                          Icon(Icons.call,
+                              color: Colors.black,
+                              size: Responsive.iconSize(context, base: 24)),
+                          () => _makePhoneCall(context),
                         ),
                       ],
                     ),
@@ -286,17 +301,18 @@ class CompleteRideCard extends StatelessWidget {
                 // Swipe to Complete Button (Red)
                 isLoading
                     ? Container(
-                  height: Responsive.buttonHeight(context, base: 55),
-                  alignment: Alignment.center,
-                  child: const CircularProgressIndicator(color: ugoRed),
-                )
+                        height: Responsive.buttonHeight(context, base: 55),
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(color: ugoRed),
+                      )
                     : SlideToAction(
-                    text: FFLocalizations.of(context).getText('drv_complete_ride'),
-                    outerColor: isPro ? const Color(0xFFE3CA43) : ugoRed,
-                    textColor: isPro ? Colors.black : Colors.white,
-                    isPro: isPro,
-                    onSubmitted: onSwipe ?? () {},
-                    height: Responsive.buttonHeight(context, base: 55)),
+                        text: FFLocalizations.of(context)
+                            .getText('drv_complete_ride'),
+                        outerColor: isPro ? const Color(0xFFE3CA43) : ugoRed,
+                        textColor: isPro ? Colors.black : Colors.white,
+                        isPro: isPro,
+                        onSubmitted: onSwipe ?? () {},
+                        height: Responsive.buttonHeight(context, base: 55)),
               ],
             ),
           ),
@@ -305,7 +321,8 @@ class CompleteRideCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSquareIconBtn(BuildContext context, Widget iconWidget, VoidCallback onTap) {
+  Widget _buildSquareIconBtn(
+      BuildContext context, Widget iconWidget, VoidCallback onTap) {
     final sz = Responsive.buttonHeight(context, base: 48);
     return InkWell(
       onTap: onTap,
@@ -364,7 +381,9 @@ class _SlideToActionState extends State<SlideToAction> {
             color: widget.outerColor,
             borderRadius: BorderRadius.circular(widget.height / 2),
             border: Border.all(
-              color: widget.isPro ? const Color(0xFFE3CA43) : Colors.transparent, // ✅ Add gold border if Pro
+              color: widget.isPro
+                  ? const Color(0xFFE3CA43)
+                  : Colors.transparent, // ✅ Add gold border if Pro
               width: widget.isPro ? 2 : 0,
             ),
           ),
@@ -375,7 +394,8 @@ class _SlideToActionState extends State<SlideToAction> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.isPro) ...[
-                      const Icon(Icons.workspace_premium, color: Colors.black, size: 20), // Crown Icon
+                      const Icon(Icons.workspace_premium,
+                          color: Colors.black, size: 20), // Crown Icon
                       const SizedBox(width: 6),
                     ],
                     Text(
@@ -431,7 +451,9 @@ class _SlideToActionState extends State<SlideToAction> {
                               offset: Offset(1, 1))
                         ]),
                     child: Icon(Icons.arrow_forward,
-                        color: widget.isPro ? const Color(0xFFE3CA43) : widget.outerColor,
+                        color: widget.isPro
+                            ? const Color(0xFFE3CA43)
+                            : widget.outerColor,
                         size: 24),
                   ),
                 ),

@@ -5,7 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorageService {
   SecureStorageService._();
   static SecureStorageService? _instance;
-  static SecureStorageService get instance => _instance ??= SecureStorageService._();
+  static SecureStorageService get instance =>
+      _instance ??= SecureStorageService._();
 
   static const _androidOptions = AndroidOptions(
     encryptedSharedPreferences: true,

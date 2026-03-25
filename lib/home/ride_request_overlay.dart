@@ -248,6 +248,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             dropDistanceText: dropDistanceText,
             pickupText: updatedRide.pickupAddress,
             dropText: updatedRide.dropAddress,
+            paymentMethod: updatedRide.rawPaymentMode,
           );
         }
       }

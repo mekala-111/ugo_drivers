@@ -17,7 +17,9 @@ void main() {
           ],
           child: const MaterialApp(
             home: Scaffold(
-              body: Center(child: Text('UGO Driver', style: TextStyle(color: AppColors.primary))),
+              body: Center(
+                  child: Text('UGO Driver',
+                      style: TextStyle(color: AppColors.primary))),
             ),
           ),
         ),

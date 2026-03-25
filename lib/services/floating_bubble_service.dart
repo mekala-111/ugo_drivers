@@ -66,6 +66,7 @@ class FloatingBubbleService {
     required String dropDistanceText,
     required String pickupText,
     required String dropText,
+    required String paymentMethod,
   }) async {
     try {
       final String result = await _channel.invokeMethod('showRideRequest', {
@@ -75,6 +76,7 @@ class FloatingBubbleService {
         'dropDistance': dropDistanceText,
         'pickup': pickupText,
         'drop': dropText,
+        'paymentMethod': paymentMethod,
       });
       return result;
     } on PlatformException catch (_) {

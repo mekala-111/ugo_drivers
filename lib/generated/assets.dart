@@ -17,7 +17,8 @@ class $AssetsAssetsGen {
   final $AssetsImagesGen images = const $AssetsImagesGen();
   final $AssetsJsonsGen jsons = const $AssetsJsonsGen();
   final $AssetsPdfsGen pdfs = const $AssetsPdfsGen();
-  final $AssetsRiveAnimationsGen riveAnimations = const $AssetsRiveAnimationsGen();
+  final $AssetsRiveAnimationsGen riveAnimations =
+      const $AssetsRiveAnimationsGen();
   final $AssetsVideosGen videos = const $AssetsVideosGen();
 }
 
@@ -37,26 +38,26 @@ class $AssetsImagesGen {
   final AssetGenImage a6gwx43 = const AssetGenImage('assets/images/6gwx43.png');
   final AssetGenImage a7jj26p = const AssetGenImage('assets/images/7jj26p.png');
   final AssetGenImage a89ssz8 = const AssetGenImage('assets/images/89ssz8.png');
-  final AssetGenImage driverIcon = const AssetGenImage(
-      'assets/images/Driver_Icon.png');
-  final AssetGenImage group2994 = const AssetGenImage(
-      'assets/images/Group_2994.png');
-  final AssetGenImage rectangle = const AssetGenImage(
-      'assets/images/Rectangle.png');
-  final AssetGenImage screenshot20250701144141 = const AssetGenImage(
-      'assets/images/Screenshot_2025-07-01_144141.png');
-  final AssetGenImage adaptiveForegroundIcon = const AssetGenImage(
-      'assets/images/adaptive_foreground_icon.png');
-  final AssetGenImage appIcon = const AssetGenImage(
-      'assets/images/app_icon.png');
-  final AssetGenImage appLauncherIcon = const AssetGenImage(
-      'assets/images/app_launcher_icon.png');
+  final AssetGenImage driverIcon =
+      const AssetGenImage('assets/images/Driver_Icon.png');
+  final AssetGenImage group2994 =
+      const AssetGenImage('assets/images/Group_2994.png');
+  final AssetGenImage rectangle =
+      const AssetGenImage('assets/images/Rectangle.png');
+  final AssetGenImage screenshot20250701144141 =
+      const AssetGenImage('assets/images/Screenshot_2025-07-01_144141.png');
+  final AssetGenImage adaptiveForegroundIcon =
+      const AssetGenImage('assets/images/adaptive_foreground_icon.png');
+  final AssetGenImage appIcon =
+      const AssetGenImage('assets/images/app_icon.png');
+  final AssetGenImage appLauncherIcon =
+      const AssetGenImage('assets/images/app_launcher_icon.png');
   final AssetGenImage d89g74 = const AssetGenImage('assets/images/d89g74.png');
   final AssetGenImage dhsch3 = const AssetGenImage('assets/images/dhsch3.png');
-  final AssetGenImage errorImage = const AssetGenImage(
-      'assets/images/error_image.png');
-  final AssetGenImage favicon = const AssetGenImage(
-      'assets/images/favicon.png');
+  final AssetGenImage errorImage =
+      const AssetGenImage('assets/images/error_image.png');
+  final AssetGenImage favicon =
+      const AssetGenImage('assets/images/favicon.png');
   final AssetGenImage img = const AssetGenImage('assets/images/img.png');
   final AssetGenImage logo1 = const AssetGenImage('assets/images/logo--_1.png');
   final AssetGenImage mwhg2d = const AssetGenImage('assets/images/mwhg2d.png');
@@ -69,15 +70,15 @@ class $AssetsImagesGen {
 class $AssetsVideosGen {
   const $AssetsVideosGen();
 
-  final AssetGenImage favicon = const AssetGenImage(
-      'assets/videos/favicon.png');
+  final AssetGenImage favicon =
+      const AssetGenImage('assets/videos/favicon.png');
 }
 
 class $AssetsRiveAnimationsGen {
   const $AssetsRiveAnimationsGen();
 
-  final AssetGenImage favicon = const AssetGenImage(
-      'assets/rive_animations/favicon.png');
+  final AssetGenImage favicon =
+      const AssetGenImage('assets/rive_animations/favicon.png');
 }
 
 class $AssetsPdfsGen {
@@ -96,7 +97,6 @@ class AssetGenImage {
   const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
 
   final String _assetName;
-
 
   final Size? size;
   final Set<String> flavors;
@@ -184,7 +184,6 @@ class SvgGenImage {
   const SvgGenImage(this._assetName);
 
   final String _assetName;
-
 
   Widget custom({
     Key? key,

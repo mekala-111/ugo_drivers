@@ -23,10 +23,16 @@ class RideHistoryItem {
 
   factory RideHistoryItem.fromJson(Map<String, dynamic> json) {
     final idVal = json['rideId'] ?? json['id'];
-    final id = idVal is int ? idVal : int.tryParse(idVal?.toString() ?? '0') ?? 0;
+    final id =
+        idVal is int ? idVal : int.tryParse(idVal?.toString() ?? '0') ?? 0;
     final fareVal = json['fare'] ?? json['amount'];
-    final fare = (fareVal is num) ? fareVal.toDouble() : double.tryParse(fareVal?.toString() ?? '0') ?? 0.0;
-    final dateStr = json['createdAt'] ?? json['created_at'] ?? json['completedAt'] ?? json['date'];
+    final fare = (fareVal is num)
+        ? fareVal.toDouble()
+        : double.tryParse(fareVal?.toString() ?? '0') ?? 0.0;
+    final dateStr = json['createdAt'] ??
+        json['created_at'] ??
+        json['completedAt'] ??
+        json['date'];
     final date = DateTime.tryParse(dateStr?.toString() ?? '') ?? DateTime.now();
     return RideHistoryItem(
       id: id,
@@ -35,7 +41,8 @@ class RideHistoryItem {
       fare: fare,
       date: date,
       status: (json['status'] ?? 'completed').toString(),
-      paymentMode: (json['paymentMode'] ?? json['payment_mode'] ?? 'cash').toString(),
+      paymentMode:
+          (json['paymentMode'] ?? json['payment_mode'] ?? 'cash').toString(),
       rideType: (json['rideType'] ?? json['ride_type'] ?? 'bike').toString(),
       distanceKm: _toDouble(json['distanceKm'] ?? json['distance_km']),
     );

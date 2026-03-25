@@ -156,8 +156,7 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                 Padding(
                   padding: const EdgeInsetsDirectional.fromSTEB(32, 0, 32, 0),
                   child: FFButtonWidget(
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                     text: FFLocalizations.of(context).getText(
                       'jc5v3zns' /* Add Bank Account */,
                     ),
@@ -165,7 +164,8 @@ class _PaymentsPageWidgetState extends State<PaymentsPageWidget> {
                       width: double.infinity,
                       height: 56,
                       padding: const EdgeInsets.all(8),
-                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                      iconPadding:
+                          const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                       color: AppColors.accentCoral,
                       textStyle:
                           FlutterFlowTheme.of(context).titleMedium.override(

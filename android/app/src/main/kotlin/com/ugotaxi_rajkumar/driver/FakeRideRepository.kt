@@ -19,6 +19,7 @@ object FakeRideRepository {
             val testRide = RideData(
                 id = (1000..9999).random(),
                 fare = "₹${(150..500).random()}",
+                paymentMethod = listOf("CASH", "ONLINE").random(),
                 pickup = "Green Park Extension, near Metro Station, Delhi",
                 drop = "Building 10, DLF CyberHub, Phase 2, Gurgaon",
                 pickupDistance = "1.8Km",
@@ -32,12 +33,9 @@ object FakeRideRepository {
             // 1. Update global stateFlow
             RideEventRepository.updateState(
                 RideState.NewRequest(
-                    testRide.id, testRide.fare, testRide.pickupDistance, testRide.dropDistance, testRide.pickup, testRide.drop
+                    testRide.id, testRide.fare, testRide.paymentMethod, testRide.pickupDistance, testRide.dropDistance, testRide.pickup, testRide.drop
                 )
             )
-
-            // 2. Trigger the overlay service
-            RideRequestOverlayService.showNewRideRequest(context, testRide)
         }
     }
 }

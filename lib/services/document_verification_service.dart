@@ -1,6 +1,7 @@
 /// Uber-style document verification service.
 /// Runs validations on all onboarding documents before allowing server submission.
 library;
+
 import '../app_state.dart';
 import '../flutter_flow/uploaded_file.dart';
 import '../utils/input_validators.dart';
@@ -32,9 +33,11 @@ class DocumentVerificationService {
     } else if (!FFAppState().email.contains('@')) {
       errors.add('Enter a valid email address');
     }
-    if (FFAppState().mobileNo == 0 || FFAppState().mobileNo.toString().length < 10) {
+    if (FFAppState().mobileNo == 0 ||
+        FFAppState().mobileNo.toString().length < 10) {
       errors.add('Valid mobile number is required');
-    } else if (!InputValidators.isValidIndianPhone(FFAppState().mobileNo.toString())) {
+    } else if (!InputValidators.isValidIndianPhone(
+        FFAppState().mobileNo.toString())) {
       errors.add('Enter a valid 10-digit Indian mobile number');
     }
 
@@ -50,11 +53,14 @@ class DocumentVerificationService {
     }
     if (FFAppState().licenseNumber.trim().isEmpty) {
       errors.add('Driving License: License number is required');
-    } else if (InputValidators.licenseError(FFAppState().licenseNumber) != null) {
-      errors.add('Driving License: ${InputValidators.licenseError(FFAppState().licenseNumber)}');
+    } else if (InputValidators.licenseError(FFAppState().licenseNumber) !=
+        null) {
+      errors.add(
+          'Driving License: ${InputValidators.licenseError(FFAppState().licenseNumber)}');
     }
     if (FFAppState().licenseExpiryDate.isNotEmpty) {
-      final expiryErr = InputValidators.licenseExpiryError(FFAppState().licenseExpiryDate);
+      final expiryErr =
+          InputValidators.licenseExpiryError(FFAppState().licenseExpiryDate);
       if (expiryErr != null) {
         errors.add('Driving License: $expiryErr');
       }
@@ -74,7 +80,8 @@ class DocumentVerificationService {
     }
     if (FFAppState().aadharNumber.trim().isNotEmpty &&
         InputValidators.aadhaarError(FFAppState().aadharNumber) != null) {
-      errors.add('Aadhaar: ${InputValidators.aadhaarError(FFAppState().aadharNumber)}');
+      errors.add(
+          'Aadhaar: ${InputValidators.aadhaarError(FFAppState().aadharNumber)}');
     }
 
     // 5. PAN (required)
@@ -101,7 +108,8 @@ class DocumentVerificationService {
         _hasDoc(FFAppState().rcFrontImage) ||
         _hasDoc(FFAppState().rcBackImage);
     if (!hasRC) {
-      errors.add('RC (Registration Certificate): Front and/or back image is required');
+      errors.add(
+          'RC (Registration Certificate): Front and/or back image is required');
     }
 
     return DocumentVerificationResult(
@@ -114,8 +122,10 @@ class DocumentVerificationService {
   static DocumentVerificationResult verifyMinimum() {
     final errors = <String>[];
 
-    if (FFAppState().firstName.trim().isEmpty) errors.add('First name is required');
-    if (FFAppState().lastName.trim().isEmpty) errors.add('Last name is required');
+    if (FFAppState().firstName.trim().isEmpty)
+      errors.add('First name is required');
+    if (FFAppState().lastName.trim().isEmpty)
+      errors.add('Last name is required');
     if (FFAppState().email.trim().isEmpty) {
       errors.add('Email is required');
     } else if (!FFAppState().email.contains('@')) {

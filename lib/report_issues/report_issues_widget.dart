@@ -89,9 +89,8 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: _isSubmitting
-                              ? null
-                              : () => Navigator.pop(ctx),
+                          onPressed:
+                              _isSubmitting ? null : () => Navigator.pop(ctx),
                           child: const Text('Cancel'),
                         ),
                       ),
@@ -157,7 +156,8 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
         driverId: FFAppState().driverid,
         issueCategory: issueType,
         issueDescription: description.isNotEmpty ? description : null,
-        rideId: FFAppState().activeRideId > 0 ? FFAppState().activeRideId : null,
+        rideId:
+            FFAppState().activeRideId > 0 ? FFAppState().activeRideId : null,
       );
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -314,9 +314,10 @@ class _ReportIssuesWidgetState extends State<ReportIssuesWidget> {
                                       .override(
                                         font: GoogleFonts.inter(
                                           fontWeight: FontWeight.normal,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .bodyLarge
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyLarge
+                                                  .fontStyle,
                                         ),
                                         color: FlutterFlowTheme.of(context)
                                             .accent1,

@@ -62,7 +62,8 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
         setState(() {
           _model.isLoading = false;
           _model.errorMessage = getJsonField(
-                response.jsonBody ?? {}, r'$.message',
+                response.jsonBody ?? {},
+                r'$.message',
               )?.toString() ??
               'Failed to load notifications';
         });
@@ -175,222 +176,235 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                               icon: const Icon(Icons.refresh),
                               label: const Text('Retry'),
                               style: FilledButton.styleFrom(
-                                backgroundColor: FlutterFlowTheme.of(context)
-                                    .primary,
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
                               ),
                             ),
                           ],
                         ),
                       ),
                     )
-                  : _model.notificationData != null &&
-                          _hasNotifications
+                  : _model.notificationData != null && _hasNotifications
                       ? RefreshIndicator(
                           onRefresh: _loadNotifications,
                           child: ListView.builder(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-                  itemCount: _notificationList.length,
-                  itemBuilder: (context, index) {
-                    final notification = _notificationList[index];
-                    final isRead = getJsonField(
-                          notification,
-                          r'$.is_read',
-                        ) ==
-                        true;
-                    final title = getJsonField(
-                          notification,
-                          r'$.notification_title',
-                        )?.toString() ??
-                        getJsonField(
-                          notification,
-                          r'$.title',
-                        )?.toString() ??
-                        'Notification';
-                    final message = getJsonField(
-                          notification,
-                          r'$.notification_body',
-                        )?.toString() ??
-                        getJsonField(
-                          notification,
-                          r'$.message',
-                        )?.toString() ??
-                        '';
-                    final createdAt = getJsonField(
-                          notification,
-                          r'$.created_at',
-                        )?.toString() ??
-                        '';
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                0.0, 8.0, 0.0, 0.0),
+                            itemCount: _notificationList.length,
+                            itemBuilder: (context, index) {
+                              final notification = _notificationList[index];
+                              final isRead = getJsonField(
+                                    notification,
+                                    r'$.is_read',
+                                  ) ==
+                                  true;
+                              final title = getJsonField(
+                                    notification,
+                                    r'$.notification_title',
+                                  )?.toString() ??
+                                  getJsonField(
+                                    notification,
+                                    r'$.title',
+                                  )?.toString() ??
+                                  'Notification';
+                              final message = getJsonField(
+                                    notification,
+                                    r'$.notification_body',
+                                  )?.toString() ??
+                                  getJsonField(
+                                    notification,
+                                    r'$.message',
+                                  )?.toString() ??
+                                  '';
+                              final createdAt = getJsonField(
+                                    notification,
+                                    r'$.created_at',
+                                  )?.toString() ??
+                                  '';
 
-                    return Container(
-                      margin:
-                          const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 12.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.0),
-                        border: Border.all(
-                          color: isRead
-                              ? FlutterFlowTheme.of(context).alternate
-                              : FlutterFlowTheme.of(context).primary,
-                          width: isRead ? 1.0 : 2.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha:0.05),
-                            blurRadius: 4.0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 48.0,
-                              height: 48.0,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: isRead
-                                      ? [
-                                          FlutterFlowTheme.of(context)
-                                              .alternate,
-                                          FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        ]
-                                      : [
-                                          FlutterFlowTheme.of(context).primary,
-                                          FlutterFlowTheme.of(context)
-                                              .secondary,
-                                        ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                              return Container(
+                                margin: const EdgeInsetsDirectional.fromSTEB(
+                                    16.0, 0.0, 16.0, 12.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  border: Border.all(
+                                    color: isRead
+                                        ? FlutterFlowTheme.of(context).alternate
+                                        : FlutterFlowTheme.of(context).primary,
+                                    width: isRead ? 1.0 : 2.0,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 4.0,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.notifications_active,
-                                color: Colors.white,
-                                size: 24.0,
-                              ),
-                            ),
-                            const SizedBox(width: 12.0),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          title,
-                                          style: GoogleFonts.inter(
-                                            fontSize: 16.0,
-                                            fontWeight: isRead
-                                                ? FontWeight.w500
-                                                : FontWeight.w700,
-                                            color: AppColors.textNearBlack,
+                                      Container(
+                                        width: 48.0,
+                                        height: 48.0,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: isRead
+                                                ? [
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                                  ]
+                                                : [
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary,
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondary,
+                                                  ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
                                           ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.notifications_active,
+                                          color: Colors.white,
+                                          size: 24.0,
                                         ),
                                       ),
-                                      if (!isRead)
-                                        Container(
-                                          width: 8.0,
-                                          height: 8.0,
-                                          margin: const EdgeInsets.only(top: 6),
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            shape: BoxShape.circle,
-                                          ),
+                                      const SizedBox(width: 12.0),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    title,
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 16.0,
+                                                      fontWeight: isRead
+                                                          ? FontWeight.w500
+                                                          : FontWeight.w700,
+                                                      color: AppColors
+                                                          .textNearBlack,
+                                                    ),
+                                                  ),
+                                                ),
+                                                if (!isRead)
+                                                  Container(
+                                                    width: 8.0,
+                                                    height: 8.0,
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            top: 6),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primary,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 6.0),
+                                            Text(
+                                              message,
+                                              style: GoogleFonts.inter(
+                                                fontSize: 14.0,
+                                                fontWeight: FontWeight.w400,
+                                                color: AppColors.greyDark,
+                                                height: 1.5,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (createdAt.isNotEmpty)
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        0.0, 8.0, 0.0, 0.0),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.access_time,
+                                                      size: 14.0,
+                                                      color: AppColors.grey,
+                                                    ),
+                                                    const SizedBox(width: 4.0),
+                                                    Text(
+                                                      createdAt,
+                                                      style: GoogleFonts.inter(
+                                                        fontSize: 12.0,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color: AppColors.grey,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                          ],
                                         ),
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6.0),
-                                  Text(
-                                    message,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.greyDark,
-                                      height: 1.5,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (createdAt.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 8.0, 0.0, 0.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.access_time,
-                                            size: 14.0,
-                                            color: AppColors.grey,
-                                          ),
-                                          const SizedBox(width: 4.0),
-                                          Text(
-                                            createdAt,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.w400,
-                                              color: AppColors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                                ),
+                              );
+                            },
+                          ),
                         )
                       : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 100.0,
-                        height: 100.0,
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).accent1,
-                          shape: BoxShape.circle,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 100.0,
+                                height: 100.0,
+                                decoration: BoxDecoration(
+                                  color: FlutterFlowTheme.of(context).accent1,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.notifications_none,
+                                  size: 50.0,
+                                  color: FlutterFlowTheme.of(context).primary,
+                                ),
+                              ),
+                              const SizedBox(height: 24.0),
+                              Text(
+                                'No notifications yet',
+                                style: GoogleFonts.inter(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textNearBlack,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                'You\'re all caught up!',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Icon(
-                          Icons.notifications_none,
-                          size: 50.0,
-                          color: FlutterFlowTheme.of(context).primary,
-                        ),
-                      ),
-                      const SizedBox(height: 24.0),
-                      Text(
-                        'No notifications yet',
-                        style: GoogleFonts.inter(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textNearBlack,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        'You\'re all caught up!',
-                        style: GoogleFonts.inter(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
         ),
       ),
     );

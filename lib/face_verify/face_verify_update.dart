@@ -94,7 +94,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
           _model.uploadedLocalFile_uploadDataFvd = _profilePhoto!;
           _isProfilePhotoValid = true;
         });
-        debugPrint('✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
+        debugPrint(
+            '✅ Profile photo loaded from Base64 (${bytes.length} bytes)');
       } catch (e) {
         debugPrint('❌ Error decoding profile photo Base64: $e');
       }
@@ -268,15 +269,16 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.registrationOrange.withValues(alpha:0.1),
-                            AppColors.accentCoral.withValues(alpha:0.05)
+                            AppColors.registrationOrange.withValues(alpha: 0.1),
+                            AppColors.accentCoral.withValues(alpha: 0.05)
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppColors.registrationOrange.withValues(alpha:0.3),
+                          color: AppColors.registrationOrange
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -287,7 +289,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.registrationOrange.withValues(alpha:0.2),
+                                  color: AppColors.registrationOrange
+                                      .withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
@@ -402,7 +405,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -414,7 +417,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                           const Row(
                             children: [
                               Icon(Icons.tips_and_updates,
-                                  color: AppColors.registrationOrange, size: 20),
+                                  color: AppColors.registrationOrange,
+                                  size: 20),
                               SizedBox(width: 8),
                               Text(
                                 'Photo Guidelines',
@@ -452,7 +456,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -489,7 +493,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                       color: (_isProfilePhotoValid
                                               ? Colors.green
                                               : AppColors.registrationOrange)
-                                          .withValues(alpha:0.2),
+                                          .withValues(alpha: 0.2),
                                       blurRadius: 20,
                                       offset: const Offset(0, 8),
                                     ),
@@ -516,7 +520,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                   fit: BoxFit.cover,
                                                   loadingBuilder: (context,
                                                       child, loadingProgress) {
-                                                    if (loadingProgress == null) {
+                                                    if (loadingProgress ==
+                                                        null) {
                                                       return child;
                                                     }
                                                     return Center(
@@ -530,8 +535,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                                 loadingProgress
                                                                     .expectedTotalBytes!
                                                             : null,
-                                                        color:
-                                                            AppColors.registrationOrange,
+                                                        color: AppColors
+                                                            .registrationOrange,
                                                       ),
                                                     );
                                                   },
@@ -546,11 +551,17 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                             Icons.error_outline,
                                                             size: 48,
                                                             color: Colors.red),
-                                                        const SizedBox(height: 8),
-                                                        Text(FFLocalizations.of(context).getText('face0024'),
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .red)),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Text(
+                                                            FFLocalizations.of(
+                                                                    context)
+                                                                .getText(
+                                                                    'face0024'),
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ],
                                                     );
                                                   },
@@ -563,31 +574,34 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                                     children: [
                                                       Container(
                                                         padding:
-                                                            const EdgeInsets.all(20),
+                                                            const EdgeInsets
+                                                                .all(20),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: const Color(
                                                                   0xFFFF8C00)
-                                                              .withValues(alpha:0.1),
+                                                              .withValues(
+                                                                  alpha: 0.1),
                                                           shape:
                                                               BoxShape.circle,
                                                         ),
                                                         child: const Icon(
                                                           Icons.camera_front,
                                                           size: 48,
-                                                          color:
-                                                              AppColors.registrationOrange,
+                                                          color: AppColors
+                                                              .registrationOrange,
                                                         ),
                                                       ),
-                                                      const SizedBox(height: 16),
+                                                      const SizedBox(
+                                                          height: 16),
                                                       const Text(
                                                         'Tap to capture',
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          color:
-                                                              AppColors.textNearBlack,
+                                                          color: AppColors
+                                                              .textNearBlack,
                                                         ),
                                                       ),
                                                       const SizedBox(height: 4),
@@ -654,7 +668,7 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withValues(alpha:0.3),
+                                                      .withValues(alpha: 0.3),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -754,10 +768,12 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
 
                               FFAppState().update(() {});
 
-                              debugPrint('✅ Profile photo saved to FFAppState:');
+                              debugPrint(
+                                  '✅ Profile photo saved to FFAppState:');
                               debugPrint(
                                   '   Image: ${_profilePhoto?.bytes?.length ?? 0} bytes');
-                              debugPrint('   URL: ${_profilePhotoUrl ?? "None"}');
+                              debugPrint(
+                                  '   URL: ${_profilePhotoUrl ?? "None"}');
                               debugPrint(
                                   '   Base64: ${FFAppState().profilePhotoBase64.length} chars');
 
@@ -765,7 +781,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                                   'Profile photo saved successfully!');
 
                               // Navigate back
-                              await Future.delayed(const Duration(milliseconds: 500));
+                              await Future.delayed(
+                                  const Duration(milliseconds: 500));
                               context.pop();
                             },
                             text: 'Continue',
@@ -786,7 +803,8 @@ class _FaceVerifyupdateWidgetState extends State<FaceVerifyupdateWidget>
                           const SizedBox(height: 12),
                           TextButton.icon(
                             onPressed: _takeCameraPhoto,
-                            icon: const Icon(Icons.refresh, color: AppColors.registrationOrange),
+                            icon: const Icon(Icons.refresh,
+                                color: AppColors.registrationOrange),
                             label: const Text(
                               'Retake Photo',
                               style: TextStyle(
@@ -847,7 +865,7 @@ class VerifiedStampPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final outerPaint = Paint()
-      ..color = AppColors.successDark.withValues(alpha:0.9)
+      ..color = AppColors.successDark.withValues(alpha: 0.9)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -871,7 +889,7 @@ class VerifiedStampPainter extends CustomPainter {
     path.close();
 
     final fillPaint = Paint()
-      ..color = Colors.white.withValues(alpha:0.95)
+      ..color = Colors.white.withValues(alpha: 0.95)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
     canvas.drawPath(path, outerPaint);

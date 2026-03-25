@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/models/payment_mode.dart';
 import '../home/ride_request_model.dart';
 
 /// Shown after ride completion when payment mode is CASH.
@@ -22,12 +23,13 @@ class CashPaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isPro = ride.bookingMode == 'pro';
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: ugoOrange,
-        automaticallyImplyLeading: false, // Prevents backing out until cash is collected
+        automaticallyImplyLeading:
+            false, // Prevents backing out until cash is collected
         title: Text(
           isPro ? 'Pro Ride' : 'Ugo Ride',
           style: TextStyle(
@@ -92,7 +94,8 @@ class CashPaymentScreen extends StatelessWidget {
               // ✅ Final Fare Grey Box
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8E8E8), // Light grey background
                   borderRadius: BorderRadius.circular(8),
@@ -100,13 +103,37 @@ class CashPaymentScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Final Fare',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Final Fare',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.green.shade200),
+                          ),
+                          child: Text(
+                            ride.rawPaymentMode.toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.green.shade700,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       '₹${_amount.toStringAsFixed(0)}',
