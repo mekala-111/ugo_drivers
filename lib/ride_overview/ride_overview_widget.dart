@@ -2,9 +2,11 @@ import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
+import '/backend/api_requests/api_calls.dart' show RideByIdCall;
+import '/services/route_polyline_service.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:google_fonts/google_fonts.dart';
 import 'ride_overview_model.dart';
 export 'ride_overview_model.dart';
@@ -24,11 +26,17 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
   late RideOverviewModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<FlutterFlowGoogleMapState> _mapKey =
+      GlobalKey<FlutterFlowGoogleMapState>();
+  bool _isLoading = true;
+  String? _error;
+  Map<String, dynamic>? _ride;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => RideOverviewModel());
+    _loadRide();
   }
 
   @override
@@ -38,9 +46,184 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
     super.dispose();
   }
 
+  Future<void> _loadRide() async {
+    final rideId = FFAppState().activeRideId;
+    if (rideId <= 0) {
+      setState(() {
+        _isLoading = false;
+        _error = 'No ride selected';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final res = await RideByIdCall.call(
+        token: FFAppState().accessToken,
+        id: rideId,
+      );
+      if (!res.succeeded) {
+        setState(() {
+          _error = 'Failed to load ride details';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final data = getJsonField(res.jsonBody, r'$.data');
+      if (data is Map) {
+        _ride = Map<String, dynamic>.from(data);
+      } else {
+        _error = 'Ride details unavailable';
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
+  }
+
+  Future<void> _updateRoutePolyline({
+    required double? pickupLat,
+    required double? pickupLng,
+    required double? dropLat,
+    required double? dropLng,
+  }) async {
+    if (pickupLat == null ||
+        pickupLng == null ||
+        dropLat == null ||
+        dropLng == null) {
+      _mapKey.currentState?.updatePolylines(<Polyline>{});
+      return;
+    }
+
+    final points = await RoutePolylineService().getRoutePoints(
+      originLat: pickupLat,
+      originLng: pickupLng,
+      destLat: dropLat,
+      destLng: dropLng,
+    );
+    if (!mounted) return;
+
+    if (points == null || points.isEmpty) {
+      _mapKey.currentState?.updatePolylines(<Polyline>{});
+      return;
+    }
+
+    final googlePoints = points.map((p) => p.toGoogleMaps()).toList();
+    final rideId = (_ride?['id'] ?? FFAppState().activeRideId).toString();
+
+    final outlinePolyline = Polyline(
+      polylineId: PolylineId('ride_route_outline_$rideId'),
+      color: Colors.white,
+      width: 13,
+      points: googlePoints,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      jointType: JointType.round,
+      zIndex: 0,
+    );
+    final routePolyline = Polyline(
+      polylineId: PolylineId('ride_route_$rideId'),
+      color: AppColors.primary,
+      width: 8,
+      points: googlePoints,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      jointType: JointType.round,
+      zIndex: 1,
+    );
+
+    _mapKey.currentState?.updatePolylines({outlinePolyline, routePolyline});
+    await _fitMapToRouteBounds(
+      pickupLat: pickupLat,
+      pickupLng: pickupLng,
+      dropLat: dropLat,
+      dropLng: dropLng,
+      routePoints: googlePoints,
+    );
+  }
+
+  Future<void> _fitMapToRouteBounds({
+    required double pickupLat,
+    required double pickupLng,
+    required double dropLat,
+    required double dropLng,
+    List<gmaps.LatLng>? routePoints,
+  }) async {
+    try {
+      final controller = await _model.googleMapsController.future;
+      if (!mounted) return;
+
+      var minLat = pickupLat < dropLat ? pickupLat : dropLat;
+      var maxLat = pickupLat > dropLat ? pickupLat : dropLat;
+      var minLng = pickupLng < dropLng ? pickupLng : dropLng;
+      var maxLng = pickupLng > dropLng ? pickupLng : dropLng;
+
+      if (routePoints != null && routePoints.isNotEmpty) {
+        for (final p in routePoints) {
+          if (p.latitude < minLat) minLat = p.latitude;
+          if (p.latitude > maxLat) maxLat = p.latitude;
+          if (p.longitude < minLng) minLng = p.longitude;
+          if (p.longitude > maxLng) maxLng = p.longitude;
+        }
+      }
+
+      // GoogleMap can't animate bounds when NE == SW; nudge slightly.
+      if ((maxLat - minLat).abs() < 0.0001) {
+        maxLat += 0.0005;
+        minLat -= 0.0005;
+      }
+      if ((maxLng - minLng).abs() < 0.0001) {
+        maxLng += 0.0005;
+        minLng -= 0.0005;
+      }
+
+      await controller.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          gmaps.LatLngBounds(
+            southwest: gmaps.LatLng(minLat, minLng),
+            northeast: gmaps.LatLng(maxLat, maxLng),
+          ),
+          70.0,
+        ),
+      );
+    } catch (_) {
+      // Keep default map camera if fit fails.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isNarrow = MediaQuery.sizeOf(context).width < 360;
+    final ride = _ride ?? <String, dynamic>{};
+    final firstName = (ride['first_name'] ?? '').toString().trim();
+    final mobile = (ride['mobile_number'] ?? '').toString().trim();
+    final status = (ride['ride_status'] ?? '').toString().trim();
+    final pickup = (ride['pickup_location_address'] ?? '').toString().trim();
+    final drop = (ride['drop_location_address'] ?? '').toString().trim();
+    final fare = _toDouble(ride['estimated_fare']) ?? 0.0;
+    final distanceKm = _toDouble(ride['ride_distance_km']);
+    final otp = (ride['otp'] ?? '').toString().trim();
+    final otpVerifiedAt = (ride['otp_verified_at'] ?? '').toString().trim();
+    final pickupLat = _toDouble(ride['pickup_latitude']);
+    final pickupLng = _toDouble(ride['pickup_longitude']);
+    final dropLat = _toDouble(ride['drop_latitude']);
+    final dropLng = _toDouble(ride['drop_longitude']);
+
+    final initialMapLocation = (pickupLat != null && pickupLng != null)
+        ? LatLng(pickupLat, pickupLng)
+        : const LatLng(17.3850, 78.4867);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -91,1044 +274,251 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
           centerTitle: true,
           elevation: 2.0,
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                    16.0, 16.0, 16.0, 16.0),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundLight,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: isNarrow
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'hc5zvngx' /* Having an issue with a differe... */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: AppColors.greyMedium,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              SizedBox(
-                                width: double.infinity,
-                                child: FFButtonWidget(
-                                  onPressed: () {
-                                    debugPrint('Button pressed ...');
-                                  },
-                                  text: FFLocalizations.of(context).getText(
-                                    'y2ttgl8h' /* Get help */,
-                                  ),
-                                  options: FFButtonOptions(
-                                    height: 36.0,
-                                    padding:
-                                        const EdgeInsetsDirectional.fromSTEB(
-                                            16.0, 8.0, 16.0, 8.0),
-                                    iconPadding:
-                                        const EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 0.0, 0.0, 0.0),
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    textStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .override(
-                                          font: GoogleFonts.interTight(
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                          color: AppColors.greyDark,
-                                          fontSize: 14.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmall
-                                                  .fontStyle,
-                                        ),
-                                    elevation: 0.0,
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
+            : _error != null
+                ? Center(
+                    child: Text(
+                      _error!,
+                      style: FlutterFlowTheme.of(context).bodyMedium,
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
                               ),
                             ],
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ),
+                          child: Row(
                             children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.sectionOrange,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
                               Expanded(
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'hc5zvngx' /* Having an issue with a differe... */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyMedium,
-                                        fontSize: 14.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      firstName.isNotEmpty
+                                          ? firstName
+                                          : 'Passenger',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textDark,
                                       ),
-                                ),
-                              ),
-                              FFButtonWidget(
-                                onPressed: () {
-                                  debugPrint('Button pressed ...');
-                                },
-                                text: FFLocalizations.of(context).getText(
-                                  'y2ttgl8h' /* Get help */,
-                                ),
-                                options: FFButtonOptions(
-                                  height: 36.0,
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 8.0, 16.0, 8.0),
-                                  iconPadding:
-                                      const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 0.0, 0.0),
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .override(
-                                        font: GoogleFonts.interTight(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmall
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyDark,
-                                        fontSize: 14.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                  elevation: 0.0,
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Container(
-                  width: double.infinity,
-                  height: 200.0,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: Image.asset(
-                        'assets/images/7jj26p.png',
-                      ).image,
-                    ),
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  child: FlutterFlowGoogleMap(
-                    controller: _model.googleMapsController,
-                    onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                    initialLocation: _model.googleMapsCenter ??=
-                        const LatLng(13.106061, -59.613158),
-                    markerColor: GoogleMarkerColor.violet,
-                    mapType: MapType.normal,
-                    style: GoogleMapStyle.standard,
-                    initialZoom: 14.0,
-                    allowInteraction: true,
-                    allowZoom: true,
-                    showZoomControls: true,
-                    showLocation: true,
-                    showCompass: false,
-                    showMapToolbar: false,
-                    showTraffic: false,
-                    centerMapOnMarkerTap: true,
-                    mapTakesGesturePreference: false,
-                  ),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'ljppe8um' /* Moto ride with JILLA
-RAJENDRA ... */
-                                  ,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: FlutterFlowTheme.of(context)
-                                    .headlineSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .headlineSmall
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 20.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .headlineSmall
-                                          .fontStyle,
                                     ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 4.0, 0.0, 0.0),
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'ehqd5nb0' /* Jan 18 11:12AM */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      mobile.isNotEmpty ? mobile : 'No mobile',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
                                         color: AppColors.greyMedium,
-                                        fontSize: 14.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
+                                        fontWeight: FontWeight.w500,
                                       ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 4.0, 0.0, 0.0),
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'ygqiactr' /* ₹103.00 */,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '₹${fare.toStringAsFixed(2)}',
+                                    style: GoogleFonts.interTight(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.success,
+                                    ),
                                   ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .override(
-                                        font: GoogleFonts.interTight(
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .accent1,
-                                        fontSize: 16.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .fontStyle,
+                                  const SizedBox(height: 2),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      status.isNotEmpty
+                                          ? status.toUpperCase()
+                                          : 'RIDE',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primary,
                                       ),
-                                ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        Container(
-                          width: 50.0,
-                          height: 50.0,
-                          decoration: const BoxDecoration(
-                            color: AppColors.greyBorderLight,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Align(
-                            alignment: AlignmentDirectional(0.0, 0.0),
-                            child: Icon(
-                              Icons.person,
-                              color: AppColors.greyMedium,
-                              size: 30.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isNarrow)
-                      Column(
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: FFButtonWidget(
-                              onPressed: () {
-                                debugPrint('Button pressed ...');
+                        const SizedBox(height: 14),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: SizedBox(
+                            height: 220,
+                            child: FlutterFlowGoogleMap(
+                              key: _mapKey,
+                              controller: _model.googleMapsController,
+                              onCameraIdle: (latLng) =>
+                                  _model.googleMapsCenter = latLng,
+                              onMapCreated: (_) {
+                                _updateRoutePolyline(
+                                  pickupLat: pickupLat,
+                                  pickupLng: pickupLng,
+                                  dropLat: dropLat,
+                                  dropLng: dropLng,
+                                );
                               },
-                              text: FFLocalizations.of(context).getText(
-                                't13nqnia' /* Receipt */,
-                              ),
-                              icon: const Icon(
-                                Icons.receipt,
-                                size: 20.0,
-                              ),
-                              options: FFButtonOptions(
-                                height: 36.0,
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 8.0, 16.0, 8.0),
-                                iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 8.0, 0.0),
-                                iconColor: FlutterFlowTheme.of(context).accent1,
-                                color: AppColors.background,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                elevation: 0.0,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FFButtonWidget(
-                              onPressed: () {
-                                debugPrint('Button pressed ...');
-                              },
-                              text: FFLocalizations.of(context).getText(
-                                '858a9u1g' /* Invoice */,
-                              ),
-                              icon: const Icon(
-                                Icons.description,
-                                size: 20.0,
-                              ),
-                              options: FFButtonOptions(
-                                height: 36.0,
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 8.0, 16.0, 8.0),
-                                iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 8.0, 0.0),
-                                iconColor: FlutterFlowTheme.of(context).accent1,
-                                color: AppColors.background,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                elevation: 0.0,
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          FFButtonWidget(
-                            onPressed: () {
-                              debugPrint('Button pressed ...');
-                            },
-                            text: FFLocalizations.of(context).getText(
-                              't13nqnia' /* Receipt */,
-                            ),
-                            icon: const Icon(
-                              Icons.receipt,
-                              size: 20.0,
-                            ),
-                            options: FFButtonOptions(
-                              height: 36.0,
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 8.0, 16.0, 8.0),
-                              iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 8.0, 0.0),
-                              iconColor: FlutterFlowTheme.of(context).accent1,
-                              color: AppColors.background,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleSmall
-                                  .override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context).accent1,
-                                    fontSize: 14.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontStyle,
+                              initialLocation:
+                                  _model.googleMapsCenter ??= initialMapLocation,
+                              markerColor: GoogleMarkerColor.orange,
+                              mapType: MapType.normal,
+                              style: GoogleMapStyle.standard,
+                              initialZoom: 12.5,
+                              allowInteraction: true,
+                              allowZoom: true,
+                              showZoomControls: true,
+                              showLocation: true,
+                              showCompass: false,
+                              showMapToolbar: false,
+                              showTraffic: false,
+                              centerMapOnMarkerTap: true,
+                              mapTakesGesturePreference: false,
+                              markers: [
+                                if (pickupLat != null && pickupLng != null)
+                                  FlutterFlowMarker(
+                                    'pickup_${ride['id']}',
+                                    LatLng(pickupLat, pickupLng),
+                                    null,
+                                    GoogleMarkerColor.orange,
                                   ),
-                              elevation: 0.0,
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          FFButtonWidget(
-                            onPressed: () {
-                              debugPrint('Button pressed ...');
-                            },
-                            text: FFLocalizations.of(context).getText(
-                              '858a9u1g' /* Invoice */,
-                            ),
-                            icon: const Icon(
-                              Icons.description,
-                              size: 20.0,
-                            ),
-                            options: FFButtonOptions(
-                              height: 36.0,
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 8.0, 16.0, 8.0),
-                              iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 8.0, 0.0),
-                              iconColor: FlutterFlowTheme.of(context).accent1,
-                              color: AppColors.background,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleSmall
-                                  .override(
-                                    font: GoogleFonts.interTight(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context).accent1,
-                                    fontSize: 14.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .fontStyle,
+                                if (dropLat != null && dropLng != null)
+                                  FlutterFlowMarker(
+                                    'drop_${ride['id']}',
+                                    LatLng(dropLat, dropLng),
+                                    null,
+                                    GoogleMarkerColor.green,
                                   ),
-                              elevation: 0.0,
-                              borderSide: const BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                        ].divide(const SizedBox(width: 16.0)),
-                      ),
-                  ].divide(const SizedBox(height: 8.0)),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 8.0,
-                          height: 8.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  '3g341fjq' /* Secunderabad, Telangana 500003... */,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          FFLocalizations.of(context).getText(
-                            'gvct7vaz' /* 11:23 AM */,
-                          ),
-                          style:
-                              FlutterFlowTheme.of(context).bodySmall.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontStyle,
-                                    ),
-                                    color: AppColors.greyMedium,
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontStyle,
-                                  ),
-                        ),
-                      ].divide(const SizedBox(width: 12.0)),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 8.0,
-                          height: 8.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            shape: BoxShape.rectangle,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'wj0fb88l' /* 16-11-477/1, Shashi Hospital L... */,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          FFLocalizations.of(context).getText(
-                            'v96p81tf' /* 11:59 AM */,
-                          ),
-                          style:
-                              FlutterFlowTheme.of(context).bodySmall.override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodySmall
-                                          .fontStyle,
-                                    ),
-                                    color: AppColors.greyMedium,
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .fontStyle,
-                                  ),
-                        ),
-                      ].divide(const SizedBox(width: 12.0)),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.money_off,
-                          color: FlutterFlowTheme.of(context).accent1,
-                          size: 20.0,
-                        ),
-                        Expanded(
-                          child: Text(
-                            FFLocalizations.of(context).getText(
-                              'xtwustmq' /* No tip added */,
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).accent1,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                      ].divide(const SizedBox(width: 12.0)),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.star_border,
-                          color: FlutterFlowTheme.of(context).accent1,
-                          size: 20.0,
-                        ),
-                        Expanded(
-                          child: Text(
-                            FFLocalizations.of(context).getText(
-                              'zfv9e386' /* No rating */,
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  font: GoogleFonts.inter(
-                                    fontWeight: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontWeight,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                                  color: FlutterFlowTheme.of(context).accent1,
-                                  fontSize: 14.0,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontWeight,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                      ].divide(const SizedBox(width: 12.0)),
-                    ),
-                  ].divide(const SizedBox(height: 16.0)),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 0.0),
-                child: Divider(
-                  thickness: 1.0,
-                  color: AppColors.greyBorderLight,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      FFLocalizations.of(context).getText(
-                        'e3d5d8wp' /* Help & safety */,
-                      ),
-                      style: FlutterFlowTheme.of(context).titleMedium.override(
-                            font: GoogleFonts.interTight(
-                              fontWeight: FontWeight.w600,
-                              fontStyle: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .fontStyle,
-                            ),
-                            color: FlutterFlowTheme.of(context).accent1,
-                            fontSize: 18.0,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w600,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .titleMedium
-                                .fontStyle,
-                          ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search,
-                          color: FlutterFlowTheme.of(context).accent1,
-                          size: 24.0,
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                FFLocalizations.of(context).getText(
-                                  'fii1tu3m' /* Find lost item */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      fontSize: 14.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 2.0, 0.0, 0.0),
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    '8hzyd342' /* We can help you get in touch w... */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodySmall
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyMedium,
-                                        fontSize: 12.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodySmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodySmall
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right,
-                          color: AppColors.greyMedium,
-                          size: 20.0,
-                        ),
-                      ].divide(const SizedBox(width: 12.0)),
-                    ),
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () async {
-                        context.pushNamed(ReportIssuesWidget.routeName);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.verified_user,
-                            color: FlutterFlowTheme.of(context).accent1,
-                            size: 24.0,
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  FFLocalizations.of(context).getText(
-                                    'w778vvv7' /* Report safety issue */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .accent1,
-                                        fontSize: 14.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 2.0, 0.0, 0.0),
-                                  child: Text(
-                                    FFLocalizations.of(context).getText(
-                                      '8jdx0bd7' /* Report any safety related issu... */,
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodySmall
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodySmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodySmall
-                                                    .fontStyle,
-                                          ),
-                                          color: AppColors.greyMedium,
-                                          fontSize: 12.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .fontStyle,
-                                        ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
-                          const Icon(
-                            Icons.chevron_right,
-                            color: AppColors.greyMedium,
-                            size: 20.0,
-                          ),
-                        ].divide(const SizedBox(width: 12.0)),
-                      ),
+                        ),
+                        const SizedBox(height: 14),
+                        _infoRow(
+                          icon: Icons.radio_button_checked,
+                          iconColor: AppColors.primary,
+                          title: 'From',
+                          value:
+                              pickup.isNotEmpty ? pickup : 'Unknown pickup',
+                        ),
+                        const SizedBox(height: 10),
+                        _infoRow(
+                          icon: Icons.location_on,
+                          iconColor: AppColors.success,
+                          title: 'To',
+                          value: drop.isNotEmpty ? drop : 'Unknown drop',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (distanceKm != null)
+                              _chip('${distanceKm.toStringAsFixed(2)} km'),
+                            if (otp.isNotEmpty) _chip('OTP $otp'),
+                            if (otpVerifiedAt.isNotEmpty)
+                              _chip('OTP Verified'),
+                          ],
+                        ),
+                      ],
                     ),
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () async {
-                        context.pushNamed(CustomerSupportWidget.routeName);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.help,
-                            color: FlutterFlowTheme.of(context).accent1,
-                            size: 24.0,
-                          ),
-                          Expanded(
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                '2627acjm' /* Customer support */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context).accent1,
-                                    fontSize: 14.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward,
-                            color: FlutterFlowTheme.of(context).accent1,
-                            size: 20.0,
-                          ),
-                        ].divide(const SizedBox(width: 12.0)),
-                      ),
-                    ),
-                  ].divide(const SizedBox(height: 16.0)),
-                ),
-              ),
-            ],
-          ),
+                  ),
+      ),
+    );
+  }
+
+  Widget _chip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.sectionOrange,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          color: AppColors.primary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
         ),
       ),
+    );
+  }
+
+  Widget _infoRow({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: iconColor, size: 16),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              text: '$title: ',
+              style: GoogleFonts.inter(
+                color: AppColors.textDark,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+              children: [
+                TextSpan(
+                  text: value,
+                  style: GoogleFonts.inter(
+                    color: AppColors.greyDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

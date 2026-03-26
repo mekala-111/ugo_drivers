@@ -3,7 +3,8 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/backend/api_requests/api_calls.dart' show DriverRideHistoryCall;
+import '/backend/api_requests/api_calls.dart'
+    show DriverRideHistoryCall, RideByIdCall;
 import '/index.dart';
 import '/repositories/driver_repository.dart';
 import 'history_model.dart';
@@ -56,6 +57,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
   bool _isLoading = true;
   String? _error;
   List<dynamic> _rides = [];
+  final Map<int, String> _userIdToFullName = {};
 
   @override
   void initState() {
@@ -80,8 +82,46 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             .whereType<Map<String, dynamic>>()
             .map((m) => RideHistoryItem.fromJson(m))
             .toList();
+
+        // Fetch passenger names via /api/rides/:id for each unique user_id.
+        final Map<int, int> userIdToSampleRideId = {};
+        for (final r in parsed) {
+          final uid = r.userId;
+          if (uid != null && !userIdToSampleRideId.containsKey(uid)) {
+            userIdToSampleRideId[uid] = r.id;
+          }
+        }
+
+        final userEntries = await Future.wait(
+          userIdToSampleRideId.entries.map(
+            (entry) async {
+              final uid = entry.key;
+              final rideId = entry.value;
+              try {
+                final rres = await RideByIdCall.call(
+                  token: FFAppState().accessToken,
+                  id: rideId,
+                );
+                if (!rres.succeeded) {
+                  return MapEntry(uid, 'Passenger');
+                }
+
+                final first = RideByIdCall.firstName(rres.jsonBody) ?? '';
+                final last = RideByIdCall.lastName(rres.jsonBody) ?? '';
+                final full = '$first $last'.trim();
+                return MapEntry(uid, full.isNotEmpty ? full : 'Passenger');
+              } catch (_) {
+                return MapEntry(uid, 'Passenger');
+              }
+            },
+          ),
+        );
+
         setState(() {
           _rides = parsed;
+          _userIdToFullName
+            ..clear()
+            ..addEntries(userEntries);
         });
       } else {
         setState(() {
@@ -204,6 +244,10 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                                     index: index,
                                     child: _HistoryRideCard(
                                       ride: ride,
+                                  passengerName: (ride.userId != null)
+                                      ? _userIdToFullName[ride.userId] ??
+                                          'Passenger'
+                                      : 'Passenger',
                                       onViewPressed: () {
                                         context.pushNamed(
                                             RideOverviewWidget.routeName);
@@ -277,17 +321,23 @@ class _HistoryWidgetState extends State<HistoryWidget> {
 class _HistoryRideCard extends StatelessWidget {
   const _HistoryRideCard({
     required this.ride,
+    required this.passengerName,
     this.onViewPressed,
   });
 
   final RideHistoryItem ride;
+  final String passengerName;
   final VoidCallback? onViewPressed;
 
   @override
   Widget build(BuildContext context) {
     final dateStr = DateFormat('MMM d, yyyy • h:mm a').format(ride.date);
-    final pickup =
-        ride.pickupAddress.isNotEmpty ? ride.pickupAddress : 'Unknown Location';
+    final pickup = ride.pickupAddress.isNotEmpty
+        ? ride.pickupAddress
+        : 'Unknown Location';
+    final drop = ride.dropAddress.isNotEmpty
+        ? ride.dropAddress
+        : 'Unknown Drop';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -335,11 +385,10 @@ class _HistoryRideCard extends StatelessWidget {
               child: Divider(height: 1, color: Color(0xFFEEEEEE)),
             ),
 
-            // Row 2: Location
+            // Row 2: Pickup / From
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Timeline Dot
                 Column(
                   children: [
                     const SizedBox(height: 4),
@@ -355,10 +404,9 @@ class _HistoryRideCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 12),
-                // Address Text
                 Expanded(
                   child: Text(
-                    pickup,
+                    'From: $pickup',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
@@ -369,6 +417,53 @@ class _HistoryRideCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+
+            const SizedBox(height: 6),
+
+            // Row 3: Drop / To
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    const SizedBox(height: 4),
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.success, width: 3),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'To: $drop',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      color: Colors.black87,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              'Passenger: $passengerName',
+              style: GoogleFonts.inter(
+                color: Colors.grey.shade700,
+                fontSize: 13.0,
+                fontWeight: FontWeight.w600,
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -407,8 +502,7 @@ class _HistoryRideCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      FFLocalizations.of(context)
-                          .getText('8rlnckeh'), // 'View Details'
+                      ('View Details'),
                       style: GoogleFonts.inter(
                         color: AppColors.primary,
                         fontSize: 13.0,

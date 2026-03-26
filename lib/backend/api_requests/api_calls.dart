@@ -1065,6 +1065,41 @@ class DriverIdfetchCall {
       ));
 }
 
+/// User details by id
+/// GET /api/users/:id
+/// Single ride details by id
+/// GET /api/rides/:id
+class RideByIdCall {
+  static Future<ApiCallResponse> call({
+    String? token = '',
+    required int id,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'rideById',
+      apiUrl: '$_baseUrl/api/rides/$id',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? firstName(dynamic response) => castToType<String>(
+        getJsonField(response, r'$.data.first_name'),
+      );
+
+  static String? lastName(dynamic response) => castToType<String>(
+        getJsonField(response, r'$.data.last_name'),
+      );
+}
+
 class GetCitiesCall {
   static Future<ApiCallResponse> call({
     String? token,

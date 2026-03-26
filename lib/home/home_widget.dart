@@ -935,15 +935,10 @@ class _HomeWidgetState extends State<HomeWidget>
           'STARTED',
           'ONTRIP'
         ];
-        final isRideLocked = activeRideStatuses.contains(c.currentRideStatus.toUpperCase());
-        final shouldShowPanels = ![
-          'ACCEPTED',
-          'ARRIVED',
-          'STARTED',
-          'ONTRIP',
-          'COMPLETED',
-          'FETCHING'
-        ].contains(c.currentRideStatus.toUpperCase());
+        final currentStatusUpper = c.currentRideStatus.toUpperCase();
+        final isRideLocked = activeRideStatuses.contains(currentStatusUpper);
+        // Only hide panels while a ride is actively running.
+        final shouldShowPanels = !activeRideStatuses.contains(currentStatusUpper);
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
