@@ -65,25 +65,25 @@ class _TeampageWidgetState extends State<TeampageWidget>
   /// $.driver.referred_driver_count
   String get _referredCount {
     if (_model.referralData == null) return '0';
-    return '${getJsonField(_model.referralData, r'$.driver.referred_driver_count') ?? 0}';
+    return '${ReferralDashboardCall.totalReferrals(_model.referralData)}';
   }
 
   /// $.lifetime_statistics.total_commission_earned
   String get _lifetimeCommission {
     if (_model.referralData == null) return '₹0';
-    return '₹${getJsonField(_model.referralData, r'$.lifetime_statistics.total_commission_earned') ?? 0}';
+    return '₹${ReferralDashboardCall.totalEarnings(_model.referralData)}';
   }
 
   /// $.yesterday_statistics.my_performance.ride_earnings
   String get _yesterdayEarnings {
     if (_model.referralData == null) return '₹0';
-    return '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.my_performance.ride_earnings') ?? 0}';
+    return '₹${ReferralDashboardCall.yesterdayRideEarnings(_model.referralData)}';
   }
 
   /// $.yesterday_statistics.total_commission_earned_yesterday
   String get _yesterdayCommission {
     if (_model.referralData == null) return '₹0';
-    return '₹${getJsonField(_model.referralData, r'$.yesterday_statistics.total_commission_earned_yesterday') ?? 0}';
+    return '₹${ReferralDashboardCall.yesterdayCommission(_model.referralData)}';
   }
 
   /// ✅ CORRECT PATH: $.yesterday_statistics.referrals
@@ -519,8 +519,10 @@ class _TeampageWidgetState extends State<TeampageWidget>
         final normalRides =
             (driver['normal_rides_completed'] as num?)?.toInt() ?? 0;
         final rideEarnings = (driver['ride_earnings'] as num?)?.toInt() ?? 0;
-        final commission =
-            (driver['commission_earned_by_72'] as num?)?.toDouble() ?? 0.0;
+        final commission = ((driver['commission_earned'] as num?) ??
+                    (driver['commission_earned_by_72'] as num?))
+                ?.toDouble() ??
+            0.0;
         final totalRides = proRides + normalRides;
         final bool isActive = totalRides > 0;
 

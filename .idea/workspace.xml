@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="full name">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="history">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/ride_detais_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/ride_detais_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/history/history_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/history/history_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models/ride_history_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/ride_history_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ride_overview/ride_overview_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ride_overview/ride_overview_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/team_earnings/team_earnings_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/team_earnings/team_earnings_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/teamrides/teamrides_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamrides/teamrides_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/teamrides/teamrides_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamrides/teamrides_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -350,7 +350,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774560331816</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="history">
+      <option name="closed" value="true" />
+      <created>1774563123320</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1774563123320</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -389,7 +397,8 @@
     <MESSAGE value="notification for online fixed" />
     <MESSAGE value="fixx" />
     <MESSAGE value="full name" />
-    <option name="LAST_COMMIT_MESSAGE" value="full name" />
+    <MESSAGE value="history" />
+    <option name="LAST_COMMIT_MESSAGE" value="history" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">

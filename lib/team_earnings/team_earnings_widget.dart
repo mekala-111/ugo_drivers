@@ -117,29 +117,43 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   Future<void> _fetchTeamData() async {
     setState(() => isLoadingTeam = true);
     try {
-      final response = await ReferralDashboardCall.call(
+      final dashboardResponse = await ReferralDashboardCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+      );
+      final earningsResponse = await ReferralEarningsCall.call(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
 
-      if (response.succeeded) {
-        final body = response.jsonBody;
+      if (dashboardResponse.succeeded || earningsResponse.succeeded) {
+        final dashboardBody = dashboardResponse.succeeded
+            ? dashboardResponse.jsonBody
+            : <String, dynamic>{};
+        final earningsBody = earningsResponse.succeeded
+            ? earningsResponse.jsonBody
+            : <String, dynamic>{};
 
-        // Total referred drivers count
-        final referredCount =
-            (getJsonField(body, r'$.driver.referred_driver_count') ?? 0)
-                .toString();
+        final dashboardReferrals =
+            ReferralDashboardCall.totalReferrals(dashboardBody);
+        final successfulReferrals =
+            ReferralEarningsCall.successfulReferralsCount(earningsBody);
+        final referredCount = (successfulReferrals > 0
+                ? successfulReferrals
+                : dashboardReferrals)
+            .toString();
 
-        // Lifetime commission earned
-        final lifetimeCommission = getJsonField(
-                body, r'$.lifetime_statistics.total_commission_earned') ??
-            0;
+        final earningsTotal = ReferralEarningsCall.totalEarnings(earningsBody);
+        final lifetimeCommission = earningsTotal > 0
+            ? earningsTotal
+            : ReferralDashboardCall.totalEarnings(dashboardBody);
 
-        // Referrals list (yesterday's activity)
+        final List<dynamic> dashboardDrivers =
+            ReferralDashboardCall.referrals(dashboardBody);
+        final List<dynamic> earningsDetails =
+            ReferralEarningsCall.referredDetails(earningsBody);
         final List<dynamic> drivers =
-            (getJsonField(body, r'$.yesterday_statistics.referrals', true)
-                    as List?) ??
-                [];
+            dashboardDrivers.isNotEmpty ? dashboardDrivers : earningsDetails;
 
         setState(() {
           teamEarnings = '₹$lifetimeCommission';
@@ -474,7 +488,9 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
 
                             // ✅ All keys from actual API response
                             final name =
-                                driver['name']?.toString() ?? 'Unknown Driver';
+                                (driver['name'] ?? driver['referred_name'])
+                                        ?.toString() ??
+                                    'Unknown Driver';
                             final proRides =
                                 (driver['pro_rides_completed'] as num?)
                                         ?.toInt() ??
@@ -484,9 +500,15 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                         ?.toInt() ??
                                     0;
                             final rideEarnings =
-                                (driver['ride_earnings'] as num?)?.toInt() ?? 0;
-                            final commission =
-                                (driver['commission_earned_by_72'] as num?)
+                                ((driver['ride_earnings'] as num?) ??
+                                            (driver['reward_amount'] as num?))
+                                        ?.toInt() ??
+                                    0;
+                            final commission = ((driver['commission_earned']
+                                            as num?) ??
+                                        (driver['commission_earned_by_72']
+                                            as num?) ??
+                                        (driver['reward_amount'] as num?))
                                         ?.toDouble() ??
                                     0.0;
                             final totalRides = proRides + normalRides;

@@ -2215,7 +2215,7 @@ class ReferralDashboardCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'referralDashboard',
-      apiUrl: '>',
+      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',
@@ -2241,6 +2241,68 @@ class ReferralDashboardCall {
       (getJsonField(response, r'$.yesterday_statistics.referrals', true)
           as List?) ??
       [];
+
+  static int yesterdayRideEarnings(dynamic response) =>
+      castToType<int>(getJsonField(
+          response, r'$.yesterday_statistics.my_performance.ride_earnings')) ??
+      0;
+
+  static int yesterdayCommission(dynamic response) =>
+      castToType<int>(getJsonField(response,
+          r'$.yesterday_statistics.total_commission_earned_yesterday')) ??
+      0;
+
+  static int proRidesCompleted(dynamic response) =>
+      castToType<int>(getJsonField(response,
+          r'$.yesterday_statistics.my_performance.pro_rides_completed')) ??
+      0;
+
+  static int normalRidesCompleted(dynamic response) =>
+      castToType<int>(getJsonField(response,
+          r'$.yesterday_statistics.my_performance.normal_rides_completed')) ??
+      0;
+}
+
+class ReferralEarningsCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int driverId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'referralEarnings',
+      apiUrl: '$_baseUrl/api/referrals/Earnings',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {
+        'driver_id': driverId,
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static int totalEarnings(dynamic response) =>
+      castToType<int>(getJsonField(response, r'$.data.summary.total_earnings')) ??
+      0;
+
+  static int totalCoinsEarned(dynamic response) => castToType<int>(
+          getJsonField(response, r'$.data.summary.total_coins_earned')) ??
+      0;
+
+  static int successfulReferralsCount(dynamic response) => castToType<int>(
+          getJsonField(response, r'$.data.summary.successful_referrals_count')) ??
+      0;
+
+  static List<dynamic> earningsByType(dynamic response) =>
+      (getJsonField(response, r'$.data.summary.earnings_by_type', true)
+          as List?) ??
+      [];
+
+  static List<dynamic> referredDetails(dynamic response) =>
+      (getJsonField(response, r'$.data.referred_details', true) as List?) ?? [];
 }
 
 class VehiclePricingCall {
