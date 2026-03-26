@@ -12,6 +12,7 @@ class FFAppState extends ChangeNotifier {
   }
 
   FFAppState._internal();
+  int notificationUnreadCount = 0;
 
   bool hasProfilePhoto = false;
   bool hasLicense = false;
@@ -19,6 +20,7 @@ class FFAppState extends ChangeNotifier {
   bool hasPan = false;
   bool hasVehicleImage = false;
   bool hasRC = false;
+  
   int _activeRideId = 0;
   String _activeRideStatus = '';
   bool locationPermissionAsked = false;

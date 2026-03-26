@@ -18,6 +18,7 @@ class AppHeader extends StatelessWidget {
     this.balance,
     this.profileImageUrl,
     this.notificationCount = 0,
+     this.onNotificationTap,
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -29,6 +30,7 @@ class AppHeader extends StatelessWidget {
   final double? balance;
   final String? profileImageUrl;
   final int notificationCount;
+  final VoidCallback? onNotificationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,9 @@ class AppHeader extends StatelessWidget {
                 Badge(
                   label: Text('$notificationCount'),
                   child: _tapTarget(
-                    onTap: () => context.pushNamed(InboxPageWidget.routeName),
+                     onTap: () => onNotificationTap != null
+          ? onNotificationTap!()
+          : context.pushNamed(InboxPageWidget.routeName),
                     child: Icon(Icons.notifications,
                         color: Colors.white, size: iconSz),
                     minSize: minTap,
@@ -81,7 +85,9 @@ class AppHeader extends StatelessWidget {
                 )
               else
                 _tapTarget(
-                  onTap: () => context.pushNamed(InboxPageWidget.routeName),
+                  onTap: () => onNotificationTap != null
+        ? onNotificationTap!()
+        : context.pushNamed(InboxPageWidget.routeName),
                   child: Icon(Icons.notifications_none,
                       color: Colors.white, size: iconSz),
                   minSize: minTap,

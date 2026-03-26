@@ -227,8 +227,7 @@ class _HomeWidgetState extends State<HomeWidget>
       //   defaultLocation: const LatLng(0.0, 0.0),
       //   cached: true,
       // ).then((loc) => _controller.setUserLocation(loc));
-      await _initLocationSafely();
-
+     _initLocationSafely(); // ❌ remove await
       await _controller.init();
       _lastOnlineState = _controller.isOnline;
       _controller.addListener(_onControllerChange);
@@ -241,18 +240,7 @@ class _HomeWidgetState extends State<HomeWidget>
   }
 
   Future<void> _initLocationSafely() async {
-    // Check if already asked
-    if (FFAppState().locationPermissionAsked == true) {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      _controller.setUserLocation(
-        LatLng(position.latitude, position.longitude),
-      );
-      return;
-    }
-
+  try {
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -265,17 +253,19 @@ class _HomeWidgetState extends State<HomeWidget>
 
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
-      FFAppState().locationPermissionAsked = true;
-
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 5), // ✅ ADD THIS
       );
 
       _controller.setUserLocation(
         LatLng(position.latitude, position.longitude),
       );
     }
+  } catch (e) {
+    print("Location error: $e"); // ✅ important for release debugging
   }
+}
 
   Set<Circle> _mergedCircles() {
     return {
@@ -926,6 +916,10 @@ class _HomeWidgetState extends State<HomeWidget>
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
                       notificationCount: c.notificationUnreadCount,
+                      onNotificationTap: () {
+  _controller.resetNotificationCount();
+  context.pushNamed(InboxPageWidget.routeName);
+},
                     ),
                     Expanded(
                       child: Stack(

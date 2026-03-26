@@ -34,27 +34,34 @@ void main() {
     usePathUrlStrategy();
     await WakelockPlus.enable();
     await initFirebase();
+    // Run heavy tasks in background
+        unawaited(FirebaseRemoteConfigService().initialize());
+        unawaited(RideNotificationService().initialize());
+        unawaited(VoiceService().initFromStorage());
+        unawaited(InstallReferrerService.captureReferralCodeIfAvailable());
 
     // Initialize Firebase Remote Config (for secure Razorpay keys)
-    await FirebaseRemoteConfigService().initialize();
+    // await FirebaseRemoteConfigService().initialize();
     await RideNotificationService().initialize();
-    await RideNotificationService().cancelRideNotification();
-    await VoiceService().initFromStorage();
+    // await RideNotificationService().cancelRideNotification();
+    // await VoiceService().initFromStorage();
     await VoiceService().stop();
 
     await FlutterFlowTheme.initialize();
     final appState = FFAppState();
     await appState.initializePersistedState();
-    await InstallReferrerService.captureReferralCodeIfAvailable();
+    // await InstallReferrerService.captureReferralCodeIfAvailable();
     await FFLocalizations.initialize();
     await initializeFirebaseAppCheck();
 
     // Error handling: present + report to Crashlytics
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
-      if (!kIsWeb) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-      }
+     if (!kIsWeb) {
+  try {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+  } catch (_) {}
+}
     };
     if (!kIsWeb) {
       PlatformDispatcher.instance.onError = (error, stack) {
@@ -128,10 +135,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         _appStateNotifier.update(user);
       });
     jwtTokenStream.listen((_) {});
-    Future.delayed(
-      const Duration(milliseconds: 1000),
-      () => _appStateNotifier.stopShowingSplashImage(),
-    );
+    // Future.delayed(
+    //   const Duration(milliseconds: 1000),
+    //   () => _appStateNotifier.stopShowingSplashImage(),
+    // );
+    Future.microtask(() {
+  _appStateNotifier.stopShowingSplashImage();
+});
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
     ApiManager.onUnauthenticated = () {

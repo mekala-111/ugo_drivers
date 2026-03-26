@@ -58,6 +58,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
           _model.isLoading = false;
           _model.errorMessage = null;
         });
+        
       } else {
         setState(() {
           _model.isLoading = false;

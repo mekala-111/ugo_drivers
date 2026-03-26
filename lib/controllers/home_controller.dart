@@ -98,28 +98,40 @@ class HomeController extends ChangeNotifier {
     _initSocket();
     _fetchNotificationCount();
   }
+  /// Call this after the user opens the notifications screen.
+    Future<void> refreshNotificationCount() async {
+      await _fetchNotificationCount();
+    }
+   
+   
+    void resetNotificationCount() {
+  notificationUnreadCount = 0;
+  _notify();
+}
 
   Future<void> _fetchNotificationCount() async {
-    if (_disposed) return;
-    final token = FFAppState().accessToken;
-    if (token.isEmpty) return;
-    try {
-      final res = await NotificationHistoryCall.call(token: token);
-      if (_disposed || !res.succeeded) return;
-      final list = NotificationHistoryCall.notifications(res.jsonBody);
-      if (list == null) return;
-      int count = 0;
-      for (final n in list) {
-        final isRead = getJsonField(n, r'$.is_read');
-        if (isRead != true) count++;
-      }
-      if (_disposed) return;
-      notificationUnreadCount = count;
-      _notify();
-    } catch (_) {
-      // Silently ignore - notification count is non-critical
+  if (_disposed) return;
+  final token = FFAppState().accessToken;
+  if (token.isEmpty) return;
+  try {
+    final res = await NotificationHistoryCall.call(token: token);
+    if (_disposed || !res.succeeded) return;
+    final list = NotificationHistoryCall.notifications(res.jsonBody);
+    if (list == null) return;
+    int count = 0;
+    for (final n in list) {
+      final isRead = getJsonField(n, r'$.is_read');
+      if (isRead != true) count++;
     }
-  }
+    if (_disposed) return;
+    notificationUnreadCount = count;
+    // ✅ Keep FFAppState in sync too
+    FFAppState().update(() {
+      FFAppState().notificationUnreadCount = count;
+    });
+    _notify();
+  } catch (_) {}
+}
 
   void handlePendingRideFromNotification(int rideId) {
     if (rideId <= 0) return;

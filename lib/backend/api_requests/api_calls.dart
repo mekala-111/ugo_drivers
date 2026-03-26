@@ -2180,7 +2180,7 @@ class ReferralDashboardCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'referralDashboard',
-      apiUrl: '$_baseUrl/api/referral-dashboard/$driverId/referral-dashboard',
+      apiUrl: '>',
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer $token',

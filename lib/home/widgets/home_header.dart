@@ -22,6 +22,7 @@ class HomeHeader extends StatelessWidget {
   final VoidCallback onToggleOnline;
   final double screenWidth;
   final bool isSmallScreen;
+  
 
   @override
   Widget build(BuildContext context) {

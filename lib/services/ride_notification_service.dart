@@ -207,16 +207,18 @@ class RideNotificationService {
   }
 
   void _onForegroundMessage(RemoteMessage msg) {
-    if (msg.data.containsKey('type') && msg.data['type'] == 'ride_request') {
-      if (FFAppState().activeRideId != 0) {
-        return; // Driver on ride: no new requests
-      }
-      // App is already open, so avoid layering notification sound on top of
-      // the in-app ride request alert. The home screen/socket flow handles UI.
-      _setPendingRideFromMessage(msg);
-    }
-  }
+  if (msg.data['type'] == 'ride_request') {
 
+    // ✅ increase count
+    FFAppState().update(() {
+      FFAppState().notificationUnreadCount++;
+    });
+
+    if (FFAppState().activeRideId != 0) return;
+
+    _setPendingRideFromMessage(msg);
+  }
+}
   void _onMessageOpenedApp(RemoteMessage msg) {
     _setPendingRideFromMessage(msg);
     _navigateToHome();
