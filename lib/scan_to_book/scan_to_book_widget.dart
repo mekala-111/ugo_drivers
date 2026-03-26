@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:ugo_driver/backend/api_requests/api_calls.dart';
+import 'package:ugo_driver/config.dart' as app_config;
 import 'package:ugo_driver/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '/providers/ride_provider.dart';
+import '/index.dart';
 import 'scan_to_book_model.dart';
 export 'scan_to_book_model.dart';
 
@@ -30,6 +36,9 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   String _driverName = 'Loading...';
   bool _isLoading = true;
   String? _qrImage;
+  bool _didValidateRideClaim = false;
+  Timer? _rideLockWatchdog;
+  bool _isRedirecting = false;
 
   @override
   void initState() {
@@ -48,6 +57,151 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
 
     // 2️⃣ Fetch Driver Data
     _fetchDriverData();
+    _startRideLockWatchdog();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didValidateRideClaim) return;
+    _didValidateRideClaim = true;
+    _validateScannerEntry();
+  }
+
+  Future<void> _validateScannerEntry() async {
+    if (await _hasActiveRideLock()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Complete your current ride first.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      _exitScannerToHome();
+      return;
+    }
+
+    final rideId = _extractRideIdFromArgs();
+    if (rideId == null || rideId <= 0) return;
+
+    try {
+      final res = await Dio().get(
+        '${app_config.Config.baseUrl}/api/rides/$rideId',
+        options: Options(
+          headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'},
+        ),
+      );
+      final rideData = res.data is Map<String, dynamic>
+          ? ((res.data['data'] is Map<String, dynamic>)
+              ? res.data['data'] as Map<String, dynamic>
+              : res.data as Map<String, dynamic>)
+          : <String, dynamic>{};
+      final status = (rideData['ride_status'] ?? '').toString().toUpperCase();
+      final driverId = int.tryParse('${rideData['driver_id'] ?? 0}') ?? 0;
+      final isBooked = (driverId != 0 && driverId != FFAppState().driverid) ||
+          (status.isNotEmpty &&
+              status != 'SEARCHING' &&
+              status != 'CANCELLED' &&
+              status != 'REJECTED' &&
+              status != 'COMPLETED');
+      if (isBooked && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This ride is already booked.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        _exitScannerToHome();
+      }
+    } catch (_) {
+      // Ignore claim validation errors and keep scanner screen usable.
+    }
+  }
+
+  int? _extractRideIdFromArgs() {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map) {
+      final raw = args['rideId'] ?? args['ride_id'];
+      return int.tryParse('${raw ?? ''}');
+    }
+    return null;
+  }
+
+  void _exitScannerToHome() {
+    if (!mounted || _isRedirecting) return;
+    _isRedirecting = true;
+    final activeRideId = FFAppState().activeRideId;
+    if (activeRideId > 0) {
+      FFAppState().pendingRideIdFromNotification = activeRideId;
+    }
+    try {
+      context.goNamed(HomeWidget.routeName);
+    } catch (_) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  Future<bool> _hasActiveRideLock() async {
+    const lockedStatuses = {'ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'};
+
+    // 1) Local persisted app state check
+    final localStatus = FFAppState().activeRideStatus.toUpperCase();
+    if (FFAppState().activeRideId != 0 || lockedStatuses.contains(localStatus)) {
+      return true;
+    }
+
+    // 2) In-memory provider check (more up-to-date while app is running)
+    try {
+      final rideState = context.read<RideState>();
+      if (rideState.hasActiveRide) {
+        final rideId = rideState.currentRide?.id ?? 0;
+        if (rideId > 0) {
+          FFAppState().activeRideId = rideId;
+          FFAppState().activeRideStatus = '${rideState.status}'.toUpperCase();
+        }
+        return true;
+      }
+    } catch (_) {}
+
+    // 3) Backend check for current assigned/ongoing ride (authoritative fallback)
+    try {
+      final res = await DriverIdfetchCall.call(
+        id: FFAppState().driverid,
+        token: FFAppState().accessToken,
+      );
+      if (res.succeeded != true) return false;
+      final activeRideIdRaw =
+          getJsonField(res.jsonBody, r'$.data.active_ride_id') ??
+              getJsonField(res.jsonBody, r'$.data.current_ride_id') ??
+              getJsonField(res.jsonBody, r'$.data.ride_id');
+      final activeRideStatusRaw = getJsonField(
+            res.jsonBody,
+            r'$.data.active_ride_status',
+          ) ??
+          getJsonField(res.jsonBody, r'$.data.current_ride_status') ??
+          getJsonField(res.jsonBody, r'$.data.ride_status');
+      final activeRideId = int.tryParse('${activeRideIdRaw ?? ''}') ?? 0;
+      final activeRideStatus = '${activeRideStatusRaw ?? ''}'.toUpperCase();
+      if (activeRideId > 0) {
+        FFAppState().activeRideId = activeRideId;
+      }
+      if (activeRideStatus.isNotEmpty) {
+        FFAppState().activeRideStatus = activeRideStatus;
+      }
+      return activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _startRideLockWatchdog() {
+    _rideLockWatchdog?.cancel();
+    _rideLockWatchdog = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (!mounted || _isRedirecting) return;
+      if (await _hasActiveRideLock()) {
+        _exitScannerToHome();
+      }
+    });
   }
 
   /// 🚀 Fetch Driver Data from API
@@ -130,6 +284,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
   void dispose() {
     _model.dispose();
     _pulseController.dispose();
+    _rideLockWatchdog?.cancel();
     super.dispose();
   }
 

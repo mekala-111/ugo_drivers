@@ -81,6 +81,12 @@ class MainActivity: FlutterActivity() {
                     result.success(pendingRideAction)
                     pendingRideAction = null
                 }
+                "moveTaskToBack" -> {
+                    // Used for "Uber-like" back behavior: do not finish the Activity.
+                    // This prevents orphaned overlays/bubbles when the app goes to background.
+                    moveTaskToBack(true)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }

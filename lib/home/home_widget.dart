@@ -60,6 +60,7 @@ class _HomeWidgetState extends State<HomeWidget>
   DateTime? _lastBackPressed;
   String? _activeRouteKey;
   bool _bubbleVisible = false;
+  String? _lastBubbleSyncKey;
   bool _lastOnlineState = false;
   DateTime? _lastCameraMoveTime;
   latlng.LatLng? _lastCameraCenter;
@@ -256,39 +257,42 @@ class _HomeWidgetState extends State<HomeWidget>
   }
 
   Future<void> _initLocationSafely() async {
-    // Check if already asked
-    if (FFAppState().locationPermissionAsked == true) {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+    try {
+      if (FFAppState().locationPermissionAsked == true) {
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        ).timeout(const Duration(seconds: 8));
 
-      _controller.setUserLocation(
-        LatLng(position.latitude, position.longitude),
-      );
-      return;
-    }
+        _controller.setUserLocation(
+          LatLng(position.latitude, position.longitude),
+        );
+        return;
+      }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
 
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
+      if (permission == LocationPermission.deniedForever) {
+        return;
+      }
 
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      FFAppState().locationPermissionAsked = true;
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        FFAppState().locationPermissionAsked = true;
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        ).timeout(const Duration(seconds: 8));
 
-      _controller.setUserLocation(
-        LatLng(position.latitude, position.longitude),
-      );
+        _controller.setUserLocation(
+          LatLng(position.latitude, position.longitude),
+        );
+      }
+    } catch (e) {
+      debugPrint('UGO_HOME: Location init failed (non-fatal): $e');
     }
   }
 
@@ -372,7 +376,9 @@ class _HomeWidgetState extends State<HomeWidget>
 
     if (!_controller.isOnline && _lastOnlineState) {
       _lastOnlineState = _controller.isOnline;
+      _lastBubbleSyncKey = null;
       _hideFloatingBubble();
+      _syncFloatingBubble(force: true);
       return;
     }
 
@@ -432,13 +438,16 @@ class _HomeWidgetState extends State<HomeWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _syncFloatingBubble();
+    // Avoid calling MethodChannel/plugins during detach where FlutterJNI may
+    // already be gone (prevents background-resume blank screens / plugin NPEs).
+    if (state == AppLifecycleState.detached) return;
+    _syncFloatingBubble(force: true);
     if (state == AppLifecycleState.resumed) {
       _controller.onAppResumed();
     }
   }
 
-  Future<void> _syncFloatingBubble() async {
+  Future<void> _syncFloatingBubble({bool force = false}) async {
     if (!mounted) return;
 
     final appState = WidgetsBinding.instance.lifecycleState;
@@ -447,6 +456,12 @@ class _HomeWidgetState extends State<HomeWidget>
     // Usually, if it's null it means we are just starting, likely resumed soon.
     final shouldShowBubble = _controller.isOnline &&
         (appState != null && appState != AppLifecycleState.resumed);
+
+    final syncKey = '${_controller.isOnline}_$shouldShowBubble';
+    if (!force && _lastBubbleSyncKey == syncKey) {
+      return;
+    }
+    _lastBubbleSyncKey = syncKey;
 
     if (shouldShowBubble) {
       // Use native foreground service notification outside app.
@@ -897,7 +912,8 @@ class _HomeWidgetState extends State<HomeWidget>
     WidgetsBinding.instance.removeObserver(this);
     _bubbleChannel.setMethodCallHandler(null);
     _controller.removeListener(_onControllerChange);
-    _hideFloatingBubble();
+    try { FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
+    _bubbleVisible = false;
     _model.dispose();
     _controller.dispose();
     super.dispose();
@@ -913,6 +929,13 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
+        final activeRideStatuses = [
+          'ACCEPTED',
+          'ARRIVED',
+          'STARTED',
+          'ONTRIP'
+        ];
+        final isRideLocked = activeRideStatuses.contains(c.currentRideStatus.toUpperCase());
         final shouldShowPanels = ![
           'ACCEPTED',
           'ARRIVED',
@@ -945,13 +968,20 @@ class _HomeWidgetState extends State<HomeWidget>
                   duration: const Duration(seconds: 2),
                 ));
               } else {
-                SystemNavigator.pop();
+                // "Uber-like" back: background the task without finishing the Activity.
+                // We trigger a native method via our existing MethodChannel so this
+                // works even if 3rd party plugins are not registered.
+                try {
+                  await _bubbleChannel.invokeMethod('moveTaskToBack');
+                } catch (_) {}
               }
             },
             child: Scaffold(
               key: scaffoldKey,
               backgroundColor: Colors.white,
-              drawer: const Drawer(elevation: 16.0, child: MenuWidget()),
+              drawer: isRideLocked
+                  ? null
+                  : const Drawer(elevation: 16.0, child: MenuWidget()),
               body: SafeArea(
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
@@ -961,6 +991,7 @@ class _HomeWidgetState extends State<HomeWidget>
                       switchValue: c.isOnline,
                       isDataLoaded: c.isDataLoaded,
                       onToggleOnline: () => c.toggleOnlineStatus(),
+                      isRideLocked: isRideLocked,
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
                       notificationCount: c.notificationUnreadCount,

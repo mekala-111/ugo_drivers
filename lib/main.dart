@@ -22,6 +22,7 @@ import '/services/ride_notification_service.dart';
 import '/services/firebase_remote_config_service.dart';
 import '/services/install_referrer_service.dart';
 import '/services/ride_alert_audio_service.dart';
+import '/services/floating_bubble_service.dart';
 import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
 
@@ -38,6 +39,9 @@ void main() {
     // This guarantees that if a background service or plugin crashes,
     // it won't skip runApp() and cause a permanent white screen.
     try {
+      debugPrint('UGO_STARTUP: Cleaning up orphaned floating bubble...');
+      try { await FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
+
       debugPrint('UGO_STARTUP: Stopping lingering audio...');
       await RideAlertAudioService.stopLingeringAlertAudio();
 
@@ -172,17 +176,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         debugPrint('UGO_STARTUP: User state changed: ${user.uid != null ? "Logged In" : "Logged Out"}');
         _appStateNotifier.update(user);
       });
-    // ✅ Reduced safety delay for splash image dismissal.
-    // AppStateNotifier.update now handles immediate dismissal for authenticated users.
-    Future.delayed(
-      const Duration(milliseconds: 200),
-          () {
-        if (_appStateNotifier.showSplashImage) {
-          debugPrint('UGO_STARTUP: Safety stop of Splash Image visibility...');
-          _appStateNotifier.stopShowingSplashImage();
-        }
-      },
-    );
+    // Dismiss splash after 200ms; re-check at 1.5s as a hard safety net
+    // in case the first notify didn't trigger a GoRouter rebuild.
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (_appStateNotifier.showSplashImage) {
+        debugPrint('UGO_STARTUP: Safety stop of Splash Image (200ms)');
+        _appStateNotifier.stopShowingSplashImage();
+      }
+    });
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (_appStateNotifier.showSplashImage) {
+        debugPrint('UGO_STARTUP: Hard safety stop of Splash Image (1.5s)');
+        _appStateNotifier.stopShowingSplashImage();
+      }
+    });
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
     ApiManager.onUnauthenticated = () {
@@ -245,9 +252,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       WakelockPlus.enable();
     } else if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.detached) {
+        state == AppLifecycleState.inactive) {
       WakelockPlus.disable();
+    } else if (state == AppLifecycleState.detached) {
+      WakelockPlus.disable();
+      try { FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
     }
   }
 

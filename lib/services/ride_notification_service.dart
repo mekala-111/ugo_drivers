@@ -120,6 +120,7 @@ class RideNotificationService {
   final FlutterLocalNotificationsPlugin _local =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  bool _onlineNotificationVisible = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -339,12 +340,17 @@ class RideNotificationService {
 
   /// Cancel ride request notification.
   Future<void> cancelRideNotification() async {
-    await _local.cancel(_kRideRequestNotificationId);
+    try {
+      await _local.cancel(_kRideRequestNotificationId);
+    } catch (_) {
+      // Ignore plugin/context teardown races during app detach.
+    }
   }
 
   /// Show persistent Uber/Rapido style "You are Online" notification.
   Future<void> showOnlineNotification() async {
     if (!_initialized) return;
+    if (_onlineNotificationVisible) return;
 
     debugPrint('UGO_NOTIF: Showing persistent Online notification');
 
@@ -373,18 +379,30 @@ class RideNotificationService {
       iOS: iosDetails,
     );
 
-    await _local.show(
-      _kOnlineStatusNotificationId,
-      'Ugo Taxi',
-      'Waiting for Rides ....',
-      details,
-    );
+    try {
+      await _local.show(
+        _kOnlineStatusNotificationId,
+        'Ugo Taxi',
+        'Waiting for Rides ....',
+        details,
+      );
+      _onlineNotificationVisible = true;
+    } catch (_) {
+      // Ignore plugin/context teardown races during app detach.
+    }
   }
 
   /// Remove the persistent "Online" notification.
   Future<void> hideOnlineNotification() async {
     if (!_initialized) return;
+    if (!_onlineNotificationVisible) return;
     debugPrint('UGO_NOTIF: Hiding persistent Online notification');
-    await _local.cancel(_kOnlineStatusNotificationId);
+    try {
+      await _local.cancel(_kOnlineStatusNotificationId);
+    } catch (_) {
+      // Ignore plugin/context teardown races during app detach.
+    } finally {
+      _onlineNotificationVisible = false;
+    }
   }
 }

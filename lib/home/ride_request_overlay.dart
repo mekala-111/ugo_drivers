@@ -100,6 +100,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   bool _isCompletingRide = false;
   bool _isCancellingRide = false;
   bool _isAppInForeground = true;
+  bool get _driverHasActiveRideLock {
+    final lockedStatuses = {
+      RideStatus.accepted,
+      RideStatus.arrived,
+      RideStatus.started,
+      RideStatus.onTrip,
+    };
+    final hasLockedRequest =
+        _activeRequests.any((ride) => lockedStatuses.contains(ride.status));
+    return hasLockedRequest || FFAppState().activeRideId != 0;
+  }
 
   // ✅ Track completed incentives to detect newly completed ones
   final Set<int> _completedIncentiveIds = {};
@@ -144,6 +155,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       bool shouldShowFloatingRide = false;
 
       final RideStatus status = updatedRide.status;
+      final activeRideId = FFAppState().activeRideId;
 
       // Fast-fail: ignore unknown statuses to prevent UI state corruption
       if (status == RideStatus.unknown) {
@@ -184,16 +196,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           }
         });
       } else {
-        // Driver is on a ride: ignore new ride requests until current ride is completed
-        final activeRideStatuses = [
-          RideStatus.accepted,
-          RideStatus.arrived,
-          RideStatus.started,
-          RideStatus.onTrip
-        ];
-        final hasActiveRide =
-            _activeRequests.any((r) => activeRideStatuses.contains(r.status));
-        if (status == RideStatus.searching && hasActiveRide) return;
+        // Active ride lock: never allow additional SEARCHING rides while one is ongoing.
+        if (status == RideStatus.searching && _driverHasActiveRideLock) return;
+        if (activeRideId != 0 &&
+            updatedRide.id != activeRideId &&
+            status != RideStatus.completed &&
+            status != RideStatus.cancelled &&
+            status != RideStatus.rejected) {
+          return;
+        }
 
         // Vehicle type filter: only show rides matching driver's vehicle
         if (status == RideStatus.searching &&
@@ -646,8 +657,48 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     _stopAlert();
     if (_isAcceptingRide) return;
     if (!mounted) return;
+    if (_driverHasActiveRideLock && FFAppState().activeRideId != rideId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Complete your current ride first.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     setState(() => _isAcceptingRide = true);
     try {
+      final rideCheckRes = await Dio().get(
+        '${Config.baseUrl}/api/rides/$rideId',
+        options: Options(headers: {
+          'Authorization': 'Bearer ${FFAppState().accessToken}'
+        }),
+      );
+      final rideData = rideCheckRes.data is Map
+          ? ((rideCheckRes.data['data'] is Map)
+              ? Map<String, dynamic>.from(rideCheckRes.data['data'] as Map)
+              : Map<String, dynamic>.from(rideCheckRes.data as Map))
+          : null;
+      final serverStatus =
+          (rideData?['ride_status'] ?? '').toString().toUpperCase();
+      final assignedDriverId = int.tryParse('${rideData?['driver_id'] ?? 0}') ?? 0;
+      final bookedByAnother = assignedDriverId != 0 &&
+          assignedDriverId != FFAppState().driverid &&
+          serverStatus != 'COMPLETED' &&
+          serverStatus != 'CANCELLED' &&
+          serverStatus != 'REJECTED';
+      if (bookedByAnother || serverStatus != 'SEARCHING') {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('This ride is already booked.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final res = await Dio().post(
           '${Config.baseUrl}/api/rides/rides/$rideId/accept',
           data: {'driver_id': FFAppState().driverid},

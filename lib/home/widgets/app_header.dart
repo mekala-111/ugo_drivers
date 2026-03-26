@@ -18,7 +18,8 @@ class AppHeader extends StatelessWidget {
     this.balance,
     this.profileImageUrl,
     this.notificationCount = 0,
-     this.onNotificationTap,
+    this.onNotificationTap,
+    this.isRideLocked = false,
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -31,6 +32,7 @@ class AppHeader extends StatelessWidget {
   final String? profileImageUrl;
   final int notificationCount;
   final VoidCallback? onNotificationTap;
+  final bool isRideLocked;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +56,12 @@ class AppHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _tapTarget(
-                onTap: () => scaffoldKey.currentState?.openDrawer(),
+                onTap:
+                    isRideLocked ? null : () => scaffoldKey.currentState?.openDrawer(),
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
-              if (switchValue)
+              if (switchValue && !isRideLocked)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),
                   child: Icon(Icons.qr_code, color: Colors.white, size: iconSz),
@@ -69,15 +72,21 @@ class AppHeader extends StatelessWidget {
               OnlineToggle(
                 switchValue: switchValue,
                 isDataLoaded: isDataLoaded,
-                onToggle: onToggleOnline,
+                onToggle: isRideLocked ? () {} : onToggleOnline,
               ),
-              if (notificationCount > 0)
+              if (isRideLocked)
+                _tapTarget(
+                  onTap: null,
+                  child: Icon(Icons.lock, color: Colors.white, size: iconSz - 2),
+                  minSize: minTap,
+                )
+              else if (notificationCount > 0)
                 Badge(
                   label: Text('$notificationCount'),
                   child: _tapTarget(
-                     onTap: () => onNotificationTap != null
-          ? onNotificationTap!()
-          : context.pushNamed(InboxPageWidget.routeName),
+                    onTap: () => onNotificationTap != null
+                        ? onNotificationTap!()
+                        : context.pushNamed(InboxPageWidget.routeName),
                     child: Icon(Icons.notifications_none,
                         color: Colors.white, size: iconSz),
                     minSize: minTap,
@@ -86,14 +95,15 @@ class AppHeader extends StatelessWidget {
               else
                 _tapTarget(
                   onTap: () => onNotificationTap != null
-        ? onNotificationTap!()
-        : context.pushNamed(InboxPageWidget.routeName),
+                      ? onNotificationTap!()
+                      : context.pushNamed(InboxPageWidget.routeName),
                   child: Icon(Icons.notifications_none,
                       color: Colors.white, size: iconSz),
                   minSize: minTap,
                 ),
               _tapTarget(
-                onTap: () => context.pushNamed(TeampageWidget.routeName),
+                onTap:
+                    isRideLocked ? null : () => context.pushNamed(TeampageWidget.routeName),
                 child: Icon(Icons.people, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
@@ -105,7 +115,7 @@ class AppHeader extends StatelessWidget {
   }
 
   Widget _tapTarget({
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     required Widget child,
     required double minSize,
   }) {

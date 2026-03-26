@@ -59,6 +59,7 @@ class HomeController extends ChangeNotifier {
   bool _socketInitialized = false;
   bool _disposed = false;
   int _currentDistanceFilter = 50;
+  DateTime? _lastResumeSyncAt;
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -460,8 +461,16 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> onAppResumed() async {
-    // If the driver intended to stay online, silently ping the backend to ensure they were not dropped
-    if (FFAppState().isonline) {
+    // If the driver intended to stay online, silently ping backend.
+    // Guard against rapid lifecycle bounce (focus/overlay changes).
+    final now = DateTime.now();
+    if (_lastResumeSyncAt != null &&
+        now.difference(_lastResumeSyncAt!) < const Duration(seconds: 10)) {
+      return;
+    }
+    _lastResumeSyncAt = now;
+
+    if (FFAppState().isonline && isOnline) {
       if (kDebugMode) debugPrint('♻️ App Resumed: Re-asserting Online status to ensure background drop did not happen');
       await DriverRepository.instance.setOnlineStatus(
         token: FFAppState().accessToken,

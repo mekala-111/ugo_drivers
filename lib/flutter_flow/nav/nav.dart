@@ -38,8 +38,10 @@ class AppStateNotifier extends ChangeNotifier {
   /// Otherwise, this will trigger a refresh and interrupt the action(s).
   bool notifyOnAuthChange = true;
 
-  bool get loading => user == null || showSplashImage;
-  bool get loggedIn => user?.loggedIn ?? false;
+  // Keep splash visibility independent from Firebase transient null states.
+  bool get loading => showSplashImage;
+  // App uses persisted FFAppState login in addition to Firebase auth.
+  bool get loggedIn => (user?.loggedIn ?? false) || FFAppState().isLoggedIn;
   bool get initiallyLoggedIn => initialUser?.loggedIn ?? false;
   bool get shouldRedirect => loggedIn && _redirectLocation != null;
 
