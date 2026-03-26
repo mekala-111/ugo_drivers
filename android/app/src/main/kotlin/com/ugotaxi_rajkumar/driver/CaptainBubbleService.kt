@@ -386,10 +386,11 @@ class CaptainBubbleService : Service() {
         )
 
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("UGO Driver Bubble")
-            .setContentText("Floating overlay is active")
+            .setContentTitle("Ugo Taxi")
+            .setContentText("Waiting for Rides ....")
             .setSmallIcon(R.drawable.ugo_notification)
             .setContentIntent(pendingIntent)
+            .setOngoing(true)
             .build()
     }
 

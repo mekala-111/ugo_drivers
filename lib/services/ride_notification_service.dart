@@ -375,8 +375,8 @@ class RideNotificationService {
 
     await _local.show(
       _kOnlineStatusNotificationId,
-      'Ugo Driver',
-      'You are currently online. Waiting for orders...',
+      'Ugo Taxi',
+      'Waiting for Rides ....',
       details,
     );
   }

@@ -449,6 +449,8 @@ class _HomeWidgetState extends State<HomeWidget>
         (appState != null && appState != AppLifecycleState.resumed);
 
     if (shouldShowBubble) {
+      // Use native foreground service notification outside app.
+      await RideNotificationService().hideOnlineNotification();
       final granted = await FloatingBubbleService.checkOverlayPermission();
       if (granted) {
         if (!_bubbleVisible) {
@@ -462,6 +464,12 @@ class _HomeWidgetState extends State<HomeWidget>
         }
       }
     } else {
+      // Inside app (while online), keep a single persistent online notification.
+      if (_controller.isOnline) {
+        await RideNotificationService().showOnlineNotification();
+      } else {
+        await RideNotificationService().hideOnlineNotification();
+      }
       if (_bubbleVisible) {
         await FloatingBubbleService.stopFloatingBubble();
         _bubbleVisible = false;

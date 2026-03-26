@@ -4,45 +4,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="overlay">
-      <change beforePath="$PROJECT_DIR$/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/.flutter-plugins-dependencies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="UPDATE play store 26/03/2026">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/CaptainBubbleService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/CaptainBubbleService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/FakeRideRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/FakeRideRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/RideEventRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/RideEventRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/layout/activity_ride_request.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/layout/activity_ride_request.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/edit_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/edit_profile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/adhar_upload/adhar_upload_update.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/adhar_upload/adhar_upload_update.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/menu_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/menu_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/face_verify/face_verify_update.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/face_verify/face_verify_update.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/map_container.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/map_container.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/ride_map.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/ride_map.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/ride_status_panel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/ride_status_panel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/index.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/panupload_screen/panupload_screen_pdate.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/panupload_screen/panupload_screen_update.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/firebase_remote_config_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/firebase_remote_config_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/floating_bubble_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/services/ride_notification_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/ride_notification_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/voice_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/voice_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stash-backups/stash@_4_.patch" beforeDir="false" afterPath="$PROJECT_DIR$/stash-backups/stash@_4_.patch" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -349,7 +315,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774444143150</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="UPDATE play store 26/03/2026">
+      <option name="closed" value="true" />
+      <created>1774538914086</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1774538914086</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -384,7 +358,8 @@
     <MESSAGE value="Map fix" />
     <MESSAGE value="over  fix" />
     <MESSAGE value="overlay" />
-    <option name="LAST_COMMIT_MESSAGE" value="overlay" />
+    <MESSAGE value="UPDATE play store 26/03/2026" />
+    <option name="LAST_COMMIT_MESSAGE" value="UPDATE play store 26/03/2026" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -392,7 +367,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/controllers/home_controller.dart</url>
-          <line>623</line>
+          <line>618</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

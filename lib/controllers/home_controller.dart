@@ -15,7 +15,6 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
         GetAllDriversCall,
         NotificationHistoryCall,
         AddMoneyToWalletCall;
-import 'package:ugo_driver/services/ride_notification_service.dart';
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -94,7 +93,6 @@ class HomeController extends ChangeNotifier {
     // ✅ Re-assert side effects for persisted Online state
     if (isOnline) {
       _startLocationTracking();
-      RideNotificationService().showOnlineNotification();
     }
     _fetchInitialRideStatus();
     await Future.wait([
@@ -251,7 +249,6 @@ class HomeController extends ChangeNotifier {
       isOnline = true;
       FFAppState().isonline = true;
       _startLocationTracking();
-      RideNotificationService().showOnlineNotification();
     } 
     // If the driver IS locally online, but the API says they are NOT, 
     // we already re-asserted in init() if it was silent, but we'll double-check here.
@@ -391,7 +388,6 @@ class HomeController extends ChangeNotifier {
       isOnline = true;
       _startLocationTracking(
           skipDisclosure: true); // Already shown in goOnline()
-      RideNotificationService().showOnlineNotification();
       _fetchAvailableDrivers();
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
@@ -415,7 +411,6 @@ class HomeController extends ChangeNotifier {
 
   Future<void> goOffline() async {
     _stopLocationTracking();
-    RideNotificationService().hideOnlineNotification();
     final res = await DriverRepository.instance.setOnlineStatus(
       token: FFAppState().accessToken,
       isOnline: false,
