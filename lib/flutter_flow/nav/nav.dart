@@ -57,6 +57,12 @@ class AppStateNotifier extends ChangeNotifier {
         user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
     initialUser ??= newUser;
     user = newUser;
+
+    // ✅ Optimization: Dismiss splash screen immediately as soon as we have a user
+    if (newUser.uid != null && showSplashImage) {
+      showSplashImage = false;
+    }
+
     // Refresh the app on auth change unless explicitly marked otherwise.
     // No need to update unless the user has changed.
     if (notifyOnAuthChange && shouldUpdate) {
@@ -74,8 +80,7 @@ class AppStateNotifier extends ChangeNotifier {
 }
 
 GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
-      // initialLocation: '/',
-      initialLocation: SplashWidget.routePath,
+      initialLocation: '/',
       debugLogDiagnostics: true,
       extraCodec: const TransitionInfoCodec(),
       refreshListenable: appStateNotifier,
@@ -87,9 +92,20 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.loggedIn
-              ? const ErrorBoundary(child: HomeWidget())
-              : const LoginWidget(),
+          builder: (context, _) {
+            // ✅ Smart Routing optimization:
+            // 1. Not Logged In -> Go to Login
+            if (!appStateNotifier.loggedIn) {
+              return const LoginWidget();
+            }
+            // 2. Logged In & Fully Registered -> Go directly to Home
+            if (FFAppState().isRegistered) {
+              return const ErrorBoundary(child: HomeWidget());
+            }
+            // 3. Logged In but NOT Registered -> Go to Splash to handle branching logic
+            //    (This handles partially completed registration steps).
+            return const SplashWidget();
+          },
         ),
         FFRoute(
           name: LoginWidget.routeName,
@@ -455,9 +471,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const RegistrationUpdateWidget(),
         ),
         FFRoute(
-          name: FaceVerifyupdateWidget.routeName,
-          path: FaceVerifyupdateWidget.routePath,
-          builder: (context, params) => const FaceVerifyupdateWidget(),
+          name: FaceVerifyUpdateWidget.routeName,
+          path: FaceVerifyUpdateWidget.routePath,
+          builder: (context, params) => const FaceVerifyUpdateWidget(),
         ),
 
         FFRoute(

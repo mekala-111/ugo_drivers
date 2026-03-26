@@ -251,29 +251,42 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: InkWell(
           onTap: () => context.pop(),
-          child: const Icon(Icons.arrow_back, color: Colors.black),
+          child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
         ),
         title: Text('Incentives',
             style: GoogleFonts.inter(
-                color: AppColors.textDark,
+                color: AppColors.textPrimary,
                 fontSize: isSmall ? 18 : 20,
                 fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
+          preferredSize: const Size.fromHeight(60),
           child: Container(
-            color: AppColors.accentAmber,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.backgroundAlt,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: Colors.white,
-              indicatorWeight: 4,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              labelStyle: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                fontSize: isSmall ? 12 : 14,
+              indicator: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
               ),
+              labelColor: Colors.white,
+              unselectedLabelColor: AppColors.textMuted,
+              labelStyle: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmall ? 13 : 14,
+              ),
+              unselectedLabelStyle: GoogleFonts.inter(
+                fontWeight: FontWeight.w500,
+                fontSize: isSmall ? 13 : 14,
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
               tabs: const [
                 Tab(text: 'Daily'),
                 Tab(text: 'Weekly'),
@@ -343,6 +356,10 @@ class _DailyTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSmall = ScreenHelper.isSmallScreen(context);
+    final totalEarned = incentiveList
+        .where((i) => DriverIncentivesCall.itemIsCompleted(i))
+        .fold(0.0, (sum, i) => sum + DriverIncentivesCall.itemRewardAmount(i));
+
     return Column(
       children: [
         _DateSelectorBar(
@@ -355,51 +372,32 @@ class _DailyTab extends StatelessWidget {
           child: isLoading
               ? const _Loader()
               : RefreshIndicator(
-                  color: AppColors.accentAmber,
+                  color: AppColors.primary,
                   onRefresh: () async => onDateSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding:
-                        EdgeInsets.all(ScreenHelper.responsivePadding(context)),
+                    padding: EdgeInsets.all(isSmall ? 16 : 20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📅 Date header with full date
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(isSmall ? 12 : 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.accentAmber.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color:
-                                  AppColors.accentAmber.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                DateFormat('EEEE, MMM dd, yyyy')
-                                    .format(dates[selectedIndex]),
-                                style: GoogleFonts.inter(
-                                  fontSize: ScreenHelper.responsiveFontSize(
-                                      context, 16),
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '7:00 AM  –  11:59 PM',
-                                style: GoogleFonts.inter(
-                                  fontSize: ScreenHelper.responsiveFontSize(
-                                      context, 12),
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
+                        // 💰 Summary Header
+                        _SummaryHeader(
+                          title: 'Daily Earnings',
+                          subtitle: DateFormat('EEEE, MMM dd, yyyy')
+                              .format(dates[selectedIndex]),
+                          amount: totalEarned,
+                          icon: Icons.calendar_today,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Available Incentives',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
                         incentiveList.isNotEmpty
                             ? _IncentiveList(items: incentiveList)
                             : const _EmptyState(
@@ -436,9 +434,12 @@ class _WeeklyTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final range = dateRanges.isNotEmpty ? dateRanges[selectedIndex] : null;
     final label = range != null
-        ? '${DateFormat('EEE, MMM d').format(range.start)}  –  ${DateFormat('EEE, MMM d').format(range.end)}'
+        ? '${DateFormat('MMM d').format(range.start)} – ${DateFormat('MMM d').format(range.end)}'
         : '';
     final isSmall = ScreenHelper.isSmallScreen(context);
+    final totalEarned = incentiveList
+        .where((i) => DriverIncentivesCall.itemIsCompleted(i))
+        .fold(0.0, (sum, i) => sum + DriverIncentivesCall.itemRewardAmount(i));
 
     return Column(
       children: [
@@ -451,48 +452,31 @@ class _WeeklyTab extends StatelessWidget {
           child: isLoading
               ? const _Loader()
               : RefreshIndicator(
-                  color: AppColors.accentAmber,
+                  color: AppColors.primary,
                   onRefresh: () async => onRangeSelected(selectedIndex),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding:
-                        EdgeInsets.all(ScreenHelper.responsivePadding(context)),
+                    padding: EdgeInsets.all(isSmall ? 16 : 20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📅 Week header
-                        if (label.isNotEmpty) ...[
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.all(isSmall ? 12 : 16),
-                            decoration: BoxDecoration(
-                              color:
-                                  AppColors.accentAmber.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppColors.accentAmber
-                                    .withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(label,
-                                    style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize:
-                                            ScreenHelper.responsiveFontSize(
-                                                context, 15))),
-                                const SizedBox(height: 4),
-                                Text('7:00 AM  –  11:59 PM',
-                                    style: GoogleFonts.inter(
-                                        color: Colors.grey,
-                                        fontSize:
-                                            ScreenHelper.responsiveFontSize(
-                                                context, 12))),
-                              ],
-                            ),
+                        // 💰 Summary Header
+                        _SummaryHeader(
+                          title: 'Weekly Earnings',
+                          subtitle: label,
+                          amount: totalEarned,
+                          icon: Icons.date_range,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Weekly Challenges',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
-                          const SizedBox(height: 20),
-                        ],
+                        ),
+                        const SizedBox(height: 12),
                         incentiveList.isNotEmpty
                             ? _IncentiveList(items: incentiveList)
                             : const _EmptyState(
@@ -519,48 +503,34 @@ class _MonthlyTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSmall = ScreenHelper.isSmallScreen(context);
-    final padding = ScreenHelper.responsivePadding(context);
+    final totalEarned = incentiveList
+        .where((i) => DriverIncentivesCall.itemIsCompleted(i))
+        .fold(0.0, (sum, i) => sum + DriverIncentivesCall.itemRewardAmount(i));
 
     return isLoading
         ? const _Loader()
         : SingleChildScrollView(
-            padding: EdgeInsets.all(padding),
+            padding: EdgeInsets.all(isSmall ? 16 : 20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Month banner
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: isSmall ? 14 : 18),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryLight, AppColors.primary],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        DateFormat('MMMM yyyy').format(DateTime.now()),
-                        style: GoogleFonts.inter(
-                            color: Colors.white70,
-                            fontSize:
-                                ScreenHelper.responsiveFontSize(context, 13)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Monthly Incentives',
-                        style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize:
-                                ScreenHelper.responsiveFontSize(context, 20),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                // 💰 Summary Header
+                _SummaryHeader(
+                  title: 'Monthly Bonus',
+                  subtitle: DateFormat('MMMM yyyy').format(DateTime.now()),
+                  amount: totalEarned,
+                  icon: Icons.stars,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Special Incentives',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 incentiveList.isNotEmpty
                     ? _IncentiveList(items: incentiveList)
                     : const _EmptyState(
@@ -574,45 +544,47 @@ class _MonthlyTab extends StatelessWidget {
 // ==============================================================================
 // INCENTIVE LIST  — renders each item from $.data[]
 // ==============================================================================
+// ==============================================================================
+// INCENTIVE LIST — renders each item from $.data[]
+// ==============================================================================
 class _IncentiveList extends StatelessWidget {
   final List<dynamic> items;
   const _IncentiveList({required this.items});
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = ScreenHelper.isSmallScreen(context);
-    final padding = isSmall ? 14 : 20;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      padding: EdgeInsets.all(padding.toDouble()),
-      child: Column(
-        children: List.generate(items.length, (i) {
-          final item = items[i];
-          return _IncentiveCard(
-            item: item,
-            isLast: i == items.length - 1,
-          );
-        }),
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        return _IncentiveMilestoneCard(
+          item: items[index],
+          isNextAchievable: _isNextAchievable(index),
+        );
+      },
     );
+  }
+
+  bool _isNextAchievable(int index) {
+    // Logic: If previous is completed and current is not, this is the "Next" one.
+    if (index == 0) {
+      return !DriverIncentivesCall.itemIsCompleted(items[0]);
+    }
+    return DriverIncentivesCall.itemIsCompleted(items[index - 1]) &&
+        !DriverIncentivesCall.itemIsCompleted(items[index]);
   }
 }
 
-class _IncentiveCard extends StatelessWidget {
+class _IncentiveMilestoneCard extends StatelessWidget {
   final dynamic item;
-  final bool isLast;
+  final bool isNextAchievable;
 
-  const _IncentiveCard({required this.item, required this.isLast});
+  const _IncentiveMilestoneCard({
+    required this.item,
+    this.isNextAchievable = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -625,159 +597,162 @@ class _IncentiveCard extends StatelessWidget {
     final String endTime = DriverIncentivesCall.itemEndTime(item);
 
     final isSmall = ScreenHelper.isSmallScreen(context);
-    final cardPadding = isSmall ? 10 : 14;
-    final dotSize = isSmall ? 18.0 : 22.0;
-
-    const Color orange = AppColors.accentAmber;
-    final Color grey = Colors.grey.shade300;
     final double progress =
         targetRides > 0 ? (completedRides / targetRides).clamp(0.0, 1.0) : 0.0;
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Timeline dot + connector ────────────────────
-          Column(
-            children: [
+    final Color primaryColor = isCompleted ? AppColors.success : AppColors.primary;
+    final Color cardBg = isCompleted
+        ? AppColors.sectionGreenTint
+        : (isNextAchievable ? AppColors.sectionOrangeTint : Colors.white);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isCompleted
+              ? AppColors.success.withValues(alpha: 0.3)
+              : (isNextAchievable
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.greyBorder),
+          width: isNextAchievable || isCompleted ? 1.5 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            if (isNextAchievable)
               Container(
-                width: dotSize,
-                height: dotSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isCompleted ? orange : Colors.white,
-                  border: Border.all(
-                      color: isCompleted ? orange : grey, width: 2.5),
-                ),
-                child: isCompleted
-                    ? Icon(Icons.check,
-                        size: isSmall ? 10 : 13, color: Colors.white)
-                    : null,
-              ),
-              if (!isLast)
-                Expanded(
-                    child: Container(
-                        width: 2, color: isCompleted ? orange : grey)),
-            ],
-          ),
-          SizedBox(width: isSmall ? 10 : 14),
-
-          // ── Card content ─────────────────────────────────
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.only(bottom: isSmall ? 16 : 24),
-              padding: EdgeInsets.all(cardPadding.toDouble()),
-              decoration: BoxDecoration(
-                color: isCompleted
-                    ? Colors.green.withValues(alpha: 0.05)
-                    : Colors.orange.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isCompleted
-                      ? Colors.green.withValues(alpha: 0.2)
-                      : orange.withValues(alpha: 0.2),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                color: AppColors.primary,
+                child: Text(
+                  'NEXT MILESTONE',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: EdgeInsets.all(isSmall ? 16 : 20),
+              child: Row(
                 children: [
-                  // Name + reward row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // 🏁 Circular Progress
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Expanded(
-                        child: Text(incentiveName,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.inter(
-                                fontSize: ScreenHelper.responsiveFontSize(
-                                    context, 15),
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87)),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '₹${rewardAmount.toStringAsFixed(0)}',
-                        style: GoogleFonts.inter(
-                            fontSize: ScreenHelper.responsiveFontSize(
-                                context, isSmall ? 14 : 18),
-                            fontWeight: FontWeight.bold,
-                            color: isCompleted ? Colors.green : Colors.black87),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: isSmall ? 4 : 6),
-
-                  // Target rides
-                  Text(
-                    'Complete $targetRides rides',
-                    style: GoogleFonts.inter(
-                        fontSize: ScreenHelper.responsiveFontSize(context, 13),
-                        color: Colors.black54),
-                  ),
-
-                  // Time window
-                  if (startTime.isNotEmpty && endTime.isNotEmpty) ...[
-                    SizedBox(height: isSmall ? 1 : 2),
-                    Text(
-                      '$startTime  –  $endTime',
-                      style: GoogleFonts.inter(
-                          fontSize:
-                              ScreenHelper.responsiveFontSize(context, 11),
-                          color: Colors.grey.shade500),
-                    ),
-                  ],
-                  SizedBox(height: isSmall ? 6 : 10),
-
-                  // Progress bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: isSmall ? 5 : 7,
-                      backgroundColor: Colors.grey.shade200,
-                      color: isCompleted ? Colors.green : orange,
-                    ),
-                  ),
-                  SizedBox(height: isSmall ? 4 : 6),
-
-                  // Progress label + status badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '$completedRides / $targetRides rides',
-                        style: GoogleFonts.inter(
-                            fontSize:
-                                ScreenHelper.responsiveFontSize(context, 12),
-                            color: Colors.grey.shade600),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: isSmall ? 8 : 10,
-                            vertical: isSmall ? 2 : 3),
-                        decoration: BoxDecoration(
-                          color: isCompleted
-                              ? Colors.green.withValues(alpha: 0.12)
-                              : orange.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
+                      SizedBox(
+                        width: isSmall ? 54 : 64,
+                        height: isSmall ? 54 : 64,
+                        child: CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 6,
+                          backgroundColor: AppColors.greyBorder,
+                          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                         ),
-                        child: Text(
-                          isCompleted ? '✓ Completed' : '● Ongoing',
+                      ),
+                      if (isCompleted)
+                        const Icon(Icons.check_circle,
+                            color: AppColors.success, size: 28)
+                      else
+                        Text(
+                          '$completedRides/$targetRides',
                           style: GoogleFonts.inter(
-                              fontSize:
-                                  ScreenHelper.responsiveFontSize(context, 11),
-                              fontWeight: FontWeight.w600,
-                              color: isCompleted ? Colors.green : orange),
+                            fontSize: isSmall ? 11 : 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
                     ],
+                  ),
+                  const SizedBox(width: 16),
+                  // 📝 Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                incentiveName,
+                                style: GoogleFonts.inter(
+                                  fontSize: isSmall ? 15 : 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '₹${rewardAmount.toStringAsFixed(0)}',
+                              style: GoogleFonts.inter(
+                                fontSize: isSmall ? 18 : 20,
+                                fontWeight: FontWeight.w900,
+                                color: isCompleted
+                                    ? AppColors.success
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Target: $targetRides Rides',
+                          style: GoogleFonts.inter(
+                            fontSize: isSmall ? 13 : 14,
+                            color: AppColors.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        if (startTime.isNotEmpty && endTime.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time,
+                                  size: 12, color: AppColors.greyLight),
+                              const SizedBox(width: 4),
+                              Text(
+                                '$startTime – $endTime',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: AppColors.greyLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            // 📊 Linear Progress Bar at bottom of card
+            Container(
+              height: 4,
+              width: double.infinity,
+              color: AppColors.greyBorder,
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress,
+                child: Container(color: primaryColor),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -976,13 +951,127 @@ class _WeekSelectorBar extends StatelessWidget {
 }
 
 // ==============================================================================
-// SHARED SMALL WIDGETS
+// HELPERS & UI COMPONENTS
 // ==============================================================================
+
+class _SummaryHeader extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final double amount;
+  final IconData icon;
+
+  const _SummaryHeader({
+    required this.title,
+    required this.subtitle,
+    required this.amount,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmall = ScreenHelper.isSmallScreen(context);
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isSmall ? 20 : 24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withValues(alpha: 0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: isSmall ? 14 : 16,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: isSmall ? 16 : 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 24),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '₹${amount.toStringAsFixed(0)}',
+                style: GoogleFonts.inter(
+                  fontSize: isSmall ? 32 : 40,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, left: 8.0),
+                child: Text(
+                  'Earned',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AppColors.sectionGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Loader extends StatelessWidget {
   const _Loader();
   @override
-  Widget build(BuildContext context) => const Center(
-      child: CircularProgressIndicator(color: AppColors.accentAmber));
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: AppColors.primary,
+        strokeWidth: 3,
+      ),
+    );
+  }
 }
 
 class _EmptyState extends StatelessWidget {

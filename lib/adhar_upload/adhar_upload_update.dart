@@ -16,7 +16,7 @@ export 'adhar_upload_model.dart';
 class AdharUploadUpdateWidget extends StatefulWidget {
   const AdharUploadUpdateWidget({super.key});
 
-  static String routeName = 'Adhar_UploadUpdate';
+  static String routeName = 'AdharUploadUpdate';
   static String routePath = '/adharUploadUpdate';
 
   @override

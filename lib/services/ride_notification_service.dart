@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -12,6 +13,7 @@ const String _kChannelName = 'New Ride Requests';
 const String _kGeneralChannelId = 'general_notifications';
 const String _kGeneralChannelName = 'General Updates';
 const int _kRideRequestNotificationId = 9001;
+const int _kOnlineStatusNotificationId = 9002;
 
 /// Must be top-level for background isolate.
 @pragma('vm:entry-point')
@@ -338,5 +340,51 @@ class RideNotificationService {
   /// Cancel ride request notification.
   Future<void> cancelRideNotification() async {
     await _local.cancel(_kRideRequestNotificationId);
+  }
+
+  /// Show persistent Uber/Rapido style "You are Online" notification.
+  Future<void> showOnlineNotification() async {
+    if (!_initialized) return;
+
+    debugPrint('UGO_NOTIF: Showing persistent Online notification');
+
+    const androidDetails = AndroidNotificationDetails(
+      _kGeneralChannelId,
+      _kGeneralChannelName,
+      channelDescription: 'Shows your current online status',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true, // User cannot swipe it away
+      autoCancel: false,
+      showWhen: false,
+      category: AndroidNotificationCategory.service,
+      color: AppColors.primary,
+      icon: 'ugo_notification', // Use small icon
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: false,
+      presentSound: false,
+      presentBadge: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _local.show(
+      _kOnlineStatusNotificationId,
+      'Ugo Driver',
+      'You are currently online. Waiting for orders...',
+      details,
+    );
+  }
+
+  /// Remove the persistent "Online" notification.
+  Future<void> hideOnlineNotification() async {
+    if (!_initialized) return;
+    debugPrint('UGO_NOTIF: Hiding persistent Online notification');
+    await _local.cancel(_kOnlineStatusNotificationId);
   }
 }

@@ -354,7 +354,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               FFLocalizations.of(context).getText('docm0008'),
                               'profilePhoto',
                               () => context
-                                  .pushNamed(FaceVerifyupdateWidget.routeName),
+                                  .pushNamed(FaceVerifyUpdateWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildStepItem(

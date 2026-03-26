@@ -6054,8 +6054,8 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं',
       'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'
     },
-    'drv_captains_nearby': {
-      'en': 'captains nearby',
+    'drv_Drivers_nearby': {
+      'en': 'Drivers nearby',
       'hi': 'कैप्टन पास में',
       'te': 'కెప్టెన్లు సమీపంలో'
     },

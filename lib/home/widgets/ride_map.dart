@@ -4,7 +4,7 @@ import 'package:ugo_driver/flutter_flow/lat_lng.dart' as latlng;
 import 'package:ugo_driver/home/widgets/map_container.dart';
 
 /// Google Maps widget + overlay container.
-/// Handles map controller, markers, and captains panel.
+/// Handles map controller, markers, and Drivers panel.
 class RideMapContainer extends StatelessWidget {
   const RideMapContainer({
     super.key,
@@ -14,7 +14,7 @@ class RideMapContainer extends StatelessWidget {
     required this.onCameraIdle,
     required this.mapCenter,
     required this.availableDriversCount,
-    required this.showCaptainsPanel,
+    required this.showDriversPanel,
     this.onCenterCurrentLocation,
     this.markers,
   });
@@ -25,7 +25,7 @@ class RideMapContainer extends StatelessWidget {
   final void Function(latlng.LatLng) onCameraIdle;
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
-  final bool showCaptainsPanel;
+  final bool showDriversPanel;
   final Future<void> Function()? onCenterCurrentLocation;
   final List<FlutterFlowMarker>? markers;
 
@@ -38,7 +38,7 @@ class RideMapContainer extends StatelessWidget {
       onCameraIdle: onCameraIdle,
       mapCenter: mapCenter,
       availableDriversCount: availableDriversCount,
-      showCaptainsPanel: showCaptainsPanel,
+      showDriversPanel: showDriversPanel,
       onCenterCurrentLocation: onCenterCurrentLocation,
       markers: markers,
     );

@@ -78,8 +78,8 @@ class VoiceService {
       'hi': 'राइड पूरी हुई। धन्यवाद।',
       'te': 'రైడ్ పూర్తయింది. ధన్యవాదాలు.',
     },
-    'captainsNearby': {
-      'en': 'captains nearby.',
+    'DriversNearby': {
+      'en': 'Drivers nearby.',
       'hi': 'कैप्टन पास में।',
       'te': 'కెప్టెన్‌లు సమీపంలో.',
     },
@@ -316,9 +316,9 @@ class VoiceService {
     } catch (_) {}
   }
 
-  Future<void> captainsNearby(int count) async {
+  Future<void> DriversNearby(int count) async {
     if (count <= 0 || !_voiceEnabled) return;
-    final suffix = count > 1 ? _msg('captainsNearby') : _msg('captainNearby');
+    final suffix = count > 1 ? _msg('DriversNearby') : _msg('captainNearby');
     await speak('$count $suffix');
   }
 }

@@ -67,6 +67,7 @@ class FloatingBubbleService {
     required String pickupText,
     required String dropText,
     required String paymentMethod,
+    required bool isPro,
   }) async {
     try {
       final String result = await _channel.invokeMethod('showRideRequest', {
@@ -77,6 +78,7 @@ class FloatingBubbleService {
         'pickup': pickupText,
         'drop': dropText,
         'paymentMethod': paymentMethod,
+        'isPro': isPro,
       });
       return result;
     } on PlatformException catch (_) {
@@ -110,6 +112,19 @@ class FloatingBubbleService {
       await _channel.invokeMethod('requestOverlayPermission');
     } on PlatformException catch (_) {
       // Handle error
+    }
+  }
+
+  /// Consume one pending ride action sent by native side.
+  static Future<Map<String, dynamic>?> consumePendingRideAction() async {
+    try {
+      final result = await _channel.invokeMethod<dynamic>('consumePendingRideAction');
+      if (result is Map) {
+        return Map<String, dynamic>.from(result);
+      }
+      return null;
+    } on PlatformException catch (_) {
+      return null;
     }
   }
 }

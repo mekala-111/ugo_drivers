@@ -18,18 +18,23 @@ class _SplashWidgetState extends State<SplashWidget> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      debugPrint('UGO_SPLASH: Starting navigation check...');
       // 1. Check if user is Logged In (OTP Verified)
       if (FFAppState().isLoggedIn) {
+        debugPrint('UGO_SPLASH: User is Logged In. Checking registration...');
         // 2. Check if Registration is Complete
         if (FFAppState().isRegistered) {
+          debugPrint('UGO_SPLASH: User is Registered. Going to Home.');
           // ✅ Logged In & Registered -> Go Home
           context.goNamed(HomeWidget.routeName);
         } else {
           // ⚠️ Logged In BUT Not Registered -> Resume from where user stopped
           final registrationStep = FFAppState().registrationStep;
+          debugPrint('UGO_SPLASH: User is NOT Registered. Step: $registrationStep');
 
           // Route based on current registration step
           if (registrationStep >= 4) {
+            debugPrint('UGO_SPLASH: Going to OnBoarding (Step 4+).');
             // Step 4+: OnBoarding (final registration page)
             context.goNamed(
               OnBoardingWidget.routeName,
@@ -40,9 +45,11 @@ class _SplashWidgetState extends State<SplashWidget> {
               }.withoutNulls,
             );
           } else if (registrationStep >= 2) {
+            debugPrint('UGO_SPLASH: Going to ChooseVehicle (Step 2 or 3).');
             // Step 2: ChooseVehicle
             context.goNamed(ChooseVehicleWidget.routeName);
           } else {
+            debugPrint('UGO_SPLASH: Going to FirstDetails (Step 0 or 1).');
             // Step 0, 1, or unset: Start from FirstDetails
             context.goNamed(
               FirstdetailsWidget.routeName,

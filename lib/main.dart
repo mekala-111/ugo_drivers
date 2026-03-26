@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
-
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
@@ -29,39 +28,69 @@ import '/login/login_widget.dart';
 void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await RideAlertAudioService.stopLingeringAlertAudio();
     GoRouter.optionURLReflectsImperativeAPIs = true;
     usePathUrlStrategy();
-    await WakelockPlus.enable();
-    await initFirebase();
-    // Run heavy tasks in background
-        unawaited(FirebaseRemoteConfigService().initialize());
-        unawaited(RideNotificationService().initialize());
-        unawaited(VoiceService().initFromStorage());
-        unawaited(InstallReferrerService.captureReferralCodeIfAvailable());
 
-    // Initialize Firebase Remote Config (for secure Razorpay keys)
-    // await FirebaseRemoteConfigService().initialize();
-    await RideNotificationService().initialize();
-    // await RideNotificationService().cancelRideNotification();
-    // await VoiceService().initFromStorage();
-    await VoiceService().stop();
-
-    await FlutterFlowTheme.initialize();
+    // ✅ Initialize AppState immediately so it is guaranteed to exist for runApp
     final appState = FFAppState();
-    await appState.initializePersistedState();
-    // await InstallReferrerService.captureReferralCodeIfAvailable();
-    await FFLocalizations.initialize();
-    await initializeFirebaseAppCheck();
+
+    // ✅ Wrap all pre-flight async calls in a try-catch.
+    // This guarantees that if a background service or plugin crashes,
+    // it won't skip runApp() and cause a permanent white screen.
+    try {
+      debugPrint('UGO_STARTUP: Stopping lingering audio...');
+      await RideAlertAudioService.stopLingeringAlertAudio();
+
+      debugPrint('UGO_STARTUP: Initializing Firebase...');
+      await initFirebase();
+
+      debugPrint('UGO_STARTUP: Initializing Remote Config...');
+      // Initialize Firebase Remote Config (for secure Razorpay keys) with a timeout
+      await FirebaseRemoteConfigService().initialize().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
+      );
+
+      debugPrint('UGO_STARTUP: Initializing Notifications...');
+      await RideNotificationService().initialize().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => debugPrint('UGO_STARTUP: Notifications Timeout'),
+      );
+
+      await RideNotificationService().cancelRideNotification();
+
+      debugPrint('UGO_STARTUP: Initializing Voice Service...');
+      await VoiceService().initFromStorage();
+      await VoiceService().stop();
+
+      debugPrint('UGO_STARTUP: Initializing Theme...');
+      await FlutterFlowTheme.initialize();
+
+      debugPrint('UGO_STARTUP: Loading App State...');
+      await appState.initializePersistedState();
+
+      debugPrint('UGO_STARTUP: Finalizing localizations...');
+      await InstallReferrerService.captureReferralCodeIfAvailable();
+      await FFLocalizations.initialize();
+      await initializeFirebaseAppCheck();
+    } catch (e, stack) {
+      debugPrint('UGO_STARTUP_ERROR: Initialization failed before runApp: $e');
+      if (!kIsWeb) {
+        FirebaseCrashlytics.instance.recordError(e, stack, fatal: true);
+      }
+    }
 
     // Error handling: present + report to Crashlytics
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
-     if (!kIsWeb) {
-  try {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-  } catch (_) {}
-}
+      if (!kIsWeb) {
+        final isOverflow = details.exceptionAsString().contains('RenderFlex overflowed');
+        if (details.silent || isOverflow) {
+          FirebaseCrashlytics.instance.recordFlutterError(details);
+        } else {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        }
+      }
     };
     if (!kIsWeb) {
       PlatformDispatcher.instance.onError = (error, stack) {
@@ -70,6 +99,7 @@ void main() {
       };
     }
 
+    // ✅ runApp is now 100% guaranteed to fire, preventing the white screen of death.
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appState),
@@ -105,7 +135,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   // ✅ GLOBAL MESSENGER KEY FOR SNACK BARS
   final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState>();
 
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
@@ -126,22 +156,33 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // ✅ Safe place to enable Wakelock (Activity is fully attached to the view)
+    WakelockPlus.enable().catchError((e) => debugPrint('Wakelock error: $e'));
+
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
 
+    debugPrint('UGO_STARTUP: Checking stored locale...');
     _loadStoredLocale();
+
+    debugPrint('UGO_STARTUP: Starting User Stream...');
     userStream = ugoDriverFirebaseUserStream()
       ..listen((user) {
+        debugPrint('UGO_STARTUP: User state changed: ${user.uid != null ? "Logged In" : "Logged Out"}');
         _appStateNotifier.update(user);
       });
-    jwtTokenStream.listen((_) {});
-    // Future.delayed(
-    //   const Duration(milliseconds: 1000),
-    //   () => _appStateNotifier.stopShowingSplashImage(),
-    // );
-    Future.microtask(() {
-  _appStateNotifier.stopShowingSplashImage();
-});
+    // ✅ Reduced safety delay for splash image dismissal.
+    // AppStateNotifier.update now handles immediate dismissal for authenticated users.
+    Future.delayed(
+      const Duration(milliseconds: 200),
+          () {
+        if (_appStateNotifier.showSplashImage) {
+          debugPrint('UGO_STARTUP: Safety stop of Splash Image visibility...');
+          _appStateNotifier.stopShowingSplashImage();
+        }
+      },
+    );
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
     ApiManager.onUnauthenticated = () {

@@ -294,7 +294,7 @@ class GetVehicleModelsCall {
   }
 }
 
-/// Get all drivers - used for showing available captains (like Rapido).
+/// Get all drivers - used for showing available Drivers (like Rapido).
 /// Filters by is_online & is_active for "available drivers".
 class GetAllDriversCall {
   static Future<ApiCallResponse> call({String? token}) async {

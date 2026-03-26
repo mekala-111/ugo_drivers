@@ -3,7 +3,7 @@ import 'package:ugo_driver/flutter_flow/flutter_flow_google_map.dart';
 import 'package:ugo_driver/flutter_flow/lat_lng.dart' as latlng;
 import 'ride_status_panel.dart';
 
-/// Map display with optional "captains nearby" overlay.
+/// Map display with optional "Drivers nearby" overlay.
 class MapContainer extends StatelessWidget {
   const MapContainer({
     super.key,
@@ -13,7 +13,7 @@ class MapContainer extends StatelessWidget {
     required this.onCameraIdle,
     required this.mapCenter,
     required this.availableDriversCount,
-    required this.showCaptainsPanel,
+    required this.showDriversPanel,
     this.onCenterCurrentLocation,
     this.markers,
   });
@@ -24,7 +24,7 @@ class MapContainer extends StatelessWidget {
   final void Function(latlng.LatLng) onCameraIdle;
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
-  final bool showCaptainsPanel;
+  final bool showDriversPanel;
   final Future<void> Function()? onCenterCurrentLocation;
   final List<FlutterFlowMarker>? markers;
 
@@ -51,12 +51,12 @@ class MapContainer extends StatelessWidget {
           showTraffic: false,
           centerMapOnMarkerTap: true,
         ),
-        if (showCaptainsPanel)
+        if (showDriversPanel)
           RideStatusPanel(availableDriversCount: availableDriversCount),
         if (onCenterCurrentLocation != null)
           Positioned(
-            top: showCaptainsPanel ? 88.0 : 16.0,
-            left: 16.0,
+            top: showDriversPanel ? 88.0 : 16.0,
+            right: 16.0,
             child: Material(
               color: Colors.white,
               elevation: 6.0,

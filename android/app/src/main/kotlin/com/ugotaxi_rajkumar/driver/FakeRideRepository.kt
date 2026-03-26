@@ -33,7 +33,7 @@ object FakeRideRepository {
             // 1. Update global stateFlow
             RideEventRepository.updateState(
                 RideState.NewRequest(
-                    testRide.id, testRide.fare, testRide.paymentMethod, testRide.pickupDistance, testRide.dropDistance, testRide.pickup, testRide.drop
+                    testRide.id, testRide.fare, testRide.paymentMethod, testRide.pickupDistance, testRide.dropDistance, testRide.pickup, testRide.drop, testRide.isPro
                 )
             )
         }

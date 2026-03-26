@@ -16,7 +16,7 @@ export 'panupload_screen_model.dart';
 class PanuploadScreenUpdateWidget extends StatefulWidget {
   const PanuploadScreenUpdateWidget({super.key});
 
-  static String routeName = 'panuploadScreenUpdate';
+  static String routeName = 'PanuploadScreenUpdate';
   static String routePath = '/panuploadScreenUpdate';
 
   @override

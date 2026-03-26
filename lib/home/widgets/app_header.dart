@@ -78,7 +78,7 @@ class AppHeader extends StatelessWidget {
                      onTap: () => onNotificationTap != null
           ? onNotificationTap!()
           : context.pushNamed(InboxPageWidget.routeName),
-                    child: Icon(Icons.notifications,
+                    child: Icon(Icons.notifications_none,
                         color: Colors.white, size: iconSz),
                     minSize: minTap,
                   ),

@@ -13,7 +13,8 @@ sealed class RideState {
         val pickupDistance: String,
         val dropDistance: String,
         val pickup: String,
-        val drop: String
+        val drop: String,
+        val isPro: Boolean
     ) : RideState()
     data class Ongoing(val id: Int, val passengerName: String) : RideState()
 }

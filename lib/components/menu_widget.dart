@@ -117,7 +117,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                     title: FFLocalizations.of(context).getText('menu0006'),
                     sub: FFLocalizations.of(context).getText('menu0007'),
                     route: IncentivePageWidget.routeName,
-                    color: const Color(0xFF9B59B6), // Vibrant Purple
+                    color: AppColors.primary,
                   ),
                 ),
                 AnimatedMenuDrop(
@@ -199,7 +199,16 @@ class _MenuWidgetState extends State<MenuWidget> {
               ),
               child: ClipOval(
                 child: _image.isNotEmpty
-                    ? Image.network(img(_image), fit: BoxFit.cover)
+                    ? Image.network(
+                        img(_image),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.person, color: Colors.white),
+                        ),
+                      )
                     : Container(
                         color: Colors.white.withValues(alpha: 0.2),
                         alignment: Alignment.center,

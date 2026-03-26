@@ -23,6 +23,10 @@ import 'widgets/earnings_summary.dart';
 import 'widgets/incentive_panel.dart';
 import 'widgets/offline_dashboard.dart';
 import 'widgets/ride_map.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../services/firebase_remote_config_service.dart';
+import '../services/in_app_update_service.dart';
+import '../components/update_dialog.dart';
 
 import '../flutter_flow/lat_lng.dart' as latlng;
 
@@ -86,6 +90,7 @@ class _HomeWidgetState extends State<HomeWidget>
     _model = createModel(context, () => HomeModel());
     WidgetsBinding.instance.addObserver(this);
     _bubbleChannel.setMethodCallHandler(_handleBubbleMethod);
+    unawaited(_consumePendingRideAction());
 
     // Setup pulsating ripple animation (don't start yet — _controller not ready)
     _pulseController = AnimationController(
@@ -95,6 +100,11 @@ class _HomeWidgetState extends State<HomeWidget>
     _pulseAnim =
         CurvedAnimation(parent: _pulseController, curve: Curves.easeOut);
     _pulseController.addListener(_updateRipple);
+
+    // ✅ CHECK FOR APP UPDATES
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkVersionUpdate();
+    });
 
     // Route animated dot (don't start yet)
     _routeAnimController = AnimationController(
@@ -222,13 +232,19 @@ class _HomeWidgetState extends State<HomeWidget>
       onFetchRideById: (id) => _overlayKey.currentState?.fetchRideById(id),
     );
 
+    // ✅ Sync state immediately after controller creation to avoid flicker
+    _lastOnlineState = _controller.isOnline;
+
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       //  getCurrentUserLocation(
       //   defaultLocation: const LatLng(0.0, 0.0),
       //   cached: true,
       // ).then((loc) => _controller.setUserLocation(loc));
-     _initLocationSafely(); // ❌ remove await
+      await _initLocationSafely();
+
       await _controller.init();
+      
+      // Ensure local state is in sync with potentially updated controller status
       _lastOnlineState = _controller.isOnline;
       _controller.addListener(_onControllerChange);
       // Now safe to start animations — _controller is initialized
@@ -240,7 +256,18 @@ class _HomeWidgetState extends State<HomeWidget>
   }
 
   Future<void> _initLocationSafely() async {
-  try {
+    // Check if already asked
+    if (FFAppState().locationPermissionAsked == true) {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      _controller.setUserLocation(
+        LatLng(position.latitude, position.longitude),
+      );
+      return;
+    }
+
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -253,19 +280,17 @@ class _HomeWidgetState extends State<HomeWidget>
 
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
+      FFAppState().locationPermissionAsked = true;
+
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5), // ✅ ADD THIS
       );
 
       _controller.setUserLocation(
         LatLng(position.latitude, position.longitude),
       );
     }
-  } catch (e) {
-    print("Location error: $e"); // ✅ important for release debugging
   }
-}
 
   Set<Circle> _mergedCircles() {
     return {
@@ -305,6 +330,16 @@ class _HomeWidgetState extends State<HomeWidget>
     if (call.method != 'rideAction') return;
     final args = call.arguments;
     if (args is! Map) return;
+    await _processRideActionPayload(Map<String, dynamic>.from(args));
+  }
+
+  Future<void> _consumePendingRideAction() async {
+    final payload = await FloatingBubbleService.consumePendingRideAction();
+    if (payload == null) return;
+    await _processRideActionPayload(payload);
+  }
+
+  Future<void> _processRideActionPayload(Map<String, dynamic> args) async {
     final action = args['action']?.toString() ?? '';
     final rideIdRaw = args['rideId'];
     final rideId = rideIdRaw is int
@@ -315,6 +350,8 @@ class _HomeWidgetState extends State<HomeWidget>
       await _overlayKey.currentState?.acceptRideFromBubble(rideId);
     } else if (action == 'decline') {
       await _overlayKey.currentState?.declineRideFromBubble(rideId);
+    } else {
+      return;
     }
     await FloatingBubbleService.hideRideRequest();
   }
@@ -396,6 +433,9 @@ class _HomeWidgetState extends State<HomeWidget>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _syncFloatingBubble();
+    if (state == AppLifecycleState.resumed) {
+      _controller.onAppResumed();
+    }
   }
 
   Future<void> _syncFloatingBubble() async {
@@ -916,10 +956,6 @@ class _HomeWidgetState extends State<HomeWidget>
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
                       notificationCount: c.notificationUnreadCount,
-                      onNotificationTap: () {
-  _controller.resetNotificationCount();
-  context.pushNamed(InboxPageWidget.routeName);
-},
                     ),
                     Expanded(
                       child: Stack(
@@ -939,7 +975,7 @@ class _HomeWidgetState extends State<HomeWidget>
                                     _model.googleMapsCenter = latLng,
                                 mapCenter: c.currentUserLocation,
                                 availableDriversCount: c.availableDriversCount,
-                                showCaptainsPanel: shouldShowPanels,
+                                showDriversPanel: shouldShowPanels,
                                 onCenterCurrentLocation:
                                     c.currentUserLocation != null
                                         ? _centerMapOnCurrentLocation
@@ -1018,5 +1054,73 @@ class _HomeWidgetState extends State<HomeWidget>
         );
       },
     );
+  }
+
+  // ── Version Update Logic ──────────────────────────────────
+
+  Future<void> _checkVersionUpdate() async {
+    // 1. Check for Play Store In-App Updates (OTA)
+    final remoteConfig = FirebaseRemoteConfigService();
+    await remoteConfig.ensureInitialized();
+    final isMandatory = remoteConfig.getBool('is_update_mandatory', defaultValue: false);
+
+    // Try native API first (for true OTA experience)
+    await InAppUpdateService().checkForUpdate(forceImmediate: isMandatory);
+
+    // 2. Fallback: Check Remote Config versions manually
+    try {
+      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      final String currentVersion = packageInfo.version;
+      final String latestVersion = remoteConfig.latestAppVersion;
+      final String minRequiredVersion = remoteConfig.minRequiredVersion;
+
+      debugPrint('UGO_UPDATE: Current=$currentVersion, Latest=$latestVersion, Min=$minRequiredVersion');
+
+      // Mandatory Update (Blocker)
+      if (_isVersionLower(currentVersion, minRequiredVersion)) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => UpdateDialog(
+            latestVersion: latestVersion,
+            isMandatory: true,
+          ),
+        );
+        return;
+      }
+
+      // Optional Update (Dismissible)
+      if (_isVersionLower(currentVersion, latestVersion)) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (context) => UpdateDialog(
+            latestVersion: latestVersion,
+            isMandatory: false,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('UGO_UPDATE_ERROR: Manual version check failed: $e');
+    }
+  }
+
+  bool _isVersionLower(String current, String target) {
+    try {
+      final currentParts = current.split('.').map(int.parse).toList();
+      final targetParts = target.split('.').map(int.parse).toList();
+
+      for (var i = 0; i < 3; i++) {
+        final c = i < currentParts.length ? currentParts[i] : 0;
+        final t = i < targetParts.length ? targetParts[i] : 0;
+        if (c < t) return true;
+        if (c > t) return false;
+      }
+    } catch (e) {
+      debugPrint('UGO_VERSION_PARSE_ERROR: $e');
+    }
+    return false;
   }
 }

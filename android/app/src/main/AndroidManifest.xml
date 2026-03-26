@@ -80,6 +80,7 @@
             android:launchMode="singleTask"
             android:exported="false"
             android:supportsPictureInPicture="true"
+            android:resizeableActivity="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"/>
 
         <!-- Don't delete the meta-data below.

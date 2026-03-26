@@ -3,7 +3,7 @@ import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 
-/// Rapido-style "Available captains nearby" panel shown on map when online.
+/// Rapido-style "Available Drivers nearby" panel shown on map when online.
 class RideStatusPanel extends StatelessWidget {
   const RideStatusPanel({
     super.key,
@@ -15,7 +15,7 @@ class RideStatusPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final caption = availableDriversCount != 1
-        ? FFLocalizations.of(context).getText('drv_captains_nearby')
+        ? FFLocalizations.of(context).getText('drv_Drivers_nearby')
         : FFLocalizations.of(context).getText('drv_captain_nearby');
     final w = MediaQuery.sizeOf(context).width;
     final h = MediaQuery.sizeOf(context).height;

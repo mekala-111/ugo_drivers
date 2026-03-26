@@ -6,11 +6,15 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Button
 import android.media.MediaPlayer
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
@@ -20,6 +24,9 @@ import kotlinx.coroutines.flow.collectLatest
  * It manages both the small draggable bubble and the full-screen Ride Request Card.
  */
 class CaptainBubbleService : Service() {
+    companion object {
+        private const val TAG = "CaptainBubbleService"
+    }
 
     private lateinit var windowManager: WindowManager
     private var bubbleView: View? = null
@@ -66,6 +73,10 @@ class CaptainBubbleService : Service() {
 
     private fun showRideRequestOverlay(state: RideState.NewRequest) {
         if (rideRequestView != null) return
+        if (!hasOverlayPermission()) {
+            Log.w(TAG, "Overlay permission missing, skipping ride request overlay")
+            return
+        }
 
         rideRequestView = LayoutInflater.from(this).inflate(R.layout.activity_ride_request, null)
 
@@ -80,38 +91,127 @@ class CaptainBubbleService : Service() {
             PixelFormat.TRANSLUCENT
         )
 
-        windowManager.addView(rideRequestView, params)
+        try {
+            windowManager.addView(rideRequestView, params)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Failed to add ride request overlay due to missing permission", e)
+            rideRequestView = null
+            return
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add ride request overlay", e)
+            rideRequestView = null
+            return
+        }
 
         rideRequestView?.apply {
-            findViewById<TextView>(R.id.pickup_address)?.text = state.pickup
-            findViewById<TextView>(R.id.drop_address)?.text = state.drop
             findViewById<TextView>(R.id.ride_fare)?.text = state.fare
             findViewById<TextView>(R.id.pickup_distance)?.text = state.pickupDistance
-
-            val pmBadge = findViewById<TextView>(R.id.payment_method_badge)
-            if (pmBadge != null) {
-                pmBadge.text = state.paymentMethod.uppercase()
-                val bgDrawable = android.graphics.drawable.GradientDrawable()
-                bgDrawable.cornerRadius = 8f * resources.displayMetrics.density
-                
+            findViewById<TextView>(R.id.drop_distance)?.text = state.dropDistance
+            
+            // Payment method logic
+            findViewById<TextView>(R.id.payment_method_badge)?.apply {
+                text = state.paymentMethod.uppercase()
+                val bgd = GradientDrawable()
+                bgd.cornerRadius = 8f * resources.displayMetrics.density
                 if (state.paymentMethod.equals("cash", ignoreCase = true)) {
-                    pmBadge.setTextColor(android.graphics.Color.parseColor("#27AE60"))
-                    bgDrawable.setColor(android.graphics.Color.parseColor("#EAFDF1"))
-                    bgDrawable.setStroke(2, android.graphics.Color.parseColor("#A8E6CF"))
+                    setTextColor(Color.parseColor("#27AE60"))
+                    bgd.setColor(Color.parseColor("#EAFDF1"))
+                    bgd.setStroke(2, Color.parseColor("#A8E6CF"))
                 } else {
-                    pmBadge.setTextColor(android.graphics.Color.parseColor("#2980B9"))
-                    bgDrawable.setColor(android.graphics.Color.parseColor("#EBF5FB"))
-                    bgDrawable.setStroke(2, android.graphics.Color.parseColor("#AED6F1"))
+                    setTextColor(Color.parseColor("#2980B9"))
+                    bgd.setColor(Color.parseColor("#EBF5FB"))
+                    bgd.setStroke(2, Color.parseColor("#AED6F1"))
                 }
-                pmBadge.background = bgDrawable
+                background = bgd
             }
 
-            findViewById<Button>(R.id.btn_accept)?.setOnClickListener {
-                sendActionToMain("accept", state.id)
+            fun formatAddress(address: String, zipViewId: Int, mainViewId: Int, subViewId: Int) {
+                // Address comes as "506000 Dilsukhnagar, Hyderabad, Telangana" (example)
+                // Split by first space to get ZIP and rest.
+                val parts = address.split(" ", limit = 2)
+                var zipText = ""
+                var mainText = address
+                var subText = ""
+                
+                if (parts.size == 2 && parts[0].length in 5..7 && parts[0].all { it.isDigit() }) {
+                    zipText = parts[0]
+                    val rest = parts[1]
+                    val subParts = rest.split(",", limit = 2)
+                    mainText = subParts[0].trim()
+                    if (subParts.size > 1) subText = subParts[1].trim()
+                } else {
+                    val subParts = address.split(",", limit = 2)
+                    mainText = subParts[0].trim()
+                    if (subParts.size > 1) subText = subParts[1].trim()
+                }
+                
+                findViewById<TextView>(zipViewId)?.text = zipText
+                findViewById<TextView>(mainViewId)?.text = mainText
+                findViewById<TextView>(subViewId)?.text = subText
             }
+            
+            formatAddress(state.pickup, R.id.pickup_zip, R.id.pickup_main, R.id.pickup_sub)
+            formatAddress(state.drop, R.id.drop_zip, R.id.drop_main, R.id.drop_sub)
 
-            findViewById<Button>(R.id.btn_decline)?.setOnClickListener {
-                sendActionToMain("decline", state.id)
+            val dp = resources.displayMetrics.density
+            val mainColorStr = if (state.isPro) "#E0C42F" else "#43A047"
+            val mainColor = Color.parseColor(mainColorStr)
+            
+            // Dynamic Borders & Backgrounds
+            val borderDrawable = GradientDrawable()
+            borderDrawable.setColor(Color.WHITE)
+            borderDrawable.cornerRadius = 32f * dp
+            borderDrawable.setStroke((3 * dp).toInt(), mainColor)
+            findViewById<View>(R.id.card_container)?.background = borderDrawable
+            
+            val topBannerBg = GradientDrawable()
+            topBannerBg.setColor(mainColor)
+            topBannerBg.cornerRadii = floatArrayOf(28f*dp, 28f*dp, 28f*dp, 28f*dp, 0f, 0f, 0f, 0f)
+            findViewById<View>(R.id.top_banner)?.background = topBannerBg
+            
+            findViewById<TextView>(R.id.request_type_text)?.apply {
+                text = if (state.isPro) "NEW PRO REQUEST" else "NEW REQUEST"
+                setTextColor(if (state.isPro) Color.BLACK else Color.WHITE)
+            }
+            findViewById<TextView>(R.id.timer_text)?.apply {
+                setTextColor(if (state.isPro) Color.BLACK else Color.WHITE)
+                // Countdown logic is not in Service natively yet, but we will set static default or rely on refresh
+                text = "30s"
+            }
+            
+            val fareBoxBg = GradientDrawable()
+            fareBoxBg.setColor(Color.WHITE)
+            fareBoxBg.cornerRadius = 12f * dp
+            fareBoxBg.setStroke((1f * dp).toInt(), Color.parseColor("#D0D0D0"))
+            findViewById<View>(R.id.fare_box_container)?.background = fareBoxBg
+            
+            val dropPillBg = GradientDrawable()
+            dropPillBg.setColor(Color.parseColor("#FFEBEE"))
+            dropPillBg.cornerRadius = 12f * dp
+            dropPillBg.setStroke((1f * dp).toInt(), Color.parseColor("#EF5350"))
+            findViewById<View>(R.id.drop_pill)?.background = dropPillBg
+            
+            val pickupPillBg = GradientDrawable()
+            pickupPillBg.setColor(Color.parseColor("#E8F5E9"))
+            pickupPillBg.cornerRadius = 12f * dp
+            pickupPillBg.setStroke((1f * dp).toInt(), Color.parseColor("#66BB6A"))
+            findViewById<View>(R.id.pickup_pill)?.background = pickupPillBg
+            
+            val btnAcceptBg = GradientDrawable()
+            btnAcceptBg.setColor(mainColor)
+            btnAcceptBg.cornerRadius = 16f * dp
+            findViewById<Button>(R.id.btn_accept)?.apply {
+                background = btnAcceptBg
+                setTextColor(if (state.isPro) Color.WHITE else Color.WHITE)
+                setOnClickListener { sendActionToMain("accept", state.id) }
+            }
+            
+            val btnDeclineBg = GradientDrawable()
+            btnDeclineBg.setColor(Color.parseColor("#E74C3C"))
+            btnDeclineBg.cornerRadius = 16f * dp
+            findViewById<Button>(R.id.btn_decline)?.apply {
+                background = btnDeclineBg
+                setOnClickListener { sendActionToMain("decline", state.id) }
             }
         }
         
@@ -158,6 +258,10 @@ class CaptainBubbleService : Service() {
 
     private fun showBubble() {
         if (bubbleView != null) return
+        if (!hasOverlayPermission()) {
+            Log.w(TAG, "Overlay permission missing, skipping floating bubble")
+            return
+        }
 
         bubbleView = LayoutInflater.from(this).inflate(R.layout.floating_bubble, null)
 
@@ -176,7 +280,17 @@ class CaptainBubbleService : Service() {
         params.x = 0
         params.y = 500
 
-        windowManager.addView(bubbleView, params)
+        try {
+            windowManager.addView(bubbleView, params)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Failed to add bubble overlay due to missing permission", e)
+            bubbleView = null
+            return
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add bubble overlay", e)
+            bubbleView = null
+            return
+        }
 
         val container = bubbleView?.findViewById<View>(R.id.bubble_container)
 
@@ -223,7 +337,7 @@ class CaptainBubbleService : Service() {
                         val screenWidth = displayMetrics.widthPixels
                         
                         val middle = screenWidth / 2
-                        val targetX = if (params.x + (view.width / 2) < middle) 0 else screenWidth
+                        val targetX = if (params.x + (view.width / 2) < middle) 0 else (screenWidth - view.width)
                         
                         params.x = targetX
                         windowManager.updateViewLayout(bubbleView, params)
@@ -246,6 +360,10 @@ class CaptainBubbleService : Service() {
             }
             bubbleView = null
         }
+    }
+
+    private fun hasOverlayPermission(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)
     }
 
     private fun createNotificationChannel() {

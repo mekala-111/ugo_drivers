@@ -249,6 +249,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             pickupText: updatedRide.pickupAddress,
             dropText: updatedRide.dropAddress,
             paymentMethod: updatedRide.rawPaymentMode,
+            isPro: updatedRide.bookingMode.toLowerCase() == 'pro',
           );
         }
       }
@@ -371,7 +372,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   String _formatPickupDistance(RideRequest ride) {
     final driverLoc = widget.driverLocation;
     if (driverLoc == null || ride.pickupLat == 0 || ride.pickupLng == 0) {
-      return 'Pickup distance --';
+      return '--';
     }
     final meters = Geolocator.distanceBetween(
       driverLoc.latitude,
@@ -380,13 +381,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       ride.pickupLng,
     );
     final km = meters / 1000;
-    return 'Pickup ${km.toStringAsFixed(1)} km';
+    return '${km.toStringAsFixed(1)} km';
   }
 
   String _formatDropDistance(RideRequest ride) {
     // ✅ Use backend distance first (more accurate than straight-line)
     if (ride.distance != null && ride.distance! > 0) {
-      return 'Drop ${ride.distance!.toStringAsFixed(1)} km';
+      return '${ride.distance!.toStringAsFixed(1)} km';
     }
 
     // Fallback to calculating straight-line distance if backend value not available
@@ -394,7 +395,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         ride.pickupLng == 0 ||
         ride.dropLat == 0 ||
         ride.dropLng == 0) {
-      return 'Drop distance --';
+      return '--';
     }
 
     final meters = Geolocator.distanceBetween(
@@ -404,7 +405,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       ride.dropLng,
     );
     final km = meters / 1000;
-    return 'Drop ${km.toStringAsFixed(1)} km';
+    return '${km.toStringAsFixed(1)} km';
   }
 
   void _startTickTimer() {
@@ -493,6 +494,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
             return;
           }
+          await _playAlertOnce(sessionId, audioPlayer);
+          if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
+            return;
+          }
           await VoiceService().speakNewRideAddress(
             pickupLat: ride.pickupLat,
             pickupLng: ride.pickupLng,
@@ -503,10 +508,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             estimatedFare: ride.estimatedFare,
             repeatCount: 1,
           );
-          if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
-            return;
-          }
-          await _playAlertOnce(sessionId, audioPlayer);
           if (!_isAlertSessionActive(sessionId, audioPlayer: audioPlayer)) {
             return;
           }

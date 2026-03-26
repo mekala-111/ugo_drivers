@@ -15,6 +15,7 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
         GetAllDriversCall,
         NotificationHistoryCall,
         AddMoneyToWalletCall;
+import 'package:ugo_driver/services/ride_notification_service.dart';
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -34,7 +35,11 @@ class HomeController extends ChangeNotifier {
     required this.onShowSnackBar,
     required this.onSocketRideData,
     required this.onFetchRideById,
-  });
+  }) {
+    // ✅ Synchronous Initialization: Ensures UI sees correct state on first frame
+    isOnline = FFAppState().isonline; 
+    driverName = '${FFAppState().firstName} ${FFAppState().lastName}';
+  }
 
   final Future<void> Function() onShowKycDialog;
   final Future<bool> Function() onShowLocationDisclosure;
@@ -86,7 +91,11 @@ class HomeController extends ChangeNotifier {
   // ── Init ───────────────────────────────────────────────────────────────────
 
   Future<void> init() async {
-    driverName = '${FFAppState().firstName} ${FFAppState().lastName}';
+    // ✅ Re-assert side effects for persisted Online state
+    if (isOnline) {
+      _startLocationTracking();
+      RideNotificationService().showOnlineNotification();
+    }
     _fetchInitialRideStatus();
     await Future.wait([
       _fetchDriverProfile(),
@@ -176,6 +185,8 @@ class HomeController extends ChangeNotifier {
       if (img != null && img.isNotEmpty) {
         profileImageUrl =
             img.startsWith('http') ? img : '${Config.baseUrl}/$img';
+        // Pre-cache or validate URL if needed, but the main.dart change 
+        // already prevents the 404 from being a "Fatal Crash".
         if (kDebugMode) {
           debugPrint('✅ Final profileImageUrl: $profileImageUrl');
         }
@@ -231,10 +242,29 @@ class HomeController extends ChangeNotifier {
     ).toString();
 
     final isOnlineFromApi = DriverIdfetchCall.isonline(userDetails.jsonBody);
-    isOnline = isOnlineFromApi == true;
+    
+    // ✅ SYNC LOGIC:
+    // If the driver is NOT locally online, but the API says they ARE online, 
+    // it means a previous session was left hanging. Sync it.
+    if (!isOnline && isOnlineFromApi == true) {
+      if (kDebugMode) debugPrint('♻️ Syncing Online status from API (Previously hanging session)');
+      isOnline = true;
+      FFAppState().isonline = true;
+      _startLocationTracking();
+      RideNotificationService().showOnlineNotification();
+    } 
+    // If the driver IS locally online, but the API says they are NOT, 
+    // we already re-asserted in init() if it was silent, but we'll double-check here.
+    else if (isOnline && isOnlineFromApi != true) {
+      if (kDebugMode) debugPrint('♻️ Re-asserting Online status (Server mismatch)');
+      await goOnline(silent: true);
+    } else {
+      // If API and local state are consistent, ensure FFAppState is updated
+      isOnline = isOnlineFromApi == true;
+      FFAppState().isonline = isOnline; // Sync local intent with API
+    }
 
     if (isOnline) {
-      _startLocationTracking();
       _fetchAvailableDrivers();
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
@@ -269,23 +299,28 @@ class HomeController extends ChangeNotifier {
 
   // ── Online/Offline ─────────────────────────────────────────────────────────
 
-  Future<void> goOnline() async {
+  Future<void> goOnline({bool silent = false}) async {
     if (FFAppState().kycStatus.trim().toLowerCase() != 'approved') {
       isOnline = false;
       _notify();
-      await onShowKycDialog();
+      if (!silent) await onShowKycDialog();
       return;
     }
 
     if (FFAppState().preferredCityId <= 0) {
       isOnline = false;
       _notify();
-      onShowSnackBar('drv_select_preferred_city', isError: true);
+      if (!silent) onShowSnackBar('drv_select_preferred_city', isError: true);
       return;
     }
 
     // First time going online: show "Give all permissions" (Display over apps, Battery, Background Location)
     if (!FFAppState().hasSeenGoOnlinePermissions) {
+      if (silent) {
+        isOnline = false;
+        _notify();
+        return;
+      }
       final completed = await onShowGoOnlinePermissions();
       if (!completed) {
         isOnline = false;
@@ -297,7 +332,7 @@ class HomeController extends ChangeNotifier {
     // Rapido-style: location requested at pre-login. Only show disclosure if not yet granted.
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.deniedForever) {
-      await onShowPermissionDialog();
+      if (!silent) await onShowPermissionDialog();
       isOnline = false;
       _notify();
       return;
@@ -305,6 +340,11 @@ class HomeController extends ChangeNotifier {
 
     // ONLY show disclosure if permission is actually denied
     if (permission == LocationPermission.denied) {
+      if (silent) {
+        isOnline = false;
+        _notify();
+        return;
+      }
       final agreed = await onShowLocationDisclosure();
       if (!agreed) {
         isOnline = false;
@@ -351,20 +391,23 @@ class HomeController extends ChangeNotifier {
       isOnline = true;
       _startLocationTracking(
           skipDisclosure: true); // Already shown in goOnline()
+      RideNotificationService().showOnlineNotification();
       _fetchAvailableDrivers();
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
         const Duration(seconds: 45),
         (_) => _fetchAvailableDrivers(),
       );
-      onShowSnackBar('drv_you_online', isError: false);
+      if (!silent) onShowSnackBar('drv_you_online', isError: false);
     } else {
       isOnline = false;
-      final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString();
-      if (msg != null && msg.isNotEmpty) {
-        onShowSnackBar(msg, isError: true);
-      } else {
-        onShowSnackBar('drv_go_online_failed', isError: true);
+      if (!silent) {
+        final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString();
+        if (msg != null && msg.isNotEmpty) {
+          onShowSnackBar(msg, isError: true);
+        } else {
+          onShowSnackBar('drv_go_online_failed', isError: true);
+        }
       }
     }
     _notify();
@@ -372,6 +415,7 @@ class HomeController extends ChangeNotifier {
 
   Future<void> goOffline() async {
     _stopLocationTracking();
+    RideNotificationService().hideOnlineNotification();
     final res = await DriverRepository.instance.setOnlineStatus(
       token: FFAppState().accessToken,
       isOnline: false,
@@ -410,12 +454,24 @@ class HomeController extends ChangeNotifier {
     }
 
     isOnline = intendedValue;
+    FFAppState().isonline = intendedValue; // ✅ Persist user's explicit manual toggle intent
     _notify();
 
     if (intendedValue) {
       await goOnline();
     } else {
       await goOffline();
+    }
+  }
+
+  Future<void> onAppResumed() async {
+    // If the driver intended to stay online, silently ping the backend to ensure they were not dropped
+    if (FFAppState().isonline) {
+      if (kDebugMode) debugPrint('♻️ App Resumed: Re-asserting Online status to ensure background drop did not happen');
+      await DriverRepository.instance.setOnlineStatus(
+        token: FFAppState().accessToken,
+        isOnline: true,
+      );
     }
   }
 
@@ -892,7 +948,11 @@ class HomeController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _stopLocationTracking();
-    _socket.disconnect();
+    if (_socketInitialized) {
+      try {
+        _socket.disconnect();
+      } catch (_) {}
+    }
     super.dispose();
   }
 }

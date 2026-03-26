@@ -22,6 +22,7 @@ class MainActivity: FlutterActivity() {
     private lateinit var installReferrerChannel: MethodChannel
     private val generalNotificationsChannelId = "general_notifications"
     private val rideRequestsChannelId = "ride_requests"
+    private var pendingRideAction: Map<String, Any>? = null
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -60,7 +61,8 @@ class MainActivity: FlutterActivity() {
                     val dropDistance = call.argument<String>("dropDistance") ?: ""
                     val pickup = call.argument<String>("pickup") ?: ""
                     val drop = call.argument<String>("drop") ?: ""
-                    showRideRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop)
+                    val isPro = call.argument<Boolean>("isPro") ?: false
+                    showRideRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop, isPro)
                     result.success("Ride request shown")
                 }
                 "hideRideRequest" -> {
@@ -74,6 +76,10 @@ class MainActivity: FlutterActivity() {
                 "requestOverlayPermission" -> {
                     requestOverlayPermission()
                     result.success(null)
+                }
+                "consumePendingRideAction" -> {
+                    result.success(pendingRideAction)
+                    pendingRideAction = null
                 }
                 else -> result.notImplemented()
             }
@@ -90,6 +96,7 @@ class MainActivity: FlutterActivity() {
             }
         }
         handleRideActionFromIntent(intent)
+        flushPendingRideAction()
     }
 
     private fun fetchInstallReferrer(result: MethodChannel.Result) {
@@ -206,14 +213,15 @@ class MainActivity: FlutterActivity() {
         pickupDistance: String,
         dropDistance: String,
         pickup: String,
-        drop: String
+        drop: String,
+        isPro: Boolean
     ) {
         if (!isServiceRunning(CaptainBubbleService::class.java)) {
             startFloatingBubbleService()
         }
         
         RideEventRepository.updateState(
-            RideState.NewRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop)
+            RideState.NewRequest(rideId, fare, paymentMethod, pickupDistance, dropDistance, pickup, drop, isPro)
         )
     }
 
@@ -223,15 +231,23 @@ class MainActivity: FlutterActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleRideActionFromIntent(intent)
+        flushPendingRideAction()
     }
 
     private fun handleRideActionFromIntent(intent: Intent?) {
         if (intent == null) return
         val action = intent.getStringExtra("ride_action") ?: return
         val rideId = intent.getIntExtra("ride_id", 0)
+        if (rideId <= 0) return
+        pendingRideAction = mapOf("action" to action, "rideId" to rideId)
+    }
+
+    private fun flushPendingRideAction() {
         if (!::methodChannel.isInitialized) return
-        methodChannel.invokeMethod("rideAction", mapOf("action" to action, "rideId" to rideId))
+        val payload = pendingRideAction ?: return
+        methodChannel.invokeMethod("rideAction", payload)
     }
 
     private fun isServiceRunning(serviceClass: Class<*>): Boolean {

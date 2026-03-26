@@ -412,7 +412,7 @@ index d27b34e..2498d9c 100644
 -    'drv_open_settings': {'en': 'Open Settings', 'hi': 'सेटिंग्स खोलें', 'te': 'సెట్టింగ్‌లు తెరయండి'},
 -    'drv_location_unavailable': {'en': 'Location not available.\\nPlease grant location permission to use the app.', 'hi': 'स्थान उपलब्ध नहीं।\\nऐप उपयोग के लिए स्थान अनुमति दें।', 'te': 'స్థానం అందుబాటులో లేదు.\\nయాప్ ఉపయోగించడానికి స్థాన అనుమతి ఇవ్వండి.'},
 -    'drv_back_exit': {'en': 'Press back again to exit', 'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं', 'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'},
--    'drv_captains_nearby': {'en': 'captains nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్లు సమీపంలో'},
+-    'drv_Drivers_nearby': {'en': 'Drivers nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్లు సమీపంలో'},
 -    'drv_captain_nearby': {'en': 'captain nearby', 'hi': 'कैप्टन पास में', 'te': 'కెప్టెన్ సమీపంలో'},
 -    'drv_offline': {'en': 'You are currently Offline', 'hi': 'आप वर्तमान में ऑफलाइन हैं', 'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'},
 -    'drv_go_online': {'en': 'GO ONLINE', 'hi': 'ऑनलाइन जाएं', 'te': 'ఆన్‌లైన్ కండి'},
@@ -437,8 +437,8 @@ index d27b34e..2498d9c 100644
 +      'hi': 'बाहर निकलने के लिए फिर से बैक दबाएं',
 +      'te': 'నిష్క్రమించడానికి మళ్ళీ బ్యాక్ నొక్కండి'
 +    },
-+    'drv_captains_nearby': {
-+      'en': 'captains nearby',
++    'drv_Drivers_nearby': {
++      'en': 'Drivers nearby',
 +      'hi': 'कैप्टन पास में',
 +      'te': 'కెప్టెన్లు సమీపంలో'
 +    },

@@ -31,9 +31,11 @@ if (hasKeystore) {
 
 /*
  * FIX 1: Prevent firebase-iid vs firebase-messaging duplicate classes
+ * FIX 2: Exclude deprecated play-services-safetynet to resolve Google Play Warnings
  */
 configurations.all {
     exclude group: "com.google.firebase", module: "firebase-iid"
+    exclude group: "com.google.android.gms", module: "play-services-safetynet"
 }
 
 android {

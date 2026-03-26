@@ -4,6 +4,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> driverData;
@@ -108,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       widget.driverData['profile_image']
                                           .toString()
                                           .isNotEmpty
-                                  ? NetworkImage(
+                                  ? CachedNetworkImageProvider(
                                       "https://ugo-api.icacorp.org/${widget.driverData['profile_image']}",
                                     )
                                   : null) as ImageProvider?,
