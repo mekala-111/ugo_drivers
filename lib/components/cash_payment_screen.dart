@@ -67,7 +67,7 @@ class CashPaymentScreen extends StatelessWidget {
 
               // ✅ Subtitle Text
               Text(
-                'Collect Cash From ${ride.firstName ?? 'Passenger'}',
+                'Collect Cash From ${ride.fullName.isNotEmpty ? ride.fullName : 'Passenger'}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,

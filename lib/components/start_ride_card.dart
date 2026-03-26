@@ -224,8 +224,9 @@ class StartRideCard extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  ride.firstName ??
-                                      FFLocalizations.of(context)
+                                  ride.fullName.isNotEmpty
+                                      ? ride.fullName
+                                      : FFLocalizations.of(context)
                                           .getText('drv_passenger'),
                                   style: const TextStyle(
                                       fontSize: 22,

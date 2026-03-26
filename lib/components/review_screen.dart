@@ -245,7 +245,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   ),
                 ),
                 Text(
-                  widget.ride.firstName?.toUpperCase() ?? 'PASSENGER',
+                  widget.ride.fullName.isNotEmpty
+                      ? widget.ride.fullName.toUpperCase()
+                      : 'PASSENGER',
                   style: GoogleFonts.poppins(
                     color: Colors.black87,
                     fontSize: 20,

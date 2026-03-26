@@ -165,12 +165,29 @@ class HomeController extends ChangeNotifier {
     }
 
     if (userDetails.jsonBody != null) {
-      final fetchedName = getJsonField(
+      final fetchedFirstName = getJsonField(
         userDetails.jsonBody,
         r'''$.data.first_name''',
       ).toString();
-      if (fetchedName != 'null' && fetchedName.isNotEmpty) {
-        driverName = fetchedName;
+      final fetchedLastName = getJsonField(
+        userDetails.jsonBody,
+        r'''$.data.last_name''',
+      ).toString();
+
+      final hasFirst =
+          fetchedFirstName != 'null' && fetchedFirstName.trim().isNotEmpty;
+      final hasLast =
+          fetchedLastName != 'null' && fetchedLastName.trim().isNotEmpty;
+
+      // Update displayed driver name only when we have enough data.
+      if (hasFirst || hasLast) {
+        final fullName = '${hasFirst ? fetchedFirstName.trim() : ''} '
+            '${hasLast ? fetchedLastName.trim() : ''}'.trim();
+        if (fullName.isNotEmpty) driverName = fullName;
+
+        // Keep app state consistent for any other flows using these values.
+        if (hasFirst) FFAppState().firstName = fetchedFirstName.trim();
+        if (hasLast) FFAppState().lastName = fetchedLastName.trim();
       }
 
       final img = DriverIdfetchCall.profileImage(userDetails.jsonBody);

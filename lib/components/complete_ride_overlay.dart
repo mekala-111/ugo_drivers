@@ -220,8 +220,9 @@ class CompleteRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ride.firstName ??
-                                FFLocalizations.of(context)
+                            ride.fullName.isNotEmpty
+                                ? ride.fullName
+                                : FFLocalizations.of(context)
                                     .getText('drv_passenger'),
                             style: const TextStyle(
                                 fontSize: 22,

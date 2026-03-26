@@ -175,8 +175,9 @@ class RidePickupOverlay extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          ride.firstName ??
-                                              FFLocalizations.of(context)
+                                          ride.fullName.isNotEmpty
+                                              ? ride.fullName
+                                              : FFLocalizations.of(context)
                                                   .getText('drv_passenger'),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -485,8 +486,9 @@ class ActiveRideCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            ride.firstName ??
-                                FFLocalizations.of(context)
+                            ride.fullName.isNotEmpty
+                                ? ride.fullName
+                                : FFLocalizations.of(context)
                                     .getText('drv_passenger'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

@@ -11,6 +11,7 @@ class RideRequest {
 
   // ✅ Added these back so the UI doesn't crash
   final String? firstName;
+  final String? lastName;
   final String? mobileNumber;
 
   // 📍 LOCATION (Coordinates)
@@ -54,6 +55,7 @@ class RideRequest {
     this.rawPaymentMode = 'Online',
     this.bookingMode = 'normal',
     this.firstName,
+    this.lastName,
     this.mobileNumber,
     this.vehicleType,
     this.vehicleTypeId,
@@ -69,8 +71,11 @@ class RideRequest {
 
       // ✅ Name Handling: Checks 'user' object OR root level
       firstName: json['user'] != null
-          ? json['user']['first_name']
-          : (json['first_name'] ?? 'Passenger'),
+          ? (json['user']['first_name'] ?? json['user']['firstName'])
+          : (json['first_name'] ?? json['firstName'] ?? 'Passenger'),
+      lastName: json['user'] != null
+          ? (json['user']['last_name'] ?? json['user']['lastName'])
+          : (json['last_name'] ?? json['lastName'] ?? null),
 
       mobileNumber: json['user'] != null
           ? json['user']['mobile_number']
@@ -135,6 +140,7 @@ class RideRequest {
     String? pickupAddress,
     String? dropAddress,
     String? firstName,
+    String? lastName,
     String? mobileNumber,
     double? pickupLat,
     double? pickupLng,
@@ -159,6 +165,7 @@ class RideRequest {
       pickupAddress: pickupAddress ?? this.pickupAddress,
       dropAddress: dropAddress ?? this.dropAddress,
       firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
       pickupLat: pickupLat ?? this.pickupLat,
       pickupLng: pickupLng ?? this.pickupLng,
@@ -174,6 +181,14 @@ class RideRequest {
       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
       pickupCityId: pickupCityId ?? this.pickupCityId,
     );
+  }
+
+  /// Convenience for displaying a passenger's full name.
+  /// Returns an empty string if neither `firstName` nor `lastName` is present.
+  String get fullName {
+    final f = firstName?.trim() ?? '';
+    final l = lastName?.trim() ?? '';
+    return '$f $l'.trim();
   }
 
   // 🔧 Helper to handle String ("17.44") or Double (17.44) safely
