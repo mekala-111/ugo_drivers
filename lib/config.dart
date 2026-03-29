@@ -76,6 +76,8 @@ class Config {
 
   /// Play Store app URL used in referral sharing
   static String get playStoreUrl {
+    final remoteUrl = FirebaseRemoteConfigService().playStoreUrl.trim();
+    if (remoteUrl.isNotEmpty) return remoteUrl;
     const defaultUrl =
         'https://play.google.com/store/apps/details?id=com.ugotaxi_rajkumar.driver&hl=en_IN';
     return const String.fromEnvironment('PLAY_STORE_URL',

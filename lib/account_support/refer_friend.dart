@@ -123,12 +123,16 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
   String _buildReferralPlayStoreLink() {
     final baseUri = Uri.parse(app_config.Config.playStoreUrl);
+    final code = _referralCode.trim();
     final referrerPayload = Uri(queryParameters: {
-      'referalcode': _referralCode.trim(),
+      'referalcode': code,
     }).query;
 
     final query = Map<String, String>.from(baseUri.queryParameters);
     query['referrer'] = referrerPayload;
+    // Direct params for easier parsing across app versions / installers.
+    query['referalcode'] = code;
+    query['referral_code'] = code;
 
     return baseUri.replace(queryParameters: query).toString();
   }

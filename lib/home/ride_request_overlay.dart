@@ -1299,7 +1299,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
-                right: 16,
+                left: 16,
                 child: Material(
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(24),
@@ -1347,7 +1347,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
-                right: 16,
+                left: 16,
                 child: Material(
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(24),
@@ -1395,7 +1395,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
-                right: 16,
+                left: 16,
                 child: Material(
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(24),

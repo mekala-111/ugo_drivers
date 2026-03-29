@@ -1107,6 +1107,9 @@ class _HomeWidgetState extends State<HomeWidget>
     await remoteConfig.ensureInitialized();
     final isMandatory = remoteConfig.getBool('is_update_mandatory', defaultValue: false);
 
+    // Complete any previously downloaded flexible update first.
+    await InAppUpdateService().checkRemainingUpdate();
+
     // Try native API first (for true OTA experience)
     await InAppUpdateService().checkForUpdate(forceImmediate: isMandatory);
 

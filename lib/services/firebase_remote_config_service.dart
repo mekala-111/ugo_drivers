@@ -40,6 +40,7 @@ class FirebaseRemoteConfigService {
         'razorpay_key_secret': '',
         'razorpay_enabled': false,
         'google_maps_api_key': '',
+        'play_store_url': '',
         'latest_app_version': '1.0.0',
         'min_required_version': '1.0.0',
       });
@@ -165,4 +166,6 @@ class FirebaseRemoteConfigService {
   String get latestAppVersion => getString('latest_app_version', defaultValue: '1.0.0');
 
   String get minRequiredVersion => getString('min_required_version', defaultValue: '1.0.0');
+
+  String get playStoreUrl => getString('play_store_url', defaultValue: '');
 }
