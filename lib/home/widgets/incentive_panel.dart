@@ -3,15 +3,34 @@ import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import '../incentive_model.dart';
 
-/// Collapsible incentive panel showing ride targets and rewards.
+/// Formats backend TIME / ISO fragments for display (e.g. 6:00 AM).
+String? incentiveFormatClock(dynamic raw) {
+  if (raw == null) return null;
+  var s = raw.toString();
+  if (s.contains('T')) {
+    final parts = s.split('T');
+    if (parts.length > 1) {
+      s = parts[1].split('.').first;
+    }
+  }
+  final segs = s.split(':');
+  if (segs.length < 2) return s;
+  final h = int.tryParse(segs[0]) ?? 0;
+  final m = int.tryParse(segs[1]) ?? 0;
+  final hour12 = h > 12 ? h - 12 : (h == 0 ? 12 : h);
+  final suffix = h >= 12 ? 'PM' : 'AM';
+  return '$hour12:${m.toString().padLeft(2, '0')} $suffix';
+}
+
+/// Collapsible incentive panel — Rapido-style quests: per-quest progress, slot, bonus header.
 class IncentivePanel extends StatelessWidget {
   const IncentivePanel({
     super.key,
     required this.isExpanded,
     required this.isLoadingIncentives,
     required this.incentiveTiers,
-    required this.currentRides,
     required this.totalIncentiveEarned,
+    required this.potentialBonusTotal,
     required this.onTap,
     required this.screenWidth,
     required this.isSmallScreen,
@@ -20,8 +39,9 @@ class IncentivePanel extends StatelessWidget {
   final bool isExpanded;
   final bool isLoadingIncentives;
   final List<IncentiveTier> incentiveTiers;
-  final int currentRides;
   final double totalIncentiveEarned;
+  /// Sum of rewards for active (ongoing) quests — shown in collapsed header when set.
+  final double potentialBonusTotal;
   final VoidCallback onTap;
   final double screenWidth;
   final bool isSmallScreen;
@@ -45,7 +65,6 @@ class IncentivePanel extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Row - Large Tap Target for Drivers
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -53,8 +72,7 @@ class IncentivePanel extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isSmallScreen ? 16 : 20,
-                  vertical:
-                      isSmallScreen ? 14 : 18, // Fat-finger friendly padding
+                  vertical: isSmallScreen ? 14 : 18,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -81,10 +99,7 @@ class IncentivePanel extends StatelessWidget {
                           )
                         else
                           Text(
-                            hasIncentives
-                                ? '₹${totalIncentiveEarned.toStringAsFixed(0)}'
-                                : FFLocalizations.of(context)
-                                    .getText('drv_coming_soon'),
+                            _collapsedTrailing(context, hasIncentives),
                             style: TextStyle(
                               fontSize: isSmallScreen ? 16 : 18,
                               fontWeight: FontWeight.bold,
@@ -107,8 +122,6 @@ class IncentivePanel extends StatelessWidget {
               ),
             ),
           ),
-
-          // Smoothly Animating Content Section
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -116,13 +129,24 @@ class IncentivePanel extends StatelessWidget {
                 ? (isLoadingIncentives
                     ? _buildLoadingIndicator()
                     : hasIncentives
-                        ? _buildIncentiveProgressBars(context)
+                        ? _buildIncentiveBody(context)
                         : _buildComingSoonMessage(context))
                 : const SizedBox(width: double.infinity, height: 0),
           ),
         ],
       ),
     );
+  }
+
+  String _collapsedTrailing(BuildContext context, bool hasIncentives) {
+    if (!hasIncentives) {
+      return FFLocalizations.of(context).getText('drv_coming_soon');
+    }
+    if (potentialBonusTotal > 0) {
+      return '₹${potentialBonusTotal.toStringAsFixed(0)}';
+    }
+    final t = incentiveTiers.first;
+    return '${t.completedRides}/${t.targetRides}';
   }
 
   Widget _buildLoadingIndicator() {
@@ -134,12 +158,8 @@ class IncentivePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildIncentiveProgressBars(BuildContext context) {
-    final totalRequiredRides = incentiveTiers.isNotEmpty
-        ? incentiveTiers
-            .map((t) => t.targetRides)
-            .reduce((a, b) => a > b ? a : b)
-        : 0;
+  Widget _buildIncentiveBody(BuildContext context) {
+    final primary = incentiveTiers.first;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -149,36 +169,84 @@ class IncentivePanel extends StatelessWidget {
         isSmallScreen ? 16 : 20,
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _QuestHeroCard(
+            tier: primary,
+            isSmallScreen: isSmallScreen,
+          ),
+          SizedBox(height: isSmallScreen ? 14 : 16),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '$currentRides / $totalRequiredRides Rides',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 15 : 17,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    FFLocalizations.of(context)
+                        .getText('drv_incentive_label_earned'),
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 12 : 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '₹${totalIncentiveEarned.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 15 : 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                'Total: ₹${totalIncentiveEarned.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 15 : 17,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success, // Green for total earned money
+              if (potentialBonusTotal > 0)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      FFLocalizations.of(context)
+                          .getText('drv_incentive_label_bonus_upto'),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₹${potentialBonusTotal.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 15 : 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 16),
-          ...incentiveTiers.map(
-            (tier) => _IncentiveTierBar(
-              tier: tier,
-              currentRides: currentRides,
-              isSmallScreen: isSmallScreen,
+          if (incentiveTiers.length > 1) ...[
+            SizedBox(height: isSmallScreen ? 14 : 18),
+            Text(
+              FFLocalizations.of(context).getText('drv_incentive_all_quests'),
+              style: TextStyle(
+                fontSize: isSmallScreen ? 14 : 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
-          ),
+            const SizedBox(height: 10),
+            ...incentiveTiers.map(
+              (tier) => _IncentiveTierBar(
+                tier: tier,
+                isSmallScreen: isSmallScreen,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -218,27 +286,199 @@ class IncentivePanel extends StatelessWidget {
   }
 }
 
-class _IncentiveTierBar extends StatelessWidget {
-  const _IncentiveTierBar({
+class _QuestHeroCard extends StatelessWidget {
+  const _QuestHeroCard({
     required this.tier,
-    required this.currentRides,
     required this.isSmallScreen,
   });
 
   final IncentiveTier tier;
-  final int currentRides;
   final bool isSmallScreen;
 
   @override
   Widget build(BuildContext context) {
-    final progress = (currentRides / tier.targetRides).clamp(0.0, 1.0);
-    final isCompleted = currentRides >= tier.targetRides;
+    final target = tier.targetRides;
+    final done = tier.completedRides.clamp(0, target);
+    final progress = target > 0 ? (done / target).clamp(0.0, 1.0) : 0.0;
+    final start = incentiveFormatClock(tier.startTime);
+    final end = incentiveFormatClock(tier.endTime);
+    final slot = (start != null && end != null)
+        ? '$start – $end'
+        : '';
 
-    // Define Colors and Icons based on state
-    Color activeColor = isCompleted ? AppColors.success : AppColors.primary;
-    IconData statusIcon = isCompleted
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary.withValues(alpha: 0.12),
+            AppColors.primary.withValues(alpha: 0.04),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+      ),
+      padding: EdgeInsets.all(isSmallScreen ? 14 : 16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: isSmallScreen ? 64 : 72,
+            height: isSmallScreen ? 64 : 72,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.expand(
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: isSmallScreen ? 5 : 6,
+                    backgroundColor: Colors.grey.shade300,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$done',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 20 : 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                        height: 1,
+                      ),
+                    ),
+                    Text(
+                      '/$target',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                        height: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 12 : 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (tier.recurrenceType != null &&
+                    tier.recurrenceType!.isNotEmpty)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    margin: const EdgeInsets.only(bottom: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _recurrenceLabel(context, tier.recurrenceType),
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 10 : 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                Text(
+                  tier.description ??
+                      FFLocalizations.of(context)
+                          .getText('drv_incentive_quest'),
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 15 : 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (slot.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${FFLocalizations.of(context).getText('drv_incentive_slot')}: $slot',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 12 : 13,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 6),
+                Text(
+                  _moreRidesLine(context, tier),
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 13 : 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Text(
+                  '+₹${tier.rewardAmount.toStringAsFixed(0)}',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _recurrenceLabel(BuildContext context, String? t) {
+    switch (t?.toLowerCase()) {
+      case 'weekly':
+        return FFLocalizations.of(context)
+            .getText('drv_incentive_recurrence_weekly');
+      case 'monthly':
+        return FFLocalizations.of(context)
+            .getText('drv_incentive_recurrence_monthly');
+      case 'daily':
+      default:
+        return FFLocalizations.of(context)
+            .getText('drv_incentive_recurrence_daily');
+    }
+  }
+
+  static String _moreRidesLine(BuildContext context, IncentiveTier tier) {
+    final n = tier.ridesRemaining;
+    if (n <= 0) {
+      return FFLocalizations.of(context).getText('drv_incentive_goal_met');
+    }
+    return FFLocalizations.of(context)
+        .getText('drv_incentive_complete_n_more')
+        .replaceAll('{n}', '$n');
+  }
+}
+
+class _IncentiveTierBar extends StatelessWidget {
+  const _IncentiveTierBar({
+    required this.tier,
+    required this.isSmallScreen,
+  });
+
+  final IncentiveTier tier;
+  final bool isSmallScreen;
+
+  @override
+  Widget build(BuildContext context) {
+    final target = tier.targetRides;
+    final done = tier.completedRides.clamp(0, target);
+    final progress = target > 0 ? (done / target).clamp(0.0, 1.0) : 0.0;
+    final isCompleted = done >= target && target > 0;
+
+    final activeColor = isCompleted ? AppColors.success : AppColors.primary;
+    final statusIcon = isCompleted
         ? Icons.check_circle
-        : (tier.isLocked ? Icons.lock : Icons.lock_open);
+        : (tier.isLocked ? Icons.lock : Icons.emoji_events_outlined);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -246,41 +486,47 @@ class _IncentiveTierBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    statusIcon,
-                    size: isSmallScreen ? 18 : 22,
-                    color: tier.isLocked ? Colors.grey : activeColor,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${tier.targetRides} ${FFLocalizations.of(context).getText('drv_rides')}',
-                    style: TextStyle(
-                      fontSize: isSmallScreen ? 14 : 15,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          tier.isLocked ? Colors.grey.shade600 : Colors.black87,
-                    ),
-                  ),
-                ],
+              Icon(
+                statusIcon,
+                size: isSmallScreen ? 18 : 22,
+                color: tier.isLocked ? Colors.grey : activeColor,
               ),
-              Text(
-                '+₹${tier.rewardAmount.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 15 : 17,
-                  fontWeight: FontWeight.bold,
-                  color: tier.isLocked ? Colors.grey : activeColor,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tier.description ??
+                          '${tier.targetRides} ${FFLocalizations.of(context).getText('drv_rides')}',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 15,
+                        fontWeight: FontWeight.w600,
+                        color: tier.isLocked
+                            ? Colors.grey.shade600
+                            : Colors.black87,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$done / $target ${FFLocalizations.of(context).getText('drv_rides')} · +₹${tier.rewardAmount.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 13,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
-            height:
-                isSmallScreen ? 14 : 16, // Slightly thicker for glanceability
+            height: isSmallScreen ? 14 : 16,
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(10),
@@ -303,11 +549,11 @@ class _IncentiveTierBar extends StatelessWidget {
                                       ? [
                                           AppColors.success,
                                           Colors.green.shade600
-                                        ] // Green if done
+                                        ]
                                       : [
                                           AppColors.primaryLightBg,
                                           AppColors.primary
-                                        ], // Orange if in-progress
+                                        ],
                             ),
                           ),
                         ),

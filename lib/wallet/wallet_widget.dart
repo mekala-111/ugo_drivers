@@ -40,6 +40,8 @@ class _WalletWidgetState extends State<WalletWidget> {
   String? totalSpentAmount = '0';
   String? lastTransactionDate;
   bool _isLoadingWallet = true;
+  List<Transaction> _recentTransactions = [];
+  bool _loadingRecentTx = true;
 
   @override
   void initState() {
@@ -47,6 +49,48 @@ class _WalletWidgetState extends State<WalletWidget> {
     _model = createModel(context, () => WalletModel());
     _fetchBankAccount();
     _fetchWallet();
+    _fetchRecentTransactions();
+  }
+
+  Future<void> _fetchRecentTransactions() async {
+    final driverId = int.tryParse(FFAppState().driverid.toString());
+    final token = FFAppState().accessToken;
+    if (driverId == null || token.isEmpty) {
+      if (mounted) setState(() => _loadingRecentTx = false);
+      return;
+    }
+    if (mounted) setState(() => _loadingRecentTx = true);
+    try {
+      final res = await GetDriverTransactionsCall.call(
+        driverId: driverId,
+        token: token,
+        page: 1,
+        pageSize: 5,
+      );
+      if (!mounted) return;
+      if (res.succeeded && res.jsonBody is Map<String, dynamic>) {
+        final parsed =
+            TransactionResponse.fromJson(res.jsonBody as Map<String, dynamic>);
+        setState(() {
+          _recentTransactions = parsed.transactions.take(5).toList();
+          _loadingRecentTx = false;
+        });
+      } else {
+        setState(() => _loadingRecentTx = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingRecentTx = false);
+    }
+  }
+
+  String _formatRecentTxDate(DateTime d) {
+    final now = DateTime.now();
+    if (d.year == now.year && d.month == now.month && d.day == now.day) {
+      final h = d.hour.toString().padLeft(2, '0');
+      final m = d.minute.toString().padLeft(2, '0');
+      return 'Today $h:$m';
+    }
+    return '${d.day}/${d.month}/${d.year}';
   }
 
   // 🏦 Fetch bank account details from API
@@ -382,33 +426,45 @@ class _WalletWidgetState extends State<WalletWidget> {
                         ),
                         SizedBox(height: 12.0 * scale),
 
-                        // 🟢 Credit Example (Earnings)
-                        _buildTransactionTile(
-                          title:
-                              FFLocalizations.of(context).getText('wallet0003'),
-                          date:
-                              FFLocalizations.of(context).getText('wallet0017'),
-                          amount: '+ ₹120.00',
-                          isCredit: true,
-                        ),
-                        // 🔴 Debit Example (Commission)
-                        _buildTransactionTile(
-                          title:
-                              FFLocalizations.of(context).getText('wallet0004'),
-                          date:
-                              FFLocalizations.of(context).getText('wallet0018'),
-                          amount: '- ₹35.00',
-                          isCredit: false,
-                        ),
-                        // 🟢 Credit Example (Incentive)
-                        _buildTransactionTile(
-                          title:
-                              FFLocalizations.of(context).getText('wallet0005'),
-                          date:
-                              FFLocalizations.of(context).getText('wallet0019'),
-                          amount: '+ ₹50.00',
-                          isCredit: true,
-                        ),
+                        if (_loadingRecentTx)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0 * scale),
+                            child: Center(
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: ugoOrange,
+                                ),
+                              ),
+                            ),
+                          )
+                        else if (_recentTransactions.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.0 * scale),
+                            child: Text(
+                              'No recent activity yet. Ride earnings and wallet top-ups will show here.',
+                              style: GoogleFonts.inter(
+                                fontSize: 14.0 * scale,
+                                color: Colors.grey[600],
+                                height: 1.4,
+                              ),
+                            ),
+                          )
+                        else
+                          ..._recentTransactions.map(
+                            (t) => Padding(
+                              padding: EdgeInsets.only(bottom: 8.0 * scale),
+                              child: _buildTransactionTile(
+                                title: t.readableType,
+                                date: _formatRecentTxDate(t.createdAt),
+                                amount:
+                                    '${t.isCredit ? '+' : '-'} ₹${t.amount.abs().toStringAsFixed(2)}',
+                                isCredit: t.isCredit,
+                              ),
+                            ),
+                          ),
 
                         SizedBox(height: 8.0 * scale),
                         Center(

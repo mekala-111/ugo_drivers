@@ -165,7 +165,15 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: () async {
-            context.pushNamed(RideOverviewWidget.routeName);
+            final rideId = (_ride?['id'] is num)
+                ? (_ride?['id'] as num).toInt()
+                : _resolvedRideId;
+            context.pushNamed(
+              RideOverviewWidget.routeName,
+              queryParameters: {
+                if (rideId > 0) 'rideId': rideId.toString(),
+              },
+            );
           },
           child: Column(
             mainAxisSize: MainAxisSize.max,

@@ -143,14 +143,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
 
   Future<bool> _hasActiveRideLock() async {
     const lockedStatuses = {'ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'};
-
-    // 1) Local persisted app state check
-    final localStatus = FFAppState().activeRideStatus.toUpperCase();
-    if (FFAppState().activeRideId != 0 || lockedStatuses.contains(localStatus)) {
-      return true;
-    }
-
-    // 2) In-memory provider check (more up-to-date while app is running)
+    // 1) In-memory provider check (most up-to-date while app is running)
     try {
       final rideState = context.read<RideState>();
       if (rideState.hasActiveRide) {
@@ -163,7 +156,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
       }
     } catch (_) {}
 
-    // 3) Backend check for current assigned/ongoing ride (authoritative fallback)
+    // 2) Backend check for current assigned/ongoing ride (authoritative)
     try {
       final res = await DriverIdfetchCall.call(
         id: FFAppState().driverid,
@@ -188,8 +181,14 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
       if (activeRideStatus.isNotEmpty) {
         FFAppState().activeRideStatus = activeRideStatus;
       }
-      return activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
+      final hasLock = activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
+      if (!hasLock) {
+        FFAppState().activeRideId = 0;
+        FFAppState().activeRideStatus = '';
+      }
+      return hasLock;
     } catch (_) {
+      // If backend unavailable, avoid blocking due to stale local persisted state.
       return false;
     }
   }

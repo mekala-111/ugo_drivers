@@ -6,12 +6,21 @@
   <component name="ChangeListManager">
     <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="history">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/refer_friend.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/active_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/active_ride_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/complete_ride_overlay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/components/start_ride_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/start_ride_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/nav/nav.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_overlay.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/inbox_page/inbox_page_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inbox_page/inbox_page_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/index.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/models/transaction.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/transaction.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/team_earnings/team_earnings_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/team_earnings/team_earnings_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teampage/teampage_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/teamrides/teamrides_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamrides/teamrides_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/teamrides/teamrides_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/teamrides/teamrides_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -406,7 +415,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/controllers/home_controller.dart</url>
-          <line>644</line>
+          <line>650</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

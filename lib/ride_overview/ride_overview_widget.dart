@@ -13,10 +13,11 @@ export 'ride_overview_model.dart';
 
 /// Ride Details Overview
 class RideOverviewWidget extends StatefulWidget {
-  const RideOverviewWidget({super.key});
+  const RideOverviewWidget({super.key, this.rideId});
 
   static String routeName = 'ride_overview';
   static String routePath = '/rideOverview';
+  final int? rideId;
 
   @override
   State<RideOverviewWidget> createState() => _RideOverviewWidgetState();
@@ -47,7 +48,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
   }
 
   Future<void> _loadRide() async {
-    final rideId = FFAppState().activeRideId;
+    final incomingRideId = widget.rideId ?? 0;
+    final rideId = incomingRideId > 0 ? incomingRideId : FFAppState().activeRideId;
     if (rideId <= 0) {
       setState(() {
         _isLoading = false;

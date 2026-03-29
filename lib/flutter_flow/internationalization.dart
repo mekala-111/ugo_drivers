@@ -6096,6 +6096,56 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'ఉత్తేజకరమైన ప్రోత్సాహక కార్యక్రమాలు త్వరలో అందుబాటులో ఉంటాయి!'
     },
     'drv_rides': {'en': 'rides', 'hi': 'राइड्स', 'te': 'రైడ్‌లు'},
+    'drv_incentive_quest': {
+      'en': 'Ride quest',
+      'hi': 'राइड क्वेस्ट',
+      'te': 'రైడ్ క్వెస్ట్'
+    },
+    'drv_incentive_slot': {
+      'en': 'Slot',
+      'hi': 'समय स्लॉट',
+      'te': 'స్లాట్'
+    },
+    'drv_incentive_recurrence_daily': {
+      'en': 'Daily',
+      'hi': 'दैनिक',
+      'te': 'రోజువారీ'
+    },
+    'drv_incentive_recurrence_weekly': {
+      'en': 'Weekly',
+      'hi': 'साप्ताहिक',
+      'te': 'వారంవారీ'
+    },
+    'drv_incentive_recurrence_monthly': {
+      'en': 'Monthly',
+      'hi': 'मासिक',
+      'te': 'నెలవారీ'
+    },
+    'drv_incentive_complete_n_more': {
+      'en': 'Complete {n} more rides',
+      'hi': '{n} और राइड पूरी करें',
+      'te': 'మరో {n} రైడ్‌లు పూర్తి చేయండి'
+    },
+    'drv_incentive_goal_met': {
+      'en': 'Target reached — finish rides to claim',
+      'hi': 'लक्ष्य पूरा — दावा करने के लिए राइड पूरी करें',
+      'te': 'లక్ష్యం చేరుకుంది — క్లెయిమ్ చేయడానికి రైడ్‌లు పూర్తి చేయండి'
+    },
+    'drv_incentive_label_earned': {
+      'en': 'Earned',
+      'hi': 'कमाया',
+      'te': 'సంపాదించారు'
+    },
+    'drv_incentive_label_bonus_upto': {
+      'en': 'Bonus up to',
+      'hi': 'अधिकतम बोनस',
+      'te': 'గరిష్ట బోనస్'
+    },
+    'drv_incentive_all_quests': {
+      'en': 'All active quests',
+      'hi': 'सभी सक्रिय क्वेस्ट',
+      'te': 'అన్ని సక్రియ క్వెస్ట్‌లు'
+    },
     'drv_today_total': {
       'en': 'Today Total',
       'hi': 'आज का कुल',

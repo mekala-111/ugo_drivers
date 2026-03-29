@@ -31,6 +31,8 @@ class DriverTransactionsWidget extends StatefulWidget {
 class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
   late DriverTransactionsModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  double? _walletBalance;
+  bool _walletLoading = true;
 
   @override
   void initState() {
@@ -38,8 +40,36 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
     _model = DriverTransactionsModel();
     _model.initState(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadWalletBalance();
       _loadTransactions();
     });
+  }
+
+  Future<void> _loadWalletBalance() async {
+    final driverId =
+        widget.driverId > 0 ? widget.driverId : FFAppState().driverid;
+    final token =
+        widget.token.isNotEmpty ? widget.token : FFAppState().accessToken;
+    final id = int.tryParse(driverId.toString());
+    if (id == null || token.isEmpty) {
+      if (mounted) setState(() => _walletLoading = false);
+      return;
+    }
+    try {
+      final res = await GetWalletCall.call(driverId: id, token: token);
+      if (!mounted) return;
+      if (res.succeeded) {
+        final raw = GetWalletCall.walletBalance(res.jsonBody);
+        setState(() {
+          _walletBalance = double.tryParse(raw?.toString() ?? '') ?? 0.0;
+          _walletLoading = false;
+        });
+      } else {
+        setState(() => _walletLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _walletLoading = false);
+    }
   }
 
   @override
@@ -249,6 +279,7 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
       onRefresh: () async {
         _model.resetPage();
         await Future.delayed(const Duration(milliseconds: 100));
+        await _loadWalletBalance();
         _loadTransactions();
       },
       color: AppColors.primary,
@@ -323,7 +354,7 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Total Balance',
+                'Wallet balance',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -331,25 +362,36 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                '₹${_model.totalAmount.toStringAsFixed(2)}',
-                style: GoogleFonts.inter(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              if (_model.transactionResponse != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Statement ID: ${_model.transactionResponse!.statementId}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7),
+              if (_walletLoading)
+                SizedBox(
+                  height: 36,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      strokeWidth: 2,
                     ),
                   ),
+                )
+              else
+                Text(
+                  '₹${(_walletBalance ?? 0).toStringAsFixed(2)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  'Below: last 30 days — credits & debits. Net activity: ₹${_model.totalAmount.toStringAsFixed(2)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    height: 1.35,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -371,7 +413,7 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Credits',
+                      'Money in (30 days)',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -406,7 +448,7 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Debits',
+                      'Money out (30 days)',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

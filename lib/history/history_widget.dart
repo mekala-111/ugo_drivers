@@ -250,7 +250,11 @@ class _HistoryWidgetState extends State<HistoryWidget> {
                                       : 'Passenger',
                                       onViewPressed: () {
                                         context.pushNamed(
-                                            RideOverviewWidget.routeName);
+                                          RideOverviewWidget.routeName,
+                                          queryParameters: {
+                                            'rideId': ride.id.toString(),
+                                          },
+                                        );
                                       },
                                     ),
                                   );

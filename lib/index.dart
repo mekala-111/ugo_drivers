@@ -45,6 +45,7 @@ export '/add_bankAccount/add_bank_account_widget.dart'
 export '/payments/payments_page_widget.dart' show PaymentsPageWidget;
 export '/withdraw/withdraw_widget.dart' show WithdrawWidget;
 export '/scan_to_book/scan_to_book_widget.dart' show ScanToBookWidget;
+export '/ride_chat/ride_chat_widget.dart' show RideChatWidget;
 export '/history/history_widget.dart' show HistoryWidget;
 export '/team_earnings/last_order_widget.dart' show LastOrderWidget;
 export '/team_earnings/all_orders_widget.dart' show AllOrdersScreen;

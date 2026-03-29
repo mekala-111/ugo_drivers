@@ -20,6 +20,15 @@ class Transaction {
 
   /// Factory constructor from JSON response
   factory Transaction.fromJson(Map<String, dynamic> json) {
+    final rawWhen = json['created_at'] ?? json['date'];
+    DateTime when = DateTime.now();
+    if (rawWhen != null) {
+      if (rawWhen is String) {
+        when = DateTime.tryParse(rawWhen) ?? when;
+      } else if (rawWhen is DateTime) {
+        when = rawWhen;
+      }
+    }
     return Transaction(
       transactionId: json['transaction_id'] ?? '',
       type: json['type'] ?? 'unknown',
@@ -28,11 +37,9 @@ class Transaction {
           : (json['amount'] ?? 0.0).toDouble(),
       status: json['status'] ?? 'pending',
       description: json['description'] ?? '',
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
+      createdAt: when,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.tryParse(json['updated_at'].toString())
           : null,
     );
   }
@@ -48,12 +55,11 @@ class Transaction {
         'updated_at': updatedAt?.toIso8601String(),
       };
 
-  /// Check if transaction is a credit (money in)
-  bool get isCredit =>
-      type.toLowerCase() == 'credit' || type.toLowerCase() == 'refund';
+  /// Money in vs out — wallet rows use signed amounts (e.g. ride wallet pay is negative).
+  bool get isCredit => amount >= 0;
 
   /// Check if transaction is a debit (money out)
-  bool get isDebit => !isCredit;
+  bool get isDebit => amount < 0;
 
   /// Get formatted amount with sign
   String get formattedAmount {
@@ -79,15 +85,19 @@ class Transaction {
   String get readableType {
     switch (type.toLowerCase()) {
       case 'credit':
-        return 'Earning';
+        return 'Credit';
       case 'debit':
         return 'Debit';
       case 'withdrawal':
         return 'Withdrawal';
       case 'refund':
         return 'Refund';
+      case 'recharge':
+        return 'Wallet top-up';
+      case 'ride_payment':
+        return amount >= 0 ? 'Ride earning' : 'Ride payment';
       default:
-        return type;
+        return type.replaceAll('_', ' ');
     }
   }
 }

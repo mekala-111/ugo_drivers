@@ -16,6 +16,7 @@ class RideBottomOverlay extends StatelessWidget {
   final VoidCallback onSwipe;
   final VoidCallback onCancel;
   final VoidCallback onCall;
+  final VoidCallback? onChat;
 
   const RideBottomOverlay({
     super.key,
@@ -24,6 +25,7 @@ class RideBottomOverlay extends StatelessWidget {
     required this.onSwipe,
     required this.onCancel,
     required this.onCall,
+    this.onChat,
   });
 
   // ✅ Helper to launch Google Maps Navigation
@@ -124,6 +126,7 @@ class RideBottomOverlay extends StatelessWidget {
             onSwipe: onSwipe,
             onCancel: onCancel,
             onCall: onCall,
+            onChat: onChat,
           ),
         ),
       ],
@@ -138,6 +141,7 @@ class StartRideCard extends StatelessWidget {
   final VoidCallback onSwipe;
   final VoidCallback onCancel;
   final VoidCallback onCall;
+  final VoidCallback? onChat;
 
   const StartRideCard({
     super.key,
@@ -146,6 +150,7 @@ class StartRideCard extends StatelessWidget {
     required this.onSwipe,
     required this.onCancel,
     required this.onCall,
+    this.onChat,
   });
 
   // --- Colors ---
@@ -340,6 +345,18 @@ class StartRideCard extends StatelessWidget {
                     // RIGHT COLUMN: Vertically Stacked Action Buttons
                     Column(
                       children: [
+                        if (onChat != null) ...[
+                          _buildSquareIconBtn(
+                            context,
+                            Icon(Icons.chat_bubble_rounded,
+                                color: Colors.black87,
+                                size:
+                                    Responsive.iconSize(context, base: 24)),
+                            onChat!,
+                          ),
+                          SizedBox(
+                              height: Responsive.verticalSpacing(context)),
+                        ],
                         _buildSquareIconBtn(
                           context,
                           Icon(Icons.call,

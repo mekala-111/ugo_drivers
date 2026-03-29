@@ -14,7 +14,8 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
         DriverIdfetchCall,
         GetAllDriversCall,
         NotificationHistoryCall,
-        AddMoneyToWalletCall;
+        AddMoneyToWalletCall,
+        GetWalletCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -73,6 +74,8 @@ class HomeController extends ChangeNotifier {
 
   int currentRides = 0;
   double totalIncentiveEarned = 0.0;
+  /// Sum of reward_amount for all ongoing quests (Rapido-style “bonus up to” header).
+  double incentivePotentialBonus = 0.0;
   List<IncentiveTier> incentiveTiers = [];
   bool isLoadingIncentives = true;
 
@@ -124,12 +127,18 @@ class HomeController extends ChangeNotifier {
   try {
     final res = await NotificationHistoryCall.call(token: token);
     if (_disposed || !res.succeeded) return;
-    final list = NotificationHistoryCall.notifications(res.jsonBody);
-    if (list == null) return;
-    int count = 0;
-    for (final n in list) {
-      final isRead = getJsonField(n, r'$.is_read');
-      if (isRead != true) count++;
+    final serverUnread = NotificationHistoryCall.unreadCount(res.jsonBody);
+    int count;
+    if (serverUnread != null) {
+      count = serverUnread;
+    } else {
+      final list = NotificationHistoryCall.notifications(res.jsonBody);
+      if (list == null) return;
+      count = 0;
+      for (final n in list) {
+        final isRead = getJsonField(n, r'$.is_read');
+        if (isRead != true) count++;
+      }
     }
     if (_disposed) return;
     notificationUnreadCount = count;
@@ -664,8 +673,32 @@ class HomeController extends ChangeNotifier {
         latitude: position.latitude,
         longitude: position.longitude,
       );
+      _emitSocketLiveLocation(position);
     } catch (e) {
       if (kDebugMode) debugPrint('Error updating location: $e');
+    }
+  }
+
+  /// WebSocket path for lower-latency rider map updates (backend also broadcasts from REST).
+  void _emitSocketLiveLocation(Position position) {
+    if (!_socketInitialized || _disposed) return;
+    final rideId = FFAppState().activeRideId;
+    if (rideId <= 0) return;
+    final st = currentRideStatus.toUpperCase();
+    const tracking = {'ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'QR_SCANNED'};
+    if (!tracking.contains(st)) return;
+    try {
+      if (!_socket.connected) return;
+      _socket.emit('driver_location', {
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'accuracy': position.accuracy,
+        'heading': position.heading,
+        'speed': position.speed,
+        'rideId': rideId,
+      });
+    } catch (e) {
+      if (kDebugMode) debugPrint('Socket live location emit: $e');
     }
   }
 
@@ -826,7 +859,7 @@ class HomeController extends ChangeNotifier {
                 newlyCompletedRewards, completedIncentiveNames);
           }
 
-          // Calculate current rides count from running incentives
+          // Max completed rides among active quests (legacy / debug; UI uses per-tier counts).
           currentRides = 0;
           for (final item in runningIncentives) {
             final completed = item['completed_rides'] ?? 0;
@@ -837,26 +870,39 @@ class HomeController extends ChangeNotifier {
             debugPrint('✅ Updated ride count: $currentRides rides completed');
           }
 
-          // Calculate total earned from all running incentives
           totalIncentiveEarned = 0.0;
-          for (final item in runningIncentives) {
+          for (final item in incentivesArray) {
             if (item['progress_status'] == 'completed') {
               final rewardStr = item['reward_amount'] ?? '0';
-              totalIncentiveEarned += double.tryParse(rewardStr) ?? 0.0;
+              totalIncentiveEarned +=
+                  double.tryParse(rewardStr.toString()) ?? 0.0;
             }
           }
 
-          // Convert to IncentiveTier objects for UI display
+          incentivePotentialBonus = 0.0;
+          for (final item in runningIncentives) {
+            incentivePotentialBonus +=
+                double.tryParse((item['reward_amount'] ?? '0').toString()) ??
+                    0.0;
+          }
+
+          // Convert to IncentiveTier objects for UI display (per-quest progress).
           incentiveTiers = runningIncentives.map<IncentiveTier>((item) {
+            final inc = item['incentive'];
             return IncentiveTier(
               id: item['id'] ?? 0,
               targetRides: item['target_rides'] ?? 0,
+              completedRides: item['completed_rides'] ?? 0,
               rewardAmount:
                   double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
-              isLocked: false, // Running incentives are never locked
-              description: item['incentive']?['name'],
+              isLocked: false,
+              description: inc?['name'],
+              startTime: inc?['start_time']?.toString(),
+              endTime: inc?['end_time']?.toString(),
+              recurrenceType: inc?['recurrence_type']?.toString(),
             );
-          }).toList();
+          }).toList()
+            ..sort((a, b) => a.targetRides.compareTo(b.targetRides));
         } else {
           incentiveTiers = [];
         }
@@ -923,12 +969,24 @@ class HomeController extends ChangeNotifier {
       if (_disposed) return;
       if (response.succeeded) {
         final data = response.jsonBody['data'];
-        todayTotal = (data['totalEarnings'] ?? 0).toDouble();
+        todayTotal = _asDouble(data['totalEarnings']);
         todayRideCount = data['totalRides'] ?? 0;
-        todayWallet = (data['walletEarnings'] ?? 0).toDouble();
+        // NOTE:
+        // `walletEarnings` in this endpoint means earnings from wallet-paid rides,
+        // not the driver's actual wallet balance shown on Home.
+        final walletRes = await GetWalletCall.call(
+          driverId: FFAppState().driverid,
+          token: FFAppState().accessToken,
+        );
+        if (walletRes.succeeded) {
+          todayWallet = _asDouble(GetWalletCall.walletBalance(walletRes.jsonBody));
+        } else {
+          // Graceful fallback to previous behavior if wallet endpoint fails.
+          todayWallet = _asDouble(data['walletEarnings']);
+        }
         final rides = data['rides'] as List? ?? [];
         if (rides.isNotEmpty) {
-          lastRideAmount = (rides.first['amount'] ?? 0).toDouble();
+          lastRideAmount = _asDouble(rides.first['amount']);
         }
       }
     } catch (e) {
@@ -963,6 +1021,11 @@ class HomeController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  double _asDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '0') ?? 0.0;
   }
 
   @override

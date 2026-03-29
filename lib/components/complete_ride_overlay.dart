@@ -11,12 +11,14 @@ class RideCompleteOverlay extends StatelessWidget {
   final RideRequest ride;
   final VoidCallback? onSwipe;
   final bool isLoading;
+  final VoidCallback? onChat;
 
   const RideCompleteOverlay({
     super.key,
     required this.ride,
     this.onSwipe,
     this.isLoading = false,
+    this.onChat,
   });
 
   // ✅ Universal Map Launcher
@@ -106,6 +108,7 @@ class RideCompleteOverlay extends StatelessWidget {
               ride: ride,
               onSwipe: onSwipe,
               isLoading: isLoading,
+              onChat: onChat,
             ),
           ],
         ),
@@ -119,12 +122,14 @@ class CompleteRideCard extends StatelessWidget {
   final RideRequest ride;
   final VoidCallback? onSwipe;
   final bool isLoading;
+  final VoidCallback? onChat;
 
   const CompleteRideCard({
     super.key,
     required this.ride,
     this.onSwipe,
     this.isLoading = false,
+    this.onChat,
   });
 
   static const Color ugoOrange = AppColors.primary;
@@ -283,9 +288,21 @@ class CompleteRideCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
 
-                    // RIGHT COLUMN: Call Button
+                    // RIGHT COLUMN: Chat + Call
                     Column(
                       children: [
+                        if (onChat != null) ...[
+                          _buildSquareIconBtn(
+                            context,
+                            Icon(Icons.chat_bubble_rounded,
+                                color: Colors.black87,
+                                size:
+                                    Responsive.iconSize(context, base: 24)),
+                            onChat!,
+                          ),
+                          SizedBox(
+                              height: Responsive.verticalSpacing(context)),
+                        ],
                         _buildSquareIconBtn(
                           context,
                           Icon(Icons.call,

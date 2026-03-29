@@ -9,7 +9,9 @@ import 'package:ugo_driver/services/voice_service.dart';
 import 'package:ugo_driver/services/ride_notification_service.dart';
 import 'package:ugo_driver/services/floating_bubble_service.dart';
 import 'package:ugo_driver/services/ride_alert_audio_service.dart';
+import 'package:ugo_driver/services/route_distance_service.dart';
 import 'package:ugo_driver/home/ride_request_model.dart';
+import 'package:ugo_driver/ride_chat/ride_chat_widget.dart';
 import '../models/ride_status.dart';
 import '../models/payment_mode.dart';
 import 'dart:async';
@@ -33,11 +35,14 @@ class RideRequestOverlay extends StatefulWidget {
   final LatLng? driverLocation;
   // ✅ ADDED: Callback to notify HomeWidget when ride is fully finished
   final VoidCallback? onRideComplete;
+  /// True while cash collection / rating UI is covering the map — hide home chrome (e.g. incentives).
+  final ValueChanged<bool>? onPostRideIncentiveSuppress;
 
   const RideRequestOverlay({
     super.key,
     this.driverLocation,
     this.onRideComplete,
+    this.onPostRideIncentiveSuppress,
   });
 
   @override
@@ -100,6 +105,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   bool _isCompletingRide = false;
   bool _isCancellingRide = false;
   bool _isAppInForeground = true;
+  bool _lastPostRideIncentiveSuppress = false;
+
+  void _notifyPostRideIncentiveSuppress(bool suppress) {
+    if (_lastPostRideIncentiveSuppress == suppress) return;
+    _lastPostRideIncentiveSuppress = suppress;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isDisposed || !mounted) return;
+      widget.onPostRideIncentiveSuppress?.call(suppress);
+    });
+  }
+
   bool get _driverHasActiveRideLock {
     final lockedStatuses = {
       RideStatus.accepted,
@@ -107,9 +123,46 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       RideStatus.started,
       RideStatus.onTrip,
     };
-    final hasLockedRequest =
-        _activeRequests.any((ride) => lockedStatuses.contains(ride.status));
-    return hasLockedRequest || FFAppState().activeRideId != 0;
+    // Lock only from live in-memory ride states, not from a stale persisted ID.
+    return _activeRequests.any((ride) => lockedStatuses.contains(ride.status));
+  }
+
+  Future<bool> _hasConfirmedServerActiveRideLock() async {
+    const lockedStatuses = {'ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'};
+    try {
+      final res = await DriverIdfetchCall.call(
+        id: FFAppState().driverid,
+        token: FFAppState().accessToken,
+      );
+      if (res.succeeded != true) return _driverHasActiveRideLock;
+
+      final activeRideIdRaw =
+          getJsonField(res.jsonBody, r'$.data.active_ride_id') ??
+              getJsonField(res.jsonBody, r'$.data.current_ride_id') ??
+              getJsonField(res.jsonBody, r'$.data.ride_id');
+      final activeRideStatusRaw =
+          getJsonField(res.jsonBody, r'$.data.active_ride_status') ??
+              getJsonField(res.jsonBody, r'$.data.current_ride_status') ??
+              getJsonField(res.jsonBody, r'$.data.ride_status');
+
+      final activeRideId = int.tryParse('${activeRideIdRaw ?? ''}') ?? 0;
+      final activeRideStatus = '${activeRideStatusRaw ?? ''}'.toUpperCase();
+      final hasLock =
+          activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
+
+      if (!hasLock) {
+        FFAppState().activeRideId = 0;
+        FFAppState().activeRideStatus = '';
+      } else {
+        if (activeRideId > 0) FFAppState().activeRideId = activeRideId;
+        if (activeRideStatus.isNotEmpty) {
+          FFAppState().activeRideStatus = activeRideStatus;
+        }
+      }
+      return hasLock || _driverHasActiveRideLock;
+    } catch (_) {
+      return _driverHasActiveRideLock;
+    }
   }
 
   // ✅ Track completed incentives to detect newly completed ones
@@ -134,6 +187,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   @override
   void dispose() {
     _isDisposed = true;
+    final cb = widget.onPostRideIncentiveSuppress;
+    if (cb != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => cb(false));
+    }
     WidgetsBinding.instance.removeObserver(this);
     _tickTimer?.cancel();
     _searchingPollTimer?.cancel();
@@ -250,8 +307,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           final fare = updatedRide.estimatedFare != null
               ? '₹${updatedRide.estimatedFare!.toStringAsFixed(0)}'
               : 'New Ride';
-          final pickupDistanceText = _formatPickupDistance(updatedRide);
-          final dropDistanceText = _formatDropDistance(updatedRide);
+          final pickupDistanceText =
+              await _formatRoadPickupDistance(updatedRide);
+          final dropDistanceText = await _formatRoadDropDistance(updatedRide);
           await FloatingBubbleService.showRideRequest(
             rideId: updatedRide.id,
             fareText: fare,
@@ -380,10 +438,20 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
-  String _formatPickupDistance(RideRequest ride) {
+  /// Driver → pickup driving distance (Directions/Matrix), like Rapido.
+  Future<String> _formatRoadPickupDistance(RideRequest ride) async {
     final driverLoc = widget.driverLocation;
     if (driverLoc == null || ride.pickupLat == 0 || ride.pickupLng == 0) {
       return '--';
+    }
+    final km = await RouteDistanceService().getDrivingDistanceKm(
+      originLat: driverLoc.latitude,
+      originLng: driverLoc.longitude,
+      destLat: ride.pickupLat,
+      destLng: ride.pickupLng,
+    );
+    if (km != null && km > 0) {
+      return '${km.toStringAsFixed(1)} km';
     }
     final meters = Geolocator.distanceBetween(
       driverLoc.latitude,
@@ -391,32 +459,38 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       ride.pickupLat,
       ride.pickupLng,
     );
-    final km = meters / 1000;
-    return '${km.toStringAsFixed(1)} km';
+    return '${(meters / 1000).toStringAsFixed(1)} km';
   }
 
-  String _formatDropDistance(RideRequest ride) {
-    // ✅ Use backend distance first (more accurate than straight-line)
-    if (ride.distance != null && ride.distance! > 0) {
-      return '${ride.distance!.toStringAsFixed(1)} km';
-    }
-
-    // Fallback to calculating straight-line distance if backend value not available
-    if (ride.pickupLat == 0 ||
-        ride.pickupLng == 0 ||
-        ride.dropLat == 0 ||
-        ride.dropLng == 0) {
+  /// Trip leg to drop: driving distance from current location when known,
+  /// else pickup → drop (matches request card). Not backend straight-line km.
+  Future<String> _formatRoadDropDistance(RideRequest ride) async {
+    final dl = widget.driverLocation;
+    final hasDriver = dl != null;
+    final originLat = hasDriver ? dl!.latitude : ride.pickupLat;
+    final originLng = hasDriver ? dl!.longitude : ride.pickupLng;
+    if (ride.dropLat == 0 ||
+        ride.dropLng == 0 ||
+        originLat == 0 ||
+        originLng == 0) {
       return '--';
     }
-
+    final km = await RouteDistanceService().getDrivingDistanceKm(
+      originLat: originLat,
+      originLng: originLng,
+      destLat: ride.dropLat,
+      destLng: ride.dropLng,
+    );
+    if (km != null && km > 0) {
+      return '${km.toStringAsFixed(1)} km';
+    }
     final meters = Geolocator.distanceBetween(
-      ride.pickupLat,
-      ride.pickupLng,
+      originLat,
+      originLng,
       ride.dropLat,
       ride.dropLng,
     );
-    final km = meters / 1000;
-    return '${km.toStringAsFixed(1)} km';
+    return '${(meters / 1000).toStringAsFixed(1)} km';
   }
 
   void _startTickTimer() {
@@ -658,6 +732,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (_isAcceptingRide) return;
     if (!mounted) return;
     if (_driverHasActiveRideLock && FFAppState().activeRideId != rideId) {
+      final hasServerLock = await _hasConfirmedServerActiveRideLock();
+      if (!hasServerLock) {
+        // Stale local lock cleared from server confirmation; continue accept flow.
+      } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Complete your current ride first.'),
@@ -665,6 +743,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         ),
       );
       return;
+      }
     }
     setState(() => _isAcceptingRide = true);
     try {
@@ -813,6 +892,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   String _formatWaitTime(int rideId) {
     final s = _waitTimers[rideId] ?? 0;
     return "${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}";
+  }
+
+  void _openRideChat(RideRequest ride) {
+    if (!mounted) return;
+    final loc = FFLocalizations.of(context);
+    final name = ride.fullName.trim().isNotEmpty
+        ? ride.fullName
+        : loc.getText('drv_passenger');
+    context.pushNamed(
+      RideChatWidget.routeName,
+      queryParameters: {
+        'rideId': ride.id.toString(),
+        'partnerName': name,
+      },
+    );
   }
 
   Future<void> _cancelRide(int rideId) async {
@@ -969,9 +1063,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
-  Future<void> _completeRide({required int rideId, required int userId}) async {
+  Future<void> _completeRide(
+      {required int rideId, required int userId, required RideRequest ride}) async {
     if (_isCompletingRide) return;
     if (!mounted) return;
+
     setState(() => _isCompletingRide = true);
     try {
       final res = await CompleteRideCall.call(
@@ -984,7 +1080,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (res.succeeded) {
         final fare = CompleteRideCall.finalFare(res.jsonBody);
         final pmStr = CompleteRideCall.paymentMode(res.jsonBody);
-        final pm = pmStr != null ? parsePaymentMode(pmStr) : null;
+        final parsedResponsePm =
+            pmStr != null ? parsePaymentMode(pmStr) : PaymentMode.unknown;
+
+        // Preserve cash mode reliably even if completion API omits/changes payment field.
+        final pm = parsedResponsePm == PaymentMode.unknown
+            ? (ride.paymentMode != PaymentMode.unknown
+                ? ride.paymentMode
+                : parsePaymentMode(ride.rawPaymentMode))
+            : parsedResponsePm;
         _updateLocalRideStatus(rideId, RideStatus.completed,
             finalFare: fare, paymentMode: pm);
         VoiceService().rideCompleted();
@@ -1017,7 +1121,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   @override
   Widget build(BuildContext context) {
     // Guard against a race where the list becomes empty during build.
-    if (_activeRequests.isEmpty) return const SizedBox.shrink();
+    if (_activeRequests.isEmpty) {
+      _notifyPostRideIncentiveSuppress(false);
+      return const SizedBox.shrink();
+    }
 
     final searchingRides =
         _activeRequests.where((r) => r.status == RideStatus.searching).toList();
@@ -1034,6 +1141,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     );
     final RideRequest ride = activeRide;
     final RideStatus status = ride.status;
+
+    _notifyPostRideIncentiveSuppress(
+      _paymentPendingRides.contains(ride.id) ||
+          status == RideStatus.completed,
+    );
 
     if (_showOtpOverlay.contains(ride.id)) {
       if (!_otpControllers.containsKey(ride.id)) {
@@ -1183,6 +1295,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 },
                 formattedWaitTime: '',
                 onCancel: _isCancellingRide ? null : () => _cancelRide(ride.id),
+                onChat: () => _openRideChat(ride),
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
@@ -1230,6 +1343,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                     _isCancellingRide ? () {} : () => _cancelRide(ride.id),
                 onCall: () =>
                     launchUrl(Uri.parse('tel:${ride.mobileNumber ?? ''}')),
+                onChat: () => _openRideChat(ride),
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
@@ -1271,8 +1385,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                 ride: ride,
                 onSwipe: _isCompletingRide
                     ? null
-                    : () => _completeRide(rideId: ride.id, userId: ride.userId),
+                    : () => _completeRide(
+                          rideId: ride.id,
+                          userId: ride.userId,
+                          ride: ride,
+                        ),
                 isLoading: _isCompletingRide,
+                onChat: () => _openRideChat(ride),
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,

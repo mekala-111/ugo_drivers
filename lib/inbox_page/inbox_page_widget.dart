@@ -142,7 +142,34 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                       FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                 ),
           ),
-          actions: const [],
+          actions: [
+            Builder(
+              builder: (context) {
+                final list = NotificationHistoryCall.notifications(
+                    _model.notificationData);
+                final hasUnread = list
+                        ?.any((n) => getJsonField(n, r'$.is_read') != true) ??
+                    false;
+                if (!hasUnread) return const SizedBox.shrink();
+                return TextButton(
+                  onPressed: () async {
+                    final token = FFAppState().accessToken;
+                    if (token.isEmpty) return;
+                    await DriverMarkAllNotificationsReadCall.call(token: token);
+                    if (context.mounted) await _loadNotifications();
+                  },
+                  child: Text(
+                    'Mark all read',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
           centerTitle: false,
           elevation: 2.0,
         ),
@@ -223,7 +250,27 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                   )?.toString() ??
                                   '';
 
-                              return Container(
+                              return InkWell(
+                                onTap: () async {
+                                  final idRaw = getJsonField(notification, r'$.id');
+                                  final nid = idRaw is int
+                                      ? idRaw
+                                      : int.tryParse(idRaw?.toString() ?? '');
+                                  final token = FFAppState().accessToken;
+                                  if (!isRead &&
+                                      nid != null &&
+                                      token.isNotEmpty) {
+                                    await DriverMarkNotificationReadCall.call(
+                                      notificationId: nid,
+                                      token: token,
+                                    );
+                                    if (context.mounted) {
+                                      await _loadNotifications();
+                                    }
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12.0),
+                                child: Container(
                                 margin: const EdgeInsetsDirectional.fromSTEB(
                                     16.0, 0.0, 16.0, 12.0),
                                 decoration: BoxDecoration(
@@ -364,6 +411,7 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
                                     ],
                                   ),
                                 ),
+                              ),
                               );
                             },
                           ),

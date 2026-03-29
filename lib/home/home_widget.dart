@@ -57,6 +57,8 @@ class _HomeWidgetState extends State<HomeWidget>
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isIncentivePanelExpanded = false;
+  /// Hide incentives while cash collect / rating sheet is open (overlay).
+  bool _suppressIncentiveForPostRide = false;
   DateTime? _lastBackPressed;
   String? _activeRouteKey;
   bool _bubbleVisible = false;
@@ -939,6 +941,8 @@ class _HomeWidgetState extends State<HomeWidget>
         final isRideLocked = activeRideStatuses.contains(currentStatusUpper);
         // Only hide panels while a ride is actively running.
         final shouldShowPanels = !activeRideStatuses.contains(currentStatusUpper);
+        final showIncentivePanel =
+            shouldShowPanels && !_suppressIncentiveForPostRide;
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -1048,23 +1052,28 @@ class _HomeWidgetState extends State<HomeWidget>
                             onRideComplete: _onRideComplete,
                             driverLocation:
                                 c.currentUserLocation ?? userLocation,
+                            onPostRideIncentiveSuppress: (suppress) {
+                              if (!mounted) return;
+                              setState(() =>
+                                  _suppressIncentiveForPostRide = suppress);
+                            },
                           ),
                         ],
                       ),
                     ),
-                    if (shouldShowPanels)
+                    if (showIncentivePanel)
                       IncentivePanel(
                         isExpanded: _isIncentivePanelExpanded,
                         isLoadingIncentives: c.isLoadingIncentives,
                         incentiveTiers: c.incentiveTiers,
-                        currentRides: c.currentRides,
                         totalIncentiveEarned: c.totalIncentiveEarned,
+                        potentialBonusTotal: c.incentivePotentialBonus,
                         onTap: () => setState(() => _isIncentivePanelExpanded =
                             !_isIncentivePanelExpanded),
                         screenWidth: screenWidth,
                         isSmallScreen: isSmallScreen,
                       ),
-                    if (shouldShowPanels)
+                    if (shouldShowPanels && !_suppressIncentiveForPostRide)
                       EarningsSummary(
                         todayTotal: c.todayTotal,
                         teamEarnings: c.todayWallet,

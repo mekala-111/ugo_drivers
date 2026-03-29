@@ -260,6 +260,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const ScanToBookWidget(),
         ),
         FFRoute(
+          name: RideChatWidget.routeName,
+          path: RideChatWidget.routePath,
+          builder: (context, params) => RideChatWidget(
+            rideId: params.getParam('rideId', ParamType.int)!,
+            partnerName:
+                params.getParam('partnerName', ParamType.String) ??
+                    'Passenger',
+          ),
+        ),
+        FFRoute(
           name: HistoryWidget.routeName,
           path: HistoryWidget.routePath,
           builder: (context, params) =>
@@ -350,7 +360,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: RideOverviewWidget.routeName,
           path: RideOverviewWidget.routePath,
-          builder: (context, params) => const RideOverviewWidget(),
+          builder: (context, params) => RideOverviewWidget(
+            rideId: params.getParam(
+              'rideId',
+              ParamType.int,
+            ),
+          ),
         ),
         FFRoute(
           name: ReportIssuesWidget.routeName,

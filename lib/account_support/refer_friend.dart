@@ -277,7 +277,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Earn when your friend completes their first ride.',
+                    'Friends join with your code or Play Store link. You earn from their eligible Pro rides (see Team for totals).',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       color: Colors.white.withValues(alpha: 0.9),
@@ -383,14 +383,13 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                                 'Share your code via WhatsApp or SMS.'),
                                             _buildConnectorLine(),
                                             _buildStepRow('2', 'They register',
-                                                'They sign up using your referral code.'),
+                                                'They complete onboarding with your code (or the install link you shared).'),
                                             _buildConnectorLine(),
 
-                                            // ✅ UPDATED STEP 3: Specific amount
                                             _buildStepRow(
                                                 '3',
-                                                'You earn rewards',
-                                                'Get paid ₹10 for every Pro ride completed by the friends.'),
+                                                'You earn',
+                                                'Referral rewards accrue on qualifying Pro rides. Open Team / earnings to see balance and history.'),
                                           ],
                                         ),
                                       ),

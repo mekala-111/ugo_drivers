@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -56,6 +57,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
 
   // Data Variables - Team Earnings
   String teamEarnings = '0';
+  String pendingToday = '0';
+  String additionalIfMatchedAll = '0';
   String totalReferrals = '0';
   List<dynamic> referredDrivers = [];
   bool isLoadingTeam = true;
@@ -63,6 +66,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   // Weekly Chart Data
   List<double> dailyEarningsList = [0, 0, 0, 0, 0, 0, 0];
   bool isLoadingWeekly = true;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -72,10 +76,14 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
     _fetchEarningsData();
     _fetchWeeklyEarnings();
     _fetchTeamData();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (mounted) _fetchTeamData();
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _model.dispose();
     _tabController.dispose();
     super.dispose();
@@ -157,6 +165,10 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
 
         setState(() {
           teamEarnings = '₹$lifetimeCommission';
+          pendingToday =
+              '₹${ReferralDashboardCall.todayPendingCommission(dashboardBody)}';
+          additionalIfMatchedAll =
+              '₹${ReferralDashboardCall.additionalCommissionIfMatchedAll(dashboardBody)}';
           totalReferrals = referredCount;
           referredDrivers = drivers;
           isLoadingTeam = false;
@@ -402,7 +414,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                         color: Colors.grey.shade200),
                                     // ✅ $.lifetime_statistics.total_commission_earned
                                     _buildTeamStat(
-                                      'Commission',
+                                      'Lifetime',
                                       teamEarnings,
                                       Icons.currency_rupee_rounded,
                                       const Color(0xFFE74C3C),
@@ -441,6 +453,34 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      AnimatedListItem(
+                        index: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _buildTeamStat(
+                                  'Pending Today',
+                                  pendingToday,
+                                  Icons.bolt_rounded,
+                                  const Color(0xFF2ECC71),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildTeamStat(
+                                  'If You Match',
+                                  additionalIfMatchedAll,
+                                  Icons.trending_up_rounded,
+                                  const Color(0xFFFF7B10),
+                                ),
                               ),
                             ],
                           ),
@@ -511,6 +551,11 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                         (driver['reward_amount'] as num?))
                                         ?.toDouble() ??
                                     0.0;
+                            final additionalNeeded =
+                                (driver['additional_rides_needed_to_match']
+                                            as num?)
+                                        ?.toInt() ??
+                                    0;
                             final totalRides = proRides + normalRides;
 
                             return AnimatedListItem(
@@ -565,7 +610,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                   ),
                                   // ✅ pro_rides + normal_rides + total
                                   subtitle: Text(
-                                    '$proRides Pro • $normalRides Normal • $totalRides rides',
+                                    '$proRides Pro • $normalRides Normal • $totalRides rides${additionalNeeded > 0 ? ' • Need $additionalNeeded more' : ''}',
                                     style: GoogleFonts.inter(
                                         fontSize: 12,
                                         color: Colors.grey.shade500),

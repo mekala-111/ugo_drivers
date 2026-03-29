@@ -1643,6 +1643,8 @@ class YesterdayStatisticsCall {
 class NotificationHistoryCall {
   static Future<ApiCallResponse> call({
     String? token = '',
+    int page = 1,
+    int pageSize = 50,
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'notificationHistory',
@@ -1651,7 +1653,10 @@ class NotificationHistoryCall {
       headers: {
         'Authorization': 'Bearer $token',
       },
-      params: {},
+      params: {
+        'page': page,
+        'pageSize': pageSize,
+      },
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
@@ -1681,6 +1686,56 @@ class NotificationHistoryCall {
         response,
         r'$.data.page',
       ));
+
+  static int? unreadCount(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'$.data.unread_count',
+      ));
+}
+
+class DriverMarkNotificationReadCall {
+  static Future<ApiCallResponse> call({
+    required int notificationId,
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverMarkNotificationRead',
+      apiUrl: '$_baseUrl/api/notifications/mark-read/$notificationId',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class DriverMarkAllNotificationsReadCall {
+  static Future<ApiCallResponse> call({
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverMarkAllNotificationsRead',
+      apiUrl: '$_baseUrl/api/notifications/read-all',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
 }
 
 class ApiPagingParams {
@@ -2237,10 +2292,31 @@ class ReferralDashboardCall {
           response, r'$.lifetime_statistics.total_commission_earned')) ??
       0;
 
+  static int todayPendingCommission(dynamic response) =>
+      castToType<int>(
+          getJsonField(response, r'$.today_live.pending_commission_today')) ??
+      0;
+
+  static int additionalCommissionIfMatchedAll(dynamic response) =>
+      castToType<int>(getJsonField(
+              response, r'$.today_live.additional_commission_if_you_match_all')) ??
+          0;
+
+  static int todayMyProRides(dynamic response) =>
+      castToType<int>(getJsonField(
+              response, r'$.today_live.my_performance.pro_rides_completed')) ??
+          0;
+
+  static String walletCreditSchedule(dynamic response) =>
+      castToType<String>(getJsonField(
+              response, r'$.today_live.wallet_credit_schedule')) ??
+          'end_of_day';
+
   static List<dynamic> referrals(dynamic response) =>
-      (getJsonField(response, r'$.yesterday_statistics.referrals', true)
-          as List?) ??
-      [];
+      ((getJsonField(response, r'$.today_live.referrals', true) as List?) ??
+          (getJsonField(response, r'$.yesterday_statistics.referrals', true)
+              as List?) ??
+          []);
 
   static int yesterdayRideEarnings(dynamic response) =>
       castToType<int>(getJsonField(

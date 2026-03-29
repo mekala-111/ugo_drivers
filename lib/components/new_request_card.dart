@@ -91,8 +91,6 @@ class NewRequestCard extends StatelessWidget {
         Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
     final isNarrow = MediaQuery.sizeOf(context).width < 360;
-    final pickupKm = _pickupDistanceKm(driverLocation, ride);
-    final pickupDistStr = _formatDistance(pickupKm);
     final isPro = ride.bookingMode == 'pro';
 
     return Container(
@@ -153,11 +151,11 @@ class NewRequestCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildDistanceInfo(
+                          _buildPickupDistanceInfo(
                             context,
                             FFLocalizations.of(context)
                                 .getText('drv_pickup_distance'),
-                            pickupDistStr,
+                            ride,
                           ),
                           _buildDropDistanceInfo(
                             context,
@@ -176,11 +174,11 @@ class NewRequestCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildDistanceInfo(
+                      _buildPickupDistanceInfo(
                         context,
                         FFLocalizations.of(context)
                             .getText('drv_pickup_distance'),
-                        pickupDistStr,
+                        ride,
                       ),
                       Expanded(child: _buildFareBox(context)),
                       _buildDropDistanceInfo(
@@ -335,6 +333,60 @@ class NewRequestCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Driver → pickup road distance (Rapido-style), fallback to straight-line.
+  Widget _buildPickupDistanceInfo(
+    BuildContext context,
+    String label,
+    RideRequest ride,
+  ) {
+    if (driverLocation == null ||
+        ride.pickupLat == 0 ||
+        ride.pickupLng == 0) {
+      return _buildDistanceInfo(context, label, _formatDistance(null));
+    }
+
+    return FutureBuilder<double?>(
+      future: RouteDistanceService().getDrivingDistanceKm(
+        originLat: driverLocation!.latitude,
+        originLng: driverLocation!.longitude,
+        destLat: ride.pickupLat,
+        destLng: ride.pickupLng,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: Responsive.fontSize(context, 12))),
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ugoBlue.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+          );
+        }
+
+        double? km = snapshot.data;
+        if (km == null || km == 0) {
+          km = _pickupDistanceKm(driverLocation, ride);
+        }
+
+        return _buildDistanceInfo(
+          context,
+          label,
+          _formatDistance(km),
+        );
+      },
     );
   }
 

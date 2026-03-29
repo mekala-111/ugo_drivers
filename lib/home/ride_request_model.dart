@@ -63,6 +63,12 @@ class RideRequest {
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
+    final paymentValue = json['payment_mode'] ??
+        json['payment_method'] ??
+        json['payment_type'] ??
+        json['paymentMethod'] ??
+        json['paymentType'];
+
     return RideRequest(
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
@@ -75,7 +81,7 @@ class RideRequest {
           : (json['first_name'] ?? json['firstName'] ?? 'Passenger'),
       lastName: json['user'] != null
           ? (json['user']['last_name'] ?? json['user']['lastName'])
-          : (json['last_name'] ?? json['lastName'] ?? null),
+          : (json['last_name'] ?? json['lastName']),
 
       mobileNumber: json['user'] != null
           ? json['user']['mobile_number']
@@ -112,10 +118,8 @@ class RideRequest {
       finalFare: _parseToDouble(json['final_fare']) ??
           _parseToDouble(json['ride_amount']) ??
           _parseToDouble(json['amount']),
-      paymentMode: parsePaymentMode(
-        json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'],
-      ),
-      rawPaymentMode: (json['payment_mode'] ?? json['payment_method'] ?? json['payment_type'])?.toString() ?? 'Online',
+      paymentMode: parsePaymentMode(paymentValue),
+      rawPaymentMode: paymentValue?.toString() ?? 'Unknown',
       bookingMode: json['booking_mode']?.toString().toLowerCase() ?? 'normal',
       vehicleType: json['vehicle_type'] ??
           json['rideType'] ??

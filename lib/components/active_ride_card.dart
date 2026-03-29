@@ -14,6 +14,7 @@ class RidePickupOverlay extends StatelessWidget {
   final String formattedWaitTime;
   final VoidCallback onSwipe;
   final VoidCallback? onCancel;
+  final VoidCallback? onChat;
 
   const RidePickupOverlay({
     super.key,
@@ -21,6 +22,7 @@ class RidePickupOverlay extends StatelessWidget {
     required this.formattedWaitTime,
     required this.onSwipe,
     this.onCancel,
+    this.onChat,
   });
 
   Future<void> _launchMap(double? lat, double? lng) async {
@@ -294,6 +296,21 @@ class RidePickupOverlay extends StatelessWidget {
                             // Right Section: Action Buttons
                             Column(
                               children: [
+                                if (onChat != null) ...[
+                                  _buildSquareIconBtn(
+                                    context,
+                                    Icon(
+                                      Icons.chat_bubble_rounded,
+                                      color: Colors.black87,
+                                      size: Responsive.iconSize(context,
+                                          base: 24),
+                                    ),
+                                    onChat!,
+                                  ),
+                                  SizedBox(
+                                      height: Responsive.verticalSpacing(
+                                          context)),
+                                ],
                                 _buildSquareIconBtn(
                                   context,
                                   Icon(

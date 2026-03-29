@@ -34,7 +34,7 @@ class RideHistoryItem {
   });
 
   factory RideHistoryItem.fromJson(Map<String, dynamic> json) {
-    final idVal = json['rideId'] ?? json['id'];
+    final idVal = json['rideId'] ?? json['ride_id'] ?? json['id'];
     final id =
         idVal is int ? idVal : int.tryParse(idVal?.toString() ?? '0') ?? 0;
 

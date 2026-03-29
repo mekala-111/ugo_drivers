@@ -1,3 +1,4 @@
+import 'dart:async';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/constants/app_colors.dart';
@@ -28,34 +29,114 @@ class _TeampageWidgetState extends State<TeampageWidget>
   final Color ugoBlue = AppColors.accentBlue;
 
   bool _isLoading = true;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TeampageModel());
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadReferralData());
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (mounted) _loadReferralData();
+    });
   }
 
   Future<void> _loadReferralData() async {
     setState(() => _isLoading = true);
 
-    final response = await ReferralDashboardCall.call(
-      token: FFAppState().accessToken,
-      driverId: FFAppState().driverid,
-    );
+    try {
+      final response = await ReferralDashboardCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+      );
 
-    if (response.succeeded) {
+      dynamic dashboardBody = response.succeeded ? response.jsonBody : null;
+      final dashboardReferrals =
+          dashboardBody != null ? ReferralDashboardCall.referrals(dashboardBody) : <dynamic>[];
+
+      // Fallback: if dashboard has no referrals, use referral earnings list.
+      if (dashboardReferrals.isEmpty) {
+        final earningsRes = await ReferralEarningsCall.call(
+          token: FFAppState().accessToken,
+          driverId: FFAppState().driverid,
+        );
+        if (earningsRes.succeeded) {
+          final details = ReferralEarningsCall.referredDetails(earningsRes.jsonBody);
+          if (details.isNotEmpty) {
+            final mapped = details.map((d) {
+              final item = d is Map ? Map<String, dynamic>.from(d) : <String, dynamic>{};
+              return <String, dynamic>{
+                'driver_id': item['driver_id'],
+                'name': (item['name'] ?? item['referred_name'] ?? 'Unknown').toString(),
+                'pro_rides_completed': _asInt(item['pro_rides'] ?? item['pro_rides_completed']),
+                'normal_rides_completed':
+                    _asInt(item['normal_rides'] ?? item['normal_rides_completed']),
+                'commission_earned': _asNum(item['amount'] ?? item['commission_earned']),
+                'my_pro_rides_today': _asInt(item['my_pro_rides_today']),
+                'additional_rides_needed_to_match':
+                    _asInt(item['additional_rides_needed_to_match']),
+              };
+            }).toList();
+
+            dashboardBody = _mergeFallbackReferrals(
+              dashboardBody,
+              mapped,
+              totalReferrals: details.length,
+              lifetimeEarnings: ReferralEarningsCall.totalEarnings(earningsRes.jsonBody),
+            );
+          }
+        }
+      }
+
       setState(() {
-        _model.referralData = response.jsonBody;
+        _model.referralData = dashboardBody;
         _isLoading = false;
       });
-    } else {
+    } catch (_) {
       setState(() => _isLoading = false);
     }
   }
 
+  int _asInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
+  double _asNum(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '0') ?? 0.0;
+  }
+
+  Map<String, dynamic> _mergeFallbackReferrals(
+    dynamic current,
+    List<Map<String, dynamic>> referrals, {
+    required int totalReferrals,
+    required int lifetimeEarnings,
+  }) {
+    final root = current is Map ? Map<String, dynamic>.from(current) : <String, dynamic>{};
+    final driver = root['driver'] is Map
+        ? Map<String, dynamic>.from(root['driver'] as Map)
+        : <String, dynamic>{};
+    driver['referred_driver_count'] = totalReferrals;
+    root['driver'] = driver;
+
+    final lifetime = root['lifetime_statistics'] is Map
+        ? Map<String, dynamic>.from(root['lifetime_statistics'] as Map)
+        : <String, dynamic>{};
+    lifetime['total_commission_earned'] = lifetimeEarnings;
+    root['lifetime_statistics'] = lifetime;
+
+    final today = root['today_live'] is Map
+        ? Map<String, dynamic>.from(root['today_live'] as Map)
+        : <String, dynamic>{};
+    today['referrals'] = referrals;
+    root['today_live'] = today;
+    return root;
+  }
+
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _model.dispose();
     super.dispose();
   }
@@ -74,27 +155,22 @@ class _TeampageWidgetState extends State<TeampageWidget>
     return '₹${ReferralDashboardCall.totalEarnings(_model.referralData)}';
   }
 
-  /// $.yesterday_statistics.my_performance.ride_earnings
+  /// $.today_live.my_performance.ride_earnings
   String get _yesterdayEarnings {
     if (_model.referralData == null) return '₹0';
-    return '₹${ReferralDashboardCall.yesterdayRideEarnings(_model.referralData)}';
+    return '₹${castToType<int>(getJsonField(_model.referralData, r'$.today_live.my_performance.ride_earnings')) ?? 0}';
   }
 
-  /// $.yesterday_statistics.total_commission_earned_yesterday
+  /// $.today_live.pending_commission_today
   String get _yesterdayCommission {
     if (_model.referralData == null) return '₹0';
-    return '₹${ReferralDashboardCall.yesterdayCommission(_model.referralData)}';
+    return '₹${ReferralDashboardCall.todayPendingCommission(_model.referralData)}';
   }
 
-  /// ✅ CORRECT PATH: $.yesterday_statistics.referrals
+  /// Today live referrals (fallback to yesterday for older backend responses)
   List<dynamic> get _referralsList {
     if (_model.referralData == null) return [];
-    return (getJsonField(
-          _model.referralData,
-          r'$.yesterday_statistics.referrals',
-          true,
-        ) as List?) ??
-        [];
+    return ReferralDashboardCall.referrals(_model.referralData);
   }
 
   // ── Build ────────────────────────────────────────────────────────────────
@@ -367,7 +443,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
             Icon(Icons.calendar_today_rounded, color: ugoOrange, size: 16),
             const SizedBox(width: 8),
             Text(
-              'Yesterday',
+              'Today Live',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600,
                 fontSize: 10,
@@ -381,7 +457,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                 color: ugoGreen),
             const SizedBox(width: 20),
             _miniStat(
-                label: 'Commission',
+                label: 'Pending Commission',
                 value: _yesterdayCommission,
                 color: ugoBlue),
           ],
@@ -518,11 +594,15 @@ class _TeampageWidgetState extends State<TeampageWidget>
         final proRides = (driver['pro_rides_completed'] as num?)?.toInt() ?? 0;
         final normalRides =
             (driver['normal_rides_completed'] as num?)?.toInt() ?? 0;
-        final rideEarnings = (driver['ride_earnings'] as num?)?.toInt() ?? 0;
         final commission = ((driver['commission_earned'] as num?) ??
                     (driver['commission_earned_by_72'] as num?))
                 ?.toDouble() ??
             0.0;
+        final myProRidesToday =
+            (driver['my_pro_rides_today'] as num?)?.toInt() ??
+                ReferralDashboardCall.todayMyProRides(_model.referralData);
+        final additionalNeeded =
+            (driver['additional_rides_needed_to_match'] as num?)?.toInt() ?? 0;
         final totalRides = proRides + normalRides;
         final bool isActive = totalRides > 0;
 
@@ -622,7 +702,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                     color: ugoOrange),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '₹$rideEarnings earned',
+                                  'Me: $myProRidesToday Pro',
                                   style: GoogleFonts.inter(
                                     fontSize: 10,
                                     color: Colors.grey[500],
@@ -630,6 +710,17 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 ),
                               ],
                             ),
+                            if (additionalNeeded > 0) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Complete $additionalNeeded more Pro rides to fully match this friend today',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  color: ugoOrange,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
