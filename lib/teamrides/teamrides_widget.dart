@@ -22,10 +22,19 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
-  String _teamEarnings = '₹0';
-  String _coins = '0';
-  String _successfulReferrals = '0';
-  List<dynamic> _referredDetails = [];
+
+  // TL + team summary
+  String _tlName = '';
+  String? _referredByName;
+  int _teamSize = 0;
+
+  // Totals for cards
+  int _totalProRidesToday = 0;
+  int _totalProRidesYesterday = 0;
+  String _totalTeamEarnings = '₹0';
+
+  // Table rows: TL row + members
+  List<Map<String, dynamic>> _rows = [];
 
   @override
   void initState() {
@@ -100,13 +109,14 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
                   children: [
                     _buildSummary(),
                     Expanded(
-                      child: _referredDetails.isEmpty
+                      child: _rows.isEmpty
                           ? _buildEmptyState()
                           : ListView.builder(
-                              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-                              itemCount: _referredDetails.length,
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 10, 16, 24),
+                              itemCount: _rows.length,
                               itemBuilder: (context, index) =>
-                                  _buildReferralTile(_referredDetails[index]),
+                                  _buildReferralTile(_rows[index]),
                             ),
                     ),
                   ],
@@ -119,30 +129,108 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
   Future<void> _loadTeamRides() async {
     setState(() => _isLoading = true);
     try {
-      final response = await ReferralEarningsCall.call(
+      final dashboardRes = await ReferralDashboardCall.call(
+        token: FFAppState().accessToken,
+        driverId: FFAppState().driverid,
+      );
+      final earningsRes = await ReferralEarningsCall.call(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
 
-      if (!response.succeeded) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+      if (!dashboardRes.succeeded && !earningsRes.succeeded) {
+        if (mounted) setState(() => _isLoading = false);
         return;
       }
 
-      final body = response.jsonBody;
-      final total = ReferralEarningsCall.totalEarnings(body);
-      final coins = ReferralEarningsCall.totalCoinsEarned(body);
-      final successCount = ReferralEarningsCall.successfulReferralsCount(body);
-      final details = ReferralEarningsCall.referredDetails(body);
+      final dash = dashboardRes.jsonBody ?? {};
+      final earn = earningsRes.jsonBody ?? {};
+
+      final driverObj = dash['driver'] as Map<String, dynamic>? ?? {};
+      final referredByObj =
+          driverObj['referred_by'] as Map<String, dynamic>? ?? {};
+
+      final myTodayPerf = (dash['today_live']?['my_performance']
+              as Map<String, dynamic>?) ??
+          {};
+      final myYdayPerf = (dash['yesterday_statistics']?['my_performance']
+              as Map<String, dynamic>?) ??
+          {};
+
+      final List<dynamic> todayRefs =
+          (dash['today_live']?['referrals'] as List?) ?? [];
+      final List<dynamic> ydayRefs =
+          (dash['yesterday_statistics']?['referrals'] as List?) ?? [];
+
+      // Map yesterday stats by driver_id for quick lookup
+      final Map<int, Map<String, dynamic>> ydayById = {};
+      for (final item in ydayRefs) {
+        final m = (item as Map).cast<String, dynamic>();
+        final id = (m['driver_id'] as num?)?.toInt();
+        if (id != null) ydayById[id] = m;
+      }
+
+      // TL row (first row in table)
+      final int tlTodayPro =
+          (myTodayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
+      final int tlYdayPro =
+          (myYdayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
+
+      final List<Map<String, dynamic>> rows = [];
+      rows.add({
+        'is_tl': true,
+        'name': driverObj['name']?.toString() ?? 'You',
+        'vehicle_number': null,
+        'yesterday': tlYdayPro,
+        'today': tlTodayPro,
+        'commission': 0,
+      });
+
+      const int perRideCommission = 10;
+
+      // Member rows
+      for (final item in todayRefs) {
+        final m = (item as Map).cast<String, dynamic>();
+        final id = (m['driver_id'] as num?)?.toInt();
+        final yday = id != null ? ydayById[id] : null;
+        final int todayPro =
+            (m['pro_rides_completed'] as num?)?.toInt() ?? 0;
+        final int ydayPro =
+            (yday?['pro_rides_completed'] as num?)?.toInt() ?? 0;
+        // Commission display: each PRO ride gives ₹10
+        final double commission = todayPro * perRideCommission.toDouble();
+
+        rows.add({
+          'is_tl': false,
+          'name': (m['name'] ?? m['referred_name'] ?? 'Unknown').toString(),
+          'vehicle_number': m['vehicle_number']?.toString(),
+          'yesterday': ydayPro,
+          'today': todayPro,
+          'commission': commission,
+        });
+      }
+
+      final int teamSize =
+          (driverObj['referred_driver_count'] as num?)?.toInt() ?? 0;
+      final int totalTeamToday =
+          rows.fold<int>(0, (sum, e) => sum + (e['today'] as int));
+      final int totalTeamYesterday =
+          rows.fold<int>(0, (sum, e) => sum + (e['yesterday'] as int));
+
+      final int earningsTotal =
+          ReferralEarningsCall.totalEarnings(earn); // team commission
 
       if (!mounted) return;
       setState(() {
-        _teamEarnings = '₹$total';
-        _coins = '$coins';
-        _successfulReferrals = '$successCount';
-        _referredDetails = details;
+        _tlName = driverObj['name']?.toString() ?? '';
+        _referredByName = referredByObj.isNotEmpty
+            ? referredByObj['name']?.toString()
+            : null;
+        _teamSize = teamSize;
+        _totalProRidesToday = totalTeamToday;
+        _totalProRidesYesterday = totalTeamYesterday;
+        _totalTeamEarnings = '₹$earningsTotal';
+        _rows = rows;
         _isLoading = false;
       });
     } catch (_) {
@@ -154,53 +242,49 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).primary,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (_referredByName != null && _referredByName!.isNotEmpty) ...[
+            Row(
               children: [
+                const Icon(Icons.handshake_rounded,
+                    color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  'Referral Earnings',
+                  'Referred by $_referredByName',
                   style: GoogleFonts.inter(
-                    color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _teamEarnings,
-                  style: GoogleFonts.interTight(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
+                    color: FlutterFlowTheme.of(context).primaryText,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+          ],
+          Text(
+            _tlName.isEmpty ? 'My Team' : _tlName,
+            style: GoogleFonts.interTight(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _statCard(
-                  label: 'Successful',
-                  value: _successfulReferrals,
-                  icon: Icons.groups_rounded,
+                  label: 'Total rides',
+                  value: '$_totalProRidesToday',
+                  icon: Icons.directions_car_filled_rounded,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _statCard(
-                  label: 'Coins',
-                  value: _coins,
-                  icon: Icons.monetization_on_rounded,
+                  label: 'Total earnings',
+                  value: _totalTeamEarnings,
+                  icon: Icons.account_balance_wallet_rounded,
                 ),
               ),
             ],
@@ -252,70 +336,75 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
 
   Widget _buildReferralTile(dynamic referral) {
     final data = referral as Map<String, dynamic>;
-    final name = (data['referred_name'] ?? data['name'] ?? 'Unknown').toString();
-    final rewardAmount = data['reward_amount'] ?? 0;
-    final rewardType = (data['reward_type'] ?? 'cash').toString();
-    final code = (data['referral_code'] ?? '-').toString();
-    final date = _formatDate(data['completion_date']?.toString());
+    final name = (data['name'] ?? 'Unknown').toString();
+    final isTl = data['is_tl'] == true;
+    final vehicleNo = (data['vehicle_number'] ?? '—').toString();
+    final yesterday = data['yesterday'] as int? ?? 0;
+    final today = data['today'] as int? ?? 0;
+    final double commission = (data['commission'] as num?)?.toDouble() ?? 0.0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: FlutterFlowTheme.of(context).alternate),
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor:
-                FlutterFlowTheme.of(context).primary.withValues(alpha: 0.1),
-            child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : 'R',
-              style: GoogleFonts.interTight(
-                color: FlutterFlowTheme.of(context).primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            flex: 3,
+            child: Row(
               children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$rewardType • Code: $code',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: FlutterFlowTheme.of(context).secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  date,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: FlutterFlowTheme.of(context).secondaryText,
+                const Icon(Icons.account_circle,
+                    size: 18, color: Colors.grey),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    isTl ? '$name (TL)' : name,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontWeight: isTl ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          Text(
-            '₹$rewardAmount',
-            style: GoogleFonts.interTight(
-              color: FlutterFlowTheme.of(context).success,
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
+          Expanded(
+            flex: 2,
+            child: Text(
+              vehicleNo,
+              style: GoogleFonts.inter(fontSize: 12),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$yesterday',
+              style: GoogleFonts.inter(fontSize: 12),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$today',
+              style: GoogleFonts.inter(fontSize: 12),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              '₹${commission.toStringAsFixed(0)}',
+              textAlign: TextAlign.end,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: commission > 0 ? FontWeight.w600 : FontWeight.w400,
+                color: commission > 0
+                    ? FlutterFlowTheme.of(context).success
+                    : FlutterFlowTheme.of(context).secondaryText,
+              ),
             ),
           ),
         ],
@@ -326,7 +415,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
   Widget _buildEmptyState() {
     return Center(
       child: Text(
-        'No referral earnings yet',
+        'No team members yet',
         style: GoogleFonts.inter(
           color: FlutterFlowTheme.of(context).secondaryText,
           fontWeight: FontWeight.w600,

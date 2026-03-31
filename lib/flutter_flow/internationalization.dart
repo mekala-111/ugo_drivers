@@ -1722,6 +1722,32 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'अपडेट के लिए तैयार',
       'te': 'అప్డేట్‌కు సిద్ధం',
     },
+    'docm0017': {
+      'en': 'Submit for admin approval',
+      'hi': 'व्यवस्थापक अनुमोदन के लिए सबमिट करें',
+      'te': 'నిర్వాహక ఆమోదానికి సమర్పించండి',
+    },
+    'docm0018': {
+      'en':
+          'Please complete all steps: profile photo, driving licence (front & back), Aadhaar, PAN, vehicle photo, and RC.',
+      'hi':
+          'कृपया सभी चरण पूरे करें: प्रोफ़ाइल फोटो, ड्राइविंग लाइसेंस (सामने और पीछे), आधार, पैन, वाहन फोटो और आरसी।',
+      'te':
+          'దయచేసి అన్ని దశలు పూర్తి చేయండి: ప్రొఫైల్ ఫోటో, డ్రైవింగ్ లైసెన్స్ (ముందు & వెనుక), ఆధార్, పాన్, వాహన ఫోటో మరియు RC.',
+    },
+    'docm0019': {
+      'en':
+          'Documents submitted. Waiting for admin approval to activate your account.',
+      'hi':
+          'दस्तावेज़ सबमिट हो गए। आपके खाते को सक्रिय करने के लिए व्यवस्थापक की मंज़ूरी का इंतज़ार है।',
+      'te':
+          'డాక్యుమెంట్లు సమర్పించబడ్డాయి. మీ ఖాతాను సక్రియం చేయడానికి నిర్వాహక ఆమోదం కోసం వేచి ఉంది.',
+    },
+    'docm0020': {
+      'en': 'Could not submit for approval. Please try again.',
+      'hi': 'अनुमोदन के लिए सबमिट नहीं हो सका। कृपया पुनः प्रयास करें।',
+      'te': 'ఆమోదానికి సమర్పించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
+    },
     // Ride Flow
     'ride0001': {
       'en': 'Failed to accept ride. Please check your connection.',
@@ -5997,6 +6023,30 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'Your KYC status is "%1". Please complete KYC.',
       'hi': 'आपकी KYC स्थिति "%1" है। कृपया KYC पूर्ण करें।',
       'te': 'మీ KYC స్థితి "%1". దయచేసి KYC పూర్తి చేయండి.'
+    },
+    'drv_kyc_waiting_admin': {
+      'en':
+          'Waiting for admin approval to activate your account. You cannot go online until approved.',
+      'hi':
+          'आपके खाते को सक्रिय करने के लिए व्यवस्थापक की मंज़ूरी का इंतज़ार है। स्वीकृति मिलने तक आप ऑनलाइन नहीं जा सकते।',
+      'te':
+          'మీ ఖాతాను సక్రియం చేయడానికి నిర్వాహక ఆమోదం కోసం వేచి ఉంది. ఆమోదం వరకు మీరు ఆన్‌లైన్‌కు వెళ్లలేరు.',
+    },
+    'drv_kyc_need_docs': {
+      'en':
+          'Upload all required documents in Account → Manage documents, then submit for admin approval.',
+      'hi':
+          'खाता → दस्तावेज़ प्रबंधित करें में सभी आवश्यक दस्तावेज़ अपलोड करें, फिर व्यवस्थापक अनुमोदन के लिए सबमिट करें।',
+      'te':
+          'ఖాతా → డాక్యుమెంట్లను నిర్వహించండిలో అవసరమైన డాక్యుమెంట్లన్నీ అప్‌లోడ్ చేసి, నిర్వాహక ఆమోదానికి సమర్పించండి.',
+    },
+    'drv_kyc_rejected': {
+      'en':
+          'Your verification was not approved. Update your documents in Account → Manage documents.',
+      'hi':
+          'आपका सत्यापन स्वीकृत नहीं हुआ। खाता → दस्तावेज़ प्रबंधित करें में अपडेट करें।',
+      'te':
+          'మీ ధృవీకరణ ఆమోదించబడలేదు. ఖాతా → డాక్యుమెంట్లను నిర్వహించండిలో అప్డేట్ చేయండి.',
     },
     'drv_ok': {'en': 'OK', 'hi': 'ठीक है', 'te': 'సరే'},
     'drv_you_online': {

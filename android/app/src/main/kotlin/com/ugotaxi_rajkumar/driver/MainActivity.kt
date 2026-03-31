@@ -10,6 +10,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.media.AudioAttributes
 import android.net.Uri
 import android.provider.Settings
@@ -264,5 +265,28 @@ class MainActivity: FlutterActivity() {
             }
         }
         return false
+    }
+
+    /**
+     * Same moment Rapido uses: user pressed Home / Recents / left the app.
+     * Starts [CaptainBubbleService] while Flutter `paused` may not have run yet, so the
+     * captain bubble + foreground notification still appear for online drivers.
+     */
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (!isFlutterDriverCaptainOnline()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            return
+        }
+        if (!isServiceRunning(CaptainBubbleService::class.java)) {
+            startFloatingBubbleService()
+        }
+    }
+
+    /** Mirrors Flutter [FFAppState].isonline persisted via shared_preferences. */
+    private fun isFlutterDriverCaptainOnline(): Boolean {
+        val p = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        return p.getBoolean("flutter.ff_isonline", false) ||
+            p.getBoolean("ff_isonline", false)
     }
 }

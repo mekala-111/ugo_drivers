@@ -118,30 +118,43 @@ class DocumentVerificationService {
     );
   }
 
-  /// Less strict: for "Skip for now" - only validates critical fields
-  static DocumentVerificationResult verifyMinimum() {
+  /// Registration without documents: profile + **preferred vehicle** required.
+  /// Documents are uploaded later (e.g. before going online / KYC approval).
+  static DocumentVerificationResult verifyProfileOnlyRegistration() {
     final errors = <String>[];
 
-    if (FFAppState().firstName.trim().isEmpty)
+    if (FFAppState().firstName.trim().isEmpty) {
       errors.add('First name is required');
-    if (FFAppState().lastName.trim().isEmpty)
+    }
+    if (FFAppState().lastName.trim().isEmpty) {
       errors.add('Last name is required');
+    }
     if (FFAppState().email.trim().isEmpty) {
       errors.add('Email is required');
     } else if (!FFAppState().email.contains('@')) {
       errors.add('Enter a valid email');
     }
-    if (!InputValidators.isValidIndianPhone(FFAppState().mobileNo.toString())) {
+    if (FFAppState().mobileNo == 0 ||
+        FFAppState().mobileNo.toString().length < 10) {
+      errors.add('Valid mobile number is required');
+    } else if (!InputValidators.isValidIndianPhone(
+        FFAppState().mobileNo.toString())) {
       errors.add('Valid 10-digit mobile number is required');
     }
-    if (FFAppState().selectvehicle.isEmpty) {
-      errors.add('Please select a vehicle type');
+    if (FFAppState().selectvehicle.trim().isEmpty ||
+        FFAppState().adminVehicleId <= 0) {
+      errors.add('Please select a preferred vehicle type');
     }
 
     return DocumentVerificationResult(
       isValid: errors.isEmpty,
       errors: errors,
     );
+  }
+
+  /// Less strict: same as [verifyProfileOnlyRegistration] (legacy name).
+  static DocumentVerificationResult verifyMinimum() {
+    return verifyProfileOnlyRegistration();
   }
 
   static bool _hasDoc(dynamic doc) {
