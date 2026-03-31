@@ -65,14 +65,14 @@ class _WalletWidgetState extends State<WalletWidget> {
         driverId: driverId,
         token: token,
         page: 1,
-        pageSize: 5,
+        pageSize: 10,
       );
       if (!mounted) return;
       if (res.succeeded && res.jsonBody is Map<String, dynamic>) {
         final parsed =
             TransactionResponse.fromJson(res.jsonBody as Map<String, dynamic>);
         setState(() {
-          _recentTransactions = parsed.transactions.take(5).toList();
+          _recentTransactions = parsed.transactions.take(10).toList();
           _loadingRecentTx = false;
         });
       } else {
@@ -91,6 +91,33 @@ class _WalletWidgetState extends State<WalletWidget> {
       return 'Today $h:$m';
     }
     return '${d.day}/${d.month}/${d.year}';
+  }
+
+  Future<void> _openWithdrawFlow() async {
+    final hasAccount = bankAccountNumber != null && bankAccountNumber!.isNotEmpty;
+    if (!mounted) return;
+
+    if (hasAccount) {
+      context.pushNamedAuth(
+        WithdrawWidget.routeName,
+        mounted,
+        queryParameters: {
+          'bankAccountNumber': bankAccountNumber ?? '',
+          'ifscCode': ifscCode ?? '',
+          'accountHolderName': accountHolderName ?? '',
+          'fundAccountId': fundAccountId ?? '',
+          'walletAmount': walletBalance ?? '0',
+        },
+        ignoreRedirect: true,
+      );
+      return;
+    }
+
+    context.pushNamedAuth(
+      AddBankAccountWidget.routeName,
+      mounted,
+      ignoreRedirect: true,
+    );
   }
 
   // 🏦 Fetch bank account details from API
@@ -251,9 +278,7 @@ class _WalletWidgetState extends State<WalletWidget> {
             : 20.0;
     final contentMaxWidth = isTablet ? 720.0 : double.infinity;
     final headerActions = [
-      _buildHeaderAction(
-          Icons.add, FFLocalizations.of(context).getText('wallet0014'),
-          () async {
+      _buildHeaderAction(Icons.add, 'Add Money', () async {
         // Navigate to Add Money page and refresh on return
         await context.pushNamed(AddMoneyWidget.routeName);
         // Refresh wallet balance after returning from Add Money page
@@ -261,10 +286,18 @@ class _WalletWidgetState extends State<WalletWidget> {
           _fetchWallet();
         }
       }),
-      _buildHeaderAction(Icons.qr_code_scanner,
-          FFLocalizations.of(context).getText('wallet0015'), () {}),
-      _buildHeaderAction(Icons.history,
-          FFLocalizations.of(context).getText('wallet0016'), () {}),
+      _buildHeaderAction(Icons.account_balance_wallet, 'Withdraw', ()  {
+
+        context.pushNamedAuth(
+          WithdrawWidget.routeName,
+          mounted,
+          ignoreRedirect: true,
+        );
+
+      }),
+      _buildHeaderAction(Icons.account_balance, 'Bank Account', () async {
+        await _openWithdrawFlow();
+      }),
     ];
 
     return GestureDetector(
@@ -417,11 +450,19 @@ class _WalletWidgetState extends State<WalletWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          FFLocalizations.of(context).getText('wallet0002'),
+                          'Recent Transactions',
                           style: GoogleFonts.inter(
                             fontSize: 18.0 * scale,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          '10 transactions',
+                          style: GoogleFonts.inter(
+                            fontSize: 12.0 * scale,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         SizedBox(height: 12.0 * scale),
@@ -494,92 +535,6 @@ class _WalletWidgetState extends State<WalletWidget> {
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 16.0 * scale),
-
-                  // ==========================================
-                  // 3️⃣ MANAGE OPTIONS (Clean Cards)
-                  // ==========================================
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: horizontalPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          FFLocalizations.of(context).getText('wallet0007'),
-                          style: GoogleFonts.inter(
-                            fontSize: 18.0 * scale,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 12.0 * scale),
-                        _buildMenuCard(
-                          icon: Icons.account_balance,
-                          title:
-                              FFLocalizations.of(context).getText('wallet0008'),
-                          subtitle:
-                              FFLocalizations.of(context).getText('wallet0009'),
-                          onTap: () {
-                            if (kDebugMode) {
-                              // Bank card tapped - do not log details
-                            }
-
-                            final hasAccount = bankAccountNumber != null &&
-                                bankAccountNumber!.isNotEmpty;
-
-                            if (!mounted) return;
-
-                            if (hasAccount) {
-                              // Bank account exists - navigate to withdraw page
-                              if (kDebugMode) {
-                                print(
-                                    '💳 Navigating to withdraw with wallet balance: "$walletBalance"');
-                              }
-                              context.pushNamedAuth(
-                                WithdrawWidget.routeName,
-                                mounted,
-                                extra: {
-                                  'bankAccountNumber': bankAccountNumber,
-                                  'ifscCode': ifscCode,
-                                  'accountHolderName': accountHolderName,
-                                  'fundAccountId': fundAccountId,
-                                  'walletAmount': walletBalance,
-                                },
-                                ignoreRedirect: true,
-                              );
-                            } else {
-                              // No bank account - navigate to add bank account page
-                              context.pushNamedAuth(
-                                AddBankAccountWidget.routeName,
-                                mounted,
-                                ignoreRedirect: true,
-                              );
-                            }
-                          },
-                        ),
-                        SizedBox(height: 12.0 * scale),
-                        _buildMenuCard(
-                          icon: Icons.card_giftcard,
-                          title:
-                              FFLocalizations.of(context).getText('wallet0010'),
-                          subtitle:
-                              FFLocalizations.of(context).getText('wallet0011'),
-                          onTap: () {},
-                        ),
-                        SizedBox(height: 12.0 * scale),
-                        _buildMenuCard(
-                          icon: Icons.group_add,
-                          title:
-                              FFLocalizations.of(context).getText('wallet0012'),
-                          subtitle:
-                              FFLocalizations.of(context).getText('wallet0013'),
-                          onTap: () {},
                         ),
                       ],
                     ),
@@ -701,60 +656,4 @@ class _WalletWidgetState extends State<WalletWidget> {
     );
   }
 
-  // 🔹 WIDGET: Menu Card
-  Widget _buildMenuCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: ugoOrange, size: 22),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
 }

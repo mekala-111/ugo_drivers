@@ -45,6 +45,11 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
   String? bankHolderName;
   String? fundAccountId;
   bool _isSubmitting = false;
+  double _availableBalance = 0;
+  double _minWithdrawal = 1;
+  double _maxWithdrawable = 0;
+  String _withdrawalMethod = 'bank';
+  final TextEditingController _upiController = TextEditingController();
 
   @override
   void initState() {
@@ -55,6 +60,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
       debugPrint(
           '💰 WithdrawWidget received walletAmount: "${widget.walletAmount}"');
     }
+
+    _availableBalance = double.tryParse(widget.walletAmount ?? '') ?? 0;
 
     // Initialize amount text controller with wallet amount if provided
     _model.textController1 ??= TextEditingController(
@@ -67,6 +74,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
 
     _model.textController3 ??= TextEditingController();
     _model.textFieldFocusNode3 ??= FocusNode();
+    _fetchAvailableBalance();
 
     if (widget.bankAccountNumber != null &&
         widget.bankAccountNumber!.isNotEmpty) {
@@ -85,6 +93,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
 
   @override
   void dispose() {
+    _upiController.dispose();
     _model.dispose();
 
     super.dispose();
@@ -120,6 +129,10 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         ifscCode = BankAccountCall.ifscCode(response.jsonBody);
         bankHolderName = BankAccountCall.accountHolderName(response.jsonBody);
         fundAccountId = BankAccountCall.fundAccountId(response.jsonBody);
+        final savedUpi = BankAccountCall.upiId(response.jsonBody);
+        if (savedUpi != null && savedUpi.isNotEmpty) {
+          _upiController.text = savedUpi;
+        }
 
         final maskedAccount = _maskAccountNumber(bankAccountNumber);
         _model.textController2?.text = maskedAccount ?? '';
@@ -130,6 +143,32 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         debugPrint('❌ Error fetching bank account: $e');
       }
     }
+  }
+
+  Future<void> _fetchAvailableBalance() async {
+    try {
+      final driverId = int.tryParse(FFAppState().driverid.toString());
+      final token = FFAppState().accessToken;
+      if (driverId == null || token.isEmpty) return;
+
+      final response = await GetWalletCall.call(driverId: driverId, token: token);
+      if (!response.succeeded || !mounted) return;
+
+      final raw = GetWalletCall.walletBalance(response.jsonBody);
+      final parsed = double.tryParse(raw?.toString() ?? '');
+      if (parsed == null) return;
+
+      setState(() {
+        _availableBalance = parsed;
+        final minRaw = getJsonField(response.jsonBody, r'$.data.limits.min_withdrawal');
+        final maxRaw = getJsonField(response.jsonBody, r'$.data.limits.max_withdrawable');
+        _minWithdrawal = double.tryParse(minRaw?.toString() ?? '') ?? _minWithdrawal;
+        _maxWithdrawable = double.tryParse(maxRaw?.toString() ?? '') ?? parsed;
+        if ((_model.textController1?.text.trim().isEmpty ?? true)) {
+          _model.textController1?.text = _maxWithdrawable.toStringAsFixed(0);
+        }
+      });
+    } catch (_) {}
   }
 
   String? _maskAccountNumber(String? accountNumber) {
@@ -153,6 +192,15 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
     return '${parts.first}.${parts.skip(1).join()}';
   }
 
+  void _setQuickAmount(double value) {
+    final safe = value <= _availableBalance ? value : _availableBalance;
+    _model.textController1?.text = safe.toStringAsFixed(0);
+    _model.textController1?.selection = TextSelection.fromPosition(
+      TextPosition(offset: _model.textController1?.text.length ?? 0),
+    );
+    setState(() {});
+  }
+
   Future<void> _submitWithdraw() async {
     if (_isSubmitting) {
       return;
@@ -173,14 +221,52 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
       return;
     }
 
-    if (bankAccountNumber == null || bankAccountNumber!.isEmpty) {
+    final allowedMax = _maxWithdrawable > 0 ? _maxWithdrawable : _availableBalance;
+    if (amountValue > allowedMax) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Add a bank account before withdrawing.'),
+        SnackBar(
+          content: Text(
+              'Amount exceeds max withdrawable (₹${allowedMax.toStringAsFixed(2)}).'),
           backgroundColor: Colors.red,
         ),
       );
       return;
+    }
+    if (amountValue < _minWithdrawal) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Minimum withdrawal amount is ₹${_minWithdrawal.toStringAsFixed(0)}.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (bankAccountNumber == null || bankAccountNumber!.isEmpty) {
+      if (_withdrawalMethod == 'bank') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Add a bank account before bank withdrawal.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
+    final upiId = _upiController.text.trim();
+    if (_withdrawalMethod == 'upi') {
+      final upiRegex = RegExp(r'^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$');
+      if (!upiRegex.hasMatch(upiId)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Enter a valid UPI ID (example@upi).'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
 
     final driverId = FFAppState().driverid;
@@ -203,13 +289,26 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         driverId: driverId,
         amount: amountValue,
         fundAccountId: fundAccountId,
+        withdrawalMethod: _withdrawalMethod,
+        upiId: _withdrawalMethod == 'upi' ? upiId : null,
         token: FFAppState().accessToken,
       );
 
       if (response.succeeded) {
         final message = RazorpayPayoutCall.message(response.jsonBody) ??
             'Withdraw request submitted.';
+        final newBalanceRaw = getJsonField(response.jsonBody, r'$.data.wallet_balance');
+        final newBalance = double.tryParse(newBalanceRaw?.toString() ?? '');
         if (mounted) {
+          if (newBalance != null) {
+            setState(() {
+              _availableBalance = newBalance;
+              _maxWithdrawable = newBalance;
+              _model.textController1?.clear();
+            });
+          } else {
+            _fetchAvailableBalance();
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(message),
@@ -301,430 +400,236 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         ),
         body: SafeArea(
           top: true,
-          child: Container(
-            decoration: const BoxDecoration(),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: AppColors.background,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Available Balance',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '₹${_availableBalance.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Withdraw To',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.greyDark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Bank Account'),
+                      selected: _withdrawalMethod == 'bank',
+                      onSelected: (v) {
+                        if (!v) return;
+                        setState(() => _withdrawalMethod = 'bank');
+                      },
+                    ),
+                    ChoiceChip(
+                      label: const Text('UPI'),
+                      selected: _withdrawalMethod == 'upi',
+                      onSelected: (v) {
+                        if (!v) return;
+                        setState(() => _withdrawalMethod = 'upi');
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Enter amount',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.greyDark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: AppColors.greyMid,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              FFLocalizations.of(context).getText(
-                                '9ltoao1v' /* Enter Amount */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: AppColors.greyDark,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: AppColors.greyMid,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16, 0, 16, 0),
-                                child: TextFormField(
-                                  controller: _model.textController1,
-                                  focusNode: _model.textFieldFocusNode1,
-                                  autofocus: false,
-                                  readOnly: false,
-                                  obscureText: false,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                      RegExp(r'[\d\.,₹ ]'),
-                                    ),
-                                  ],
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        FFLocalizations.of(context).getText(
-                                      '9z3c0f6c' /* ₹380 */,
-                                    ),
-                                    hintStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          color: AppColors.greyMedium,
-                                          letterSpacing: 0.0,
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    focusedErrorBorder: InputBorder.none,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyDark,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                  validator: _model.textController1Validator
-                                      .asValidator(context),
-                                ),
-                              ),
-                            ),
-                          ].divide(const SizedBox(height: 8)),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              FFLocalizations.of(context).getText(
-                                'visvh3a4' /* Bank Account Number */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: AppColors.greyDark,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: AppColors.greyMid,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16, 0, 16, 0),
-                                child: TextFormField(
-                                  controller: _model.textController2,
-                                  focusNode: _model.textFieldFocusNode2,
-                                  autofocus: false,
-                                  readOnly: true,
-                                  obscureText: false,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        FFLocalizations.of(context).getText(
-                                      'g95ih7v8' /* XXXXXXXXXXXXXXX38 */,
-                                    ),
-                                    hintStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          color: AppColors.greyMedium,
-                                          letterSpacing: 0.0,
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    focusedErrorBorder: InputBorder.none,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyDark,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                  validator: _model.textController2Validator
-                                      .asValidator(context),
-                                ),
-                              ),
-                            ),
-                          ].divide(const SizedBox(height: 8)),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              FFLocalizations.of(context).getText(
-                                '5rbl97wg' /* Bank IFSC Code */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    color: AppColors.greyDark,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: AppColors.greyMid,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    16, 0, 16, 0),
-                                child: TextFormField(
-                                  controller: _model.textController3,
-                                  focusNode: _model.textFieldFocusNode3,
-                                  autofocus: false,
-                                  readOnly: true,
-                                  obscureText: false,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        FFLocalizations.of(context).getText(
-                                      'i2j5vzhu' /* XXXXXX38 */,
-                                    ),
-                                    hintStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                          color: AppColors.greyMedium,
-                                          letterSpacing: 0.0,
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    focusedErrorBorder: InputBorder.none,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.inter(
-                                          fontWeight:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontWeight,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: AppColors.greyDark,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                  validator: _model.textController3Validator
-                                      .asValidator(context),
-                                ),
-                              ),
-                            ),
-                          ].divide(const SizedBox(height: 8)),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FFButtonWidget(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              text: FFLocalizations.of(context).getText(
-                                'c1crgt2r' /* Cancel */,
-                              ),
-                              options: FFButtonOptions(
-                                width: 120,
-                                height: 50,
-                                padding: const EdgeInsets.all(8),
-                                iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        0, 0, 0, 0),
-                                color: AppColors.greyBg,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                      color: AppColors.greyMedium,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                elevation: 0,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            FFButtonWidget(
-                              onPressed: _submitWithdraw,
-                              text: FFLocalizations.of(context).getText(
-                                'bhzb42xw' /* Submit */,
-                              ),
-                              options: FFButtonOptions(
-                                width: 200,
-                                height: 50,
-                                padding: const EdgeInsets.all(8),
-                                iconPadding:
-                                    const EdgeInsetsDirectional.fromSTEB(
-                                        0, 0, 0, 0),
-                                color: AppColors.accentCoral,
-                                textStyle: FlutterFlowTheme.of(context)
-                                    .titleSmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                      color: Colors.white,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .fontStyle,
-                                    ),
-                                elevation: 0,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ].divide(const SizedBox(width: 16)),
-                        ),
-                      ].divide(const SizedBox(height: 24)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: TextFormField(
+                      controller: _model.textController1,
+                      focusNode: _model.textFieldFocusNode1,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[\d\.,₹ ]')),
+                      ],
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '₹0',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.greyDark,
+                      ),
+                      onChanged: (_) => setState(() {}),
+                      validator:
+                          _model.textController1Validator.asValidator(context),
                     ),
                   ),
                 ),
-              ].divide(const SizedBox(height: 0)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    for (final amt in <double>[100, 200, 500, _availableBalance])
+                      ActionChip(
+                        label: Text(
+                          amt == _availableBalance
+                              ? 'Full Amount'
+                              : '₹${amt.toStringAsFixed(0)}',
+                        ),
+                        onPressed: _availableBalance > 0
+                            ? () => _setQuickAmount(amt)
+                            : null,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Min ₹${_minWithdrawal.toStringAsFixed(0)} • Max ₹${(_maxWithdrawable > 0 ? _maxWithdrawable : _availableBalance).toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                if (_withdrawalMethod == 'bank')
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.greyMid),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Payout bank account',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.greyDark,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          bankHolderName?.isNotEmpty == true
+                              ? bankHolderName!
+                              : 'Account holder not set',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${_maskAccountNumber(bankAccountNumber) ?? 'No bank account'}  •  ${ifscCode ?? '-'}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.greyMid),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'UPI ID',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.greyDark,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _upiController,
+                          decoration: const InputDecoration(
+                            hintText: 'example@upi',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'UPI withdrawals are free.',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 24),
+                FFButtonWidget(
+                  onPressed: _isSubmitting ? null : _submitWithdraw,
+                  text: _isSubmitting ? 'Processing...' : 'Withdraw',
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 52,
+                    color: AppColors.primary,
+                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                          font: GoogleFonts.interTight(
+                            fontWeight: FontWeight.w700,
+                          ),
+                          color: Colors.white,
+                          letterSpacing: 0,
+                        ),
+                    elevation: 0,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

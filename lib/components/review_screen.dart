@@ -363,6 +363,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   Widget _buildFareCard() {
+    final isCash = widget.ride.paymentMode.isCash;
+    final discountAmount = widget.ride.discountAmount ?? 0.0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -433,6 +435,32 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ],
             ),
           ),
+          if (isCash)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Text(
+                discountAmount > 0
+                    ? 'Cash ride with voucher: collect this amount from rider. Remaining ₹${discountAmount.toStringAsFixed(0)} is credited to wallet.'
+                    : 'Cash ride: this amount is collected directly and is not added to wallet.',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Text(
+                'Online/wallet ride: this amount will be reflected in wallet.',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
         ],
       ),
     );

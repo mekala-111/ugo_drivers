@@ -57,6 +57,37 @@ class LoginCall {
         response,
         r'''$.data[*].vehicle_name''',
       );
+
+  static String? accessToken(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.data.accessToken''')) ??
+      castToType<String>(getJsonField(response, r'''$.data.access_token''')) ??
+      castToType<String>(getJsonField(response, r'''$.accessToken'''));
+
+  static String? refreshToken(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.data.refreshToken''')) ??
+      castToType<String>(getJsonField(response, r'''$.data.refresh_token''')) ??
+      castToType<String>(getJsonField(response, r'''$.refreshToken'''));
+}
+
+class DriverLogoutCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverLogout',
+      apiUrl: '$_baseUrl/api/drivers/logout',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: '{}',
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+    );
+  }
 }
 
 class DriverMyReferralsCall {
@@ -1819,6 +1850,11 @@ class BankAccountCall {
     return value?.toString();
   }
 
+  static String? upiId(dynamic response) {
+    final value = getJsonField(response, r'$.data.upi_id');
+    return value?.toString();
+  }
+
   static bool? success(dynamic response) => castToType<bool>(getJsonField(
         response,
         r'$.success',
@@ -1836,13 +1872,19 @@ class RazorpayPayoutCall {
     required int driverId,
     required num amount,
     String? fundAccountId,
+    String? withdrawalMethod,
+    String? upiId,
     required String token,
   }) async {
     final body = <String, dynamic>{
       'driver_id': driverId,
       'amount': amount,
+      'withdrawal_method': (withdrawalMethod == null || withdrawalMethod.isEmpty)
+          ? 'bank'
+          : withdrawalMethod,
       if (fundAccountId != null && fundAccountId.isNotEmpty)
         'fund_account_id': fundAccountId,
+      if (upiId != null && upiId.isNotEmpty) 'upi_id': upiId,
     };
     final ffApiRequestBody = json.encode(body);
 

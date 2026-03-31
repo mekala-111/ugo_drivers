@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '/models/transaction.dart';
 
+enum TransactionFilter { all, credits, withdrawals }
+
 class DriverTransactionsModel {
   // State variables
   int currentPage = 1;
@@ -10,6 +12,7 @@ class DriverTransactionsModel {
   List<Transaction> transactions = [];
   TransactionResponse? transactionResponse;
   ScrollController? scrollController;
+  TransactionFilter activeFilter = TransactionFilter.all;
 
   void initState(BuildContext context) {
     scrollController = ScrollController();
@@ -60,12 +63,28 @@ class DriverTransactionsModel {
     transactions.clear();
   }
 
+  void setFilter(TransactionFilter filter) {
+    activeFilter = filter;
+  }
+
   // Filter methods
   List<Transaction> get creditTransactions =>
       transactions.where((t) => t.isCredit).toList();
 
   List<Transaction> get debitTransactions =>
       transactions.where((t) => t.isDebit).toList();
+
+  List<Transaction> get filteredTransactions {
+    switch (activeFilter) {
+      case TransactionFilter.credits:
+        return creditTransactions;
+      case TransactionFilter.withdrawals:
+        return debitTransactions;
+      case TransactionFilter.all:
+      default:
+        return transactions;
+    }
+  }
 
   double get totalAmount => transactions.fold(
         0.0,

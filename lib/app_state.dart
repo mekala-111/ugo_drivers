@@ -91,6 +91,18 @@ class FFAppState extends ChangeNotifier {
       }
       if (token != null && token.isNotEmpty) _accessToken = token;
     } catch (_) {}
+    try {
+      final sec = SecureStorageService.instance;
+      var token = await sec.read(SecureStorageService.keyRefreshToken);
+      if (token == null || token.isEmpty) {
+        token = prefs.getString('ff_refreshToken');
+        if (token != null && token.isNotEmpty) {
+          await sec.write(SecureStorageService.keyRefreshToken, token);
+          await prefs.remove('ff_refreshToken');
+        }
+      }
+      if (token != null && token.isNotEmpty) _refreshToken = token;
+    } catch (_) {}
     _safeInit(() {
       _kycStatus = prefs.getString('ff_kycStatus') ?? _kycStatus;
     });
@@ -1332,6 +1344,20 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _refreshToken = '';
+  String get refreshToken => _refreshToken;
+  set refreshToken(String value) {
+    _refreshToken = value;
+    final sec = SecureStorageService.instance;
+    if (value.isEmpty) {
+      sec.delete(SecureStorageService.keyRefreshToken);
+      prefs.remove('ff_refreshToken');
+    } else {
+      sec.write(SecureStorageService.keyRefreshToken, value);
+    }
+    notifyListeners();
+  }
+
   String _kycStatus = '';
   String get kycStatus => _kycStatus;
 
@@ -1362,6 +1388,7 @@ class FFAppState extends ChangeNotifier {
 
     // Auth
     _accessToken = '';
+    _refreshToken = '';
     _driverid = 0;
     _isLoggedIn = false;
     _isRegistered = false;
@@ -1408,6 +1435,7 @@ class FFAppState extends ChangeNotifier {
     // Clear secure storage for JWT, Aadhaar/PAN
     final sec = SecureStorageService.instance;
     await sec.delete(SecureStorageService.keyAccessToken);
+    await sec.delete(SecureStorageService.keyRefreshToken);
     await sec.delete(SecureStorageService.keyAadharNumber);
     await sec.delete(SecureStorageService.keyAadharFrontImageUrl);
     await sec.delete(SecureStorageService.keyAadharBackImageUrl);

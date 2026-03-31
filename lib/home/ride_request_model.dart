@@ -24,6 +24,7 @@ class RideRequest {
   final double? distance;
   final double? estimatedFare;
   final double? finalFare;
+  final double? discountAmount;
   final PaymentMode paymentMode;
   final String rawPaymentMode;
   final String bookingMode; // 'pro' or 'normal'
@@ -51,6 +52,7 @@ class RideRequest {
     this.distance,
     this.estimatedFare,
     this.finalFare,
+    this.discountAmount,
     this.paymentMode = PaymentMode.unknown,
     this.rawPaymentMode = 'Online',
     this.bookingMode = 'normal',
@@ -118,6 +120,7 @@ class RideRequest {
       finalFare: _parseToDouble(json['final_fare']) ??
           _parseToDouble(json['ride_amount']) ??
           _parseToDouble(json['amount']),
+      discountAmount: _parseToDouble(json['discount_amount']) ?? 0.0,
       paymentMode: parsePaymentMode(paymentValue),
       rawPaymentMode: paymentValue?.toString() ?? 'Unknown',
       bookingMode: json['booking_mode']?.toString().toLowerCase() ?? 'normal',
@@ -153,6 +156,7 @@ class RideRequest {
     double? distance,
     double? estimatedFare,
     double? finalFare,
+    double? discountAmount,
     PaymentMode? paymentMode,
     String? rawPaymentMode,
     String? bookingMode,
@@ -178,6 +182,7 @@ class RideRequest {
       distance: distance ?? this.distance,
       estimatedFare: estimatedFare ?? this.estimatedFare,
       finalFare: finalFare ?? this.finalFare,
+      discountAmount: discountAmount ?? this.discountAmount,
       paymentMode: paymentMode ?? this.paymentMode,
       rawPaymentMode: rawPaymentMode ?? this.rawPaymentMode,
       bookingMode: bookingMode ?? this.bookingMode,

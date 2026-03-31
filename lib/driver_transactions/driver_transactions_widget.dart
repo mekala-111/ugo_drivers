@@ -167,6 +167,8 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
   }
 
   Widget _buildBody() {
+    final visibleTransactions = _model.filteredTransactions;
+
     if (_model.isLoading && _model.transactions.isEmpty) {
       return Center(
         child: Column(
@@ -303,8 +305,27 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
             ),
           ),
           const SizedBox(height: 12),
+          _buildFilterTabs(),
+          const SizedBox(height: 12),
+          if (visibleTransactions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: Text(
+                  _model.activeFilter == TransactionFilter.credits
+                      ? 'No credit transactions found'
+                      : _model.activeFilter == TransactionFilter.withdrawals
+                          ? 'No withdrawal/debit transactions found'
+                          : 'No transactions found',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ),
           // Transactions List
-          ..._model.transactions.map((transaction) {
+          ...visibleTransactions.map((transaction) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildTransactionTile(transaction),
@@ -469,6 +490,63 @@ class _DriverTransactionsWidgetState extends State<DriverTransactionsWidget> {
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterTabs() {
+    Widget tab({
+      required String label,
+      required TransactionFilter filter,
+      required int count,
+    }) {
+      final selected = _model.activeFilter == filter;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => setState(() => _model.setFilter(filter)),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.primary : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: selected ? AppColors.primary : Colors.grey.shade300,
+              ),
+            ),
+            child: Text(
+              '$label ($count)',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : Colors.grey[700],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        tab(
+          label: 'All',
+          filter: TransactionFilter.all,
+          count: _model.transactions.length,
+        ),
+        const SizedBox(width: 8),
+        tab(
+          label: 'Credits',
+          filter: TransactionFilter.credits,
+          count: _model.creditTransactions.length,
+        ),
+        const SizedBox(width: 8),
+        tab(
+          label: 'Withdrawals',
+          filter: TransactionFilter.withdrawals,
+          count: _model.debitTransactions.length,
         ),
       ],
     );

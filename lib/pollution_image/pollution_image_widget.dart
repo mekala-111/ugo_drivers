@@ -272,6 +272,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
             FFAppState().isRegistered = true;
             FFAppState().driverid = driverId!;
             FFAppState().accessToken = accessToken!;
+            FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
           });
           if (mounted) {
             context.pushNamedAndRemoveUntil(
@@ -322,6 +323,8 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
                 FFAppState().isRegistered = true;
                 FFAppState().driverid = driverId;
                 FFAppState().accessToken = accessToken!;
+                FFAppState().refreshToken =
+                    LoginCall.refreshToken(loginRes.jsonBody) ?? '';
               });
               if (mounted) {
                 context.pushNamedAndRemoveUntil(

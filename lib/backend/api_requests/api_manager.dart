@@ -13,6 +13,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
 
 import '/flutter_flow/uploaded_file.dart';
+import '/app_state.dart';
+import '../../config.dart';
 
 import 'get_streamed_response.dart';
 
@@ -219,6 +221,7 @@ class ApiManager {
 
   // ✅ ADDED: Global callback for Token Expiry / Concurrent Login
   static Function()? onUnauthenticated;
+  static bool _isRefreshingToken = false;
 
   static void clearCache(String callName) => _apiCache.keys
       .toSet()
@@ -596,9 +599,102 @@ class ApiManager {
           'API [$callName] → ${result.statusCode}$suffix response body: $bodyStr');
     }
 
+    final shouldTryRefresh = result.statusCode == 401 &&
+        !_isRefreshingToken &&
+        FFAppState().refreshToken.isNotEmpty &&
+        requestHeaders.keys.any((k) => k.toLowerCase() == 'authorization');
+
+    if (shouldTryRefresh) {
+      final refreshed = await _tryRefreshAccessToken();
+      if (refreshed != null && refreshed.isNotEmpty) {
+        final retriedHeaders = Map<String, dynamic>.from(requestHeaders);
+        retriedHeaders[HttpHeaders.authorizationHeader] = 'Bearer $refreshed';
+        return makeApiCall(
+          callName: callName,
+          apiUrl: apiUrl,
+          callType: callType,
+          headers: retriedHeaders,
+          params: params,
+          body: body,
+          bodyType: bodyType,
+          returnBody: returnBody,
+          encodeBodyUtf8: encodeBodyUtf8,
+          decodeUtf8: decodeUtf8,
+          alwaysAllowBody: alwaysAllowBody,
+          cache: cache,
+          isStreamingApi: isStreamingApi,
+          options: options,
+          client: client,
+        );
+      }
+    }
+
     if (result.statusCode == 401) {
       onUnauthenticated?.call();
     }
     return result;
+  }
+
+  static Future<String?> _tryRefreshAccessToken() async {
+    if (_isRefreshingToken) return null;
+    _isRefreshingToken = true;
+    try {
+      final appState = FFAppState();
+      final refreshToken = appState.refreshToken;
+      if (refreshToken.isEmpty) return null;
+
+      final response = await http.post(
+        Uri.parse('${Config.baseUrl}/api/drivers/refresh-token'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': refreshToken}),
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return null;
+      }
+
+      dynamic decoded;
+      try {
+        decoded = jsonDecode(response.body);
+      } catch (_) {
+        return null;
+      }
+
+      String? getToken(List<String> paths) {
+        for (final path in paths) {
+          final val = _readPath(decoded, path);
+          if (val is String && val.isNotEmpty && val != 'null') return val;
+        }
+        return null;
+      }
+
+      final newAccessToken = getToken(
+          const ['data.accessToken', 'data.access_token', 'accessToken']);
+      if (newAccessToken == null) return null;
+      final newRefreshToken = getToken(
+          const ['data.refreshToken', 'data.refresh_token', 'refreshToken']);
+
+      appState.accessToken = newAccessToken;
+      if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
+        appState.refreshToken = newRefreshToken;
+      }
+      return newAccessToken;
+    } catch (_) {
+      return null;
+    } finally {
+      _isRefreshingToken = false;
+    }
+  }
+
+  static dynamic _readPath(dynamic root, String path) {
+    dynamic current = root;
+    for (final part in path.split('.')) {
+      if (current is Map && current.containsKey(part)) {
+        current = current[part];
+      } else {
+        return null;
+      }
+    }
+    return current;
   }
 }
