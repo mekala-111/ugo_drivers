@@ -28,6 +28,7 @@ const Duration _notifyTimeThreshold = Duration(seconds: 2);
 class HomeController extends ChangeNotifier {
   HomeController({
     required this.onShowKycDialog,
+    required this.onNavigateToOnboarding,
     required this.onShowLocationDisclosure,
     required this.onShowPermissionDialog,
     required this.onShowBackgroundLocationNotice,
@@ -42,6 +43,7 @@ class HomeController extends ChangeNotifier {
   }
 
   final Future<void> Function() onShowKycDialog;
+  final Future<void> Function() onNavigateToOnboarding;
   final Future<bool> Function() onShowLocationDisclosure;
   final Future<void> Function() onShowPermissionDialog;
   final Future<bool> Function() onShowBackgroundLocationNotice;
@@ -71,6 +73,8 @@ class HomeController extends ChangeNotifier {
   String profileImageUrl = '';
   bool isOnline = false;
   String currentRideStatus = 'IDLE';
+  bool _allKycDocsUploaded = true;
+  String _docKycStatus = '';
 
   int currentRides = 0;
   double totalIncentiveEarned = 0.0;
@@ -264,6 +268,16 @@ class HomeController extends ChangeNotifier {
     final isActiveFromApi =
         DriverIdfetchCall.isActive(userDetails.jsonBody) ?? false;
     FFAppState().isActive = isActiveFromApi;
+    final allUploadedRaw = getJsonField(
+      userDetails.jsonBody ?? {},
+      r'''$.data.kyc_doc_status.all_uploaded''',
+    );
+    _allKycDocsUploaded = allUploadedRaw == true ||
+        allUploadedRaw?.toString().toLowerCase() == 'true';
+    _docKycStatus = getJsonField(
+      userDetails.jsonBody ?? {},
+      r'''$.data.kyc_doc_status.kyc_status''',
+    ).toString().trim();
     FFAppState().qrImage = getJsonField(
       (postQR.jsonBody ?? ''),
       r'''$.data.qr_code_image''',
@@ -327,7 +341,18 @@ class HomeController extends ChangeNotifier {
   // ── Online/Offline ─────────────────────────────────────────────────────────
 
   Future<void> goOnline({bool silent = false}) async {
-    if (FFAppState().kycStatus.trim().toLowerCase() != 'approved') {
+    if (!_allKycDocsUploaded) {
+      isOnline = false;
+      _notify();
+      if (!silent) await onNavigateToOnboarding();
+      return;
+    }
+
+    final effectiveKycStatus = _docKycStatus.isNotEmpty &&
+            _docKycStatus.toLowerCase() != 'null'
+        ? _docKycStatus
+        : FFAppState().kycStatus;
+    if (effectiveKycStatus.trim().toLowerCase() != 'approved') {
       isOnline = false;
       _notify();
       if (!silent) await onShowKycDialog();

@@ -153,6 +153,18 @@ class _HomeWidgetState extends State<HomeWidget>
           ),
         );
       },
+      onNavigateToOnboarding: () async {
+        if (!mounted) return;
+        await context.pushNamed(
+          OnBoardingWidget.routeName,
+          queryParameters: {
+            'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
+            'firstname': serializeParam(FFAppState().firstName, ParamType.String),
+            'lastname': serializeParam(FFAppState().lastName, ParamType.String),
+            'email': serializeParam(FFAppState().email, ParamType.String),
+          }.withoutNulls,
+        );
+      },
       onShowLocationDisclosure: () async {
         if (!mounted) return false;
         final result = await showDialog<bool>(
