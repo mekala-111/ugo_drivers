@@ -27,6 +27,8 @@ class _InboxPageWidgetState extends State<InboxPageWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => InboxPageModel());
+    FFAppState().update(() => FFAppState().notificationUnreadCount = 0);
+
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadNotifications());
   }

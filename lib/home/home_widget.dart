@@ -985,16 +985,21 @@ class _HomeWidgetState extends State<HomeWidget>
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    AppHeader(
-                      scaffoldKey: scaffoldKey,
-                      switchValue: c.isOnline,
-                      isDataLoaded: c.isDataLoaded,
-                      onToggleOnline: () => c.toggleOnlineStatus(),
-                      isRideLocked: isRideLocked,
-                      screenWidth: screenWidth,
-                      isSmallScreen: isSmallScreen,
-                      notificationCount: c.notificationUnreadCount,
-                    ),
+                   AppHeader(
+                scaffoldKey: scaffoldKey,
+                switchValue: c.isOnline,
+                isDataLoaded: c.isDataLoaded,
+                onToggleOnline: () => c.toggleOnlineStatus(),
+                isRideLocked: isRideLocked,
+                screenWidth: screenWidth,
+                isSmallScreen: isSmallScreen,
+                notificationCount: c.notificationUnreadCount,
+                // ✅ Add this
+                onNotificationTap: () {
+                  _controller.resetNotificationCount();
+                  context.pushNamed(InboxPageWidget.routeName);
+                },
+              ),
                     Expanded(
                       child: Stack(
                         children: [

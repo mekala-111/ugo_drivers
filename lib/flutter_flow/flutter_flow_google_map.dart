@@ -443,7 +443,8 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
         markers: _cachedMarkers,
-        circles: _cachedCircles,
+        // circles: _cachedCircles,
+        circles:{},
         polylines: _cachedPolylines,
         gestureRecognizers: {
           if (mapHasGesturePreference)
@@ -474,10 +475,10 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
 
   /// Replace the set of circles shown on the map (e.g. pickup/drop area highlights).
   void updateCircles(Set<Circle> circles) {
-    if (!mounted) return;
-    if (!setEquals(circles, _cachedCircles)) {
-      setState(() => _cachedCircles = circles);
-    }
+    // if (!mounted) return;
+    // if (!setEquals(circles, _cachedCircles)) {
+    //   setState(() => _cachedCircles = circles);
+    // }
   }
 
   /// Replace the polyline shown on the map (e.g. pickup to drop route line).
