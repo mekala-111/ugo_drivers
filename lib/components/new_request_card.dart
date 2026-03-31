@@ -93,169 +93,191 @@ class NewRequestCard extends StatelessWidget {
     final isNarrow = MediaQuery.sizeOf(context).width < 360;
     final isPro = ride.bookingMode == 'pro';
 
-    return Container(
-      margin: EdgeInsets.all(margin),
+    final gapSm = MediaQuery.sizeOf(context).height * 0.012;
+    final gapMd = MediaQuery.sizeOf(context).height * 0.018;
+
+    final header = Container(
+      padding: EdgeInsets.symmetric(
+          horizontal: pad, vertical: Responsive.verticalSpacing(context)),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+          color: isPro
+              ? const Color(0xFFE3CA43)
+              : const Color(0xFF4CAF50), // Gold for Pro, Green for Normal
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(isPro ? 'NEW PRO REQUEST' : 'NEW REQUEST',
+              style: TextStyle(
+                  color: isPro ? Colors.black : Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Responsive.fontSize(context, 16))),
+          Text('${remainingTime}s',
+              style: TextStyle(
+                  color: isPro ? Colors.black : Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Responsive.fontSize(context, 16))),
         ],
-        border: Border.all(
-            color: isPro ? const Color(0xFFE3CA43) : ugoOrange,
-            width: 2), // Gold for Pro, Orange for Normal
       ),
+    );
+
+    final middle = Padding(
+      padding: EdgeInsets.all(pad),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-                horizontal: pad, vertical: Responsive.verticalSpacing(context)),
-            decoration: BoxDecoration(
-                color: isPro
-                    ? const Color(0xFFE3CA43)
-                    : const Color(0xFF4CAF50), // Gold for Pro, Green for Normal
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(18))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          if (isNarrow)
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(isPro ? 'NEW PRO REQUEST' : 'NEW REQUEST',
-                        style: TextStyle(
-                            color: isPro
-                                ? Colors.black
-                                : Colors.white, // Black text on Pro gold
-                            fontWeight: FontWeight.bold,
-                            fontSize: Responsive.fontSize(context, 16))),
+                    _buildPickupDistanceInfo(
+                      context,
+                      FFLocalizations.of(context).getText('drv_pickup_distance'),
+                      ride,
+                    ),
+                    _buildDropDistanceInfo(
+                      context,
+                      FFLocalizations.of(context).getText('drv_drop_distance'),
+                      ride,
+                    ),
                   ],
                 ),
-                Text('${remainingTime}s',
-                    style: TextStyle(
-                        color: isPro
-                            ? Colors.black
-                            : Colors.white, // Black text on Pro gold
-                        fontWeight: FontWeight.bold,
-                        fontSize: Responsive.fontSize(context, 16))),
+                SizedBox(height: gapSm),
+                _buildFareBox(context),
+              ],
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPickupDistanceInfo(
+                  context,
+                  FFLocalizations.of(context).getText('drv_pickup_distance'),
+                  ride,
+                ),
+                Expanded(child: _buildFareBox(context)),
+                _buildDropDistanceInfo(
+                  context,
+                  FFLocalizations.of(context).getText('drv_drop_distance'),
+                  ride,
+                ),
               ],
             ),
+          SizedBox(height: gapMd),
+          _AddressRowFromLatLng(
+            lat: ride.dropLat,
+            lng: ride.dropLng,
+            address: ride.dropAddress,
+            color: ugoRed,
+            label: FFLocalizations.of(context).getText('drv_drop'),
           ),
-          Padding(
-            padding: EdgeInsets.all(pad),
-            child: Column(
-              children: [
-                if (isNarrow)
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildPickupDistanceInfo(
-                            context,
-                            FFLocalizations.of(context)
-                                .getText('drv_pickup_distance'),
-                            ride,
-                          ),
-                          _buildDropDistanceInfo(
-                            context,
-                            FFLocalizations.of(context)
-                                .getText('drv_drop_distance'),
-                            ride,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                          height: MediaQuery.sizeOf(context).height * 0.015),
-                      _buildFareBox(context),
-                    ],
-                  )
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildPickupDistanceInfo(
-                        context,
-                        FFLocalizations.of(context)
-                            .getText('drv_pickup_distance'),
-                        ride,
-                      ),
-                      Expanded(child: _buildFareBox(context)),
-                      _buildDropDistanceInfo(
-                        context,
-                        FFLocalizations.of(context)
-                            .getText('drv_drop_distance'),
-                        ride,
-                      ),
-                    ],
-                  ),
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.025),
-                _AddressRowFromLatLng(
-                  lat: ride.dropLat,
-                  lng: ride.dropLng,
-                  address: ride.dropAddress,
-                  color: ugoRed,
-                  label: FFLocalizations.of(context).getText('drv_drop'),
-                ),
-                SizedBox(height: Responsive.verticalSpacing(context)),
-                _AddressRowFromLatLng(
-                  lat: ride.pickupLat,
-                  lng: ride.pickupLng,
-                  address: ride.pickupAddress,
-                  color: ugoGreen,
-                  label: FFLocalizations.of(context).getText('drv_pickup'),
-                ),
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.025),
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildButton(
-                            context,
-                            FFLocalizations.of(context)
-                                .getText('drv_decline')
-                                .toUpperCase(),
-                            const Color(0xFFF7220F), // Bright red from Figma
-                            isLoading ? null : onDecline,
-                            isPro: false)),
-                    SizedBox(width: MediaQuery.sizeOf(context).width * 0.04),
-                    Expanded(
-                        child: isLoading
-                            ? Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(
-                                      MediaQuery.sizeOf(context).width * 0.03),
-                                  child: SizedBox(
-                                    width:
-                                        MediaQuery.sizeOf(context).width * 0.06,
-                                    height:
-                                        MediaQuery.sizeOf(context).width * 0.06,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: isPro
-                                          ? const Color(0xFFE3CA43)
-                                          : const Color(0xFF3C9A40),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : _buildButton(
-                                context,
-                                FFLocalizations.of(context)
-                                    .getText('drv_accept')
-                                    .toUpperCase(),
-                                isPro
-                                    ? const Color(0xFFE3CA43)
-                                    : const Color(
-                                        0xFF3C9A40), // Gold for Pro, Green for Normal
-                                onAccept,
-                                isPro: isPro)),
-                  ],
-                )
-              ],
-            ),
+          SizedBox(height: Responsive.verticalSpacing(context)),
+          _AddressRowFromLatLng(
+            lat: ride.pickupLat,
+            lng: ride.pickupLng,
+            address: ride.pickupAddress,
+            color: ugoGreen,
+            label: FFLocalizations.of(context).getText('drv_pickup'),
           ),
         ],
       ),
+    );
+
+    final actions = Padding(
+      padding: EdgeInsets.fromLTRB(pad, 0, pad, pad),
+      child: Row(
+        children: [
+          Expanded(
+              child: _buildButton(
+                  context,
+                  FFLocalizations.of(context)
+                      .getText('drv_decline')
+                      .toUpperCase(),
+                  const Color(0xFFF7220F),
+                  isLoading ? null : onDecline,
+                  isPro: false)),
+          SizedBox(width: MediaQuery.sizeOf(context).width * 0.04),
+          Expanded(
+              child: isLoading
+                  ? Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                            MediaQuery.sizeOf(context).width * 0.03),
+                        child: SizedBox(
+                          width: MediaQuery.sizeOf(context).width * 0.06,
+                          height: MediaQuery.sizeOf(context).width * 0.06,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: isPro
+                                ? const Color(0xFFE3CA43)
+                                : const Color(0xFF3C9A40),
+                          ),
+                        ),
+                      ),
+                    )
+                  : _buildButton(
+                      context,
+                      FFLocalizations.of(context)
+                          .getText('drv_accept')
+                          .toUpperCase(),
+                      isPro
+                          ? const Color(0xFFE3CA43)
+                          : const Color(0xFF3C9A40),
+                      onAccept,
+                      isPro: isPro)),
+        ],
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final h = constraints.maxHeight;
+        final bounded = h.isFinite && h < double.infinity;
+
+        return Container(
+          margin: EdgeInsets.all(margin),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+            ],
+            border: Border.all(
+                color: isPro ? const Color(0xFFE3CA43) : ugoOrange, width: 2),
+          ),
+          child: bounded
+              ? Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    header,
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
+                        child: middle,
+                      ),
+                    ),
+                    actions,
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    header,
+                    middle,
+                    actions,
+                  ],
+                ),
+        );
+      },
     );
   }
 
@@ -284,8 +306,9 @@ class NewRequestCard extends StatelessWidget {
         Container(height: 1, color: Colors.grey[300]),
         const Icon(Icons.arrow_forward, size: 16),
         Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.sizeOf(context).height * 0.03),
+          padding: EdgeInsets.only(
+            bottom: (MediaQuery.sizeOf(context).height * 0.015).clamp(6.0, 16.0),
+          ),
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.sizeOf(context).width * 0.03,

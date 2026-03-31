@@ -6217,6 +6217,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'नई अनुरोध',
       'te': 'కొత్త అభ్యర్థన'
     },
+    'drv_request_pager': {
+      'en': '{current} of {total}',
+      'hi': '{current} / {total}',
+      'te': '{current} / {total}',
+    },
     'drv_pickup_distance': {
       'en': 'Pickup Distance',
       'hi': 'पिकअप दूरी',

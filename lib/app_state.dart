@@ -491,6 +491,18 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// In-memory: ride IDs this driver declined this app session (including native
+  /// overlay before [RideRequestOverlay] is mounted).
+  final Set<int> _sessionDeclinedRideIds = <int>{};
+
+  void rememberSessionDeclinedRide(int rideId) {
+    if (rideId <= 0) return;
+    _sessionDeclinedRideIds.add(rideId);
+  }
+
+  bool isSessionDeclinedRide(int rideId) =>
+      rideId > 0 && _sessionDeclinedRideIds.contains(rideId);
+
   int get mobileNo => _mobileNo;
 
   set mobileNo(int value) {
@@ -1419,6 +1431,7 @@ class FFAppState extends ChangeNotifier {
     // Ride
     _activeRideId = 0;
     _activeRideStatus = '';
+    _sessionDeclinedRideIds.clear();
     _kycStatus = '';
     _isonline = false;
 

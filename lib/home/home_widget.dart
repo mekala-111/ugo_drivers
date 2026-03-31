@@ -10,6 +10,7 @@ import '/controllers/home_controller.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/providers/ride_provider.dart';
 import '/services/ride_notification_service.dart';
 import '/services/route_polyline_service.dart';
@@ -32,6 +33,11 @@ import '../account_support/documents.dart';
 import '../flutter_flow/lat_lng.dart' as latlng;
 
 export 'home_model.dart';
+
+/// Dedupes native `ride_action` redelivery (sticky Intent / engine reattach) so
+/// decline + [FloatingBubbleService.moveTaskToBack] does not run again when reopening the app.
+String? _rideActionDedupeKey;
+DateTime? _rideActionDedupeAt;
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({super.key});
@@ -391,15 +397,55 @@ class _HomeWidgetState extends State<HomeWidget>
     final rideId = rideIdRaw is int
         ? rideIdRaw
         : int.tryParse(rideIdRaw?.toString() ?? '');
-    if (rideId == null || rideId <= 0) return;
-    if (action == 'accept') {
-      await _overlayKey.currentState?.acceptRideFromBubble(rideId);
-    } else if (action == 'decline') {
-      await _overlayKey.currentState?.declineRideFromBubble(rideId);
-    } else {
+    if (rideId == null || rideId <= 0) {
+      await FloatingBubbleService.clearPendingRideAction();
       return;
     }
-    await FloatingBubbleService.hideRideRequest();
+    if (action != 'accept' && action != 'decline') {
+      await FloatingBubbleService.clearPendingRideAction();
+      return;
+    }
+
+    final dedupeKey = '${action}_$rideId';
+    final now = DateTime.now();
+    if (_rideActionDedupeKey == dedupeKey &&
+        _rideActionDedupeAt != null &&
+        now.difference(_rideActionDedupeAt!) < const Duration(seconds: 10)) {
+      await FloatingBubbleService.clearPendingRideAction();
+      return;
+    }
+    _rideActionDedupeKey = dedupeKey;
+    _rideActionDedupeAt = now;
+
+    try {
+      if (action == 'accept') {
+        await _overlayKey.currentState?.acceptRideFromBubble(rideId);
+      } else {
+        final overlay = _overlayKey.currentState;
+        if (overlay != null) {
+          await overlay.declineRideFromBubble(rideId);
+        } else {
+          FFAppState().rememberSessionDeclinedRide(rideId);
+          final token = FFAppState().accessToken;
+          final driverId = FFAppState().driverid;
+          if (token.isNotEmpty && driverId > 0) {
+            try {
+              await RejectRideCall.call(
+                token: token,
+                rideId: rideId,
+                driverId: driverId,
+              );
+            } catch (_) {}
+          }
+        }
+      }
+      await FloatingBubbleService.hideRideRequest();
+      if (action == 'decline') {
+        await FloatingBubbleService.moveTaskToBack();
+      }
+    } finally {
+      await FloatingBubbleService.clearPendingRideAction();
+    }
   }
 
   void _onFfAppStateDriverProfileRefresh() {
@@ -669,7 +715,7 @@ class _HomeWidgetState extends State<HomeWidget>
       _controller.setRideStatus(status);
       Provider.of<RideState>(context, listen: false)
           .updateRide(RideRequest.fromJson(rideData));
-      _overlayKey.currentState!.handleNewRide(rideData);
+      _overlayKey.currentState?.handleNewRide(rideData);
 
       if (status == 'SEARCHING') {
         clearMap();

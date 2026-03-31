@@ -707,48 +707,6 @@ class RateRideCall {
       castToType<String>(getJsonField(response, r'$.message'));
 }
 
-/// POST /api/drivers/emergency-sos - Driver triggers emergency alert
-class EmergencySosCall {
-  static Future<ApiCallResponse> call({
-    required String token,
-    required int driverId,
-    int? rideId,
-    double? latitude,
-    double? longitude,
-  }) async {
-    final locationStr =
-        (latitude != null && longitude != null) ? '$latitude,$longitude' : null;
-    final body = <String, dynamic>{
-      'driver_id': driverId,
-      if (rideId != null && rideId > 0) 'ride_id': rideId,
-      if (locationStr != null) 'location': locationStr,
-    };
-    return ApiManager.instance.makeApiCall(
-      callName: 'emergencySos',
-      apiUrl: '$_baseUrl/api/drivers/emergency-sos',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: json.encode(body),
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  static bool? success(dynamic response) =>
-      castToType<bool>(getJsonField(response, r'$.success'));
-  static String? message(dynamic response) =>
-      castToType<String>(getJsonField(response, r'$.message'));
-}
-
 class UpdateDriverCall {
   static Future<ApiCallResponse> call({
     int? id,

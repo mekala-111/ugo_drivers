@@ -3,6 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -25,6 +26,14 @@ import '/services/ride_alert_audio_service.dart';
 import '/services/floating_bubble_service.dart';
 import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
+
+/// Hot restart / engine detach tears down native audioplayers before the Dart
+/// [AudioPlayer.dispose] cancels its EventChannel — benign, very noisy in logs.
+bool _isIgnorableAudioplayersMissingPlugin(Object error) {
+  if (error is! MissingPluginException) return false;
+  final m = '${error.message}';
+  return m.contains('xyz.luan/audioplayers') && m.contains('events');
+}
 
 void main() {
   runZonedGuarded(() async {
@@ -86,6 +95,9 @@ void main() {
 
     // Error handling: present + report to Crashlytics
     FlutterError.onError = (details) {
+      if (_isIgnorableAudioplayersMissingPlugin(details.exception)) {
+        return;
+      }
       FlutterError.presentError(details);
       if (!kIsWeb) {
         final isOverflow = details.exceptionAsString().contains('RenderFlex overflowed');
@@ -98,6 +110,9 @@ void main() {
     };
     if (!kIsWeb) {
       PlatformDispatcher.instance.onError = (error, stack) {
+        if (_isIgnorableAudioplayersMissingPlugin(error)) {
+          return true;
+        }
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
         return true;
       };
@@ -112,6 +127,9 @@ void main() {
       child: const MyApp(),
     ));
   }, (Object error, StackTrace stack) {
+    if (_isIgnorableAudioplayersMissingPlugin(error)) {
+      return;
+    }
     if (!kIsWeb) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     }

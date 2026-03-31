@@ -115,6 +115,24 @@ class FloatingBubbleService {
     }
   }
 
+  /// Send the task to background after overlay decline (reject already ran in Flutter).
+  static Future<void> moveTaskToBack() async {
+    try {
+      await _channel.invokeMethod<void>('moveTaskToBack');
+    } on PlatformException catch (_) {
+      // Non-fatal if activity already backgrounded.
+    }
+  }
+
+  /// Drop native [pendingRideAction] after Flutter handled it (prevents replay on
+  /// next Activity / engine attach which would call [moveTaskToBack] again).
+  static Future<void> clearPendingRideAction() async {
+    try {
+      await _channel.invokeMethod<void>('clearPendingRideAction');
+    } on PlatformException catch (_) {}
+    on MissingPluginException catch (_) {}
+  }
+
   /// Consume one pending ride action sent by native side.
   static Future<Map<String, dynamic>?> consumePendingRideAction() async {
     try {
