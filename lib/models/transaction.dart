@@ -4,6 +4,7 @@ class Transaction {
   final String type; // 'credit', 'debit', 'withdrawal', 'refund'
   final double amount;
   final String status; // 'completed', 'pending', 'failed'
+  final String flow; // 'credit' | 'debit' (preferred from backend)
   final String description;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -13,6 +14,7 @@ class Transaction {
     required this.type,
     required this.amount,
     required this.status,
+    required this.flow,
     required this.description,
     required this.createdAt,
     this.updatedAt,
@@ -36,6 +38,7 @@ class Transaction {
           ? double.tryParse(json['amount']) ?? 0.0
           : (json['amount'] ?? 0.0).toDouble(),
       status: json['status'] ?? 'pending',
+      flow: (json['flow'] ?? '').toString().toLowerCase(),
       description: json['description'] ?? '',
       createdAt: when,
       updatedAt: json['updated_at'] != null
@@ -50,16 +53,45 @@ class Transaction {
         'type': type,
         'amount': amount,
         'status': status,
+        'flow': flow,
         'description': description,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt?.toIso8601String(),
       };
 
   /// Money in vs out — wallet rows use signed amounts (e.g. ride wallet pay is negative).
-  bool get isCredit => amount >= 0;
+  bool get isCredit {
+    if (flow == 'credit') return true;
+    if (flow == 'debit') return false;
+
+    final normalizedType = type.toLowerCase();
+
+    // Some backend rows send positive amount for withdrawals/debits.
+    // For UI classification, transaction type must win over numeric sign.
+    const debitTypes = {
+      'withdrawal',
+      'debit',
+      'ride_payment',
+      'payout',
+      'withdraw',
+    };
+    const creditTypes = {
+      'credit',
+      'recharge',
+      'refund',
+      'referral_reward',
+      'referral_commission',
+      'referral_commission_daily',
+      'ride_earning',
+    };
+
+    if (debitTypes.contains(normalizedType)) return false;
+    if (creditTypes.contains(normalizedType)) return true;
+    return amount >= 0;
+  }
 
   /// Check if transaction is a debit (money out)
-  bool get isDebit => amount < 0;
+  bool get isDebit => !isCredit;
 
   /// Get formatted amount with sign
   String get formattedAmount {

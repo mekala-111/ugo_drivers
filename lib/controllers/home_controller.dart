@@ -981,8 +981,11 @@ class HomeController extends ChangeNotifier {
         if (walletRes.succeeded) {
           todayWallet = _asDouble(GetWalletCall.walletBalance(walletRes.jsonBody));
         } else {
-          // Graceful fallback to previous behavior if wallet endpoint fails.
-          todayWallet = _asDouble(data['walletEarnings']);
+          // Keep previously loaded wallet value if wallet API fails.
+          // `walletEarnings` is not wallet balance; it is only wallet-paid ride sum.
+          if (kDebugMode) {
+            debugPrint('Wallet API failed, keeping previous todayWallet value.');
+          }
         }
         final rides = data['rides'] as List? ?? [];
         if (rides.isNotEmpty) {

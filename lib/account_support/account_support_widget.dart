@@ -144,6 +144,14 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     );
     if (confirmed != true || !mounted) return;
     setState(() => _isLoggingOut = true);
+    try {
+      final token = FFAppState().accessToken;
+      if (token.isNotEmpty) {
+        await DriverLogoutCall.call(token: token);
+      }
+    } catch (_) {
+      // Ignore logout API errors; local sign-out must still proceed.
+    }
     await FFAppState().clearAppState();
     if (!mounted) return;
     context.go(LoginWidget.routePath);

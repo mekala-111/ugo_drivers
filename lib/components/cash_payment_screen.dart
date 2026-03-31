@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
-import 'package:ugo_driver/models/payment_mode.dart';
 import '../home/ride_request_model.dart';
 
 /// Shown after ride completion when payment mode is CASH.
@@ -18,7 +17,8 @@ class CashPaymentScreen extends StatelessWidget {
   static const Color ugoOrange = AppColors.primary;
   static const Color ugoGreen = AppColors.success;
 
-  double get _amount => ride.finalFare ?? ride.estimatedFare ?? 0.0;
+  double get _amountToCollect => ride.finalFare ?? ride.estimatedFare ?? 0.0;
+  double get _voucherTopup => ride.discountAmount ?? 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +136,7 @@ class CashPaymentScreen extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '₹${_amount.toStringAsFixed(0)}',
+                      '₹${_amountToCollect.toStringAsFixed(0)}',
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -146,6 +146,19 @@ class CashPaymentScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (_voucherTopup > 0) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'Collect ₹${_amountToCollect.toStringAsFixed(0)} from rider. '
+                  'Voucher balance ₹${_voucherTopup.toStringAsFixed(0)} will be credited to wallet.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
               const SizedBox(height: 16),
 
               // ✅ CASH COLLECTED Button

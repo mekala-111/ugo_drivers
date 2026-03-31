@@ -486,11 +486,8 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
             ? idRaw.toInt()
             : int.tryParse(idRaw?.toString() ?? '') ?? 0;
 
-        FFAppState().accessToken = getJsonField(
-              jsonResponse,
-              r'''$.data.accessToken''',
-            )?.toString() ??
-            '';
+        FFAppState().accessToken = LoginCall.accessToken(jsonResponse) ?? '';
+        FFAppState().refreshToken = LoginCall.refreshToken(jsonResponse) ?? '';
 
         if (mounted) {
           // Before login: Location first, then Notifications.

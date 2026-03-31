@@ -781,6 +781,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
             FFAppState().registrationStep = 4; // Mark registration complete
             FFAppState().driverid = resolvedDriverId;
             FFAppState().accessToken = accessToken!;
+            FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
             // Vehicle data from signup response already set above
           });
 
@@ -839,6 +840,8 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 FFAppState().isRegistered = true;
                 FFAppState().driverid = driverId;
                 FFAppState().accessToken = accessToken!;
+                FFAppState().refreshToken =
+                    LoginCall.refreshToken(loginRes.jsonBody) ?? '';
               });
 
               if (mounted) {

@@ -51,4 +51,5 @@ class SecureStorageService {
   static const String keyPanBase64 = 'secure_ff_panBase64';
   static const String keyPanNumber = 'secure_ff_panNumber';
   static const String keyAccessToken = 'secure_ff_accessToken';
+  static const String keyRefreshToken = 'secure_ff_refreshToken';
 }

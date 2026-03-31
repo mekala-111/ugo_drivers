@@ -208,6 +208,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // 1. Clear Local State
       FFAppState().update(() {
         FFAppState().accessToken = '';
+        FFAppState().refreshToken = '';
         FFAppState().isLoggedIn = false;
       });
 

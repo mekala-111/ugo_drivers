@@ -261,22 +261,42 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
                 color: AppColors.textPrimary,
                 fontSize: isSmall ? 18 : 20,
                 fontWeight: FontWeight.bold)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.support_agent, size: 18, color: AppColors.textPrimary),
+              label: Text(
+                'Help',
+                style: GoogleFonts.inter(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.grey.shade400),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          )
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.backgroundAlt,
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFF444444),
             ),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(10),
+                border: Border(
+                  bottom: BorderSide(color: AppColors.primary, width: 3),
+                ),
               ),
-              labelColor: Colors.white,
-              unselectedLabelColor: AppColors.textMuted,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: Colors.white,
               labelStyle: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: isSmall ? 13 : 14,
@@ -553,202 +573,234 @@ class _IncentiveList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        return _IncentiveMilestoneCard(
-          item: items[index],
-          isNextAchievable: _isNextAchievable(index),
-        );
-      },
-    );
-  }
-
-  bool _isNextAchievable(int index) {
-    // Logic: If previous is completed and current is not, this is the "Next" one.
-    if (index == 0) {
-      return !DriverIncentivesCall.itemIsCompleted(items[0]);
+    if (items.isEmpty) return const SizedBox.shrink();
+    final groups = <String, List<dynamic>>{};
+    for (final item in items) {
+      final start = DriverIncentivesCall.itemStartTime(item);
+      final end = DriverIncentivesCall.itemEndTime(item);
+      final name = DriverIncentivesCall.itemIncentiveName(item);
+      final key = '$name|$start|$end';
+      groups.putIfAbsent(key, () => []).add(item);
     }
-    return DriverIncentivesCall.itemIsCompleted(items[index - 1]) &&
-        !DriverIncentivesCall.itemIsCompleted(items[index]);
+
+    final groupedList = groups.values.toList();
+    return Column(
+      children: List.generate(groupedList.length, (index) {
+        final group = groupedList[index];
+        final start = DriverIncentivesCall.itemStartTime(group.first);
+        final end = DriverIncentivesCall.itemEndTime(group.first);
+        final hasTime = start.isNotEmpty && end.isNotEmpty;
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == groupedList.length - 1 ? 0 : 20),
+          child: Column(
+            children: [
+              if (hasTime)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.grey.shade400, thickness: 1)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          '$start to $end',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF333333),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey.shade400, thickness: 1)),
+                    ],
+                  ),
+                ),
+              _RapidoIncentiveCard(items: group),
+            ],
+          ),
+        );
+      }),
+    );
   }
 }
 
-class _IncentiveMilestoneCard extends StatelessWidget {
-  final dynamic item;
-  final bool isNextAchievable;
-
-  const _IncentiveMilestoneCard({
-    required this.item,
-    this.isNextAchievable = false,
-  });
+class _RapidoIncentiveCard extends StatelessWidget {
+  final List<dynamic> items;
+  const _RapidoIncentiveCard({required this.items});
 
   @override
   Widget build(BuildContext context) {
-    final int targetRides = DriverIncentivesCall.itemTargetRides(item);
-    final int completedRides = DriverIncentivesCall.itemCompletedRides(item);
-    final double rewardAmount = DriverIncentivesCall.itemRewardAmount(item);
-    final bool isCompleted = DriverIncentivesCall.itemIsCompleted(item);
-    final String incentiveName = DriverIncentivesCall.itemIncentiveName(item);
-    final String startTime = DriverIncentivesCall.itemStartTime(item);
-    final String endTime = DriverIncentivesCall.itemEndTime(item);
-
-    final isSmall = ScreenHelper.isSmallScreen(context);
-    final double progress =
-        targetRides > 0 ? (completedRides / targetRides).clamp(0.0, 1.0) : 0.0;
-
-    final Color primaryColor = isCompleted ? AppColors.success : AppColors.primary;
-    final Color cardBg = isCompleted
-        ? AppColors.sectionGreenTint
-        : (isNextAchievable ? AppColors.sectionOrangeTint : Colors.white);
+    final totalTargetRides = items
+        .map((e) => DriverIncentivesCall.itemTargetRides(e))
+        .fold<int>(0, (a, b) => b > a ? b : a);
+    final totalReward = items
+        .map((e) => DriverIncentivesCall.itemRewardAmount(e))
+        .fold<double>(0, (a, b) => a + b);
+    final vehicleTypes = items
+        .expand((e) => ((getJsonField(e, r'$.incentive.vehicleTypes', true) as List?) ?? const []))
+        .map((v) => getJsonField(v, r'$.vehicle_type')?.toString() ?? getJsonField(v, r'$.name')?.toString() ?? '')
+        .where((v) => v.isNotEmpty)
+        .toSet()
+        .toList();
+    final vehicleLabel = vehicleTypes.join(', ');
 
     return Container(
       decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCompleted
-              ? AppColors.success.withValues(alpha: 0.3)
-              : (isNextAchievable
-                  ? AppColors.primary.withValues(alpha: 0.3)
-                  : AppColors.greyBorder),
-          width: isNextAchievable || isCompleted ? 1.5 : 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           )
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isNextAchievable)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              child: Container(
+                width: double.infinity,
+                color: const Color(0xFFF5C400),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                child: Column(
+                  children: [
+                    Text(
+                      'Earn up to ₹${totalReward.toStringAsFixed(0)}',
+                      style: GoogleFonts.merriweather(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 20,
+                        color: const Color(0xFF232323),
+                      ),
+                    ),
+                    Text(
+                      'by completing $totalTargetRides Rides',
+                      style: GoogleFonts.merriweather(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: const Color(0xFF232323),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            if (vehicleLabel.isNotEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                color: AppColors.primary,
+                color: const Color(0xFF353535),
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                 child: Text(
-                  'NEXT MILESTONE',
-                  textAlign: TextAlign.center,
+                  vehicleLabel,
                   style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
+                    color: const Color(0xFFFFB36B),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
                 ),
               ),
+            const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.all(isSmall ? 16 : 20),
-              child: Row(
-                children: [
-                  // 🏁 Circular Progress
-                  Stack(
-                    alignment: Alignment.center,
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+              child: Column(
+                children: List.generate(items.length, (index) {
+                  final item = items[index];
+                  final targetRides = DriverIncentivesCall.itemTargetRides(item);
+                  final completedRides = DriverIncentivesCall.itemCompletedRides(item);
+                  final rewardAmount = DriverIncentivesCall.itemRewardAmount(item);
+                  final isCompleted = DriverIncentivesCall.itemIsCompleted(item);
+                  final ridesLeft = (targetRides - completedRides).clamp(0, targetRides);
+                  final isLast = index == items.length - 1;
+                  final activeDot = index == 0 ? AppColors.primary : Colors.grey.shade400;
+                  final rowColor = isCompleted ? AppColors.success : const Color(0xFF2F2F2F);
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: isSmall ? 54 : 64,
-                        height: isSmall ? 54 : 64,
-                        child: CircularProgressIndicator(
-                          value: progress,
-                          strokeWidth: 6,
-                          backgroundColor: AppColors.greyBorder,
-                          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                        ),
-                      ),
-                      if (isCompleted)
-                        const Icon(Icons.check_circle,
-                            color: AppColors.success, size: 28)
-                      else
-                        Text(
-                          '$completedRides/$targetRides',
-                          style: GoogleFonts.inter(
-                            fontSize: isSmall ? 11 : 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(width: 16),
-                  // 📝 Details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        width: 22,
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: Text(
-                                incentiveName,
-                                style: GoogleFonts.inter(
-                                  fontSize: isSmall ? 15 : 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: activeDot,
+                                shape: BoxShape.circle,
                               ),
                             ),
-                            Text(
-                              '₹${rewardAmount.toStringAsFixed(0)}',
-                              style: GoogleFonts.inter(
-                                fontSize: isSmall ? 18 : 20,
-                                fontWeight: FontWeight.w900,
-                                color: isCompleted
-                                    ? AppColors.success
-                                    : AppColors.textPrimary,
+                            if (!isLast)
+                              Container(
+                              width: 2,
+                              height: 52,
+                                color: Colors.grey.shade300,
                               ),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Target: $targetRides Rides',
-                          style: GoogleFonts.inter(
-                            fontSize: isSmall ? 13 : 14,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (startTime.isNotEmpty && endTime.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Row(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.access_time,
-                                  size: 12, color: AppColors.greyLight),
-                              const SizedBox(width: 4),
-                              Text(
-                                '$startTime – $endTime',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  color: AppColors.greyLight,
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Complete $targetRides Rides${isCompleted ? ' and get' : ''}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: rowColor,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${rewardAmount.toStringAsFixed(0)}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: rowColor,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              if (!isCompleted)
+                                Text(
+                                  '$ridesLeft more rides left',
+                                  style: GoogleFonts.inter(
+                                    color: Colors.red.shade400,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                             ],
                           ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
-            // 📊 Linear Progress Bar at bottom of card
-            Container(
-              height: 4,
-              width: double.infinity,
-              color: AppColors.greyBorder,
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: progress,
-                child: Container(color: primaryColor),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 16, 14),
+                child: Text(
+                  'Terms & Conditions',
+                  style: GoogleFonts.inter(
+                    color: Colors.blueGrey,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
@@ -781,7 +833,7 @@ class _DateSelectorBar extends StatelessWidget {
     final selectedSize = isSmall ? 45.0 : 50.0;
 
     return Container(
-      color: AppColors.accentAmber,
+      color: const Color(0xFF4B4B4B),
       height: barHeight,
       child: Row(
         children: [
@@ -822,26 +874,30 @@ class _DateSelectorBar extends StatelessWidget {
                                         style: GoogleFonts.inter(
                                             fontSize: isSmall ? 9 : 10,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.orange)),
+                                            color: AppColors.primary)),
                                     Text(dayNum,
                                         style: GoogleFonts.inter(
                                             fontSize: isSmall ? 14 : 16,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.orange)),
+                                            color: AppColors.primary)),
                                   ],
                                 ),
                               )
                             : Column(
                                 children: [
+                                  Text(DateFormat('MMM').format(date),
+                                      style: GoogleFonts.inter(
+                                          fontSize: isSmall ? 10 : 11,
+                                          color: Colors.white70)),
                                   Text(dayName,
                                       style: GoogleFonts.inter(
                                           fontSize: isSmall ? 9 : 10,
-                                          color: Colors.black87)),
+                                          color: Colors.white70)),
                                   const SizedBox(height: 4),
                                   Text(dayNum,
                                       style: GoogleFonts.inter(
                                           fontSize: isSmall ? 12 : 14,
-                                          color: Colors.black87)),
+                                          color: Colors.white)),
                                 ],
                               ),
                       ],
@@ -853,7 +909,7 @@ class _DateSelectorBar extends StatelessWidget {
           ),
           if (onCalendarTap != null)
             IconButton(
-              icon: const Icon(Icons.calendar_month, color: Colors.white),
+              icon: const Icon(Icons.calendar_month, color: AppColors.primary),
               onPressed: onCalendarTap,
               tooltip: 'Pick date from calendar',
             ),
@@ -883,7 +939,7 @@ class _WeekSelectorBar extends StatelessWidget {
     final selectedSize = isSmall ? 50.0 : 56.0;
 
     return Container(
-      color: AppColors.accentAmber,
+      color: const Color(0xFF4B4B4B),
       height: barHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -919,25 +975,31 @@ class _WeekSelectorBar extends StatelessWidget {
                                   style: GoogleFonts.inter(
                                       fontSize: isSmall ? 9 : 10,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
+                                      color: AppColors.primary)),
                               Text(days,
                                   style: GoogleFonts.inter(
                                       fontSize: isSmall ? 10 : 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
+                                      color: AppColors.primary)),
                             ],
                           ),
                         )
                       : Column(
                           children: [
+                            Text(
+                              DateFormat('MMM').format(range.end),
+                              style: GoogleFonts.inter(
+                                  fontSize: isSmall ? 9 : 10,
+                                  color: Colors.white70),
+                            ),
                             Text(month,
                                 style: GoogleFonts.inter(
                                     fontSize: isSmall ? 9 : 10,
-                                    color: Colors.black87)),
+                                    color: Colors.white70)),
                             Text(days,
                                 style: GoogleFonts.inter(
                                     fontSize: isSmall ? 10 : 12,
-                                    color: Colors.black87)),
+                                    color: Colors.white)),
                           ],
                         ),
                 ],
