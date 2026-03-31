@@ -291,10 +291,39 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       });
 
       if (!context.mounted) return;
-      _showSnack(FFLocalizations.of(context).getText('docm0019'),
-          isError: false);
-      await Future.delayed(const Duration(milliseconds: 1200));
-      if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
+
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          icon: Icon(Icons.hourglass_top_rounded,
+              color: Colors.amber.shade700, size: 48),
+          title: Text(
+            FFLocalizations.of(context).getText('drv_kyc_not_approved'),
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            FFLocalizations.of(context).getText('docm0019'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(height: 1.4),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary),
+              child: Text(FFLocalizations.of(context).getText('drv_ok')),
+            ),
+          ],
+        ),
+      );
+
+      if (!mounted) return;
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.goNamed(HomeWidget.routeName);
+      }
     } catch (e) {
       if (!context.mounted) return;
       _showSnack(FFLocalizations.of(context).getText('docm0004'),

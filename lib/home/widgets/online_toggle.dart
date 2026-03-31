@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/app_state.dart';
 import 'package:ugo_driver/constants/responsive.dart';
 
 /// Online/Offline toggle switch for driver status.
@@ -20,11 +19,6 @@ class OnlineToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final pad = Responsive.horizontalPadding(context) * 0.75;
     final vPad = MediaQuery.sizeOf(context).height * 0.006;
-    final appState = FFAppState();
-    final kyc = appState.kycStatus.trim().toLowerCase();
-    final isHardBlocked =
-        kyc != 'approved' || appState.isActive != true; // must be approved & active
-
     return Container(
       padding:
           EdgeInsets.symmetric(horizontal: pad, vertical: vPad.clamp(2.0, 8.0)),
@@ -45,8 +39,7 @@ class OnlineToggle extends StatelessWidget {
           ),
           Switch(
             value: switchValue,
-            onChanged:
-                (isDataLoaded && !isHardBlocked) ? (_) => onToggle() : null,
+            onChanged: isDataLoaded ? (_) => onToggle() : null,
             activeTrackColor: Colors.green,
             activeThumbColor: Colors.white,
           ),
