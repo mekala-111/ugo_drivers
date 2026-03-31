@@ -57,6 +57,17 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     }
     debugPrint('referrer_code (final): \'${FFAppState().referralCode}\'');
     _initFCM();
+
+    // Legacy route: new flow registers from Preferred Earning Mode → Home.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final s = FFAppState();
+      if (s.isRegistered &&
+          s.driverid > 0 &&
+          s.accessToken.isNotEmpty) {
+        context.goNamed(HomeWidget.routeName);
+      }
+    });
   }
 
   Future<void> _initFCM() async {
@@ -664,16 +675,9 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         vehicleJsonData['registration_number'] =
             FFAppState().registrationNumber;
       }
-      if (FFAppState().insuranceNumber.isNotEmpty) {
-        vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
-      }
       if (FFAppState().registrationDate.isNotEmpty) {
         vehicleJsonData['registration_date'] =
             _toApiDate(FFAppState().registrationDate);
-      }
-      if (FFAppState().insuranceExpiryDate.isNotEmpty) {
-        vehicleJsonData['insurance_expiry_date'] =
-            _toApiDate(FFAppState().insuranceExpiryDate);
       }
       if (FFAppState().pollutionExpiryDate.isNotEmpty) {
         vehicleJsonData['pollution_expiry_date'] =
@@ -694,8 +698,6 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
         rcBackImage: FFAppState().rcBackImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
-        insuranceImage:
-            FFAppState().insurancePdf ?? FFAppState().insuranceImage,
         pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,

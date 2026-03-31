@@ -55,6 +55,7 @@
 // }
 import 'dart:developer';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import '/config.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -74,7 +75,7 @@ class SocketService {
     final cleanToken = jwtToken.replaceFirst('Bearer ', '').trim();
 
     socket = IO.io(
-      'https://ugotaxi.com',
+      Config.baseUrl,
       IO.OptionBuilder()
           .setTransports(['websocket', 'polling']) // ✅ Try websocket first
           .setAuth({'token': cleanToken}) // ✅ Clean token

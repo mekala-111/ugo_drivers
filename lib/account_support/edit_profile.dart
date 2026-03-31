@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/config.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
@@ -23,6 +24,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool saving = false;
 
   static const Color brandPrimary = AppColors.primary;
+
+  String? get _profileImageUrl {
+    final raw = widget.driverData['profile_image']?.toString();
+    return Config.fullImageUrl(raw);
+  }
 
   @override
   void initState() {
@@ -106,11 +112,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           backgroundImage: profileImage != null
                               ? MemoryImage(profileImage!.bytes!)
                               : (widget.driverData['profile_image'] != null &&
-                                      widget.driverData['profile_image']
-                                          .toString()
-                                          .isNotEmpty
+                                      _profileImageUrl != null
                                   ? CachedNetworkImageProvider(
-                                      "https://ugo-api.icacorp.org/${widget.driverData['profile_image']}",
+                                      _profileImageUrl!,
                                     )
                                   : null) as ImageProvider?,
                           child: profileImage == null &&

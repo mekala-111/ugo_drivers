@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:ugo_driver/config.dart';
 
@@ -25,13 +26,29 @@ class RouteDistanceService {
       return null;
     }
 
+    // GPS jitter was changing the key every tick (4dp origin), causing a storm
+    // of Directions/Matrix calls from [FutureBuilder] rebuilds on the ride card.
+    // Coarser origin + finer destination keeps cache useful for "driver → point".
     final key =
-        '${originLat.toStringAsFixed(4)}_${originLng.toStringAsFixed(4)}_'
+        '${originLat.toStringAsFixed(3)}_${originLng.toStringAsFixed(3)}_'
         '${destLat.toStringAsFixed(4)}_${destLng.toStringAsFixed(4)}';
+
     final cached = _cache[key];
     if (cached != null && !cached.isExpired) return cached.km;
 
-    if (_inflight.containsKey(key)) return _inflight[key];
+    if (_inflight.containsKey(key)) return _inflight[key]!;
+
+    final straightM = Geolocator.distanceBetween(
+      originLat,
+      originLng,
+      destLat,
+      destLng,
+    );
+    if (straightM < 120) {
+      final km = straightM / 1000.0;
+      _cache[key] = _CachedDistance(km: km);
+      return km;
+    }
 
     // Use only the key from this project: Firebase Remote Config (parameter: google_maps_api_key)
     final apiKeySync = Config.googleMapsApiKey;

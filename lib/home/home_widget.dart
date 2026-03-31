@@ -27,6 +27,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../services/firebase_remote_config_service.dart';
 import '../services/in_app_update_service.dart';
 import '../components/update_dialog.dart';
+import '../account_support/documents.dart';
 
 import '../flutter_flow/lat_lng.dart' as latlng;
 
@@ -64,10 +65,12 @@ class _HomeWidgetState extends State<HomeWidget>
   bool _bubbleVisible = false;
   String? _lastBubbleSyncKey;
   bool _lastOnlineState = false;
+  int _lastDriverProfileRefreshSeq = 0;
   DateTime? _lastCameraMoveTime;
   latlng.LatLng? _lastCameraCenter;
   DateTime? _lastCircleFlushTime;
   Timer? _circleFlushTimer;
+  bool _sessionKycGateDialogShown = false;
 
   // Pulsating ripple animation
   late AnimationController _pulseController;
@@ -117,16 +120,35 @@ class _HomeWidgetState extends State<HomeWidget>
     _routeAnimController.addListener(_updateRouteDot);
 
     _controller = HomeController(
-      onShowKycDialog: () async {
+      onDocumentsIncompleteNavigate: () async {
         if (!mounted) return;
+        context.goNamed(DocumentsScreen.routeName);
+      },
+      onShowKycDialog: (status, rejectionReason) async {
+        if (!mounted) return;
+        String title = 'Document verification required';
+        String message = 'Complete documents to start earning.';
+        final normalized = status.trim().toLowerCase();
+        if (normalized == 'pending' ||
+            normalized == 'in_review' ||
+            normalized == 'under_review' ||
+            normalized == 'pending_verification' ||
+            normalized == 'submitted') {
+          title = 'Pending for verification';
+          message =
+              'Waiting for admin approval. Your documents are under review.';
+        } else if (normalized == 'rejected' || normalized == 'declined') {
+          title = 'Documents rejected';
+          final reason = rejectionReason?.trim() ?? '';
+          message = reason.isEmpty
+              ? 'Your documents were rejected. Please re-upload clear and valid documents.'
+              : 'Reason: $reason';
+        }
         await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(
-                FFLocalizations.of(context).getText('drv_kyc_not_approved')),
-            content: Text(FFLocalizations.of(context)
-                .getText('drv_kyc_complete')
-                .replaceAll('%1', FFAppState().kycStatus)),
+            title: Text(title),
+            content: Text(message),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
@@ -250,12 +272,30 @@ class _HomeWidgetState extends State<HomeWidget>
       // Ensure local state is in sync with potentially updated controller status
       _lastOnlineState = _controller.isOnline;
       _controller.addListener(_onControllerChange);
+      _lastDriverProfileRefreshSeq = FFAppState().driverProfileRefreshSeq;
+      FFAppState().addListener(_onFfAppStateDriverProfileRefresh);
       // Now safe to start animations — _controller is initialized
       _pulseController.repeat();
       _syncFloatingBubble();
       _handlePendingRideFromNotification();
-      _maybeShowPostLoginScreens();
+      await _maybeShowPostLoginScreens();
+      await _applyKycEntryRouting();
     });
+  }
+
+  /// After profile load: missing docs → documents screen; docs OK but KYC not approved → dialog only.
+  Future<void> _applyKycEntryRouting() async {
+    if (!mounted) return;
+    final c = _controller;
+    if (!c.isDataLoaded || !c.kycDocStatusFromApi) return;
+    if (!c.allDocumentsUploaded) {
+      context.goNamed(DocumentsScreen.routeName);
+      return;
+    }
+    if (!c.isVerificationApproved && !_sessionKycGateDialogShown) {
+      _sessionKycGateDialogShown = true;
+      await c.promptKycStatusDialog();
+    }
   }
 
   Future<void> _initLocationSafely() async {
@@ -362,15 +402,27 @@ class _HomeWidgetState extends State<HomeWidget>
     await FloatingBubbleService.hideRideRequest();
   }
 
+  void _onFfAppStateDriverProfileRefresh() {
+    if (!mounted) return;
+    final seq = FFAppState().driverProfileRefreshSeq;
+    if (seq == _lastDriverProfileRefreshSeq) return;
+    _lastDriverProfileRefreshSeq = seq;
+    unawaited(_controller.refreshDriverProfile());
+  }
+
   void _onControllerChange() {
     if (!mounted) return;
+    final c = _controller;
+    if (c.isVerificationApproved) {
+      _sessionKycGateDialogShown = false;
+    }
 
     // Auto-center map when going online
-    if (_controller.isOnline && !_lastOnlineState) {
-      if (_controller.currentUserLocation != null) {
+    if (c.isOnline && !_lastOnlineState) {
+      if (c.currentUserLocation != null) {
         _model.googleMapsController.future.then((ctrl) {
           ctrl.animateCamera(CameraUpdate.newLatLngZoom(
-              _controller.currentUserLocation!.toGoogleMaps(), 16.0));
+              c.currentUserLocation!.toGoogleMaps(), 16.0));
         });
       }
       _checkAndRequestOverlayPermission();
@@ -913,6 +965,7 @@ class _HomeWidgetState extends State<HomeWidget>
     _routeAnimController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _bubbleChannel.setMethodCallHandler(null);
+    FFAppState().removeListener(_onFfAppStateDriverProfileRefresh);
     _controller.removeListener(_onControllerChange);
     try { FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
     _bubbleVisible = false;
@@ -931,6 +984,7 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
+        final canShowGoOnlineControls = c.canGoOnline || isOnline;
         final activeRideStatuses = [
           'ACCEPTED',
           'ARRIVED',
@@ -990,6 +1044,7 @@ class _HomeWidgetState extends State<HomeWidget>
                       switchValue: c.isOnline,
                       isDataLoaded: c.isDataLoaded,
                       onToggleOnline: () => c.toggleOnlineStatus(),
+                      showOnlineToggle: canShowGoOnlineControls,
                       isRideLocked: isRideLocked,
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
@@ -1045,7 +1100,27 @@ class _HomeWidgetState extends State<HomeWidget>
                               driverName: c.driverName,
                               greeting: _getGreeting(),
                               isDataLoaded: c.isDataLoaded,
+                              verificationStatus: c.verificationStatus,
+                              rejectionReason: c.verificationRejectionReason,
+                              canGoOnline: c.canGoOnline,
+                              documentsIncomplete: c.kycDocStatusFromApi &&
+                                  !c.allDocumentsUploaded,
                               onGoOnline: () => c.toggleOnlineStatus(),
+                              onOpenDocuments: () async {
+                                await Navigator.push<void>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DocumentsScreen(),
+                                  ),
+                                );
+                                if (!mounted) return;
+                                await _controller.refreshDriverProfile();
+                                if (!mounted) return;
+                                if (_controller.kycDocStatusFromApi &&
+                                    !_controller.allDocumentsUploaded) {
+                                  context.goNamed(DocumentsScreen.routeName);
+                                }
+                              },
                             ),
                           BottomRidePanel(
                             overlayKey: _overlayKey,

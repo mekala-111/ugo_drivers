@@ -398,7 +398,10 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
                                       child: CircularProgressIndicator(
                                           color: brandPrimary))
                                   : Image.network(
-                                      'https://ugo-api.icacorp.org/${_qrImage ?? FFAppState().qrImage}',
+                                      app_config.Config.fullImageUrl(
+                                            _qrImage ?? FFAppState().qrImage,
+                                          ) ??
+                                          '',
                                       width: 220.0,
                                       height: 220.0,
                                       fit: BoxFit.cover,

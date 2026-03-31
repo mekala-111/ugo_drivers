@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ugo_driver/account_support/refer_friend.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/config.dart' as app_config;
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 
@@ -69,8 +70,7 @@ class _MenuWidgetState extends State<MenuWidget> {
     }
   }
 
-  String img(String path) =>
-      path.startsWith('http') ? path : 'https://ugo-api.icacorp.org/$path';
+  String img(String path) => app_config.Config.fullImageUrl(path) ?? path;
 
   @override
   Widget build(BuildContext context) {

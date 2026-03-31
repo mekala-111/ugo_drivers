@@ -517,23 +517,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<AudioPlayer?> _replaceAlertAudio() async {
     final previousPlayer = _audioPlayer;
     _audioPlayer = null;
-    if (previousPlayer != null) {
-      try {
-        await previousPlayer.stop();
-      } catch (_) {}
-      try {
-        await previousPlayer.dispose();
-      } catch (_) {}
-    }
+    await RideAlertAudioService.safeDisposePlayer(previousPlayer);
 
     await RideAlertAudioService.stopLingeringAlertAudio();
     if (_isDisposed) return null;
 
     final audioPlayer = RideAlertAudioService.createPlayer();
     if (_isDisposed) {
-      try {
-        await audioPlayer.dispose();
-      } catch (_) {}
+      await RideAlertAudioService.safeDisposePlayer(audioPlayer);
       return null;
     }
 
@@ -550,14 +541,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<void> _disposeAlertAudio() async {
     final audioPlayer = _audioPlayer;
     _audioPlayer = null;
-    if (audioPlayer != null) {
-      try {
-        await audioPlayer.stop();
-      } catch (_) {}
-      try {
-        await audioPlayer.dispose();
-      } catch (_) {}
-    }
+    await RideAlertAudioService.safeDisposePlayer(audioPlayer);
     await RideAlertAudioService.stopLingeringAlertAudio();
   }
 
@@ -753,20 +737,40 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           'Authorization': 'Bearer ${FFAppState().accessToken}'
         }),
       );
-      final rideData = rideCheckRes.data is Map
-          ? ((rideCheckRes.data['data'] is Map)
-              ? Map<String, dynamic>.from(rideCheckRes.data['data'] as Map)
-              : Map<String, dynamic>.from(rideCheckRes.data as Map))
-          : null;
+      Map<String, dynamic>? rideData;
+      final raw = rideCheckRes.data;
+      if (raw is Map) {
+        final inner = raw['data'];
+        if (inner is Map) {
+          rideData = Map<String, dynamic>.from(inner);
+        } else if (inner == null && raw['ride_status'] != null) {
+          // Flat ride payload (no `data` wrapper)
+          rideData = Map<String, dynamic>.from(raw);
+        }
+      }
       final serverStatus =
-          (rideData?['ride_status'] ?? '').toString().toUpperCase();
+          (rideData?['ride_status'] ?? '').toString().trim().toUpperCase();
       final assignedDriverId = int.tryParse('${rideData?['driver_id'] ?? 0}') ?? 0;
+      final myId = FFAppState().driverid;
+      if (myId <= 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Driver session invalid. Please log in again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
       final bookedByAnother = assignedDriverId != 0 &&
-          assignedDriverId != FFAppState().driverid &&
+          assignedDriverId != myId &&
           serverStatus != 'COMPLETED' &&
           serverStatus != 'CANCELLED' &&
           serverStatus != 'REJECTED';
-      if (bookedByAnother || serverStatus != 'SEARCHING') {
+      // Empty status means we could not read the ride payload; let the accept API decide.
+      if (bookedByAnother ||
+          (serverStatus.isNotEmpty && serverStatus != 'SEARCHING')) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -778,16 +782,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         return;
       }
 
-      final res = await Dio().post(
-          '${Config.baseUrl}/api/rides/rides/$rideId/accept',
-          data: {'driver_id': FFAppState().driverid},
-          options: Options(headers: {
-            'Authorization': 'Bearer ${FFAppState().accessToken}'
-          }));
+      final acceptRes = await AcceptRideCall.call(
+        token: FFAppState().accessToken,
+        rideId: rideId,
+        driverId: myId,
+      );
       if (!mounted) return;
-      if (res.statusCode != null &&
-          res.statusCode! >= 200 &&
-          res.statusCode! < 300) {
+      final accepted = acceptRes.succeeded &&
+          (AcceptRideCall.success(acceptRes.jsonBody) ?? true);
+      if (accepted) {
         _updateRideStatus(rideId, RideStatus.accepted);
         FFAppState().activeRideId = rideId;
         VoiceService().rideAccepted();
@@ -801,17 +804,42 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _stopSearchingPoll();
       } else {
         if (mounted) {
+          var apiMsg = AcceptRideCall.message(acceptRes.jsonBody)?.trim();
+          if (apiMsg == null || apiMsg.isEmpty) {
+            if (acceptRes.statusCode == -1) {
+              apiMsg = 'Network error. Check your connection.';
+            } else if (acceptRes.statusCode > 0) {
+              apiMsg =
+                  'Could not accept ride (HTTP ${acceptRes.statusCode}). Try again.';
+            } else {
+              apiMsg = 'Could not accept ride. Try again.';
+            }
+          }
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                res.data?['message'] ?? 'Could not accept ride. Try again.'),
+            content: Text(apiMsg),
             backgroundColor: Colors.red,
           ));
         }
       }
     } catch (e) {
       if (mounted) {
+        final fallback = FFLocalizations.of(context).getText('ride0001');
+        var msg = fallback.isNotEmpty
+            ? fallback
+            : 'Failed to accept ride. Please check your connection.';
+        if (e is DioException) {
+          final d = e.response?.data;
+          if (d is Map && d['message'] != null) {
+            final m = d['message'].toString().trim();
+            if (m.isNotEmpty) msg = m;
+          }
+          if (kDebugMode) {
+            debugPrint(
+                'Accept ride error: ${e.response?.statusCode} ${e.response?.data}');
+          }
+        }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(FFLocalizations.of(context).getText('ride0001')),
+          content: Text(msg),
           backgroundColor: Colors.red,
         ));
       }

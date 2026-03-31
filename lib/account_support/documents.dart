@@ -1,6 +1,7 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/services/driver_signup_submit_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // ✅ Required for HapticFeedback
 import 'package:google_fonts/google_fonts.dart';
@@ -30,6 +31,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     'vehicleImage': false,
     'registrationImage': false,
   };
+
+  static const List<String> _requiredDocumentKeys = [
+    'profilePhoto',
+    'imageLicense',
+    'aadharImage',
+    'panImage',
+    'vehicleImage',
+    'registrationImage',
+  ];
 
   @override
   void initState() {
@@ -116,11 +126,30 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return _serverDocuments.keys.any((key) => _getLocalDoc(key) != null);
   }
 
+  bool _isDocumentAvailable(String key) {
+    final local = _getLocalDoc(key);
+    final hasLocal = local != null;
+    final hasServer = _serverDocuments[key] ?? false;
+    return hasLocal || hasServer;
+  }
+
+  bool _hasAllRequiredDocuments() {
+    return _requiredDocumentKeys.every(_isDocumentAvailable);
+  }
+
   /// 2. Handle Update (Upload new files)
   Future<void> _handleUpdateDocuments() async {
     HapticFeedback.mediumImpact(); // ✅ Vibrate on tap
 
     if (_isLoading) return;
+
+    if (!_hasAllRequiredDocuments()) {
+      _showSnack(
+        'Please upload all required documents before submitting.',
+        isError: true,
+      );
+      return;
+    }
 
     if (!_hasNewDocuments()) {
       _showSnack(FFLocalizations.of(context).getText('docm0001'),
@@ -139,11 +168,29 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         token: token,
         profileimage: FFAppState().profilePhoto,
         licenseimage: FFAppState().imageLicense,
+        licenseFrontImage: FFAppState().licenseFrontImage,
+        licenseBackImage: FFAppState().licenseBackImage,
+        licenseNumber: FFAppState().licenseNumber.isNotEmpty
+            ? FFAppState().licenseNumber
+            : null,
+        licenseExpiryDate: FFAppState().licenseExpiryDate.isNotEmpty
+            ? DriverSignupSubmitService.formatDateForApi(
+                FFAppState().licenseExpiryDate)
+            : null,
         aadhaarimage: FFAppState().aadharImage,
+        aadhaarFrontImage: FFAppState().aadhaarFrontImage,
+        aadhaarBackImage: FFAppState().aadhaarBackImage,
+        aadhaarNumber: FFAppState().aadharNumber.isNotEmpty
+            ? FFAppState().aadharNumber
+            : null,
         panimage: FFAppState().panImage,
+        panNumber: FFAppState().panNumber.isNotEmpty
+            ? FFAppState().panNumber
+            : null,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
-        insuranceImage: FFAppState().insuranceImage,
+        rcFrontImage: FFAppState().rcFrontImage,
+        rcBackImage: FFAppState().rcBackImage,
         pollutionImage: FFAppState().pollutioncertificateImage,
         vehicleName: FFAppState().vehicleMake,
         vehicleModel: FFAppState().vehicleModel,
@@ -158,12 +205,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             : null,
         registrationDate: FFAppState().registrationDate.isNotEmpty
             ? FFAppState().registrationDate
-            : null,
-        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty
-            ? FFAppState().insuranceNumber
-            : null,
-        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty
-            ? FFAppState().insuranceExpiryDate
             : null,
         pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty
             ? FFAppState().pollutionExpiryDate
@@ -193,6 +234,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         });
 
         if (!context.mounted) return;
+        FFAppState().requestDriverProfileRefresh();
         _showSnack(FFLocalizations.of(context).getText('docm0002'),
             isError: false);
         await Future.delayed(const Duration(milliseconds: 1000));

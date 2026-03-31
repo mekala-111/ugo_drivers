@@ -588,6 +588,43 @@ class ReportIssueCall {
       castToType<String>(getJsonField(response, r'$.message'));
 }
 
+/// POST /api/drivers/accept-ride — same stack as [RejectRideCall]; does not require a Vehicle row (unlike `/api/rides/rides/:id/accept`).
+class AcceptRideCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int rideId,
+    required int driverId,
+  }) async {
+    final body = <String, dynamic>{
+      'ride_id': rideId,
+      'driver_id': driverId,
+    };
+    return ApiManager.instance.makeApiCall(
+      callName: 'acceptRide',
+      apiUrl: '$_baseUrl/api/drivers/accept-ride',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: json.encode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.message'));
+}
+
 /// POST /api/drivers/reject-ride - Driver declines incoming ride
 class RejectRideCall {
   static Future<ApiCallResponse> call({
@@ -727,11 +764,19 @@ class UpdateDriverCall {
     FFUploadedFile? licenseFrontImage,
     FFUploadedFile? licenseBackImage,
     FFUploadedFile? aadhaarimage,
+    FFUploadedFile? aadhaarFrontImage,
+    FFUploadedFile? aadhaarBackImage,
     FFUploadedFile? panimage,
     FFUploadedFile? vehicleImage,
     FFUploadedFile? registrationImage,
+    FFUploadedFile? rcFrontImage,
+    FFUploadedFile? rcBackImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
+    String? licenseNumber,
+    String? licenseExpiryDate,
+    String? aadhaarNumber,
+    String? panNumber,
     String? vehicleName,
     String? vehicleModel,
     String? vehicleColor,
@@ -789,12 +834,31 @@ class UpdateDriverCall {
       params['license_back_image'] = licenseBackImage;
     }
 
+    if (licenseNumber != null && licenseNumber.isNotEmpty) {
+      params['license_number'] = licenseNumber;
+    }
+    if (licenseExpiryDate != null && licenseExpiryDate.isNotEmpty) {
+      params['license_expiry_date'] = licenseExpiryDate;
+    }
+
     if (aadhaarimage != null) {
       params['aadhaar_image'] = aadhaarimage;
+    }
+    if (aadhaarFrontImage != null) {
+      params['aadhaar_front_image'] = aadhaarFrontImage;
+    }
+    if (aadhaarBackImage != null) {
+      params['aadhaar_back_image'] = aadhaarBackImage;
+    }
+    if (aadhaarNumber != null && aadhaarNumber.isNotEmpty) {
+      params['aadhaar_number'] = aadhaarNumber;
     }
 
     if (panimage != null) {
       params['pan_image'] = panimage;
+    }
+    if (panNumber != null && panNumber.isNotEmpty) {
+      params['pan_number'] = panNumber;
     }
 
     if (vehicleImage != null) {
@@ -803,6 +867,12 @@ class UpdateDriverCall {
 
     if (registrationImage != null) {
       params['registration_image'] = registrationImage;
+    }
+    if (rcFrontImage != null) {
+      params['rc_front_image'] = rcFrontImage;
+    }
+    if (rcBackImage != null) {
+      params['rc_back_image'] = rcBackImage;
     }
 
     if (insuranceImage != null) {

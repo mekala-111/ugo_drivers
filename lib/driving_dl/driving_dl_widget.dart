@@ -1,5 +1,6 @@
 import '/backend/api_requests/api_calls.dart';
 import '/components/date_picker_field.dart';
+import '/services/driver_signup_submit_service.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -1200,6 +1201,18 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       licenseimage: _frontImage,
                                       licenseFrontImage: _frontImage,
                                       licenseBackImage: _backImage,
+                                      licenseNumber: _licenseNumberController.text
+                                          .trim()
+                                          .toUpperCase(),
+                                      licenseExpiryDate: _licenseExpiryController
+                                              .text
+                                              .trim()
+                                              .isNotEmpty
+                                          ? DriverSignupSubmitService
+                                              .formatDateForApi(
+                                                  _licenseExpiryController.text
+                                                      .trim())
+                                          : null,
                                     );
                                     if (!mounted) return;
                                     if (res.succeeded) {

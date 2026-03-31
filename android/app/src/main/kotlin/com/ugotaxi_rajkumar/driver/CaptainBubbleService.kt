@@ -247,12 +247,17 @@ class CaptainBubbleService : Service() {
     }
 
     private fun sendActionToMain(action: String, rideId: Int) {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("ride_action", action)
-            putExtra("ride_id", rideId)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        if (action == "accept") {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("ride_action", action)
+                putExtra("ride_id", rideId)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            startActivity(intent)
         }
-        startActivity(intent)
+        // For both accept/decline, clear the native overlay/bubble state.
+        // On decline we intentionally DO NOT bring the app to foreground:
+        // the Flutter side will learn about the decline only when already in-app.
         RideEventRepository.clearState()
     }
 

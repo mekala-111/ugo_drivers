@@ -44,7 +44,12 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
       if (!mounted) return;
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final decoded = json.decode(response.body);
+        final List<dynamic> data = decoded is List
+            ? decoded
+            : (decoded is Map && decoded['data'] is List
+                ? (decoded['data'] as List)
+                : <dynamic>[]);
         setState(() {
           contacts =
               data.map((json) => EmergencyContact.fromJson(json)).toList();
@@ -429,7 +434,7 @@ class EmergencyContact {
   factory EmergencyContact.fromJson(Map<String, dynamic> json) {
     return EmergencyContact(
       id: json['id'],
-      userId: json['user_id'],
+      userId: json['driver_id'] ?? json['user_id'] ?? 0,
       contactName: json['contact_name'],
       contactPhone: json['contact_phone'],
       contactRelationship: json['contact_relationship'],
@@ -439,7 +444,7 @@ class EmergencyContact {
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
+      'driver_id': userId,
       'contact_name': contactName,
       'contact_phone': contactPhone,
       'contact_relationship': contactRelationship,

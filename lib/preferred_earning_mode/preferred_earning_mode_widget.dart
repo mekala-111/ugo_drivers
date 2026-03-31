@@ -1,5 +1,6 @@
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/services/driver_signup_submit_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -134,6 +135,7 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
     with TickerProviderStateMixin {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _selected = '';
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -146,7 +148,7 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
     FFAppState().preferredEarningMode = mode;
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -160,23 +162,25 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
       );
       return;
     }
-    context.pushNamed(
-      OnBoardingWidget.routeName,
-      queryParameters: {
-        'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-        'referalcode': serializeParam(
-          FFAppState().usedReferralCode.isNotEmpty
-              ? FFAppState().usedReferralCode
-              : FFAppState().referralCode,
-          ParamType.String,
-        ),
-      }.withoutNulls,
-      extra: const TransitionInfo(
-        hasTransition: true,
-        transitionType: PageTransitionType.rightToLeft,
-        duration: Duration(milliseconds: 300),
-      ),
-    );
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final err = await DriverSignupSubmitService.submitAfterPreferences();
+      if (!mounted) return;
+      if (err != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(err),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      context.goNamedAuth(HomeWidget.routeName, mounted);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -330,7 +334,8 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: isValid ? _goNext : null,
+                          onPressed:
+                              (isValid && !_isSubmitting) ? _goNext : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: brandPrimary,
                             foregroundColor: Colors.white,
@@ -340,15 +345,26 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
                             ),
                             disabledBackgroundColor: Colors.grey[300],
                           ),
-                          child: Text(
-                            'Continue',
-                            style: GoogleFonts.interTight(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              color: isValid ? Colors.white : Colors.grey[500],
-                            ),
-                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  'Continue',
+                                  style: GoogleFonts.interTight(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                    color: isValid
+                                        ? Colors.white
+                                        : Colors.grey[500],
+                                  ),
+                                ),
                         ),
                       ),
                     ],

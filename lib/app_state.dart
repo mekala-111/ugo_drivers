@@ -692,12 +692,21 @@ class FFAppState extends ChangeNotifier {
   /// 1: FirstDetails completed
   /// 2: AddressDetails completed
   /// 3: ChooseVehicle completed
-  /// 4: OnBoarding (final step)
+  /// 4: Registration complete (account created; documents from Home)
   int _registrationStep = 0;
   int get registrationStep => _registrationStep;
   set registrationStep(int value) {
     _registrationStep = value;
     prefs.setInt('ff_registrationStep', value);
+    notifyListeners();
+  }
+
+  /// Bumped after document upload / profile changes so Home can refetch verification from API.
+  int _driverProfileRefreshSeq = 0;
+  int get driverProfileRefreshSeq => _driverProfileRefreshSeq;
+
+  void requestDriverProfileRefresh() {
+    _driverProfileRefreshSeq++;
     notifyListeners();
   }
 
@@ -1476,6 +1485,7 @@ class FFAppState extends ChangeNotifier {
 
     // Reset registration step
     _registrationStep = 0;
+    _driverProfileRefreshSeq = 0;
 
     notifyListeners();
   }

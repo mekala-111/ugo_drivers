@@ -72,15 +72,17 @@ class RideChatService {
       return;
     }
 
+    final cleanToken = token.replaceFirst('Bearer ', '').trim();
     _socket?.dispose();
     _socket = IO.io(
       Config.baseUrl,
       IO.OptionBuilder()
-          .setTransports(['websocket'])
+          .setTransports(['websocket', 'polling'])
           .disableAutoConnect()
           .enableReconnection()
           .setReconnectionAttempts(5)
-          .setAuth({'token': token})
+          .setPath('/socket.io/')
+          .setAuth({'token': cleanToken})
           .build(),
     );
 

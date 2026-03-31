@@ -196,13 +196,6 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
         vehicleJsonData['registration_date'] =
             _toApiDate(FFAppState().registrationDate);
       }
-      if (FFAppState().insuranceNumber.isNotEmpty) {
-        vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
-      }
-      if (FFAppState().insuranceExpiryDate.isNotEmpty) {
-        vehicleJsonData['insurance_expiry_date'] =
-            _toApiDate(FFAppState().insuranceExpiryDate);
-      }
       if (FFAppState().pollutionExpiryDate.isNotEmpty) {
         vehicleJsonData['pollution_expiry_date'] =
             _toApiDate(FFAppState().pollutionExpiryDate);
@@ -221,8 +214,6 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
         rcBackImage: FFAppState().rcBackImage,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
-        insuranceImage:
-            FFAppState().insurancePdf ?? FFAppState().insuranceImage,
         pollutionImage: FFAppState().pollutioncertificateImage,
         driverJson: driverJsonData,
         vehicleJson: vehicleJsonData,

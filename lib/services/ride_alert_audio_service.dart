@@ -9,11 +9,26 @@ class RideAlertAudioService {
 
   static AudioPlayer createPlayer() => AudioPlayer(playerId: playerId);
 
+  /// Hot restart / engine detach can drop the native audioplayers handler before
+  /// [AudioPlayer.dispose] cancels its event channel — swallow that case.
+  static Future<void> safeDisposePlayer(AudioPlayer? player) async {
+    if (player == null) return;
+    try {
+      await player.stop();
+    } on MissingPluginException catch (_) {}
+    catch (_) {}
+    try {
+      await player.dispose();
+    } on MissingPluginException catch (_) {}
+    catch (_) {}
+  }
+
   static Future<void> stopLingeringAlertAudio() async {
     for (final method in ['stop', 'release', 'dispose']) {
       try {
         await _channel.invokeMethod(method, {'playerId': playerId});
-      } catch (_) {}
+      } on MissingPluginException catch (_) {}
+      catch (_) {}
     }
   }
 }

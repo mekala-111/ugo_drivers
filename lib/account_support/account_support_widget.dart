@@ -112,6 +112,25 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     return app_config.Config.fullImageUrl(imagePath) ?? imagePath;
   }
 
+  /// Matches HomeController verification pending states — hide "Manage documents" while awaiting admin review.
+  bool _isVerificationPending(Map<String, dynamic>? data) {
+    if (data == null) return false;
+    final raw = data['kyc_status'] ??
+        data['document_status'] ??
+        data['verification_status'];
+    final s = (raw ?? '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll('-', '_')
+        .replaceAll(' ', '_');
+    return s == 'pending' ||
+        s == 'in_review' ||
+        s == 'under_review' ||
+        s == 'pending_verification' ||
+        s == 'submitted';
+  }
+
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -607,20 +626,24 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildMenuItem(
-                                icon: Icons.description_outlined,
-                                title: FFLocalizations.of(context)
-                                    .getText('accsup0006'),
-                                subtitle: FFLocalizations.of(context)
-                                    .getText('accsup0007'),
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DocumentsScreen()),
+                              if (!_isVerificationPending(driverData)) ...[
+                                _buildMenuItem(
+                                  icon: Icons.description_outlined,
+                                  title: FFLocalizations.of(context)
+                                      .getText('accsup0006'),
+                                  subtitle: FFLocalizations.of(context)
+                                      .getText('accsup0007'),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const DocumentsScreen()),
+                                  ).then((_) {
+                                    if (mounted) fetchDriverDetails();
+                                  }),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
+                                const SizedBox(height: 8),
+                              ],
                               _buildMenuItem(
                                 icon: Icons.edit_location_alt_outlined,
                                 title: FFLocalizations.of(context)

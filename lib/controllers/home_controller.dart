@@ -28,6 +28,7 @@ const Duration _notifyTimeThreshold = Duration(seconds: 2);
 class HomeController extends ChangeNotifier {
   HomeController({
     required this.onShowKycDialog,
+    required this.onDocumentsIncompleteNavigate,
     required this.onShowLocationDisclosure,
     required this.onShowPermissionDialog,
     required this.onShowBackgroundLocationNotice,
@@ -41,7 +42,10 @@ class HomeController extends ChangeNotifier {
     driverName = '${FFAppState().firstName} ${FFAppState().lastName}';
   }
 
-  final Future<void> Function() onShowKycDialog;
+  final Future<void> Function(String status, String? rejectionReason)
+      onShowKycDialog;
+  /// When API says required documents are missing — route user to upload flow.
+  final Future<void> Function() onDocumentsIncompleteNavigate;
   final Future<bool> Function() onShowLocationDisclosure;
   final Future<void> Function() onShowPermissionDialog;
   final Future<bool> Function() onShowBackgroundLocationNotice;
@@ -71,6 +75,8 @@ class HomeController extends ChangeNotifier {
   String profileImageUrl = '';
   bool isOnline = false;
   String currentRideStatus = 'IDLE';
+  String verificationStatus = '';
+  String verificationRejectionReason = '';
 
   int currentRides = 0;
   double totalIncentiveEarned = 0.0;
@@ -90,6 +96,48 @@ class HomeController extends ChangeNotifier {
 
   int availableDriversCount = 0;
   int notificationUnreadCount = 0;
+
+  String get _normalizedVerificationStatus => verificationStatus
+      .trim()
+      .toLowerCase()
+      .replaceAll('-', '_')
+      .replaceAll(' ', '_');
+  bool get isVerificationApproved =>
+      _normalizedVerificationStatus == 'approved' ||
+      _normalizedVerificationStatus == 'verified';
+  bool get isVerificationRejected =>
+      _normalizedVerificationStatus == 'rejected' ||
+      _normalizedVerificationStatus == 'declined';
+  bool get isVerificationPending =>
+      _normalizedVerificationStatus == 'pending' ||
+      _normalizedVerificationStatus == 'in_review' ||
+      _normalizedVerificationStatus == 'under_review' ||
+      _normalizedVerificationStatus == 'pending_verification' ||
+      _normalizedVerificationStatus == 'submitted';
+
+  /// Set when API includes `data.kyc_doc_status` (signup-with-vehicle / driver fetch).
+  bool _kycDocStatusFromApi = false;
+  bool get kycDocStatusFromApi => _kycDocStatusFromApi;
+  bool _allDocumentsUploaded = true;
+  bool get allDocumentsUploaded => _allDocumentsUploaded;
+
+  /// Go online only when every required document is uploaded **and** KYC is approved.
+  bool get canGoOnline {
+    if (_kycDocStatusFromApi) {
+      return _allDocumentsUploaded && isVerificationApproved;
+    }
+    return isVerificationApproved;
+  }
+
+  Future<void> promptKycStatusDialog() async {
+    final status = verificationStatus.trim().isEmpty
+        ? 'pending'
+        : verificationStatus;
+    final reason = verificationRejectionReason.trim().isEmpty
+        ? null
+        : verificationRejectionReason;
+    await onShowKycDialog(status, reason);
+  }
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
@@ -154,6 +202,9 @@ class HomeController extends ChangeNotifier {
     if (rideId <= 0) return;
     onFetchRideById(rideId);
   }
+
+  /// Refetch driver profile (e.g. after document upload) so verification status matches the server.
+  Future<void> refreshDriverProfile() => _fetchDriverProfile();
 
   Future<void> _fetchDriverProfile() async {
     final userDetails = await DriverRepository.instance.fetchDriverProfile(
@@ -257,10 +308,9 @@ class HomeController extends ChangeNotifier {
     }
     // If API did not return a preferred city, keep existing app state (e.g. set during registration)
 
-    FFAppState().kycStatus = getJsonField(
-      (userDetails.jsonBody ?? ''),
-      r'''$.data.kyc_status''',
-    ).toString().trim();
+    _updateVerificationStateFromDriverData(
+      getJsonField((userDetails.jsonBody ?? ''), r'''$.data'''),
+    );
     FFAppState().qrImage = getJsonField(
       (postQR.jsonBody ?? ''),
       r'''$.data.qr_code_image''',
@@ -271,7 +321,7 @@ class HomeController extends ChangeNotifier {
     // ✅ SYNC LOGIC:
     // If the driver is NOT locally online, but the API says they ARE online, 
     // it means a previous session was left hanging. Sync it.
-    if (!isOnline && isOnlineFromApi == true) {
+    if (!isOnline && isOnlineFromApi == true && canGoOnline) {
       if (kDebugMode) debugPrint('♻️ Syncing Online status from API (Previously hanging session)');
       isOnline = true;
       FFAppState().isonline = true;
@@ -286,6 +336,12 @@ class HomeController extends ChangeNotifier {
       // If API and local state are consistent, ensure FFAppState is updated
       isOnline = isOnlineFromApi == true;
       FFAppState().isonline = isOnline; // Sync local intent with API
+    }
+
+    if (!canGoOnline && isOnline) {
+      await goOffline();
+      FFAppState().isonline = false;
+      isOnline = false;
     }
 
     if (isOnline) {
@@ -324,10 +380,21 @@ class HomeController extends ChangeNotifier {
   // ── Online/Offline ─────────────────────────────────────────────────────────
 
   Future<void> goOnline({bool silent = false}) async {
-    if (FFAppState().kycStatus.trim().toLowerCase() != 'approved') {
+    if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
       isOnline = false;
       _notify();
-      if (!silent) await onShowKycDialog();
+      if (!silent) {
+        await onDocumentsIncompleteNavigate();
+      }
+      return;
+    }
+    if (!isVerificationApproved) {
+      isOnline = false;
+      _notify();
+      if (!silent) {
+        await onShowKycDialog(
+            _normalizedVerificationStatus, verificationRejectionReason);
+      }
       return;
     }
 
@@ -467,6 +534,34 @@ class HomeController extends ChangeNotifier {
   Future<void> toggleOnlineStatus() async {
     final intendedValue = !isOnline;
 
+    if (intendedValue && !canGoOnline) {
+      if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
+        await onDocumentsIncompleteNavigate();
+        return;
+      }
+      if (_kycDocStatusFromApi &&
+          _allDocumentsUploaded &&
+          !isVerificationApproved) {
+        await onShowKycDialog(
+            _normalizedVerificationStatus, verificationRejectionReason);
+        return;
+      }
+      if (isVerificationPending) {
+        onShowSnackBar(
+            'Waiting for admin approval. Your documents are under review.',
+            isError: true);
+      } else if (isVerificationRejected) {
+        final reason = verificationRejectionReason.trim();
+        final msg = reason.isEmpty
+            ? 'Documents rejected. Please re-upload to continue.'
+            : 'Documents rejected: $reason';
+        onShowSnackBar(msg, isError: true);
+      } else {
+        onShowSnackBar('Complete documents to start earning', isError: true);
+      }
+      return;
+    }
+
     if (!intendedValue) {
       final status = currentRideStatus.toUpperCase();
       if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'].contains(status)) {
@@ -476,13 +571,16 @@ class HomeController extends ChangeNotifier {
     }
 
     isOnline = intendedValue;
-    FFAppState().isonline = intendedValue; // ✅ Persist user's explicit manual toggle intent
+    FFAppState().isonline = intendedValue; // ✅ Optimistic; aligned again after API below
     _notify();
 
     if (intendedValue) {
       await goOnline();
     } else {
       await goOffline();
+    }
+    if (!_disposed) {
+      FFAppState().isonline = isOnline;
     }
   }
 
@@ -496,7 +594,8 @@ class HomeController extends ChangeNotifier {
     }
     _lastResumeSyncAt = now;
 
-    if (FFAppState().isonline && isOnline) {
+    await _fetchDriverProfile();
+    if (FFAppState().isonline && isOnline && canGoOnline) {
       if (kDebugMode) debugPrint('♻️ App Resumed: Re-asserting Online status to ensure background drop did not happen');
       await DriverRepository.instance.setOnlineStatus(
         token: FFAppState().accessToken,
@@ -723,14 +822,24 @@ class HomeController extends ChangeNotifier {
     if (_socketInitialized) return;
     _socketInitialized = true;
 
-    final token = FFAppState().accessToken;
+    var token = FFAppState().accessToken.trim();
+    if (token.toLowerCase().startsWith('bearer ')) {
+      token = token.substring(7).trim();
+    }
     final driverId = FFAppState().driverid;
+
+    void emitWatchEntity() {
+      if (driverId <= 0 || token.isEmpty) return;
+      _socket.emit('watch_entity', {'type': 'driver', 'id': driverId});
+    }
 
     _socket = io.io(
       Config.baseUrl,
       io.OptionBuilder()
-          .setTransports(['websocket'])
-          .enableReconnection() // keep auto-reconnect
+          .setPath('/socket.io/')
+          .setTransports(['websocket', 'polling'])
+          .setTimeout(20000)
+          .enableReconnection()
           .setReconnectionAttempts(5)
           .setReconnectionDelay(2000)
           .disableAutoConnect()
@@ -741,15 +850,16 @@ class HomeController extends ChangeNotifier {
 
     _socket.onConnect((_) {
       if (kDebugMode) debugPrint('Socket CONNECTED');
-      // This will also fire after a successful reconnect,
-      // so we only need to emit watch_entity here.
-      _socket.emit('watch_entity', {'type': 'driver', 'id': driverId});
+      emitWatchEntity();
     });
 
-    // Optional: just log reconnect, do NOT re-emit watch_entity here
     _socket.onReconnect((_) {
       if (kDebugMode) debugPrint('Socket RECONNECTED');
-      // No emit here to avoid re-snapshotting old rides as “new”
+      emitWatchEntity();
+    });
+
+    _socket.onConnectError((dynamic err) {
+      if (kDebugMode) debugPrint('Socket connect error: $err');
     });
 
     // Ensure we don't accumulate multiple listeners
@@ -757,6 +867,9 @@ class HomeController extends ChangeNotifier {
     _socket.off('ride_updated');
     _socket.off('ride_taken');
     _socket.off('ride_assigned');
+    _socket.off('driver_updated');
+    _socket.off('driver_profile_updated');
+    _socket.off('kyc_status_updated');
 
     _socket.on('driver_rides', (data) {
       if (!_disposed) onSocketRideData(data);
@@ -786,6 +899,17 @@ class HomeController extends ChangeNotifier {
 
     _socket.on('ride_taken', onRideTaken);
     _socket.on('ride_assigned', onRideTaken);
+
+    void onDriverStatusUpdate(dynamic data) {
+      if (_disposed || data is! Map) return;
+      _updateVerificationStateFromDriverData(
+        Map<String, dynamic>.from(Map.from(data)),
+      );
+    }
+
+    _socket.on('driver_updated', onDriverStatusUpdate);
+    _socket.on('driver_profile_updated', onDriverStatusUpdate);
+    _socket.on('kyc_status_updated', onDriverStatusUpdate);
 
     _socket.connect();
   }
@@ -1024,6 +1148,72 @@ class HomeController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  void _updateVerificationStateFromDriverData(dynamic rawData) {
+    if (rawData == null) return;
+    final data = rawData is Map ? Map<String, dynamic>.from(rawData) : null;
+    if (data == null) return;
+    final source = data['data'] is Map
+        ? Map<String, dynamic>.from(data['data'] as Map)
+        : data;
+
+    // Doc completion: only trust explicit `all_uploaded` (avoid `{}` → false).
+    if (source.containsKey('kyc_doc_status')) {
+      final doc = source['kyc_doc_status'];
+      if (doc is Map && doc.containsKey('all_uploaded')) {
+        _kycDocStatusFromApi = true;
+        _allDocumentsUploaded = doc['all_uploaded'] == true;
+      }
+    }
+
+    // Partial payloads (e.g. socket location) must not clear KYC fields.
+    final hasExplicitKyc = source.containsKey('kyc_status') ||
+        source.containsKey('document_status') ||
+        source.containsKey('verification_status');
+    if (!hasExplicitKyc) {
+      _notify();
+      return;
+    }
+
+    final dynamicStatus = source['kyc_status'] ??
+        source['document_status'] ??
+        source['verification_status'];
+    final nextStatus = (dynamicStatus ?? '').toString().trim();
+
+    // Do not wipe a known approval when API sends empty/null status on partial updates.
+    if (nextStatus.isEmpty && verificationStatus.isNotEmpty) {
+      _notify();
+      return;
+    }
+
+    final hasExplicitReason = source.containsKey('kyc_rejection_reason') ||
+        source.containsKey('document_rejection_reason') ||
+        source.containsKey('rejection_reason') ||
+        source.containsKey('reject_reason') ||
+        source.containsKey('reason');
+    final dynamicReason = hasExplicitReason
+        ? (source['kyc_rejection_reason'] ??
+            source['document_rejection_reason'] ??
+            source['rejection_reason'] ??
+            source['reject_reason'] ??
+            source['reason'])
+        : verificationRejectionReason;
+    final nextReason = (dynamicReason ?? '').toString().trim();
+
+    if (nextStatus == verificationStatus &&
+        nextReason == verificationRejectionReason) {
+      _notify();
+      return;
+    }
+
+    verificationStatus = nextStatus;
+    verificationRejectionReason = nextReason;
+    if (nextStatus.isNotEmpty) {
+      FFAppState().kycStatus = nextStatus;
+    }
+
+    _notify();
   }
 
   double _asDouble(dynamic value) {

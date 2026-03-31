@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ugo_driver/constants/app_colors.dart';
-import 'package:ugo_driver/constants/responsive.dart';
 import 'package:ugo_driver/flutter_flow/flutter_flow_util.dart';
 import 'package:ugo_driver/index.dart';
 import 'package:ugo_driver/home/widgets/online_toggle.dart';
@@ -13,6 +11,7 @@ class AppHeader extends StatelessWidget {
     required this.switchValue,
     required this.isDataLoaded,
     required this.onToggleOnline,
+    this.showOnlineToggle = true,
     required this.screenWidth,
     required this.isSmallScreen,
     this.balance,
@@ -26,6 +25,7 @@ class AppHeader extends StatelessWidget {
   final bool switchValue;
   final bool isDataLoaded;
   final VoidCallback onToggleOnline;
+  final bool showOnlineToggle;
   final double screenWidth;
   final bool isSmallScreen;
   final double? balance;
@@ -41,9 +41,6 @@ class AppHeader extends StatelessWidget {
         Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
     final hPad = Responsive.horizontalPadding(context);
     const minTap = Responsive.minTouchTarget;
-    final avatarR =
-        Responsive.value(context, small: 16.0, medium: 18.0, large: 20.0);
-
     return Container(
       width: double.infinity,
       height: headerH,
@@ -68,12 +65,29 @@ class AppHeader extends StatelessWidget {
                   minSize: minTap,
                 )
               else
-                SizedBox(width: minTap, height: minTap),
-              OnlineToggle(
-                switchValue: switchValue,
-                isDataLoaded: isDataLoaded,
-                onToggle: isRideLocked ? () {} : onToggleOnline,
-              ),
+                const SizedBox(width: minTap, height: minTap),
+              if (showOnlineToggle)
+                OnlineToggle(
+                  switchValue: switchValue,
+                  isDataLoaded: isDataLoaded,
+                  onToggle: isRideLocked ? () {} : onToggleOnline,
+                )
+              else
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'OFFLINE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               if (isRideLocked)
                 _tapTarget(
                   onTap: null,
