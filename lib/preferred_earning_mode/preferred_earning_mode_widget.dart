@@ -1,5 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/services/document_verification_service.dart';
+import '/services/driver_signup_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -134,11 +137,21 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
     with TickerProviderStateMixin {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   String _selected = '';
+  String? _fcmToken;
+  bool _submitting = false;
 
   @override
   void initState() {
     super.initState();
     _selected = FFAppState().preferredEarningMode;
+    FFAppState().registrationStep = 4;
+    _initFcm();
+  }
+
+  Future<void> _initFcm() async {
+    try {
+      _fcmToken = await FirebaseMessaging.instance.getToken();
+    } catch (_) {}
   }
 
   void _selectMode(String mode) {
@@ -146,7 +159,7 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
     FFAppState().preferredEarningMode = mode;
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -160,23 +173,34 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
       );
       return;
     }
-    context.pushNamed(
-      OnBoardingWidget.routeName,
-      queryParameters: {
-        'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-        'referalcode': serializeParam(
-          FFAppState().usedReferralCode.isNotEmpty
-              ? FFAppState().usedReferralCode
-              : FFAppState().referralCode,
-          ParamType.String,
+    final profileResult =
+        DocumentVerificationService.verifyProfileOnlyRegistration();
+    if (!profileResult.isValid) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(profileResult.errorSummary),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
         ),
-      }.withoutNulls,
-      extra: const TransitionInfo(
-        hasTransition: true,
-        transitionType: PageTransitionType.rightToLeft,
-        duration: Duration(milliseconds: 300),
-      ),
-    );
+      );
+      return;
+    }
+    setState(() => _submitting = true);
+    try {
+      final refer = FFAppState().usedReferralCode.isNotEmpty
+          ? FFAppState().usedReferralCode
+          : FFAppState().referralCode;
+      await DriverSignupService.executeSignupAndNavigate(
+        context,
+        fcmToken: _fcmToken,
+        referalCodeFromRoute: refer.isNotEmpty ? refer : null,
+      );
+    } catch (e) {
+      debugPrint('PreferredEarningMode signup: $e');
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -184,8 +208,6 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
     const Color brandPrimary = AppColors.primary;
     const Color brandGradientStart = AppColors.primaryGradientStart;
     const Color bgOffWhite = AppColors.backgroundAlt;
-
-    final isValid = _selected.isNotEmpty;
 
     return Scaffold(
       key: scaffoldKey,
@@ -223,7 +245,19 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
                   children: [
                     const SizedBox(height: 8),
                     InkWell(
-                      onTap: () => context.pop(),
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.goNamed(
+                            PreferredCityWidget.routeName,
+                            queryParameters: {
+                              'isRegistrationFlow':
+                                  serializeParam(true, ParamType.bool),
+                            }.withoutNulls,
+                          );
+                        }
+                      },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -330,25 +364,38 @@ class _PreferredEarningModeWidgetState extends State<PreferredEarningModeWidget>
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: isValid ? _goNext : null,
+                          onPressed:
+                              (_selected.isNotEmpty && !_submitting) ? _goNext : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: brandPrimary,
                             foregroundColor: Colors.white,
-                            elevation: isValid ? 4 : 0,
+                            elevation:
+                                (_selected.isNotEmpty && !_submitting) ? 4 : 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                             disabledBackgroundColor: Colors.grey[300],
                           ),
-                          child: Text(
-                            'Continue',
-                            style: GoogleFonts.interTight(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              color: isValid ? Colors.white : Colors.grey[500],
-                            ),
-                          ),
+                          child: _submitting
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  'Continue',
+                                  style: GoogleFonts.interTight(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                    color: _selected.isNotEmpty
+                                        ? Colors.white
+                                        : Colors.grey[500],
+                                  ),
+                                ),
                         ),
                       ),
                     ],

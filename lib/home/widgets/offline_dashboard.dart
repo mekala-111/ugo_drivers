@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ugo_driver/app_state.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import 'package:ugo_driver/index.dart';
 
@@ -47,11 +49,70 @@ class _OfflineDashboardState extends State<OfflineDashboard>
     super.dispose();
   }
 
+  Widget _kycStatusBanner(BuildContext context) {
+    final kyc = context.watch<FFAppState>().kycStatus.trim().toLowerCase();
+    if (kyc == 'approved') return const SizedBox.shrink();
+
+    final String textKey;
+    if (kyc == 'rejected') {
+      textKey = 'drv_kyc_rejected';
+    } else if (kyc == 'pending_verification' || kyc == 'pending') {
+      textKey = 'drv_kyc_waiting_admin';
+    } else {
+      textKey = 'drv_kyc_need_docs';
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: kyc == 'rejected'
+            ? Colors.red.shade50
+            : Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: kyc == 'rejected'
+              ? Colors.red.shade200
+              : Colors.amber.shade300,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            kyc == 'rejected' ? Icons.error_outline : Icons.hourglass_top_rounded,
+            color: kyc == 'rejected' ? Colors.red.shade800 : Colors.amber.shade900,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              FFLocalizations.of(context).getText(textKey),
+              style: TextStyle(
+                fontSize: Responsive.fontSize(context, 13),
+                height: 1.35,
+                color: kyc == 'rejected'
+                    ? Colors.red.shade900
+                    : Colors.amber.shade900,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final pad = Responsive.horizontalPadding(context);
     final btnH = Responsive.buttonHeight(context,
         base: 56); // Slightly taller for premium feel
+    final appState = context.watch<FFAppState>();
+    final kyc = appState.kycStatus.trim().toLowerCase();
+    final isHardBlocked =
+        kyc != 'approved' || appState.isActive != true; // must be approved & active
 
     return Container(
       width: double.infinity,
@@ -104,7 +165,9 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                 ),
               ),
 
-              SizedBox(height: Responsive.verticalSpacing(context) * 5),
+              SizedBox(height: Responsive.verticalSpacing(context) * 2),
+              _kycStatusBanner(context),
+              SizedBox(height: Responsive.verticalSpacing(context) * 3),
 
               // --- Animated Central Graphic ---
               AnimatedBuilder(
@@ -184,7 +247,8 @@ class _OfflineDashboardState extends State<OfflineDashboard>
 
               // --- Premium CTA Button ---
               GestureDetector(
-                onTap: widget.isDataLoaded ? widget.onGoOnline : null,
+                onTap:
+                    (widget.isDataLoaded && !isHardBlocked) ? widget.onGoOnline : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: EdgeInsets.symmetric(
@@ -193,7 +257,7 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: widget.isDataLoaded
+                      colors: (widget.isDataLoaded && !isHardBlocked)
                           ? [
                               AppColors.primary,
                               AppColors.primary.withValues(alpha: 0.8)
@@ -203,7 +267,7 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: widget.isDataLoaded
+                    boxShadow: widget.isDataLoaded && !isHardBlocked
                         ? [
                             BoxShadow(
                               color: AppColors.primary.withValues(alpha: 0.4),

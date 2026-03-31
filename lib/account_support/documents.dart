@@ -1,5 +1,6 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/uploaded_file.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // ✅ Required for HapticFeedback
@@ -92,7 +93,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
   }
 
-  /// Helper to get local state doc (Newly picked files)
+  /// Helper to get local state doc (newly picked files)
   dynamic _getLocalDoc(String key) {
     switch (key) {
       case 'profilePhoto':
@@ -112,18 +113,61 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
   }
 
-  bool _hasNewDocuments() {
-    return _serverDocuments.keys.any((key) => _getLocalDoc(key) != null);
+  bool _blobUploaded(dynamic doc) {
+    if (doc == null) return false;
+    if (doc is FFUploadedFile) {
+      return doc.bytes != null && doc.bytes!.isNotEmpty;
+    }
+    return false;
   }
 
-  /// 2. Handle Update (Upload new files)
+  /// Licence row needs front + back on device if not already on server.
+  bool _licenseLocalComplete() {
+    final front =
+        FFAppState().licenseFrontImage ?? FFAppState().imageLicense;
+    final back = FFAppState().licenseBackImage;
+    return _blobUploaded(front) && _blobUploaded(back);
+  }
+
+  bool _docSatisfied(String key) {
+    if (_serverDocuments[key] == true) return true;
+    if (key == 'imageLicense') return _licenseLocalComplete();
+    return _blobUploaded(_getLocalDoc(key));
+  }
+
+  bool _allDocsComplete() {
+    for (final k in _serverDocuments.keys) {
+      if (!_docSatisfied(k)) return false;
+    }
+    return true;
+  }
+
+  /// True if something still needs uploading to the server (missing on API but present locally).
+  bool _hasPendingUploads() {
+    for (final k in _serverDocuments.keys) {
+      if (_serverDocuments[k] == true) continue;
+      if (k == 'imageLicense' && _licenseLocalComplete()) return true;
+      if (k != 'imageLicense' && _blobUploaded(_getLocalDoc(k))) return true;
+    }
+    return false;
+  }
+
+  /// Upload any pending files, submit KYC for admin review, refresh status.
   Future<void> _handleUpdateDocuments() async {
-    HapticFeedback.mediumImpact(); // ✅ Vibrate on tap
+    HapticFeedback.mediumImpact();
 
     if (_isLoading) return;
 
-    if (!_hasNewDocuments()) {
-      _showSnack(FFLocalizations.of(context).getText('docm0001'),
+    if (!_allDocsComplete()) {
+      _showSnack(FFLocalizations.of(context).getText('docm0018'),
+          isError: true);
+      return;
+    }
+
+    final driverId = FFAppState().driverid;
+    final token = FFAppState().accessToken;
+    if (driverId <= 0 || token.isEmpty) {
+      _showSnack(FFLocalizations.of(context).getText('docm0004'),
           isError: true);
       return;
     }
@@ -131,80 +175,126 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final driverId = FFAppState().driverid;
-      final token = FFAppState().accessToken;
+      if (_hasPendingUploads()) {
+        final apiResult = await UpdateDriverCall.call(
+          id: driverId,
+          token: token,
+          profileimage: FFAppState().profilePhoto,
+          licenseimage: FFAppState().imageLicense,
+          licenseFrontImage: FFAppState().licenseFrontImage,
+          licenseBackImage: FFAppState().licenseBackImage,
+          licenseNumber: FFAppState().licenseNumber.isNotEmpty
+              ? FFAppState().licenseNumber
+              : null,
+          licenseExpiryDate: FFAppState().licenseExpiryDate.isNotEmpty
+              ? FFAppState().licenseExpiryDate
+              : null,
+          aadhaarimage: FFAppState().aadharImage,
+          aadhaarFrontImage: FFAppState().aadhaarFrontImage,
+          aadhaarBackImage: FFAppState().aadhaarBackImage,
+          panimage: FFAppState().panImage,
+          vehicleImage: FFAppState().vehicleImage,
+          registrationImage: FFAppState().registrationImage,
+          rcFrontImage: FFAppState().rcFrontImage,
+          rcBackImage: FFAppState().rcBackImage,
+          insuranceImage: FFAppState().insuranceImage,
+          pollutionImage: FFAppState().pollutioncertificateImage,
+          vehicleName: FFAppState().vehicleMake,
+          vehicleModel: FFAppState().vehicleModel,
+          vehicleColor: FFAppState().vehicleColor.isNotEmpty
+              ? FFAppState().vehicleColor
+              : null,
+          licensePlate: FFAppState().licensePlate.isNotEmpty
+              ? FFAppState().licensePlate
+              : null,
+          registrationNumber: FFAppState().registrationNumber.isNotEmpty
+              ? FFAppState().registrationNumber
+              : null,
+          registrationDate: FFAppState().registrationDate.isNotEmpty
+              ? FFAppState().registrationDate
+              : null,
+          insuranceNumber: FFAppState().insuranceNumber.isNotEmpty
+              ? FFAppState().insuranceNumber
+              : null,
+          insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty
+              ? FFAppState().insuranceExpiryDate
+              : null,
+          pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty
+              ? FFAppState().pollutionExpiryDate
+              : null,
+          vehicleTypeId: FFAppState().adminVehicleId > 0
+              ? FFAppState().adminVehicleId
+              : null,
+        );
 
-      final apiResult = await UpdateDriverCall.call(
-        id: driverId,
+        if (!apiResult.succeeded && apiResult.statusCode != 200) {
+          if (!context.mounted) return;
+          final msg =
+              getJsonField(apiResult.jsonBody, r'''$.message''')?.toString() ??
+                  FFLocalizations.of(context).getText('docm0003');
+          _showSnack(msg, isError: true);
+          return;
+        }
+
+        await _fetchExistingDocuments();
+        if (!_allDocsComplete()) {
+          if (!context.mounted) return;
+          _showSnack(FFLocalizations.of(context).getText('docm0018'),
+              isError: true);
+          return;
+        }
+      }
+
+      final kycRes = await SubmitDriverKycCall.call(
+        driverId: driverId,
         token: token,
-        profileimage: FFAppState().profilePhoto,
-        licenseimage: FFAppState().imageLicense,
-        aadhaarimage: FFAppState().aadharImage,
-        panimage: FFAppState().panImage,
-        vehicleImage: FFAppState().vehicleImage,
-        registrationImage: FFAppState().registrationImage,
-        insuranceImage: FFAppState().insuranceImage,
-        pollutionImage: FFAppState().pollutioncertificateImage,
-        vehicleName: FFAppState().vehicleMake,
-        vehicleModel: FFAppState().vehicleModel,
-        vehicleColor: FFAppState().vehicleColor.isNotEmpty
-            ? FFAppState().vehicleColor
+        licenseNumber: FFAppState().licenseNumber.isNotEmpty
+            ? FFAppState().licenseNumber
             : null,
-        licensePlate: FFAppState().licensePlate.isNotEmpty
-            ? FFAppState().licensePlate
+        licenseExpiryDate: FFAppState().licenseExpiryDate.isNotEmpty
+            ? FFAppState().licenseExpiryDate
             : null,
-        registrationNumber: FFAppState().registrationNumber.isNotEmpty
-            ? FFAppState().registrationNumber
+        aadhaarNumber: FFAppState().aadharNumber.isNotEmpty
+            ? FFAppState().aadharNumber
             : null,
-        registrationDate: FFAppState().registrationDate.isNotEmpty
-            ? FFAppState().registrationDate
-            : null,
-        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty
-            ? FFAppState().insuranceNumber
-            : null,
-        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty
-            ? FFAppState().insuranceExpiryDate
-            : null,
-        pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty
-            ? FFAppState().pollutionExpiryDate
-            : null,
-        vehicleTypeId: FFAppState().adminVehicleId > 0
-            ? FFAppState().adminVehicleId
-            : null,
+        panNumber:
+            FFAppState().panNumber.isNotEmpty ? FFAppState().panNumber : null,
       );
 
-      if ((apiResult.succeeded) || apiResult.statusCode == 200) {
-        // Success Logic
-        setState(() {
-          // Mark locally uploaded docs as "On Server" now
-          for (var key in _serverDocuments.keys) {
-            if (_getLocalDoc(key) != null) _serverDocuments[key] = true;
-          }
-        });
-
-        // Clear local state
-        FFAppState().update(() {
-          FFAppState().profilePhoto = null;
-          FFAppState().imageLicense = null;
-          FFAppState().aadharImage = null;
-          FFAppState().panImage = null;
-          FFAppState().vehicleImage = null;
-          FFAppState().registrationImage = null;
-        });
-
+      if (!kycRes.succeeded && kycRes.statusCode != 200) {
         if (!context.mounted) return;
-        _showSnack(FFLocalizations.of(context).getText('docm0002'),
-            isError: false);
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
-      } else {
-        // Error Logic
-        if (!context.mounted) return;
-        String msg =
-            getJsonField(apiResult.jsonBody, r'''$.message''')?.toString() ??
-                FFLocalizations.of(context).getText('docm0003');
+        final msg = getJsonField(kycRes.jsonBody, r'''$.message''')
+                ?.toString() ??
+            FFLocalizations.of(context).getText('docm0020');
         _showSnack(msg, isError: true);
+        return;
       }
+
+      final refresh =
+          await DriverIdfetchCall.call(id: driverId, token: token);
+      if (refresh.succeeded) {
+        final st = DriverIdfetchCall.kycstatus(refresh.jsonBody);
+        if (st != null && st.toString().trim().isNotEmpty) {
+          FFAppState().kycStatus = st.toString().trim();
+        }
+      }
+
+      FFAppState().update(() {
+        FFAppState().profilePhoto = null;
+        FFAppState().imageLicense = null;
+        FFAppState().licenseFrontImage = null;
+        FFAppState().licenseBackImage = null;
+        FFAppState().aadharImage = null;
+        FFAppState().panImage = null;
+        FFAppState().vehicleImage = null;
+        FFAppState().registrationImage = null;
+      });
+
+      if (!context.mounted) return;
+      _showSnack(FFLocalizations.of(context).getText('docm0019'),
+          isError: false);
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
     } catch (e) {
       if (!context.mounted) return;
       _showSnack(FFLocalizations.of(context).getText('docm0004'),
@@ -429,7 +519,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                       )
                                     : Text(
                                         FFLocalizations.of(context)
-                                            .getText('docm0015'),
+                                            .getText('docm0017'),
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -462,10 +552,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildStepItem(String title, String key, VoidCallback onTap) {
-    // 1. Is New Local File?
-    bool isLocal = _getLocalDoc(key) != null;
-    // 2. Is On Server?
-    bool isServer = _serverDocuments[key] ?? false;
+    final isServer = _serverDocuments[key] ?? false;
+    final isLocal = !isServer &&
+        (key == 'imageLicense'
+            ? _licenseLocalComplete()
+            : _blobUploaded(_getLocalDoc(key)));
 
     // Define Visuals
     Color bgColor = AppColors.backgroundCard;

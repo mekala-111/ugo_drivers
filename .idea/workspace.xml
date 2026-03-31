@@ -4,27 +4,25 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE UPDATE 30/03/2026">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE UPDATE 31/03/2026">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/account_support_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/SplashWidget/splashwidget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/account_support/documents.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/account_support/documents.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/app_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app_state.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_calls.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/backend/api_requests/api_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/backend/api_requests/api_manager.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/cash_payment_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/cash_payment_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/components/review_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/components/review_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/choose_vehicle/choose_vehicle_widget.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driver_transactions/driver_transactions_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/ride_request_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/ride_request_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/inxentive_page/IncentivePageWidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models/transaction.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/transaction.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_update.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_update.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/driving_dl/driving_dl_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_flow/internationalization.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/on_boarding/on_boarding_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/otpverification/otpverification_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pollution_image/pollution_image_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pollution_image/pollution_image_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/secure_storage_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/secure_storage_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/withdraw/withdraw_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/withdraw/withdraw_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/preferred_earning_mode/preferred_earning_mode_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/preferred_earning_mode/preferred_earning_mode_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ride_chat/ride_chat_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ride_chat/ride_chat_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/document_verification_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/document_verification_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/ride_chat_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/ride_chat_service.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -379,7 +377,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774811495809</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="PLAY STORE UPDATE 31/03/2026">
+      <option name="closed" value="true" />
+      <created>1774930097833</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1774930097833</updated>
+    </task>
+    <task id="LOCAL-00035" summary="PLAY STORE UPDATE 31/03/2026">
+      <option name="closed" value="true" />
+      <created>1774930157316</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1774930157316</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -394,7 +408,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Package update" />
     <MESSAGE value="push update 032026" />
     <MESSAGE value="push update adhar_upload_widget.dart" />
     <MESSAGE value="BOOKING FLOW LATEST UPADET and upadte gradel" />
@@ -419,7 +432,8 @@
     <MESSAGE value="full name" />
     <MESSAGE value="history" />
     <MESSAGE value="PLAY STORE UPDATE 30/03/2026" />
-    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE UPDATE 30/03/2026" />
+    <MESSAGE value="PLAY STORE UPDATE 31/03/2026" />
+    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE UPDATE 31/03/2026" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -427,7 +441,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/controllers/home_controller.dart</url>
-          <line>650</line>
+          <line>654</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

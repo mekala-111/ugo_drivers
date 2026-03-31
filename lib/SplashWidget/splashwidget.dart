@@ -34,16 +34,9 @@ class _SplashWidgetState extends State<SplashWidget> {
 
           // Route based on current registration step
           if (registrationStep >= 4) {
-            debugPrint('UGO_SPLASH: Going to OnBoarding (Step 4+).');
-            // Step 4+: OnBoarding (final registration page)
-            context.goNamed(
-              OnBoardingWidget.routeName,
-              queryParameters: {
-                'mobile': serializeParam(FFAppState().mobileNo, ParamType.int),
-                'referalcode': serializeParam(
-                    FFAppState().usedReferralCode, ParamType.String),
-              }.withoutNulls,
-            );
+            debugPrint(
+                'UGO_SPLASH: Going to PreferredEarningMode (final signup step).');
+            context.goNamed(PreferredEarningModeWidget.routeName);
           } else if (registrationStep >= 2) {
             debugPrint('UGO_SPLASH: Going to ChooseVehicle (Step 2 or 3).');
             // Step 2: ChooseVehicle

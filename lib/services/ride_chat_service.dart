@@ -8,6 +8,7 @@ import '/config.dart';
 /// In-ride chat (WebSocket) — same events as backend `chatHandler.js`.
 class RideChatMessage {
   RideChatMessage({
+    this.dbId,
     required this.rideId,
     required this.text,
     required this.senderId,
@@ -15,6 +16,7 @@ class RideChatMessage {
     required this.timestamp,
   });
 
+  final int? dbId;
   final int rideId;
   final String text;
   final int senderId;
@@ -27,7 +29,12 @@ class RideChatMessage {
     final rid = m['rideId'] ?? m['ride_id'];
     final sid = m['senderId'] ?? m['sender_id'];
     final ts = m['timestamp']?.toString();
+    final idRaw = m['id'];
+    final dbId = idRaw is int
+        ? idRaw
+        : (idRaw != null ? int.tryParse(idRaw.toString()) : null);
     return RideChatMessage(
+      dbId: dbId,
       rideId: rid is int ? rid : int.tryParse(rid?.toString() ?? '') ?? 0,
       text: m['message']?.toString() ?? '',
       senderId: sid is int ? sid : int.tryParse(sid?.toString() ?? '') ?? 0,
@@ -49,17 +56,18 @@ class RideChatService {
 
   final String token;
   final int rideId;
-  /// Backend JWT role: `user` or `driver`
   final String myRole;
   final int myUserId;
 
   IO.Socket? _socket;
   final _messages = StreamController<RideChatMessage>.broadcast();
+  final _history = StreamController<List<RideChatMessage>>.broadcast();
   final _typingOther = StreamController<bool>.broadcast();
   final _errors = StreamController<String>.broadcast();
   final _joined = StreamController<bool>.broadcast();
 
   Stream<RideChatMessage> get messages => _messages.stream;
+  Stream<List<RideChatMessage>> get chatHistory => _history.stream;
   Stream<bool> get typingFromOther => _typingOther.stream;
   Stream<String> get errors => _errors.stream;
   Stream<bool> get joined => _joined.stream;
@@ -81,12 +89,25 @@ class RideChatService {
           .enableReconnection()
           .setReconnectionAttempts(5)
           .setAuth({'token': token})
+          .setQuery({'token': token})
           .build(),
     );
 
     _socket!.onConnect((_) {
       if (kDebugMode) debugPrint('[RideChat] connected');
-      _socket!.emit('join_chat', {'rideId': rideId});
+      _socket!.emit('join_chat', {'rideId': rideId, 'ride_id': rideId});
+    });
+
+    _socket!.on('chat_history', (data) {
+      if (data is! Map) return;
+      final list = data['messages'];
+      if (list is! List) return;
+      final batch = <RideChatMessage>[];
+      for (final raw in list) {
+        final msg = RideChatMessage.fromPayload(raw);
+        if (msg != null && msg.text.isNotEmpty) batch.add(msg);
+      }
+      if (batch.isNotEmpty) _history.add(batch);
     });
 
     _socket!.on('chat_joined', (_) {
@@ -102,7 +123,8 @@ class RideChatService {
       if (data is! Map) return;
       final m = Map<String, dynamic>.from(data);
       final sid = m['senderId'] ?? m['sender_id'];
-      final otherId = sid is int ? sid : int.tryParse(sid?.toString() ?? '') ?? -1;
+      final otherId =
+          sid is int ? sid : int.tryParse(sid?.toString() ?? '') ?? -1;
       if (otherId == myUserId) return;
       final typing = m['isTyping'] != false;
       _typingOther.add(typing);
@@ -122,18 +144,27 @@ class RideChatService {
   void sendMessage(String text) {
     final t = text.trim();
     if (t.isEmpty || _socket == null || !(_socket!.connected)) return;
-    _socket!.emit('send_chat_message', {'rideId': rideId, 'message': t});
+    _socket!.emit('send_chat_message', {
+      'rideId': rideId,
+      'ride_id': rideId,
+      'message': t,
+    });
   }
 
   void setTyping(bool typing) {
     if (_socket == null || !(_socket!.connected)) return;
-    _socket!.emit('chat_typing', {'rideId': rideId, 'isTyping': typing});
+    _socket!.emit('chat_typing', {
+      'rideId': rideId,
+      'ride_id': rideId,
+      'isTyping': typing
+    });
   }
 
   void dispose() {
     _socket?.dispose();
     _socket = null;
     _messages.close();
+    _history.close();
     _typingOther.close();
     _errors.close();
     _joined.close();

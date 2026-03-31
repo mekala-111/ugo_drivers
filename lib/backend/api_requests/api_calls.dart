@@ -9,6 +9,21 @@ export 'api_manager.dart' show ApiCallResponse;
 
 String get _baseUrl => Config.baseUrl;
 
+/// DD/MM/YYYY or YYYY-MM-DD → YYYY-MM-DD for driver DATEONLY fields.
+String _toDriverApiDate(String value) {
+  final v = value.trim();
+  if (v.isEmpty) return v;
+  final m = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(v);
+  if (m != null) {
+    final d = m.group(1)!.padLeft(2, '0');
+    final mo = m.group(2)!.padLeft(2, '0');
+    final y = m.group(3)!;
+    return '$y-$mo-$d';
+  }
+  if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(v)) return v;
+  return v;
+}
+
 class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
@@ -727,9 +742,13 @@ class UpdateDriverCall {
     FFUploadedFile? licenseFrontImage,
     FFUploadedFile? licenseBackImage,
     FFUploadedFile? aadhaarimage,
+    FFUploadedFile? aadhaarFrontImage,
+    FFUploadedFile? aadhaarBackImage,
     FFUploadedFile? panimage,
     FFUploadedFile? vehicleImage,
     FFUploadedFile? registrationImage,
+    FFUploadedFile? rcFrontImage,
+    FFUploadedFile? rcBackImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
     String? vehicleName,
@@ -742,6 +761,8 @@ class UpdateDriverCall {
     String? insuranceExpiryDate,
     String? pollutionExpiryDate,
     int? vehicleTypeId,
+    String? licenseNumber,
+    String? licenseExpiryDate,
   }) async {
     // Build params dynamically - only include non-null values
     final Map<String, dynamic> params = {};
@@ -792,6 +813,12 @@ class UpdateDriverCall {
     if (aadhaarimage != null) {
       params['aadhaar_image'] = aadhaarimage;
     }
+    if (aadhaarFrontImage != null) {
+      params['aadhaar_front_image'] = aadhaarFrontImage;
+    }
+    if (aadhaarBackImage != null) {
+      params['aadhaar_back_image'] = aadhaarBackImage;
+    }
 
     if (panimage != null) {
       params['pan_image'] = panimage;
@@ -803,6 +830,12 @@ class UpdateDriverCall {
 
     if (registrationImage != null) {
       params['registration_image'] = registrationImage;
+    }
+    if (rcFrontImage != null) {
+      params['rc_front_image'] = rcFrontImage;
+    }
+    if (rcBackImage != null) {
+      params['rc_back_image'] = rcBackImage;
     }
 
     if (insuranceImage != null) {
@@ -844,6 +877,14 @@ class UpdateDriverCall {
       params['vehicle_type_id'] = vehicleTypeId;
     }
 
+    if (licenseNumber != null && licenseNumber.trim().isNotEmpty) {
+      params['license_number'] = licenseNumber.trim().toUpperCase();
+    }
+    final licenseExp = licenseExpiryDate?.trim();
+    if (licenseExp != null && licenseExp.isNotEmpty) {
+      params['license_expiry_date'] = _toDriverApiDate(licenseExp);
+    }
+
     if (kDebugMode) {
       debugPrint('UpdateDriver API → $_baseUrl/api/drivers/$id');
     }
@@ -877,6 +918,56 @@ class UpdateDriverCall {
         response,
         r'''$.data.is_online''',
       ));
+}
+
+/// POST /api/drivers/kyc/:id — sets `pending_verification` and merges text fields.
+class SubmitDriverKycCall {
+  static Future<ApiCallResponse> call({
+    required int driverId,
+    required String token,
+    String? licenseNumber,
+    String? licenseExpiryDate,
+    String? aadhaarNumber,
+    String? panNumber,
+  }) async {
+    final params = <String, dynamic>{};
+    if (licenseNumber != null && licenseNumber.trim().isNotEmpty) {
+      params['license_number'] = licenseNumber.trim().toUpperCase();
+    }
+    final exp = licenseExpiryDate?.trim();
+    if (exp != null && exp.isNotEmpty) {
+      params['license_expiry_date'] = _toDriverApiDate(exp);
+    }
+    if (aadhaarNumber != null && aadhaarNumber.trim().isNotEmpty) {
+      params['aadhaar_number'] = aadhaarNumber.trim();
+    }
+    if (panNumber != null && panNumber.trim().isNotEmpty) {
+      params['pan_number'] = panNumber.trim().toUpperCase();
+    }
+    if (params.isEmpty) {
+      params['kyc_submitted'] = '1';
+    }
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'submitDriverKyc',
+      apiUrl: '$_baseUrl/api/drivers/kyc/$driverId',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: params,
+      bodyType: BodyType.MULTIPART,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? success(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.success'));
 }
 
 class DriverIdfetchCall {

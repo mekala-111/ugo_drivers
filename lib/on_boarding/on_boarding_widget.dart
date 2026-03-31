@@ -1,8 +1,7 @@
-import '/auth/login_timestamp.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import '/services/document_verification_service.dart';
+import '/services/driver_signup_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -353,9 +352,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () => _handleContinue(allDocsUploaded),
+                  onPressed: _isLoading ? null : _handleContinue,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brandPrimary,
                     foregroundColor: Colors.white,
@@ -374,7 +371,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                       : Text(
                           allDocsUploaded
                               ? FFLocalizations.of(context).getText('ob0004')
-                              : FFLocalizations.of(context).getText('ad0016'),
+                              : FFLocalizations.of(context).getText('ad0015'),
                           style: GoogleFonts.interTight(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -465,406 +462,31 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     );
   }
 
-  /// Convert date to YYYY-MM-DD for API
-  String _toApiDate(String value) {
-    final v = value.trim();
-    if (v.isEmpty) return v;
-    final m = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(v);
-    if (m != null) {
-      final d = m.group(1)!.padLeft(2, '0');
-      final mo = m.group(2)!.padLeft(2, '0');
-      final y = m.group(3)!;
-      return '$y-$mo-$d';
-    }
-    if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(v)) return v;
-    return v;
-  }
-
-  // 🔹 Logic: Handle Submit / Skip (Uber-style verification)
-  Future<void> _handleContinue(bool allDocsUploaded) async {
-    if (allDocsUploaded) {
-      // Submit for Verification: run full document verification first
-      final result = DocumentVerificationService.verifyAll();
-      if (!result.isValid) {
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Row(
-              children: [
-                const Icon(Icons.warning_amber_rounded,
-                    color: Colors.orange, size: 28),
-                const SizedBox(width: 12),
-                Text(FFLocalizations.of(context).getText('ob0008')),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    FFLocalizations.of(context).getText('ob0009'),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 12),
-                  ...result.errors.map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('• ',
-                                style: TextStyle(color: Colors.red)),
-                            Expanded(
-                                child: Text(e,
-                                    style: const TextStyle(fontSize: 14))),
-                          ],
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(FFLocalizations.of(context).getText('drv_ok')),
-              ),
-            ],
+  /// Register with profile (and any optional docs already in app state).
+  Future<void> _handleContinue() async {
+    final profileResult =
+        DocumentVerificationService.verifyProfileOnlyRegistration();
+    if (!profileResult.isValid) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(profileResult.errorSummary),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
-        return;
       }
-    } else {
-      // Skip: confirm and run minimum validation
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(FFLocalizations.of(context).getText('ob0010')),
-          content: Text(
-            FFLocalizations.of(context).getText('ob0011'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(FFLocalizations.of(context).getText('drv_cancel')),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(
-                FFLocalizations.of(context).getText('ob0005'),
-                style: const TextStyle(color: AppColors.primary),
-              ),
-            ),
-          ],
-        ),
-      );
-      if (confirm != true) return;
-
-      final minResult = DocumentVerificationService.verifyMinimum();
-      if (!minResult.isValid) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(minResult.errorSummary),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        }
-        return;
-      }
+      return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      // Prepare JSON Payload - include all collected onboarding data
-      // Referrer: usedReferralCode (set from route or init) > widget.referalcode > referralCode (First details)
-      String referrerCode = FFAppState().referralCode.trim();
-      if (referrerCode.isEmpty) {
-        referrerCode = (widget.referalcode ?? '').trim();
-      }
-      if (referrerCode.isEmpty) {
-        referrerCode = FFAppState().referralCode.trim();
-      }
-      final driverJsonData = <String, dynamic>{
-        'mobile_number': FFAppState().mobileNo.toString(),
-        'first_name': FFAppState().firstName,
-        'last_name': FFAppState().lastName,
-        'email': FFAppState().email,
-        'referral_code': referrerCode.isNotEmpty ? referrerCode : null,
-        'preferred_city_id': FFAppState().preferredCityId > 0
-            ? FFAppState().preferredCityId
-            : null,
-        'preferred_earning_mode': FFAppState().preferredEarningMode,
-        'vehicle_image': FFAppState().vehicleImage?.name,
-        'fcm_token': fcmToken ?? '',
-      };
-      if (FFAppState().licenseNumber.isNotEmpty) {
-        driverJsonData['license_number'] = FFAppState().licenseNumber;
-      }
-      if (FFAppState().licenseExpiryDate.isNotEmpty) {
-        driverJsonData['license_expiry_date'] =
-            _toApiDate(FFAppState().licenseExpiryDate);
-      }
-      if (FFAppState().aadharNumber.isNotEmpty) {
-        driverJsonData['aadhaar_number'] = FFAppState().aadharNumber;
-      }
-      if (FFAppState().panNumber.isNotEmpty) {
-        driverJsonData['pan_number'] = FFAppState().panNumber;
-      }
-      if (FFAppState().dateOfBirth.isNotEmpty) {
-        driverJsonData['date_of_birth'] = _toApiDate(FFAppState().dateOfBirth);
-      }
-      if (FFAppState().address.isNotEmpty) {
-        driverJsonData['address'] = FFAppState().address;
-      }
-      if (FFAppState().city.isNotEmpty) {
-        driverJsonData['city'] = FFAppState().city;
-      }
-      if (FFAppState().state.isNotEmpty) {
-        driverJsonData['state'] = FFAppState().state;
-      }
-      if (FFAppState().postalCode.isNotEmpty) {
-        driverJsonData['postal_code'] = FFAppState().postalCode;
-      }
-      if (FFAppState().emergencyContactName.isNotEmpty) {
-        driverJsonData['emergency_contact_name'] =
-            FFAppState().emergencyContactName;
-      }
-      if (FFAppState().emergencyContactPhone.isNotEmpty) {
-        driverJsonData['emergency_contact_phone'] =
-            FFAppState().emergencyContactPhone;
-      }
-      if (FFAppState().adminVehicleId > 0) {
-        driverJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
-      }
-
-      final vehicleJsonData = <String, dynamic>{
-        'vehicle_type': FFAppState().selectvehicle.isEmpty
-            ? 'auto'
-            : FFAppState().selectvehicle,
-      };
-      // if (FFAppState().adminVehicleId > 0) {
-      //   vehicleJsonData['admin_vehicle_id'] = FFAppState().adminVehicleId;
-      //   vehicleJsonData['vehicle_type_id'] = FFAppState().adminVehicleId;
-      // }
-      if (FFAppState().vehicleMake.isNotEmpty) {
-        vehicleJsonData['vehicle_name'] = FFAppState().vehicleMake;
-      }
-      if (FFAppState().vehicleModel.isNotEmpty) {
-        vehicleJsonData['vehicle_model'] = FFAppState().vehicleModel;
-      }
-      if (FFAppState().vehicleColor.isNotEmpty) {
-        vehicleJsonData['vehicle_color'] = FFAppState().vehicleColor;
-      }
-      if (FFAppState().licensePlate.isNotEmpty) {
-        vehicleJsonData['license_plate'] = FFAppState().licensePlate;
-      }
-      if (FFAppState().registrationNumber.isNotEmpty) {
-        vehicleJsonData['registration_number'] =
-            FFAppState().registrationNumber;
-      }
-      if (FFAppState().insuranceNumber.isNotEmpty) {
-        vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
-      }
-      if (FFAppState().registrationDate.isNotEmpty) {
-        vehicleJsonData['registration_date'] =
-            _toApiDate(FFAppState().registrationDate);
-      }
-      if (FFAppState().insuranceExpiryDate.isNotEmpty) {
-        vehicleJsonData['insurance_expiry_date'] =
-            _toApiDate(FFAppState().insuranceExpiryDate);
-      }
-      if (FFAppState().pollutionExpiryDate.isNotEmpty) {
-        vehicleJsonData['pollution_expiry_date'] =
-            _toApiDate(FFAppState().pollutionExpiryDate);
-      }
-
-      // 3. API Call
-      _model.apiResult7ju = await CreateDriverCall.call(
-        profileimage: FFAppState().profilePhoto,
-        licenseimage: FFAppState().imageLicense,
-        licenseFrontImage: FFAppState().licenseFrontImage,
-        licenseBackImage: FFAppState().licenseBackImage,
-        aadhaarimage: FFAppState().aadharImage,
-        aadhaarFrontImage: FFAppState().aadhaarFrontImage,
-        aadhaarBackImage: FFAppState().aadhaarBackImage,
-        panimage: FFAppState().panImage,
-        rcFrontImage: FFAppState().rcFrontImage,
-        rcBackImage: FFAppState().rcBackImage,
-        vehicleImage: FFAppState().vehicleImage,
-        registrationImage: FFAppState().registrationImage,
-        insuranceImage:
-            FFAppState().insurancePdf ?? FFAppState().insuranceImage,
-        pollutionImage: FFAppState().pollutioncertificateImage,
-        driverJson: driverJsonData,
-        vehicleJson: vehicleJsonData,
-        // fcmToken: fcmToken ?? '',
+      await DriverSignupService.executeSignupAndNavigate(
+        context,
+        fcmToken: fcmToken,
+        referalCodeFromRoute: widget.referalcode,
       );
-      print('STATUS CODE: ${_model.apiResult7ju?.statusCode}');
-      print('RAW RESPONSE: ${_model.apiResult7ju?.bodyText}');
-      print('JSON RESPONSE: ${_model.apiResult7ju?.jsonBody}');
-
-      // 4. Handle Response
-      if (_model.apiResult7ju?.succeeded ?? false) {
-        final jsonBody = _model.apiResult7ju?.jsonBody;
-
-        // Extract token (backend may use access_token, accessToken, or token)
-        String? accessToken =
-            getJsonField(jsonBody, r'''$.data.access_token''')?.toString();
-        accessToken ??=
-            getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
-        accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
-        accessToken ??=
-            getJsonField(jsonBody, r'''$.access_token''')?.toString();
-        accessToken ??=
-            getJsonField(jsonBody, r'''$.accessToken''')?.toString();
-        if (accessToken == 'null' ||
-            accessToken == null ||
-            accessToken.isEmpty) {
-          accessToken = null;
-        }
-
-        // Extract driverId (backend may use data.driver.id or data.id)
-        int? driverId =
-            castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id'''));
-        driverId ??= castToType<int>(getJsonField(jsonBody, r'''$.data.id'''));
-        driverId ??=
-            castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id'''));
-        driverId ??= 0;
-
-        // Extract vehicle data from signup response (data.vehicle)
-        final vehicleData = getJsonField(jsonBody, r'''$.data.vehicle''');
-        if (vehicleData != null && vehicleData is Map) {
-          final vId = castToType<int>(vehicleData['id']) ?? 0;
-          final vTypeId = castToType<int>(vehicleData['vehicle_type_id']) ?? 0;
-          final vType = vehicleData['vehicle_type']?.toString() ?? '';
-          if (vId > 0) FFAppState().vehicleId = vId;
-          if (vTypeId > 0) FFAppState().adminVehicleId = vTypeId;
-          if (vType.isNotEmpty) {
-            FFAppState().selectvehicle = vType;
-            FFAppState().vehicleType = vType;
-          }
-        }
-
-        // If createDriver didn't return a token, fetch via login API (driver now exists)
-        if (accessToken == null || accessToken.isEmpty) {
-          final loginRes = await LoginCall.call(
-            mobile: FFAppState().mobileNo,
-            fcmToken: FFAppState().fcmToken.isNotEmpty
-                ? FFAppState().fcmToken
-                : (fcmToken ?? ''),
-          );
-          if (loginRes.succeeded) {
-            accessToken =
-                getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')
-                    ?.toString();
-            accessToken ??=
-                getJsonField(loginRes.jsonBody, r'''$.data.access_token''')
-                    ?.toString();
-            if (driverId == 0) {
-              driverId = castToType<int>(
-                      getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
-                  0;
-            }
-          }
-        }
-
-        final resolvedDriverId = driverId;
-        if (accessToken != null &&
-            accessToken.isNotEmpty &&
-            resolvedDriverId > 0) {
-          lastLoginTime = DateTime.now();
-          FFAppState().update(() {
-            FFAppState().isLoggedIn = true;
-            FFAppState().isRegistered = true;
-            FFAppState().registrationStep = 4; // Mark registration complete
-            FFAppState().driverid = resolvedDriverId;
-            FFAppState().accessToken = accessToken!;
-            FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
-            // Vehicle data from signup response already set above
-          });
-
-          if (mounted) {
-            context.pushReplacementNamed(HomeWidget.routeName);
-          }
-        } else {
-          // Token or driverId missing - redirect to login
-          FFAppState().update(() {
-            FFAppState().isLoggedIn = false;
-            FFAppState().isRegistered = true;
-            FFAppState().registrationStep = 4; // Mark registration complete
-            final id = driverId ?? 0;
-            if (id > 0) FFAppState().driverid = id;
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(FFLocalizations.of(context).getText('ob0012')),
-                backgroundColor: Colors.orange,
-              ),
-            );
-            context.pushReplacementNamed(
-                LoginWidget.routeName); // from /index.dart
-          }
-        }
-      } else {
-        // Handle known errors (e.g., driver already exists)
-        final statusCode = _model.apiResult7ju?.statusCode ?? 0;
-        final errorMsg =
-            getJsonField(_model.apiResult7ju?.jsonBody, r'''$.message''')
-                .toString();
-
-        if (statusCode == 409) {
-          final loginRes = await LoginCall.call(
-            mobile: FFAppState().mobileNo,
-            fcmToken: FFAppState().fcmToken.isNotEmpty
-                ? FFAppState().fcmToken
-                : (fcmToken ?? ''),
-          );
-          if (loginRes.succeeded) {
-            String? accessToken =
-                getJsonField(loginRes.jsonBody, r'''$.data.accessToken''')
-                    ?.toString();
-            accessToken ??=
-                getJsonField(loginRes.jsonBody, r'''$.data.access_token''')
-                    ?.toString();
-            final driverId = castToType<int>(
-                    getJsonField(loginRes.jsonBody, r'''$.data.id''')) ??
-                0;
-
-            if (accessToken != null && accessToken.isNotEmpty && driverId > 0) {
-              lastLoginTime = DateTime.now();
-              FFAppState().update(() {
-                FFAppState().isLoggedIn = true;
-                FFAppState().isRegistered = true;
-                FFAppState().driverid = driverId;
-                FFAppState().accessToken = accessToken!;
-                FFAppState().refreshToken =
-                    LoginCall.refreshToken(loginRes.jsonBody) ?? '';
-              });
-
-              if (mounted) {
-                context.pushReplacementNamed(HomeWidget.routeName);
-              }
-              return;
-            }
-          }
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                errorMsg.isEmpty
-                    ? FFLocalizations.of(context).getText('ob0013')
-                    : errorMsg,
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
     } catch (e) {
       debugPrint('Error: $e');
     } finally {

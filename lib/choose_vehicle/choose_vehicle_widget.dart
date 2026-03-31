@@ -8,8 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'choose_vehicle_model.dart';
 export 'choose_vehicle_model.dart';
 
-// ✅ Ensure OnBoardingWidget is accessible
-
 class ChooseVehicleWidget extends StatefulWidget {
   const ChooseVehicleWidget({
     super.key,

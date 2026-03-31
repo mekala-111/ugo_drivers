@@ -107,6 +107,9 @@ class FFAppState extends ChangeNotifier {
       _kycStatus = prefs.getString('ff_kycStatus') ?? _kycStatus;
     });
     _safeInit(() {
+      _isActive = prefs.getBool('ff_isActive') ?? _isActive;
+    });
+    _safeInit(() {
       _qrImage = prefs.getString('ff_qrImage') ?? _qrImage;
     });
     _safeInit(() {
@@ -692,7 +695,7 @@ class FFAppState extends ChangeNotifier {
   /// 1: FirstDetails completed
   /// 2: AddressDetails completed
   /// 3: ChooseVehicle completed
-  /// 4: OnBoarding (final step)
+  /// 4: Preferred earning mode (final step before signup API; onboarding docs skipped)
   int _registrationStep = 0;
   int get registrationStep => _registrationStep;
   set registrationStep(int value) {
@@ -1372,6 +1375,15 @@ class FFAppState extends ChangeNotifier {
       prefs.setString('ff_kycStatus', cleanValue);
     }
 
+    notifyListeners();
+  }
+
+  bool _isActive = false;
+  bool get isActive => _isActive;
+
+  set isActive(bool value) {
+    _isActive = value;
+    prefs.setBool('ff_isActive', value);
     notifyListeners();
   }
 

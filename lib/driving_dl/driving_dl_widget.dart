@@ -1200,6 +1200,11 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       licenseimage: _frontImage,
                                       licenseFrontImage: _frontImage,
                                       licenseBackImage: _backImage,
+                                      licenseNumber: _licenseNumberController.text
+                                          .trim()
+                                          .toUpperCase(),
+                                      licenseExpiryDate:
+                                          _licenseExpiryController.text.trim(),
                                     );
                                     if (!mounted) return;
                                     if (res.succeeded) {

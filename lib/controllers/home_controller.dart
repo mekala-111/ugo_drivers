@@ -261,6 +261,9 @@ class HomeController extends ChangeNotifier {
       (userDetails.jsonBody ?? ''),
       r'''$.data.kyc_status''',
     ).toString().trim();
+    final isActiveFromApi =
+        DriverIdfetchCall.isActive(userDetails.jsonBody) ?? false;
+    FFAppState().isActive = isActiveFromApi;
     FFAppState().qrImage = getJsonField(
       (postQR.jsonBody ?? ''),
       r'''$.data.qr_code_image''',
@@ -425,6 +428,7 @@ class HomeController extends ChangeNotifier {
     } else {
       isOnline = false;
       if (!silent) {
+        FFAppState().isonline = false;
         final msg = getJsonField(res.jsonBody ?? {}, r'$.message')?.toString();
         if (msg != null && msg.isNotEmpty) {
           onShowSnackBar(msg, isError: true);

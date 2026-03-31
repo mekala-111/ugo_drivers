@@ -27,6 +27,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../services/firebase_remote_config_service.dart';
 import '../services/in_app_update_service.dart';
 import '../components/update_dialog.dart';
+import 'package:ugo_driver/account_support/documents.dart';
 
 import '../flutter_flow/lat_lng.dart' as latlng;
 
@@ -131,7 +132,23 @@ class _HomeWidgetState extends State<HomeWidget>
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(FFLocalizations.of(context).getText('drv_ok')),
-              )
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const DocumentsScreen(),
+                    ),
+                  );
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: Text(
+                  FFLocalizations.of(context).getText('docm0005'),
+                ),
+              ),
             ],
           ),
         );
@@ -449,27 +466,37 @@ class _HomeWidgetState extends State<HomeWidget>
     }
   }
 
+  /// Rapido-style: captain bubble while the driver is marked online (persisted intent)
+  /// and the app is not in the foreground.
+  bool get _appIsInForeground {
+    final s = WidgetsBinding.instance.lifecycleState;
+    // Null during early startup — treat as foreground so we don't flash a bubble.
+    if (s == null) return true;
+    return s == AppLifecycleState.resumed;
+  }
+
+  /// Online for bubble purposes: persisted toggle matches Rapido (stay visible until user goes offline).
+  bool get _captainWantsBubble =>
+      FFAppState().isonline || _controller.isOnline;
+
   Future<void> _syncFloatingBubble({bool force = false}) async {
     if (!mounted) return;
 
-    final appState = WidgetsBinding.instance.lifecycleState;
-    // Show bubble ONLY when (Online AND app is NOT in foreground)
-    // We check if appState is null (initial state) or not resumed.
-    // Usually, if it's null it means we are just starting, likely resumed soon.
-    final shouldShowBubble = _controller.isOnline &&
-        (appState != null && appState != AppLifecycleState.resumed);
+    final shouldShowBubble = _captainWantsBubble && !_appIsInForeground;
 
-    final syncKey = '${_controller.isOnline}_$shouldShowBubble';
+    final appState = WidgetsBinding.instance.lifecycleState;
+    final syncKey =
+        '${FFAppState().isonline}_${_controller.isOnline}_${appState}_$shouldShowBubble';
     if (!force && _lastBubbleSyncKey == syncKey) {
       return;
     }
     _lastBubbleSyncKey = syncKey;
 
     if (shouldShowBubble) {
-      // Use native foreground service notification outside app.
-      await RideNotificationService().hideOnlineNotification();
       final granted = await FloatingBubbleService.checkOverlayPermission();
       if (granted) {
+        // Native [CaptainBubbleService] already shows an ongoing notification; avoid duplicate.
+        await RideNotificationService().hideOnlineNotification();
         if (!_bubbleVisible) {
           await FloatingBubbleService.startFloatingBubble();
           _bubbleVisible = true;
@@ -479,10 +506,11 @@ class _HomeWidgetState extends State<HomeWidget>
           await FloatingBubbleService.stopFloatingBubble();
           _bubbleVisible = false;
         }
+        // No overlay: keep a persistent local notification until the driver returns.
+        await RideNotificationService().showOnlineNotification();
       }
     } else {
-      // Inside app (while online), keep a single persistent online notification.
-      if (_controller.isOnline) {
+      if (_controller.isOnline && _appIsInForeground) {
         await RideNotificationService().showOnlineNotification();
       } else {
         await RideNotificationService().hideOnlineNotification();
