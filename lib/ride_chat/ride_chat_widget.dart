@@ -34,7 +34,6 @@ class _RideChatWidgetState extends State<RideChatWidget> {
   final _items = <RideChatMessage>[];
   RideChatService? _svc;
   StreamSubscription? _subMsg;
-  StreamSubscription? _subHistory;
   StreamSubscription? _subErr;
   StreamSubscription? _subTyping;
   bool _otherTyping = false;
@@ -63,22 +62,8 @@ class _RideChatWidgetState extends State<RideChatWidget> {
       myUserId: uid,
     );
 
-    _subHistory = _svc!.chatHistory.listen((batch) {
-      if (!mounted) return;
-      setState(() {
-        for (final m in batch) {
-          if (m.dbId != null && _items.any((x) => x.dbId == m.dbId)) continue;
-          _items.add(m);
-        }
-        _items.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-        _otherTyping = false;
-      });
-      _scrollToEnd();
-    });
-
     _subMsg = _svc!.messages.listen((m) {
       if (!mounted) return;
-      if (m.dbId != null && _items.any((x) => x.dbId == m.dbId)) return;
       setState(() {
         _items.add(m);
         _items.sort((a, b) => a.timestamp.compareTo(b.timestamp));
@@ -125,7 +110,6 @@ class _RideChatWidgetState extends State<RideChatWidget> {
   void dispose() {
     _typingDebounce?.cancel();
     _subMsg?.cancel();
-    _subHistory?.cancel();
     _subErr?.cancel();
     _subTyping?.cancel();
     _svc?.dispose();
