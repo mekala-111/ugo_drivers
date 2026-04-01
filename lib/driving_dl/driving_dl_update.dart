@@ -586,7 +586,7 @@ class _DrivingDlUpdateWidgetState extends State<DrivingDlUpdateWidget>
               Icon(Icons.local_taxi, color: Colors.white, size: 24),
               SizedBox(width: 8),
               Text(
-                'UGQ TAXI',
+                'UGO TAXI',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,

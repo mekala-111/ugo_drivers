@@ -239,7 +239,7 @@ class _FaceVerifyUpdateWidgetState extends State<FaceVerifyUpdateWidget>
               const Icon(Icons.local_taxi, color: Colors.white, size: 24),
               const SizedBox(width: 8),
               Text(
-                'UGQ TAXI',
+                'UGO TAXI',
                 style: FlutterFlowTheme.of(context).titleLarge.override(
                       font: GoogleFonts.interTight(
                         fontWeight: FontWeight.bold,

@@ -262,6 +262,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         if (!mounted) return;
         setState(() {
           _activeRequests[index] = updatedRide;
+          if (status == RideStatus.searching) {
+            _timers[updatedRide.id] = rideRequestOfferSeconds;
+          }
           if (status == RideStatus.arrived &&
               !_waitTimers.containsKey(updatedRide.id)) {
             _waitTimers[updatedRide.id] = 0;
@@ -302,7 +305,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           if (validStatuses.contains(status)) {
             _activeRequests.add(updatedRide);
             if (status == RideStatus.searching) {
-              _timers[updatedRide.id] = 30;
+              _timers[updatedRide.id] = rideRequestOfferSeconds;
               _startAlert(ride: updatedRide);
               _startSearchingPoll(); // Rapido-style: poll to detect when another driver accepts
               RideNotificationService().onNewRideFromSocket(
@@ -342,7 +345,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
-  Future<void> _rejectRide(int rideId) async {
+  Future<void> _rejectRide(int rideId, {String? reason}) async {
+    if (reason == 'request_timeout') {
+      _stopAlert();
+    }
     final token = FFAppState().accessToken;
     final driverId = FFAppState().driverid;
     if (token.isNotEmpty && driverId > 0) {
@@ -351,6 +357,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           token: token,
           rideId: rideId,
           driverId: driverId,
+          reason: reason,
         );
       } catch (_) {
         if (kDebugMode) debugPrint('Reject ride API error');
@@ -413,22 +420,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     return '${(meters / 1000).toStringAsFixed(1)} km';
   }
 
-  /// Trip leg to drop: driving distance from current location when known,
-  /// else pickup → drop (matches request card). Not backend straight-line km.
+  /// Trip leg pickup → drop (matches request card; not driver → drop).
   Future<String> _formatRoadDropDistance(RideRequest ride) async {
-    final dl = widget.driverLocation;
-    final hasDriver = dl != null;
-    final originLat = hasDriver ? dl!.latitude : ride.pickupLat;
-    final originLng = hasDriver ? dl!.longitude : ride.pickupLng;
-    if (ride.dropLat == 0 ||
-        ride.dropLng == 0 ||
-        originLat == 0 ||
-        originLng == 0) {
+    if (ride.pickupLat == 0 ||
+        ride.pickupLng == 0 ||
+        ride.dropLat == 0 ||
+        ride.dropLng == 0) {
       return '--';
     }
     final km = await RouteDistanceService().getDrivingDistanceKm(
-      originLat: originLat,
-      originLng: originLng,
+      originLat: ride.pickupLat,
+      originLng: ride.pickupLng,
       destLat: ride.dropLat,
       destLng: ride.dropLng,
     );
@@ -436,25 +438,39 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       return '${km.toStringAsFixed(1)} km';
     }
     final meters = Geolocator.distanceBetween(
-      originLat,
-      originLng,
+      ride.pickupLat,
+      ride.pickupLng,
       ride.dropLat,
       ride.dropLng,
     );
     return '${(meters / 1000).toStringAsFixed(1)} km';
   }
 
+  /// Rapido-style: each SEARCHING offer expires after this many seconds on the driver UI.
+  static const int rideRequestOfferSeconds = 30;
+
   void _startTickTimer() {
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
+      final expiredSearching = <int>[];
       setState(() {
         _timers.forEach((id, val) {
-          if (val > 0) _timers[id] = val - 1;
+          if (val <= 0) return;
+          final next = val - 1;
+          _timers[id] = next;
+          if (next == 0 &&
+              _activeRequests.any((r) =>
+                  r.id == id && r.status == RideStatus.searching)) {
+            expiredSearching.add(id);
+          }
         });
         _waitTimers.forEach((id, val) {
           _waitTimers[id] = val + 1;
         });
       });
+      for (final id in expiredSearching) {
+        unawaited(_rejectRide(id, reason: 'request_timeout'));
+      }
     });
   }
 

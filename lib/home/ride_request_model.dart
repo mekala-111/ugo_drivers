@@ -36,6 +36,9 @@ class RideRequest {
   /// Pickup city ID (zone) - used to filter rides by driver's preferred city
   final int? pickupCityId;
 
+  /// Driving distance (km) driver → pickup from backend when available (matches road ≤3km filter).
+  final double? driverPickupDistanceKm;
+
   /// 4-digit OTP for ride start verification (from backend if provided)
 
   RideRequest({
@@ -62,6 +65,7 @@ class RideRequest {
     this.vehicleType,
     this.vehicleTypeId,
     this.pickupCityId,
+    this.driverPickupDistanceKm,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) {
@@ -135,6 +139,8 @@ class RideRequest {
               ? _parseToInt(json['vehicle']['vehicle_type_id'])
               : null),
       pickupCityId: _parseToInt(json['pickup_city_id']),
+      driverPickupDistanceKm: _parseToDouble(json['driver_pickup_distance_km']) ??
+          _parseToDouble(json['pickup_distance_km']),
     );
   }
 
@@ -164,6 +170,7 @@ class RideRequest {
     String? vehicleType,
     int? vehicleTypeId,
     int? pickupCityId,
+    double? driverPickupDistanceKm,
   }) {
     return RideRequest(
       id: id ?? this.id,
@@ -189,6 +196,8 @@ class RideRequest {
       vehicleType: vehicleType ?? this.vehicleType,
       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
       pickupCityId: pickupCityId ?? this.pickupCityId,
+      driverPickupDistanceKm:
+          driverPickupDistanceKm ?? this.driverPickupDistanceKm,
     );
   }
 

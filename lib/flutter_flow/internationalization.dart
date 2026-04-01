@@ -4213,7 +4213,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   // Driving_dl
   {
     '1adxycv9': {
-      'en': 'UGQ TAXI',
+      'en': 'UGO TAXI',
       'hi': '',
       'te': '',
     },
@@ -4292,7 +4292,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': '',
     },
     '932jflc2': {
-      'en': 'UGQ TAXI',
+      'en': 'UGO TAXI',
       'hi': '',
       'te': '',
     },
@@ -4326,7 +4326,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': '',
     },
     'iquflyhj': {
-      'en': 'UGQ TAXI',
+      'en': 'UGO TAXI',
       'hi': '',
       'te': '',
     },
@@ -4340,7 +4340,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'zr3quzqv': {
       'en':
-          'By taking this photo, you consent to UGQ TAXI processing your registration certificate information for verification purposes. Your data will be handled securely and in accordance with our privacy policy. Please ensure the document is clearly visible and all text is readable.',
+          'By taking this photo, you consent to UGO TAXI processing your registration certificate information for verification purposes. Your data will be handled securely and in accordance with our privacy policy. Please ensure the document is clearly visible and all text is readable.',
       'hi': '',
       'te': '',
     },
@@ -4350,7 +4350,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': '',
     },
     'hllykqk3': {
-      'en': 'UGQ TAXI',
+      'en': 'UGO TAXI',
       'hi': '',
       'te': '',
     },
@@ -4704,7 +4704,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'kffyk3cw': {
       'en':
-          'By taking this photo, you consent to UGQ TAXI processing your registration certificate information for verification purposes. Your data will be handled securely and in accordance with our privacy policy. Please ensure the document is clearly visible and all text is readable.',
+          'By taking this photo, you consent to UGO TAXI processing your registration certificate information for verification purposes. Your data will be handled securely and in accordance with our privacy policy. Please ensure the document is clearly visible and all text is readable.',
       'hi': '',
       'te': '',
     },

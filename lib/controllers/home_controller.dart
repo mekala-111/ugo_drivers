@@ -866,6 +866,7 @@ class HomeController extends ChangeNotifier {
     // Ensure we don't accumulate multiple listeners
     _socket.off('driver_rides');
     _socket.off('ride_updated');
+    _socket.off('ride_location_updated');
     _socket.off('ride_taken');
     _socket.off('ride_assigned');
     _socket.off('driver_updated');
@@ -879,6 +880,25 @@ class HomeController extends ChangeNotifier {
     _socket.on('ride_updated', (data) {
       if (kDebugMode) debugPrint('🔔 Socket ride_updated event: $data');
       if (!_disposed) onSocketRideData(data);
+    });
+
+    /// Rider changed pickup/drop — refresh assigned ride from API (markers, overlay, route).
+    _socket.on('ride_location_updated', (data) {
+      if (_disposed || data is! Map) return;
+      final m = Map<String, dynamic>.from(Map.from(data));
+      final did = m['driver_id'];
+      if (did == null) return;
+      final myId = FFAppState().driverid;
+      if (myId <= 0 || int.tryParse(did.toString()) != myId) return;
+      final rideIdRaw = m['ride_id'] ?? m['rideId'];
+      final rideId = rideIdRaw is int
+          ? rideIdRaw
+          : int.tryParse(rideIdRaw?.toString() ?? '');
+      if (rideId == null || rideId <= 0) return;
+      if (kDebugMode) {
+        debugPrint('📍 ride_location_updated → refetch ride $rideId');
+      }
+      onFetchRideById(rideId);
     });
 
     // Rapido-style: when another driver accepts, backend may emit ride_taken/ride_assigned

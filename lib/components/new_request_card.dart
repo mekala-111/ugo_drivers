@@ -8,7 +8,7 @@ import 'package:ugo_driver/services/location_geocode_service.dart';
 import 'package:ugo_driver/services/route_distance_service.dart';
 import '../home/ride_request_model.dart';
 
-class NewRequestCard extends StatelessWidget {
+class NewRequestCard extends StatefulWidget {
   final RideRequest ride;
   final int remainingTime;
   final VoidCallback? onAccept;
@@ -63,20 +63,6 @@ class NewRequestCard extends StatelessWidget {
     return m / 1000;
   }
 
-  /// Compute drop distance from current driver location to drop (km).
-  static double? _driverToDropDistanceKm(LatLng? driver, RideRequest ride) {
-    if (driver == null || ride.dropLat == 0 || ride.dropLng == 0) {
-      return null;
-    }
-    final m = Geolocator.distanceBetween(
-      driver.latitude,
-      driver.longitude,
-      ride.dropLat,
-      ride.dropLng,
-    );
-    return m / 1000;
-  }
-
   static String _formatDistance(double? km) {
     if (km == null) {
       return '--';
@@ -86,7 +72,56 @@ class NewRequestCard extends StatelessWidget {
   }
 
   @override
+  State<NewRequestCard> createState() => _NewRequestCardState();
+}
+
+class _NewRequestCardState extends State<NewRequestCard> {
+  int? _distancesRideId;
+  LatLng? _driverSnapForRoadKm;
+  Future<double?>? _pickupRoadFuture;
+  Future<double?>? _dropRoadFuture;
+
+  void _syncRoadDistanceFutures() {
+    final ride = widget.ride;
+    if (_distancesRideId != ride.id) {
+      _distancesRideId = ride.id;
+      _driverSnapForRoadKm = null;
+      _pickupRoadFuture = null;
+      _dropRoadFuture = null;
+    }
+    if (_driverSnapForRoadKm == null && widget.driverLocation != null) {
+      _driverSnapForRoadKm = widget.driverLocation;
+    }
+    if (_pickupRoadFuture == null &&
+        _driverSnapForRoadKm != null &&
+        ride.pickupLat != 0 &&
+        ride.pickupLng != 0) {
+      final d = _driverSnapForRoadKm!;
+      _pickupRoadFuture = RouteDistanceService().getDrivingDistanceKm(
+        originLat: d.latitude,
+        originLng: d.longitude,
+        destLat: ride.pickupLat,
+        destLng: ride.pickupLng,
+      );
+    }
+    if (_dropRoadFuture == null &&
+        ride.pickupLat != 0 &&
+        ride.pickupLng != 0 &&
+        ride.dropLat != 0 &&
+        ride.dropLng != 0) {
+      _dropRoadFuture = RouteDistanceService().getDrivingDistanceKm(
+        originLat: ride.pickupLat,
+        originLng: ride.pickupLng,
+        destLat: ride.dropLat,
+        destLng: ride.dropLng,
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _syncRoadDistanceFutures();
+    final ride = widget.ride;
     final margin =
         Responsive.value(context, small: 8.0, medium: 10.0, large: 12.0);
     final pad = Responsive.horizontalPadding(context);
@@ -96,25 +131,37 @@ class NewRequestCard extends StatelessWidget {
     final gapSm = MediaQuery.sizeOf(context).height * 0.012;
     final gapMd = MediaQuery.sizeOf(context).height * 0.018;
 
+    // Rapido-style: last 10s of the 30s offer window feels urgent.
+    final urgent = widget.remainingTime <= 10 && widget.remainingTime > 0;
+    final headerBg = urgent
+        ? const Color(0xFFE53935)
+        : (isPro
+            ? const Color(0xFFE3CA43)
+            : const Color(0xFF4CAF50));
+    final headerFg = urgent
+        ? Colors.white
+        : (isPro ? Colors.black : Colors.white);
+
     final header = Container(
       padding: EdgeInsets.symmetric(
           horizontal: pad, vertical: Responsive.verticalSpacing(context)),
       decoration: BoxDecoration(
-          color: isPro
-              ? const Color(0xFFE3CA43)
-              : const Color(0xFF4CAF50), // Gold for Pro, Green for Normal
+          color: headerBg,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(18))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(isPro ? 'NEW PRO REQUEST' : 'NEW REQUEST',
+          Text(
+              urgent
+                  ? (isPro ? 'PRO — HURRY' : 'EXPIRING SOON')
+                  : (isPro ? 'NEW PRO REQUEST' : 'NEW REQUEST'),
               style: TextStyle(
-                  color: isPro ? Colors.black : Colors.white,
+                  color: headerFg,
                   fontWeight: FontWeight.bold,
                   fontSize: Responsive.fontSize(context, 16))),
-          Text('${remainingTime}s',
+          Text('${widget.remainingTime}s',
               style: TextStyle(
-                  color: isPro ? Colors.black : Colors.white,
+                  color: headerFg,
                   fontWeight: FontWeight.bold,
                   fontSize: Responsive.fontSize(context, 16))),
         ],
@@ -172,7 +219,7 @@ class NewRequestCard extends StatelessWidget {
             lat: ride.dropLat,
             lng: ride.dropLng,
             address: ride.dropAddress,
-            color: ugoRed,
+            color: NewRequestCard.ugoRed,
             label: FFLocalizations.of(context).getText('drv_drop'),
           ),
           SizedBox(height: Responsive.verticalSpacing(context)),
@@ -180,7 +227,7 @@ class NewRequestCard extends StatelessWidget {
             lat: ride.pickupLat,
             lng: ride.pickupLng,
             address: ride.pickupAddress,
-            color: ugoGreen,
+            color: NewRequestCard.ugoGreen,
             label: FFLocalizations.of(context).getText('drv_pickup'),
           ),
         ],
@@ -198,11 +245,11 @@ class NewRequestCard extends StatelessWidget {
                       .getText('drv_decline')
                       .toUpperCase(),
                   const Color(0xFFF7220F),
-                  isLoading ? null : onDecline,
+                  widget.isLoading ? null : widget.onDecline,
                   isPro: false)),
           SizedBox(width: MediaQuery.sizeOf(context).width * 0.04),
           Expanded(
-              child: isLoading
+              child: widget.isLoading
                   ? Center(
                       child: Padding(
                         padding: EdgeInsets.all(
@@ -227,7 +274,7 @@ class NewRequestCard extends StatelessWidget {
                       isPro
                           ? const Color(0xFFE3CA43)
                           : const Color(0xFF3C9A40),
-                      onAccept,
+                      widget.onAccept,
                       isPro: isPro)),
         ],
       ),
@@ -249,7 +296,8 @@ class NewRequestCard extends StatelessWidget {
                   color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
             ],
             border: Border.all(
-                color: isPro ? const Color(0xFFE3CA43) : ugoOrange, width: 2),
+                color: isPro ? const Color(0xFFE3CA43) : NewRequestCard.ugoOrange,
+                width: 2),
           ),
           child: bounded
               ? Column(
@@ -293,7 +341,7 @@ class NewRequestCard extends StatelessWidget {
                   fontSize: Responsive.fontSize(context, 12))),
           Text(value,
               style: TextStyle(
-                  color: ugoBlue,
+                  color: NewRequestCard.ugoBlue,
                   fontSize: Responsive.fontSize(context, 20),
                   fontWeight: FontWeight.bold))
         ]);
@@ -321,29 +369,29 @@ class NewRequestCard extends StatelessWidget {
             child: Column(children: [
               Text(FFLocalizations.of(context).getText('ride0006'),
                   style: TextStyle(color: Colors.grey[400], fontSize: 10)),
-              Text('₹${ride.estimatedFare?.toInt() ?? 80}',
+              Text('₹${widget.ride.estimatedFare?.toInt() ?? 80}',
                   style: const TextStyle(
-                      color: ugoBlue,
+                      color: NewRequestCard.ugoBlue,
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: ride.paymentMode.isCash
+                  color: widget.ride.paymentMode.isCash
                       ? Colors.green.shade50
                       : Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: ride.paymentMode.isCash
+                    color: widget.ride.paymentMode.isCash
                         ? Colors.green.shade200
                         : Colors.blue.shade200,
                   ),
                 ),
                 child: Text(
-                  ride.rawPaymentMode.toUpperCase(),
+                  widget.ride.rawPaymentMode.toUpperCase(),
                   style: TextStyle(
-                    color: ride.paymentMode.isCash
+                    color: widget.ride.paymentMode.isCash
                         ? Colors.green.shade700
                         : Colors.blue.shade700,
                     fontSize: 10,
@@ -359,25 +407,47 @@ class NewRequestCard extends StatelessWidget {
     );
   }
 
-  /// Driver → pickup road distance (Rapido-style), fallback to straight-line.
+  /// Driver → pickup: Google Maps **driving** road distance first; then server; then straight-line.
   Widget _buildPickupDistanceInfo(
     BuildContext context,
     String label,
     RideRequest ride,
   ) {
-    if (driverLocation == null ||
+    if (widget.driverLocation == null ||
         ride.pickupLat == 0 ||
         ride.pickupLng == 0) {
-      return _buildDistanceInfo(context, label, _formatDistance(null));
+      final serverKm = ride.driverPickupDistanceKm;
+      if (serverKm != null && serverKm >= 0) {
+        return _buildDistanceInfo(
+            context, label, NewRequestCard._formatDistance(serverKm));
+      }
+      return _buildDistanceInfo(
+          context, label, NewRequestCard._formatDistance(null));
+    }
+
+    final pickupFut = _pickupRoadFuture;
+    if (pickupFut == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: Responsive.fontSize(context, 12))),
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: NewRequestCard.ugoBlue.withValues(alpha: 0.5),
+            ),
+          ),
+        ],
+      );
     }
 
     return FutureBuilder<double?>(
-      future: RouteDistanceService().getDrivingDistanceKm(
-        originLat: driverLocation!.latitude,
-        originLng: driverLocation!.longitude,
-        destLat: ride.pickupLat,
-        destLng: ride.pickupLng,
-      ),
+      future: pickupFut,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Column(
@@ -392,7 +462,7 @@ class NewRequestCard extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: ugoBlue.withValues(alpha: 0.5),
+                  color: NewRequestCard.ugoBlue.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -401,13 +471,17 @@ class NewRequestCard extends StatelessWidget {
 
         double? km = snapshot.data;
         if (km == null || km == 0) {
-          km = _pickupDistanceKm(driverLocation, ride);
+          km = ride.driverPickupDistanceKm;
+        }
+        if (km == null || km == 0) {
+          km = NewRequestCard._pickupDistanceKm(
+              _driverSnapForRoadKm ?? widget.driverLocation, ride);
         }
 
         return _buildDistanceInfo(
           context,
           label,
-          _formatDistance(km),
+          NewRequestCard._formatDistance(km),
         );
       },
     );
@@ -418,28 +492,45 @@ class NewRequestCard extends StatelessWidget {
     String label,
     RideRequest ride,
   ) {
-    final hasDriverLocation = driverLocation != null;
-    final displayLabel = hasDriverLocation ? '$label (current)' : label;
-    final originLat =
-        hasDriverLocation ? driverLocation!.latitude : ride.pickupLat;
-    final originLng =
-        hasDriverLocation ? driverLocation!.longitude : ride.pickupLng;
+    // Trip leg only: pickup → drop (not driver → drop).
+    if (ride.pickupLat == 0 ||
+        ride.pickupLng == 0 ||
+        ride.dropLat == 0 ||
+        ride.dropLng == 0) {
+      return _buildDistanceInfo(context, label,
+          NewRequestCard._formatDistance(null),
+          alignRight: true);
+    }
 
-    // Always use Google Distance Matrix for accurate road distance (matches navigation).
+    final dropFut = _dropRoadFuture;
+    if (dropFut == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(label,
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: Responsive.fontSize(context, 12))),
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: NewRequestCard.ugoBlue.withValues(alpha: 0.5),
+            ),
+          ),
+        ],
+      );
+    }
+
     return FutureBuilder<double?>(
-      future: RouteDistanceService().getDrivingDistanceKm(
-        originLat: originLat,
-        originLng: originLng,
-        destLat: ride.dropLat,
-        destLng: ride.dropLng,
-      ),
+      future: dropFut,
       builder: (context, snapshot) {
-        // While loading, show loading indicator
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(displayLabel,
+              Text(label,
                   style: TextStyle(
                       color: Colors.grey[400],
                       fontSize: Responsive.fontSize(context, 12))),
@@ -448,28 +539,22 @@ class NewRequestCard extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: ugoBlue.withValues(alpha: 0.5),
+                  color: NewRequestCard.ugoBlue.withValues(alpha: 0.5),
                 ),
               ),
             ],
           );
         }
 
-        // Use Google Maps driving distance (road distance, not straight-line)
         double? km = snapshot.data;
-
-        // Fallback ONLY to straight-line calculation (NOT backend distance)
-        // Backend ride.distance is also straight-line, so calculate it ourselves
         if (km == null || km == 0) {
-          km = hasDriverLocation
-              ? _driverToDropDistanceKm(driverLocation, ride)
-              : _dropDistanceKm(ride);
+          km = NewRequestCard._dropDistanceKm(ride);
         }
 
         return _buildDistanceInfo(
           context,
-          displayLabel,
-          _formatDistance(km),
+          label,
+          NewRequestCard._formatDistance(km),
           alignRight: true,
         );
       },

@@ -38,32 +38,38 @@ class RouteDistanceService {
 
     if (_inflight.containsKey(key)) return _inflight[key]!;
 
-    final straightM = Geolocator.distanceBetween(
-      originLat,
-      originLng,
-      destLat,
-      destLng,
-    );
-    if (straightM < 120) {
-      final km = straightM / 1000.0;
-      _cache[key] = _CachedDistance(km: km);
-      return km;
-    }
-
     // Use only the key from this project: Firebase Remote Config (parameter: google_maps_api_key)
     final apiKeySync = Config.googleMapsApiKey;
     final future = () async {
-      String apiKey = apiKeySync;
-      if (apiKey.isEmpty) {
-        apiKey = await Config.getGoogleMapsApiKey();
-      }
-      if (apiKey.isEmpty) {
-        debugPrint(
-            '❌ Google Maps API key is EMPTY. Set "google_maps_api_key" in Firebase Remote Config and publish.');
-        return null;
-      }
-
       try {
+        final straightM = Geolocator.distanceBetween(
+          originLat,
+          originLng,
+          destLat,
+          destLng,
+        );
+        // Same building / GPS jitter: no Google call; cache so rebuilds do not retry.
+        if (straightM <= 120) {
+          final km = straightM <= 1 ? 0.05 : straightM / 1000;
+          _cache[key] = _CachedDistance(km: km);
+          return km;
+        }
+
+        String apiKey = apiKeySync;
+        if (apiKey.isEmpty) {
+          apiKey = await Config.getGoogleMapsApiKey();
+        }
+        if (apiKey.isEmpty) {
+          debugPrint(
+              '❌ Google Maps API key is EMPTY. Set "google_maps_api_key" in Firebase Remote Config and publish.');
+          final km = straightM / 1000;
+          if (km > 0) {
+            _cache[key] = _CachedDistance(km: km);
+            return km;
+          }
+          return null;
+        }
+
         final directionsKm = await _getDirectionsDistanceKm(
           originLat: originLat,
           originLng: originLng,
@@ -89,9 +95,27 @@ class RouteDistanceService {
           return matrixKm;
         }
 
-        return null;
+        // APIs returned zero / OK with no usable distance — cache straight-line once.
+        final km = straightM / 1000;
+        if (km > 0) {
+          _cache[key] = _CachedDistance(km: km);
+          return km;
+        }
+        _cache[key] = _CachedDistance(km: 0.05);
+        return 0.05;
       } catch (e) {
         debugPrint('💥 Exception calling Google Maps API: $e');
+        final straightM = Geolocator.distanceBetween(
+          originLat,
+          originLng,
+          destLat,
+          destLng,
+        );
+        final km = straightM / 1000;
+        if (km > 0) {
+          _cache[key] = _CachedDistance(km: km);
+          return km;
+        }
         return null;
       } finally {
         _inflight.remove(key);
@@ -114,6 +138,7 @@ class RouteDistanceService {
       '&destination=$destLat,$destLng'
       '&mode=driving'
       '&departure_time=now'
+      '&traffic_model=best_guess'
       '&key=$apiKey',
     );
 
@@ -170,6 +195,7 @@ class RouteDistanceService {
       '&destinations=$destLat,$destLng'
       '&mode=driving'
       '&departure_time=now'
+      '&traffic_model=best_guess'
       '&key=$apiKey',
     );
 
@@ -199,8 +225,9 @@ class RouteDistanceService {
 
     final element = elements.first as Map<String, dynamic>;
     if (element['status'] != 'OK') {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('❌ Distance Matrix element status: ${element['status']}');
+      }
       return null;
     }
 
