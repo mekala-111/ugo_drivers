@@ -22,6 +22,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   bool _isLoading = false;
   bool _isFetchingDocuments = true;
 
+  /// Parsed from `data.kyc_doc_status` when present (same keys as API `documents` map).
+  Map<String, bool>? _kycDocuments;
+  bool _useKycDocStatus = false;
+  bool _allUploadedFromApi = false;
+
   // Track which documents are already uploaded on server
   final Map<String, bool> _serverDocuments = {
     'profilePhoto': false,
@@ -31,15 +36,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     'vehicleImage': false,
     'registrationImage': false,
   };
-
-  static const List<String> _requiredDocumentKeys = [
-    'profilePhoto',
-    'imageLicense',
-    'aadharImage',
-    'panImage',
-    'vehicleImage',
-    'registrationImage',
-  ];
 
   @override
   void initState() {
@@ -53,15 +49,20 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   /// 1. Fetch existing documents from server using DriverIdfetchCall
-  Future<void> _fetchExistingDocuments() async {
-    setState(() => _isFetchingDocuments = true);
+  Future<void> _fetchExistingDocuments(
+      {bool showLoadingIndicator = true}) async {
+    if (showLoadingIndicator) {
+      setState(() => _isFetchingDocuments = true);
+    }
 
     try {
       final driverId = FFAppState().driverid;
       final token = FFAppState().accessToken;
 
       if (driverId == 0 || token.isEmpty) {
-        setState(() => _isFetchingDocuments = false);
+        if (showLoadingIndicator && mounted) {
+          setState(() => _isFetchingDocuments = false);
+        }
         return;
       }
 
@@ -75,31 +76,112 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         final data = getJsonField(response.jsonBody, r'''$.data''');
 
         if (data != null) {
-          // Helper to check if string is valid
           bool hasDoc(dynamic path) =>
               path != null &&
               path.toString().isNotEmpty &&
               path.toString() != 'null';
 
+          Map<String, bool>? kycDocs;
+          var useKyc = false;
+          var allUp = false;
+          final kycRaw = data['kyc_doc_status'];
+          if (kycRaw is Map) {
+            final inner = kycRaw['documents'];
+            if (inner is Map) {
+              useKyc = true;
+              kycDocs = <String, bool>{};
+              inner.forEach((k, v) {
+                kycDocs![k.toString()] = v == true;
+              });
+              allUp = kycRaw['all_uploaded'] == true;
+            }
+          }
+
           setState(() {
-            _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
-            _serverDocuments['imageLicense'] = hasDoc(data['license_image']) ||
-                hasDoc(data['license_front_image']) ||
-                hasDoc(data['license_back_image']);
-            _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']) ||
-                hasDoc(data['aadhaar_front_image']) ||
-                hasDoc(data['aadhaar_back_image']);
-            _serverDocuments['panImage'] = hasDoc(data['pan_image']);
-            _serverDocuments['vehicleImage'] = hasDoc(data['vehicle_image']);
-            _serverDocuments['registrationImage'] = hasDoc(data['rc_image']) ||
-                hasDoc(data['rc_front_image']) ||
-                hasDoc(data['rc_back_image']);
+            _useKycDocStatus = useKyc;
+            _kycDocuments = kycDocs;
+            _allUploadedFromApi = allUp;
+
+            if (useKyc && kycDocs != null) {
+              final d = kycDocs;
+              _serverDocuments['profilePhoto'] = d['profile_image'] == true;
+              _serverDocuments['imageLicense'] = d['license_front'] == true &&
+                  d['license_back'] == true &&
+                  d['license_number'] == true;
+              _serverDocuments['aadharImage'] = d['aadhaar_front'] == true &&
+                  d['aadhaar_back'] == true;
+              _serverDocuments['panImage'] = d['pan_image'] == true;
+              _serverDocuments['vehicleImage'] = d['vehicle_image'] == true;
+              _serverDocuments['registrationImage'] =
+                  d['rc_front'] == true && d['rc_back'] == true;
+            } else {
+              _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
+              _serverDocuments['imageLicense'] = hasDoc(data['license_image']) ||
+                  hasDoc(data['license_front_image']) ||
+                  hasDoc(data['license_back_image']);
+              _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']) ||
+                  hasDoc(data['aadhaar_front_image']) ||
+                  hasDoc(data['aadhaar_back_image']);
+              _serverDocuments['panImage'] = hasDoc(data['pan_image']);
+              _serverDocuments['vehicleImage'] = hasDoc(data['vehicle_image']);
+              _serverDocuments['registrationImage'] = hasDoc(data['rc_image']) ||
+                  hasDoc(data['rc_front_image']) ||
+                  hasDoc(data['rc_back_image']);
+            }
           });
         }
       } else {}
     } finally {
-      if (mounted) setState(() => _isFetchingDocuments = false);
+      if (mounted && showLoadingIndicator) {
+        setState(() => _isFetchingDocuments = false);
+      }
     }
+  }
+
+  bool _showProfileCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    return _kycDocuments!['profile_image'] != true;
+  }
+
+  bool _showLicenseCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    final d = _kycDocuments!;
+    return !(d['license_front'] == true &&
+        d['license_back'] == true &&
+        d['license_number'] == true);
+  }
+
+  bool _showAadhaarCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    final d = _kycDocuments!;
+    return !(d['aadhaar_front'] == true && d['aadhaar_back'] == true);
+  }
+
+  bool _showPanCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    return _kycDocuments!['pan_image'] != true;
+  }
+
+  bool _showVehicleCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    return _kycDocuments!['vehicle_image'] != true;
+  }
+
+  bool _showRegistrationCard() {
+    if (!_useKycDocStatus || _kycDocuments == null) return true;
+    final d = _kycDocuments!;
+    return !(d['rc_front'] == true && d['rc_back'] == true);
+  }
+
+  bool _showPersonalDocSection() {
+    return _showProfileCard() ||
+        _showLicenseCard() ||
+        _showAadhaarCard() ||
+        _showPanCard();
+  }
+
+  bool _showVehicleDocSection() {
+    return _showVehicleCard() || _showRegistrationCard();
   }
 
   /// Helper to get local state doc (Newly picked files)
@@ -123,18 +205,26 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   bool _hasNewDocuments() {
-    return _serverDocuments.keys.any((key) => _getLocalDoc(key) != null);
-  }
-
-  bool _isDocumentAvailable(String key) {
-    final local = _getLocalDoc(key);
-    final hasLocal = local != null;
-    final hasServer = _serverDocuments[key] ?? false;
-    return hasLocal || hasServer;
-  }
-
-  bool _hasAllRequiredDocuments() {
-    return _requiredDocumentKeys.every(_isDocumentAvailable);
+    if (!_useKycDocStatus || _kycDocuments == null) {
+      return _serverDocuments.keys.any((key) => _getLocalDoc(key) != null);
+    }
+    if (_showProfileCard() && _getLocalDoc('profilePhoto') != null) {
+      return true;
+    }
+    if (_showLicenseCard() && _getLocalDoc('imageLicense') != null) {
+      return true;
+    }
+    if (_showAadhaarCard() && _getLocalDoc('aadharImage') != null) {
+      return true;
+    }
+    if (_showPanCard() && _getLocalDoc('panImage') != null) return true;
+    if (_showVehicleCard() && _getLocalDoc('vehicleImage') != null) {
+      return true;
+    }
+    if (_showRegistrationCard() && _getLocalDoc('registrationImage') != null) {
+      return true;
+    }
+    return false;
   }
 
   /// 2. Handle Update (Upload new files)
@@ -142,14 +232,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     HapticFeedback.mediumImpact(); // ✅ Vibrate on tap
 
     if (_isLoading) return;
-
-    if (!_hasAllRequiredDocuments()) {
-      _showSnack(
-        'Please upload all required documents before submitting.',
-        isError: true,
-      );
-      return;
-    }
 
     if (!_hasNewDocuments()) {
       _showSnack(FFLocalizations.of(context).getText('docm0001'),
@@ -215,30 +297,40 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       );
 
       if ((apiResult.succeeded) || apiResult.statusCode == 200) {
-        // Success Logic
         setState(() {
-          // Mark locally uploaded docs as "On Server" now
-          for (var key in _serverDocuments.keys) {
+          for (final key in _serverDocuments.keys) {
             if (_getLocalDoc(key) != null) _serverDocuments[key] = true;
           }
         });
 
-        // Clear local state
         FFAppState().update(() {
           FFAppState().profilePhoto = null;
           FFAppState().imageLicense = null;
+          FFAppState().licenseFrontImage = null;
+          FFAppState().licenseBackImage = null;
           FFAppState().aadharImage = null;
+          FFAppState().aadharBackImage = null;
+          FFAppState().aadhaarFrontImage = null;
+          FFAppState().aadhaarBackImage = null;
           FFAppState().panImage = null;
           FFAppState().vehicleImage = null;
           FFAppState().registrationImage = null;
+          FFAppState().rcFrontImage = null;
+          FFAppState().rcBackImage = null;
         });
 
         if (!context.mounted) return;
         FFAppState().requestDriverProfileRefresh();
+        await _fetchExistingDocuments(showLoadingIndicator: false);
+        if (!context.mounted) return;
         _showSnack(FFLocalizations.of(context).getText('docm0002'),
             isError: false);
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if (mounted) context.pushReplacementNamed(HomeWidget.routeName);
+        await Future.delayed(const Duration(milliseconds: 800));
+        if (!mounted) return;
+        final done = !_useKycDocStatus || _allUploadedFromApi;
+        if (done) {
+          context.pushReplacementNamed(HomeWidget.routeName);
+        }
       } else {
         // Error Logic
         if (!context.mounted) return;
@@ -388,98 +480,144 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSectionHeader(FFLocalizations.of(context)
-                                .getText('docm0007')),
-                            const SizedBox(height: 16),
-
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0008'),
-                              'profilePhoto',
-                              () => context
-                                  .pushNamed(FaceVerifyUpdateWidget.routeName),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0009'),
-                              'imageLicense',
-                              () => context
-                                  .pushNamed(DrivingDlUpdateWidget.routeName),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0010'),
-                              'aadharImage',
-                              () => context
-                                  .pushNamed(AdharUploadUpdateWidget.routeName),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0011'),
-                              'panImage',
-                              () => context.pushNamed(
-                                  PanuploadScreenUpdateWidget.routeName),
-                            ),
-
-                            const SizedBox(height: 24),
-                            Divider(color: Colors.grey.shade100, thickness: 2),
-                            const SizedBox(height: 24),
-
-                            _buildSectionHeader(FFLocalizations.of(context)
-                                .getText('docm0012')),
-                            const SizedBox(height: 16),
-
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0013'),
-                              'vehicleImage',
-                              () => context.pushNamed(
-                                  VehicleImageUpdateWidget.routeName),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildStepItem(
-                              FFLocalizations.of(context).getText('docm0014'),
-                              'registrationImage',
-                              () => context.pushNamed(
-                                  RegistrationUpdateWidget.routeName),
-                            ),
-
-                            const SizedBox(height: 32),
-
-                            // Submit Button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed:
-                                    _isLoading ? null : _handleUpdateDocuments,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: brandPrimary,
-                                  foregroundColor: Colors.white,
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  disabledBackgroundColor:
-                                      brandPrimary.withValues(alpha: 0.6),
-                                ),
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        height: 24,
-                                        width: 24,
-                                        child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2.5),
-                                      )
-                                    : Text(
+                            if (_useKycDocStatus && _allUploadedFromApi)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 32),
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_rounded,
+                                        size: 56,
+                                        color: AppColors.accentEmerald,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
                                         FFLocalizations.of(context)
-                                            .getText('docm0015'),
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.5,
+                                            .getText('docm0021'),
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else ...[
+                              if (_showPersonalDocSection()) ...[
+                                _buildSectionHeader(
+                                    FFLocalizations.of(context)
+                                        .getText('docm0007')),
+                                const SizedBox(height: 16),
+                                ..._spacedStepCards([
+                                  if (_showProfileCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0008'),
+                                      'profilePhoto',
+                                      () => context.pushNamed(
+                                          FaceVerifyUpdateWidget.routeName),
+                                    ),
+                                  if (_showLicenseCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0009'),
+                                      'imageLicense',
+                                      () => context.pushNamed(
+                                          DrivingDlUpdateWidget.routeName),
+                                    ),
+                                  if (_showAadhaarCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0010'),
+                                      'aadharImage',
+                                      () => context.pushNamed(
+                                          AdharUploadUpdateWidget.routeName),
+                                    ),
+                                  if (_showPanCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0011'),
+                                      'panImage',
+                                      () => context.pushNamed(
+                                          PanuploadScreenUpdateWidget
+                                              .routeName),
+                                    ),
+                                ]),
+                              ],
+                              if (_showPersonalDocSection() &&
+                                  _showVehicleDocSection()) ...[
+                                const SizedBox(height: 24),
+                                Divider(
+                                    color: Colors.grey.shade100, thickness: 2),
+                                const SizedBox(height: 24),
+                              ],
+                              if (_showVehicleDocSection()) ...[
+                                _buildSectionHeader(
+                                    FFLocalizations.of(context)
+                                        .getText('docm0012')),
+                                const SizedBox(height: 16),
+                                ..._spacedStepCards([
+                                  if (_showVehicleCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0013'),
+                                      'vehicleImage',
+                                      () => context.pushNamed(
+                                          VehicleImageUpdateWidget.routeName),
+                                    ),
+                                  if (_showRegistrationCard())
+                                    _buildStepItem(
+                                      FFLocalizations.of(context)
+                                          .getText('docm0014'),
+                                      'registrationImage',
+                                      () => context.pushNamed(
+                                          RegistrationUpdateWidget.routeName),
+                                    ),
+                                ]),
+                              ],
+                              const SizedBox(height: 32),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : _handleUpdateDocuments,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: brandPrimary,
+                                    foregroundColor: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    disabledBackgroundColor:
+                                        brandPrimary.withValues(alpha: 0.6),
+                                  ),
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2.5),
+                                        )
+                                      : Text(
+                                          FFLocalizations.of(context)
+                                              .getText('docm0015'),
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
@@ -489,6 +627,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _spacedStepCards(List<Widget> cards) {
+    final out = <Widget>[];
+    for (var i = 0; i < cards.length; i++) {
+      if (i > 0) out.add(const SizedBox(height: 12));
+      out.add(cards[i]);
+    }
+    return out;
   }
 
   Widget _buildSectionHeader(String title) {

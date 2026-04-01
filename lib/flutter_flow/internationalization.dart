@@ -1748,6 +1748,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'अनुमोदन के लिए सबमिट नहीं हो सका। कृपया पुनः प्रयास करें।',
       'te': 'ఆమోదానికి సమర్పించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
     },
+    'docm0021': {
+      'en': 'All required documents are uploaded.',
+      'hi': 'सभी आवश्यक दस्तावेज़ अपलोड हो चुके हैं।',
+      'te': 'అవసరమైన అన్ని డాక్యుమెంట్లు అప్‌లోడ్ అయ్యాయి.',
+    },
     // Ride Flow
     'ride0001': {
       'en': 'Failed to accept ride. Please check your connection.',

@@ -128,7 +128,8 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
         s == 'in_review' ||
         s == 'under_review' ||
         s == 'pending_verification' ||
-        s == 'submitted';
+        s == 'submitted' ||
+        s == 'awaiting_kyc';
   }
 
   Future<void> _launchUrl(String url) async {

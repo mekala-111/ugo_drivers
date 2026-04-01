@@ -113,7 +113,8 @@ class HomeController extends ChangeNotifier {
       _normalizedVerificationStatus == 'in_review' ||
       _normalizedVerificationStatus == 'under_review' ||
       _normalizedVerificationStatus == 'pending_verification' ||
-      _normalizedVerificationStatus == 'submitted';
+      _normalizedVerificationStatus == 'submitted' ||
+      _normalizedVerificationStatus == 'awaiting_kyc';
 
   /// Set when API includes `data.kyc_doc_status` (signup-with-vehicle / driver fetch).
   bool _kycDocStatusFromApi = false;

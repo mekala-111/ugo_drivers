@@ -78,7 +78,8 @@ class _OfflineDashboardState extends State<OfflineDashboard>
         normalizedStatus == 'in_review' ||
         normalizedStatus == 'under_review' ||
         normalizedStatus == 'pending_verification' ||
-        normalizedStatus == 'submitted';
+        normalizedStatus == 'submitted' ||
+        normalizedStatus == 'awaiting_kyc';
 
     String titleText = FFLocalizations.of(context).getText('drv_offline');
     String subtitleText =

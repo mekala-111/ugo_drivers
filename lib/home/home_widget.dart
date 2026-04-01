@@ -139,7 +139,8 @@ class _HomeWidgetState extends State<HomeWidget>
             normalized == 'in_review' ||
             normalized == 'under_review' ||
             normalized == 'pending_verification' ||
-            normalized == 'submitted') {
+            normalized == 'submitted' ||
+            normalized == 'awaiting_kyc') {
           title = 'Pending for verification';
           message =
               'Waiting for admin approval. Your documents are under review.';
