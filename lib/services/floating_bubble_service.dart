@@ -164,14 +164,15 @@ class FloatingBubbleService {
   static Future<void> clearPendingRideAction() async {
     try {
       await _channel.invokeMethod<void>('clearPendingRideAction');
-    } on PlatformException catch (_) {}
-    on MissingPluginException catch (_) {}
+    } on PlatformException catch (_) {
+    } on MissingPluginException catch (_) {}
   }
 
   /// Consume one pending ride action sent by native side.
   static Future<Map<String, dynamic>?> consumePendingRideAction() async {
     try {
-      final result = await _channel.invokeMethod<dynamic>('consumePendingRideAction');
+      final result =
+          await _channel.invokeMethod<dynamic>('consumePendingRideAction');
       if (result is Map) {
         return Map<String, dynamic>.from(result);
       }

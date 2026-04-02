@@ -70,6 +70,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   List<dynamic> _recentDriverPayouts = [];
   double _dailyReferralInr = 0;
   int _dailyMatchedRides = 0;
+
   /// When dashboard today/yesterday are empty but Pro roster has drivers.
   List<Map<String, dynamic>> _rosterFallback = [];
 
@@ -192,8 +193,9 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
         if (todayList.isEmpty &&
             yesterdayList.isEmpty &&
             snapshot.mergedTeamMembers.isNotEmpty) {
-          _rosterFallback =
-              snapshot.mergedTeamMembers.map((e) => Map<String, dynamic>.from(e)).toList();
+          _rosterFallback = snapshot.mergedTeamMembers
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList();
         } else {
           _rosterFallback = [];
         }
@@ -335,7 +337,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
 
           // ── TAB 2: Pro referral commission (clear for captains) ─────────────
           isLoadingTeam
-              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary))
               : RefreshIndicator(
                   color: AppColors.primary,
                   onRefresh: _fetchTeamData,
@@ -356,7 +359,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                           const SizedBox(height: 14),
                           AnimatedListItem(
                             index: 1,
-                            child: _buildReferralCodeCaptainCard(brand, context),
+                            child:
+                                _buildReferralCodeCaptainCard(brand, context),
                           ),
                         ],
                         const SizedBox(height: 16),
@@ -369,7 +373,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                           index: 3,
                           child: _buildTodaySnapshotRow(brand),
                         ),
-                        if (_dailyReferralInr > 0 || _dailyMatchedRides > 0) ...[
+                        if (_dailyReferralInr > 0 ||
+                            _dailyMatchedRides > 0) ...[
                           const SizedBox(height: 12),
                           AnimatedListItem(
                             index: 4,
@@ -445,8 +450,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                                   ),
                                 ),
                               ),
-                        ]
-                        else ...[
+                        ] else ...[
                           if (_referralsToday.isNotEmpty) ...[
                             Text(
                               'Today',
@@ -775,7 +779,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
           const SizedBox(height: 4),
           Text(
             sub,
-            style: GoogleFonts.inter(fontSize: 10.5, color: Colors.grey.shade500),
+            style:
+                GoogleFonts.inter(fontSize: 10.5, color: Colors.grey.shade500),
           ),
         ],
       ),
@@ -1085,17 +1090,16 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
     required bool yesterday,
     required Color brand,
   }) {
-    final name =
-        (row['name'] ?? row['referred_name'] ?? 'Friend').toString();
+    final name = (row['name'] ?? row['referred_name'] ?? 'Friend').toString();
     final vehicle = (row['vehicle_number'] ?? '—').toString();
-    final proOnly =
-        _readNum(row, ['pro_rides_completed']).round();
+    final proOnly = _readNum(row, ['pro_rides_completed']).round();
     final commission = yesterday
         ? _readNum(row, ['commission_earned'])
         : _readNum(row, ['commission_earned', 'commission_earned_by_72']);
     final perRide = _readNum(row, ['amount_per_pro_ride']);
     final matched = _readNum(row, ['matched_rides_now']).round();
-    final needMore = _readNum(row, ['additional_rides_needed_to_match']).round();
+    final needMore =
+        _readNum(row, ['additional_rides_needed_to_match']).round();
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1134,7 +1138,9 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                       ),
                     ),
                     Text(
-                      vehicle == 'null' || vehicle.isEmpty ? 'Vehicle —' : vehicle,
+                      vehicle == 'null' || vehicle.isEmpty
+                          ? 'Vehicle —'
+                          : vehicle,
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Colors.grey.shade600,

@@ -111,8 +111,7 @@ class DriverSignupService {
       vehicleJsonData['license_plate'] = FFAppState().licensePlate;
     }
     if (FFAppState().registrationNumber.isNotEmpty) {
-      vehicleJsonData['registration_number'] =
-          FFAppState().registrationNumber;
+      vehicleJsonData['registration_number'] = FFAppState().registrationNumber;
     }
     if (FFAppState().insuranceNumber.isNotEmpty) {
       vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
@@ -163,13 +162,9 @@ class DriverSignupService {
       accessToken ??=
           getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
       accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
-      accessToken ??=
-          getJsonField(jsonBody, r'''$.access_token''')?.toString();
-      accessToken ??=
-          getJsonField(jsonBody, r'''$.accessToken''')?.toString();
-      if (accessToken == 'null' ||
-          accessToken == null ||
-          accessToken.isEmpty) {
+      accessToken ??= getJsonField(jsonBody, r'''$.access_token''')?.toString();
+      accessToken ??= getJsonField(jsonBody, r'''$.accessToken''')?.toString();
+      if (accessToken == 'null' || accessToken == null || accessToken.isEmpty) {
         accessToken = null;
       }
 
@@ -245,8 +240,7 @@ class DriverSignupService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  FFLocalizations.of(context).getText('ob0012')),
+              content: Text(FFLocalizations.of(context).getText('ob0012')),
               backgroundColor: Colors.orange,
             ),
           );

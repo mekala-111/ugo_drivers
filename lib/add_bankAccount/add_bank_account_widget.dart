@@ -45,7 +45,8 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
     return InputDecoration(
       isDense: true,
       prefixIcon: icon != null
-          ? Icon(icon, color: AppColors.primary.withValues(alpha: 0.9), size: 22)
+          ? Icon(icon,
+              color: AppColors.primary.withValues(alpha: 0.9), size: 22)
           : null,
       filled: true,
       fillColor: Colors.white,
@@ -224,15 +225,15 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
             onFieldSubmitted: (_) {
               _model.bankAccountNumberFocusNode?.requestFocus();
             },
-            decoration: _fieldDecoration(context, icon: Icons.person_outline_rounded)
-                .copyWith(
+            decoration:
+                _fieldDecoration(context, icon: Icons.person_outline_rounded)
+                    .copyWith(
               hintText: FFLocalizations.of(context).getText('z3yviii2'),
             ),
             style: GoogleFonts.inter(fontSize: 15),
           ),
           SizedBox(height: verticalSpacing),
-          _fieldLabel(
-              context, FFLocalizations.of(context).getText('vwehe0jg')),
+          _fieldLabel(context, FFLocalizations.of(context).getText('vwehe0jg')),
           TextFormField(
             controller: _model.bankAccountNumberController,
             focusNode: _model.bankAccountNumberFocusNode,
@@ -257,8 +258,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
             style: GoogleFonts.inter(fontSize: 15, letterSpacing: 0.6),
           ),
           SizedBox(height: verticalSpacing),
-          _fieldLabel(
-              context, FFLocalizations.of(context).getText('6kj7r3jn')),
+          _fieldLabel(context, FFLocalizations.of(context).getText('6kj7r3jn')),
           TextFormField(
             controller: _model.confirmBankAccountNumberController,
             focusNode: _model.confirmBankAccountNumberFocusNode,
@@ -284,8 +284,7 @@ class _AddBankAccountWidgetState extends State<AddBankAccountWidget> {
             style: GoogleFonts.inter(fontSize: 15, letterSpacing: 0.6),
           ),
           SizedBox(height: verticalSpacing),
-          _fieldLabel(
-              context, FFLocalizations.of(context).getText('l1eb56jt')),
+          _fieldLabel(context, FFLocalizations.of(context).getText('l1eb56jt')),
           TextFormField(
             controller: _model.bankIfscCodeController,
             focusNode: _model.bankIfscCodeFocusNode,

@@ -35,6 +35,7 @@ class RideRequestOverlay extends StatefulWidget {
   final LatLng? driverLocation;
   // ✅ ADDED: Callback to notify HomeWidget when ride is fully finished
   final VoidCallback? onRideComplete;
+
   /// True while cash collection / rating UI is covering the map — hide home chrome (e.g. incentives).
   final ValueChanged<bool>? onPostRideIncentiveSuppress;
 
@@ -60,6 +61,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   final Map<int, List<TextEditingController>> _otpControllers = {};
   final PageController _requestPageController =
       PageController(viewportFraction: 0.94);
+
   /// Current page when multiple SEARCHING rides are shown (0-based).
   int _multiRequestPageIndex = 0;
 
@@ -237,8 +239,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       final int myDriverId = FFAppState().driverid;
       final int? rideDriverId = updatedRide.driverId;
 
-      // Remove if cancelled, rejected, or completed by another driver
-      if (status == RideStatus.cancelled || status == RideStatus.rejected) {
+      // Remove if cancelled, rejected, expired (superseded by retry), or completed by another driver
+      if (status == RideStatus.cancelled ||
+          status == RideStatus.rejected ||
+          status == RideStatus.expired) {
         removeRideById(updatedRide.id);
         return;
       }
@@ -459,8 +463,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           final next = val - 1;
           _timers[id] = next;
           if (next == 0 &&
-              _activeRequests.any((r) =>
-                  r.id == id && r.status == RideStatus.searching)) {
+              _activeRequests
+                  .any((r) => r.id == id && r.status == RideStatus.searching)) {
             expiredSearching.add(id);
           }
         });
@@ -687,22 +691,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (!hasServerLock) {
         // Stale local lock cleared from server confirmation; continue accept flow.
       } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Complete your current ride first.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Complete your current ride first.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
       }
     }
     setState(() => _isAcceptingRide = true);
     try {
       final rideCheckRes = await Dio().get(
         '${Config.baseUrl}/api/rides/$rideId',
-        options: Options(headers: {
-          'Authorization': 'Bearer ${FFAppState().accessToken}'
-        }),
+        options: Options(
+            headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
       );
       Map<String, dynamic>? rideData;
       final raw = rideCheckRes.data;
@@ -717,7 +720,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
       final serverStatus =
           (rideData?['ride_status'] ?? '').toString().trim().toUpperCase();
-      final assignedDriverId = int.tryParse('${rideData?['driver_id'] ?? 0}') ?? 0;
+      final assignedDriverId =
+          int.tryParse('${rideData?['driver_id'] ?? 0}') ?? 0;
       final myId = FFAppState().driverid;
       if (myId <= 0) {
         if (mounted) {
@@ -1051,7 +1055,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   }
 
   Future<void> _completeRide(
-      {required int rideId, required int userId, required RideRequest ride}) async {
+      {required int rideId,
+      required int userId,
+      required RideRequest ride}) async {
     if (_isCompletingRide) return;
     if (!mounted) return;
 
@@ -1111,8 +1117,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     if (total <= 1) return const SizedBox.shrink();
     final safeIdx = _multiRequestPageIndex.clamp(0, total - 1);
     final current = safeIdx + 1;
-    final template =
-        FFLocalizations.of(context).getText('drv_request_pager');
+    final template = FFLocalizations.of(context).getText('drv_request_pager');
     final label = template.isEmpty
         ? '$current of $total'
         : template
@@ -1162,8 +1167,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     final RideStatus status = ride.status;
 
     _notifyPostRideIncentiveSuppress(
-      _paymentPendingRides.contains(ride.id) ||
-          status == RideStatus.completed,
+      _paymentPendingRides.contains(ride.id) || status == RideStatus.completed,
     );
 
     if (_showOtpOverlay.contains(ride.id)) {
@@ -1312,12 +1316,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
                         child: NewRequestCard(
                           ride: r,
                           remainingTime: _timers[r.id] ?? 0,
-                          onAccept: _isAcceptingRide
-                              ? null
-                              : () => _acceptRide(r.id),
-                          onDecline: _isAcceptingRide
-                              ? null
-                              : () => _rejectRide(r.id),
+                          onAccept:
+                              _isAcceptingRide ? null : () => _acceptRide(r.id),
+                          onDecline:
+                              _isAcceptingRide ? null : () => _rejectRide(r.id),
                           driverLocation: widget.driverLocation,
                           isLoading: _isAcceptingRide,
                         ),
@@ -1362,8 +1364,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
               setState(() => _showOtpOverlay.add(ride.id));
               VoiceService().pleaseStartRide();
             },
-            onCancel:
-                _isCancellingRide ? () {} : () => _cancelRide(ride.id),
+            onCancel: _isCancellingRide ? () {} : () => _cancelRide(ride.id),
             onCall: () =>
                 launchUrl(Uri.parse('tel:${ride.mobileNumber ?? ''}')),
             onChat: () => _openRideChat(ride),

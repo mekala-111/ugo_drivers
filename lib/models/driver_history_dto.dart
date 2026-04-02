@@ -30,9 +30,8 @@ class DriverHistoryDto {
 
   factory DriverHistoryDto.fromJson(Map<String, dynamic> json) {
     final idVal = json['ride_id'] ?? json['id'];
-    final id = idVal is int
-        ? idVal
-        : int.tryParse(idVal?.toString() ?? '0') ?? 0;
+    final id =
+        idVal is int ? idVal : int.tryParse(idVal?.toString() ?? '0') ?? 0;
     final fareVal = json['fare'] ?? json['amount'];
     final fare = (fareVal is num)
         ? fareVal.toDouble()

@@ -73,8 +73,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     });
 
     _licenseNumberController.addListener(() {
-      FFAppState().licenseNumber =
-          InputValidators.normalizeDrivingLicense(_licenseNumberController.text);
+      FFAppState().licenseNumber = InputValidators.normalizeDrivingLicense(
+          _licenseNumberController.text);
     });
     _licenseExpiryController.addListener(() {
       FFAppState().licenseExpiryDate = _licenseExpiryController.text.trim();
@@ -153,8 +153,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
     // Load license number
     if (FFAppState().licenseNumber.isNotEmpty) {
-      final contiguous = InputValidators.normalizeDrivingLicense(
-          FFAppState().licenseNumber);
+      final contiguous =
+          InputValidators.normalizeDrivingLicense(FFAppState().licenseNumber);
       setState(() {
         _licenseNumberController.text = contiguous;
         _isLicenseNumberValid =
@@ -1145,8 +1145,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 }
 
                                 // Validate license number and expiry
-                                final licenseNorm = InputValidators
-                                    .normalizeDrivingLicense(
+                                final licenseNorm =
+                                    InputValidators.normalizeDrivingLicense(
                                         _licenseNumberController.text.trim());
                                 final licenseErr =
                                     InputValidators.licenseError(licenseNorm);
@@ -1196,15 +1196,16 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       licenseFrontImage: _frontImage,
                                       licenseBackImage: _backImage,
                                       licenseNumber: licenseNorm,
-                                      licenseExpiryDate: _licenseExpiryController
-                                              .text
-                                              .trim()
-                                              .isNotEmpty
-                                          ? DriverSignupSubmitService
-                                              .formatDateForApi(
-                                                  _licenseExpiryController.text
-                                                      .trim())
-                                          : null,
+                                      licenseExpiryDate:
+                                          _licenseExpiryController.text
+                                                  .trim()
+                                                  .isNotEmpty
+                                              ? DriverSignupSubmitService
+                                                  .formatDateForApi(
+                                                      _licenseExpiryController
+                                                          .text
+                                                          .trim())
+                                              : null,
                                     );
                                     if (!mounted) return;
                                     if (res.succeeded) {

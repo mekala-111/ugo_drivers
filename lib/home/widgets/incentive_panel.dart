@@ -40,6 +40,7 @@ class IncentivePanel extends StatelessWidget {
   final bool isLoadingIncentives;
   final List<IncentiveTier> incentiveTiers;
   final double totalIncentiveEarned;
+
   /// Sum of rewards for active (ongoing) quests — shown in collapsed header when set.
   final double potentialBonusTotal;
   final VoidCallback onTap;
@@ -302,9 +303,7 @@ class _QuestHeroCard extends StatelessWidget {
     final progress = target > 0 ? (done / target).clamp(0.0, 1.0) : 0.0;
     final start = incentiveFormatClock(tier.startTime);
     final end = incentiveFormatClock(tier.endTime);
-    final slot = (start != null && end != null)
-        ? '$start – $end'
-        : '';
+    final slot = (start != null && end != null) ? '$start – $end' : '';
 
     return Container(
       decoration: BoxDecoration(

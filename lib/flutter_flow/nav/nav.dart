@@ -269,8 +269,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => RideChatWidget(
             rideId: params.getParam('rideId', ParamType.int)!,
             partnerName:
-                params.getParam('partnerName', ParamType.String) ??
-                    'Passenger',
+                params.getParam('partnerName', ParamType.String) ?? 'Passenger',
           ),
         ),
         FFRoute(

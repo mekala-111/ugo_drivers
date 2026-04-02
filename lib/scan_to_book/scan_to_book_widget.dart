@@ -181,7 +181,8 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
       if (activeRideStatus.isNotEmpty) {
         FFAppState().activeRideStatus = activeRideStatus;
       }
-      final hasLock = activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
+      final hasLock =
+          activeRideId > 0 || lockedStatuses.contains(activeRideStatus);
       if (!hasLock) {
         FFAppState().activeRideId = 0;
         FFAppState().activeRideStatus = '';

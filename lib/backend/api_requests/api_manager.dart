@@ -1,12 +1,14 @@
 // ignore_for_file: constant_identifier_names, depend_on_referenced_packages, prefer_final_fields
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart'
+    show debugPrint, defaultTargetPlatform, kDebugMode, kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:equatable/equatable.dart';
 import 'package:http_parser/http_parser.dart';
@@ -218,9 +220,11 @@ class ApiManager {
   static ApiManager get instance => _instance ??= ApiManager._();
 
   static String? _accessToken;
+  static Future<String?>? _refreshInFlight;
 
   // ✅ ADDED: Global callback for Token Expiry / Concurrent Login
-  static Function()? onUnauthenticated;
+  static void Function(String? reason)? onUnauthenticated;
+
   /// Called after a successful silent access-token refresh (e.g. re-register FCM for chat).
   static void Function()? onAccessTokenRefreshed;
   static bool _isRefreshingToken = false;
@@ -236,6 +240,22 @@ class ApiManager {
       .map((e) =>
           '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}')
       .join('&');
+
+  static String _platformLabel() =>
+      kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
+
+  static Map<String, dynamic> _injectDeviceHeaders(Map<String, dynamic> headers) {
+    final withHeaders = Map<String, dynamic>.from(headers);
+    final appState = FFAppState();
+    if (appState.deviceId.isNotEmpty &&
+        !withHeaders.keys.any((k) => k.toLowerCase() == 'x-device-id')) {
+      withHeaders['x-device-id'] = appState.deviceId;
+    }
+    if (!withHeaders.keys.any((k) => k.toLowerCase() == 'x-platform')) {
+      withHeaders['x-platform'] = _platformLabel();
+    }
+    return withHeaders;
+  }
 
   static Future<ApiCallResponse> urlRequest(
     ApiCallType callType,
@@ -466,6 +486,7 @@ class ApiManager {
     ApiCallOptions? options,
     http.Client? client,
   }) async {
+    headers = _injectDeviceHeaders(headers);
     final callOptions = options ??
         ApiCallOptions(
           callName: callName,
@@ -602,7 +623,6 @@ class ApiManager {
     }
 
     final shouldTryRefresh = result.statusCode == 401 &&
-        !_isRefreshingToken &&
         FFAppState().refreshToken.isNotEmpty &&
         requestHeaders.keys.any((k) => k.toLowerCase() == 'authorization');
 
@@ -632,26 +652,46 @@ class ApiManager {
     }
 
     if (result.statusCode == 401) {
-      onUnauthenticated?.call();
+      final reason = _readPath(result.jsonBody, 'code')?.toString() ??
+          _readPath(result.jsonBody, 'data.code')?.toString();
+      onUnauthenticated?.call(reason);
     }
     return result;
   }
 
   static Future<String?> _tryRefreshAccessToken() async {
-    if (_isRefreshingToken) return null;
+    if (_refreshInFlight != null) {
+      return _refreshInFlight;
+    }
+    final completer = Completer<String?>();
+    _refreshInFlight = completer.future;
+    if (_isRefreshingToken) {
+      completer.complete(null);
+      _refreshInFlight = null;
+      return null;
+    }
     _isRefreshingToken = true;
     try {
       final appState = FFAppState();
       final refreshToken = appState.refreshToken;
-      if (refreshToken.isEmpty) return null;
+      if (refreshToken.isEmpty) {
+        completer.complete(null);
+        _refreshInFlight = null;
+        return null;
+      }
 
       final response = await http.post(
-        Uri.parse('${Config.baseUrl}/api/drivers/refresh-token'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('${Config.baseUrl}/api/auth/refresh'),
+        headers: {
+          'Content-Type': 'application/json',
+          ...toStringMap(_injectDeviceHeaders(const {})),
+        },
         body: jsonEncode({'refreshToken': refreshToken}),
       );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
+        completer.complete(null);
+        _refreshInFlight = null;
         return null;
       }
 
@@ -659,6 +699,8 @@ class ApiManager {
       try {
         decoded = jsonDecode(response.body);
       } catch (_) {
+        completer.complete(null);
+        _refreshInFlight = null;
         return null;
       }
 
@@ -672,7 +714,11 @@ class ApiManager {
 
       final newAccessToken = getToken(
           const ['data.accessToken', 'data.access_token', 'accessToken']);
-      if (newAccessToken == null) return null;
+      if (newAccessToken == null) {
+        completer.complete(null);
+        _refreshInFlight = null;
+        return null;
+      }
       final newRefreshToken = getToken(
           const ['data.refreshToken', 'data.refresh_token', 'refreshToken']);
 
@@ -681,8 +727,12 @@ class ApiManager {
         appState.refreshToken = newRefreshToken;
       }
       onAccessTokenRefreshed?.call();
+      completer.complete(newAccessToken);
+      _refreshInFlight = null;
       return newAccessToken;
     } catch (_) {
+      completer.complete(null);
+      _refreshInFlight = null;
       return null;
     } finally {
       _isRefreshingToken = false;

@@ -202,8 +202,7 @@ class _MenuWidgetState extends State<MenuWidget> {
                     ? Image.network(
                         img(_image),
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(
+                        errorBuilder: (context, error, stackTrace) => Container(
                           color: Colors.white.withValues(alpha: 0.2),
                           alignment: Alignment.center,
                           child: const Icon(Icons.person, color: Colors.white),

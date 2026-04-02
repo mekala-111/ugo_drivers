@@ -148,8 +148,7 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
         : const LatLng(17.3850, 78.4867);
 
     final headerTitle = firstName.isNotEmpty ? firstName : 'Passenger';
-    final statusLabel =
-        status.isNotEmpty ? status.toUpperCase() : 'RIDE';
+    final statusLabel = status.isNotEmpty ? status.toUpperCase() : 'RIDE';
 
     return Container(
       width: double.infinity,
@@ -251,7 +250,8 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.12),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -337,7 +337,8 @@ class _RideDetaisWidgetState extends State<RideDetaisWidget> {
                   child: FlutterFlowGoogleMap(
                     controller: _model.googleMapsController,
                     onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                    initialLocation: _model.googleMapsCenter ??= initialMapLocation,
+                    initialLocation: _model.googleMapsCenter ??=
+                        initialMapLocation,
                     markerColor: GoogleMarkerColor.orange,
                     mapType: MapType.normal,
                     style: GoogleMapStyle.standard,

@@ -308,8 +308,8 @@ class RidePickupOverlay extends StatelessWidget {
                                     onChat!,
                                   ),
                                   SizedBox(
-                                      height: Responsive.verticalSpacing(
-                                          context)),
+                                      height:
+                                          Responsive.verticalSpacing(context)),
                                 ],
                                 _buildSquareIconBtn(
                                   context,

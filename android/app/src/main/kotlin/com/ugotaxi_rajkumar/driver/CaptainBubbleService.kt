@@ -3,8 +3,11 @@ package com.ugotaxi_rajkumar.driver
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.animation.ValueAnimator
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
@@ -12,6 +15,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Button
+import android.widget.FrameLayout
 import android.media.MediaPlayer
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -47,9 +51,15 @@ class CaptainBubbleService : Service() {
     private var bubbleView: View? = null
     private var rideRequestView: View? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var rideCountDown: CountDownTimer? = null
+    private var isRideCardCollapsed: Boolean = false
     
     private val notificationId = 1001
     private val channelId = "floating_bubble_service"
+    private val prefsName = "captain_bubble_ui_prefs"
+    private val prefBubbleX = "bubble_x"
+    private val prefBubbleY = "bubble_y"
+    private val prefBubblePosSet = "bubble_pos_set"
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
     private var lastRideState: RideState = RideState.Idle
@@ -114,6 +124,14 @@ class CaptainBubbleService : Service() {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Re-apply overlays so they remain within safe drag bounds after rotate.
+        hideBubble()
+        hideRideRequestOverlay()
+        refreshOverlayForCurrentState()
+    }
+
     private fun applyRideState(state: RideState) {
         when (state) {
             is RideState.NewRequest -> {
@@ -135,6 +153,102 @@ class CaptainBubbleService : Service() {
         applyRideState(lastRideState)
     }
 
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun getScreenSizePx(): Pair<Int, Int> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val bounds = windowManager.currentWindowMetrics.bounds
+            bounds.width() to bounds.height()
+        } else {
+            val dm = resources.displayMetrics
+            dm.widthPixels to dm.heightPixels
+        }
+    }
+
+    private fun statusBarInsetPx(): Int {
+        val id = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) resources.getDimensionPixelSize(id) else dp(24)
+    }
+
+    private fun navBarInsetPx(): Int {
+        val id = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (id > 0) resources.getDimensionPixelSize(id) else dp(20)
+    }
+
+    private fun bubbleSizePx(screenWidth: Int): Int {
+        val widthDp = screenWidth / resources.displayMetrics.density
+        return when {
+            widthDp < 360f -> dp(54)
+            widthDp < 420f -> dp(60)
+            widthDp < 600f -> dp(64)
+            else -> dp(70)
+        }
+    }
+
+    private fun restoreOrDefaultBubblePosition(params: WindowManager.LayoutParams, bubbleW: Int, bubbleH: Int) {
+        val (screenW, screenH) = getScreenSizePx()
+        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        val hasSaved = prefs.getBoolean(prefBubblePosSet, false)
+
+        val safeTop = statusBarInsetPx() + dp(8)
+        val safeBottom = navBarInsetPx() + dp(8)
+        val maxX = (screenW - bubbleW).coerceAtLeast(0)
+        val maxY = (screenH - bubbleH - safeBottom).coerceAtLeast(safeTop)
+
+        val restoredX = prefs.getInt(prefBubbleX, maxX)
+        val restoredY = prefs.getInt(prefBubbleY, (screenH * 0.45f).toInt())
+
+        params.x = if (hasSaved) restoredX else maxX
+        params.y = if (hasSaved) restoredY else (screenH * 0.45f).toInt()
+        clampBubbleWithinScreen(params, bubbleW, bubbleH)
+    }
+
+    private fun persistBubblePosition(x: Int, y: Int) {
+        getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(prefBubblePosSet, true)
+            .putInt(prefBubbleX, x)
+            .putInt(prefBubbleY, y)
+            .apply()
+    }
+
+    private fun clampBubbleWithinScreen(params: WindowManager.LayoutParams, bubbleW: Int, bubbleH: Int) {
+        val (screenW, screenH) = getScreenSizePx()
+        val safeTop = statusBarInsetPx() + dp(8)
+        val safeBottom = navBarInsetPx() + dp(8)
+        val maxX = (screenW - bubbleW).coerceAtLeast(0)
+        val maxY = (screenH - bubbleH - safeBottom).coerceAtLeast(safeTop)
+        params.x = params.x.coerceIn(0, maxX)
+        params.y = params.y.coerceIn(safeTop, maxY)
+    }
+
+    private fun snapBubbleToEdge(
+        params: WindowManager.LayoutParams,
+        bubbleW: Int,
+        bubbleH: Int,
+        animate: Boolean = true
+    ) {
+        clampBubbleWithinScreen(params, bubbleW, bubbleH)
+        val (screenW, _) = getScreenSizePx()
+        val targetX = if (params.x + (bubbleW / 2) < screenW / 2) 0 else (screenW - bubbleW).coerceAtLeast(0)
+        if (!animate) {
+            params.x = targetX
+            bubbleView?.let { windowManager.updateViewLayout(it, params) }
+            persistBubblePosition(params.x, params.y)
+            return
+        }
+        val startX = params.x
+        ValueAnimator.ofInt(startX, targetX).apply {
+            duration = 180L
+            addUpdateListener { animator ->
+                params.x = animator.animatedValue as Int
+                bubbleView?.let { windowManager.updateViewLayout(it, params) }
+            }
+            start()
+        }
+        persistBubblePosition(targetX, params.y)
+    }
+
     private fun showBubbleIfAllowed() {
         if (suppressBubbleOverlay) {
             hideBubble()
@@ -150,6 +264,7 @@ class CaptainBubbleService : Service() {
             return
         }
 
+        isRideCardCollapsed = false
         rideRequestView = LayoutInflater.from(this).inflate(R.layout.activity_ride_request, null)
 
         val params = WindowManager.LayoutParams(
@@ -176,13 +291,53 @@ class CaptainBubbleService : Service() {
         }
 
         rideRequestView?.apply {
+            val (screenW, screenH) = getScreenSizePx()
+            val density = resources.displayMetrics.density
+            val screenDp = screenW / density
+            val isLandscape =
+                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+            val cardWidth = when {
+                screenDp < 360f -> (screenW * 0.97f).toInt()
+                screenDp < 600f -> (screenW * 0.94f).toInt()
+                else -> minOf((screenW * 0.72f).toInt(), dp(560))
+            }
+            val cardMarginBottom = navBarInsetPx() + dp(6)
+            val maxScrollHeight = if (isLandscape) {
+                (screenH * 0.34f).toInt()
+            } else {
+                if (screenDp < 360f) (screenH * 0.36f).toInt() else (screenH * 0.43f).toInt()
+            }.coerceIn(dp(190), dp(430))
+
+            findViewById<View>(R.id.card_container)?.layoutParams =
+                FrameLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                    bottomMargin = cardMarginBottom
+                }
+            findViewById<View>(R.id.overlay_card_scroll)?.layoutParams =
+                findViewById<View>(R.id.overlay_card_scroll)?.layoutParams?.apply {
+                    height = maxScrollHeight
+                }
+
+            val compactFare = findViewById<TextView>(R.id.compact_fare)
+            val compactPickup = findViewById<TextView>(R.id.compact_pickup_distance)
+            val compactDrop = findViewById<TextView>(R.id.compact_drop_distance)
+            val compactMeta = findViewById<View>(R.id.card_compact_meta)
+            val scrollSection = findViewById<View>(R.id.overlay_card_scroll)
+            val collapseBtn = findViewById<ImageView>(R.id.btn_collapse_overlay)
+            val closeBtn = findViewById<ImageView>(R.id.btn_close_overlay)
+            val maxCardDrag = (screenH * 0.28f).toInt().coerceAtLeast(dp(120)).toFloat()
+
             findViewById<TextView>(R.id.ride_fare)?.text = state.fare
             findViewById<TextView>(R.id.pickup_distance)?.text = state.pickupDistance
             findViewById<TextView>(R.id.drop_distance)?.text = state.dropDistance
+            compactFare?.text = state.fare
+            compactPickup?.text = "Pickup ${state.pickupDistance}"
+            compactDrop?.text = "Drop ${state.dropDistance}"
             
             // Payment method logic
             findViewById<TextView>(R.id.payment_method_badge)?.apply {
-                text = state.paymentMethod.uppercase()
+                text = state.paymentMethod.uppercase().ifEmpty { "UNKNOWN" }
                 val bgd = GradientDrawable()
                 bgd.cornerRadius = 8f * resources.displayMetrics.density
                 if (state.paymentMethod.equals("cash", ignoreCase = true)) {
@@ -247,7 +402,6 @@ class CaptainBubbleService : Service() {
             }
             findViewById<TextView>(R.id.timer_text)?.apply {
                 setTextColor(if (state.isPro) Color.BLACK else Color.WHITE)
-                // Countdown logic is not in Service natively yet, but we will set static default or rely on refresh
                 text = "30s"
             }
             
@@ -285,7 +439,98 @@ class CaptainBubbleService : Service() {
                 background = btnDeclineBg
                 setOnClickListener { sendActionToMain("decline", state.id) }
             }
+
+            fun applyCollapsedState(collapsed: Boolean, animate: Boolean = true) {
+                isRideCardCollapsed = collapsed
+                if (animate) {
+                    scrollSection?.animate()?.alpha(if (collapsed) 0f else 1f)?.setDuration(150)?.start()
+                    if (collapsed) {
+                        compactMeta?.alpha = 0f
+                        compactMeta?.visibility = View.VISIBLE
+                        compactMeta?.animate()?.alpha(1f)?.setDuration(150)?.start()
+                    } else {
+                        scrollSection?.visibility = View.VISIBLE
+                        compactMeta?.animate()?.alpha(0f)?.setDuration(120)?.withEndAction {
+                            compactMeta.visibility = View.GONE
+                        }?.start()
+                    }
+                    if (collapsed) {
+                        scrollSection?.postDelayed({ scrollSection.visibility = View.GONE }, 130)
+                    }
+                } else {
+                    scrollSection?.visibility = if (collapsed) View.GONE else View.VISIBLE
+                    compactMeta?.visibility = if (collapsed) View.VISIBLE else View.GONE
+                    scrollSection?.alpha = if (collapsed) 0f else 1f
+                    compactMeta?.alpha = if (collapsed) 1f else 0f
+                }
+                collapseBtn?.setImageResource(
+                    if (collapsed) android.R.drawable.arrow_up_float
+                    else android.R.drawable.arrow_down_float
+                )
+                collapseBtn?.contentDescription =
+                    if (collapsed) "Expand ride request details" else "Collapse ride request details"
+            }
+
+            applyCollapsedState(collapsed = false, animate = false)
+
+            collapseBtn?.setOnClickListener {
+                val nextCollapsed = !isRideCardCollapsed
+                applyCollapsedState(nextCollapsed, animate = true)
+                this.animate()
+                    .translationY(if (nextCollapsed) maxCardDrag * 0.7f else 0f)
+                    .setDuration(170)
+                    .start()
+            }
+
+            closeBtn?.setOnClickListener {
+                val i = Intent(this@CaptainBubbleService, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    putExtra("from_bubble", true)
+                }
+                startActivity(i)
+            }
+
+            val dragSurface = findViewById<View>(R.id.overlay_drag_handle) ?: findViewById(R.id.top_banner)
+            var startTouchY = 0f
+            var startTranslationY = 0f
+
+            dragSurface?.setOnTouchListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startTouchY = event.rawY
+                        startTranslationY = this.translationY
+                        true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val dy = event.rawY - startTouchY
+                        this.translationY = (startTranslationY + dy).coerceIn(0f, maxCardDrag)
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        val shouldCollapse = this.translationY > (maxCardDrag * 0.45f)
+                        applyCollapsedState(shouldCollapse, animate = true)
+                        this.animate()
+                            .translationY(if (shouldCollapse) maxCardDrag * 0.7f else 0f)
+                            .setDuration(170)
+                            .start()
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
+
+        rideCountDown?.cancel()
+        rideCountDown = object : CountDownTimer(30_000L, 1_000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                rideRequestView?.findViewById<TextView>(R.id.timer_text)?.text =
+                    "${(millisUntilFinished / 1000L).coerceAtLeast(0)}s"
+            }
+
+            override fun onFinish() {
+                rideRequestView?.findViewById<TextView>(R.id.timer_text)?.text = "0s"
+            }
+        }.start()
         
         try {
             if (mediaPlayer == null) {
@@ -299,6 +544,8 @@ class CaptainBubbleService : Service() {
     }
 
     private fun hideRideRequestOverlay() {
+        rideCountDown?.cancel()
+        rideCountDown = null
         rideRequestView?.let {
             if (it.isAttachedToWindow) {
                 windowManager.removeView(it)
@@ -351,8 +598,9 @@ class CaptainBubbleService : Service() {
         )
 
         params.gravity = Gravity.TOP or Gravity.START
-        params.x = 0
-        params.y = 500
+        val (screenW, _) = getScreenSizePx()
+        val computedBubbleSize = bubbleSizePx(screenW)
+        restoreOrDefaultBubblePosition(params, computedBubbleSize, computedBubbleSize)
 
         try {
             windowManager.addView(bubbleView, params)
@@ -366,17 +614,24 @@ class CaptainBubbleService : Service() {
             return
         }
 
+        bubbleView?.findViewById<View>(R.id.bubble_container)?.layoutParams =
+            bubbleView?.findViewById<View>(R.id.bubble_container)?.layoutParams?.apply {
+                width = computedBubbleSize
+                height = computedBubbleSize
+            }
+
         bubbleView?.findViewById<View>(R.id.bubble_badge)?.visibility =
             if (pendingRequestCount > 0) View.VISIBLE else View.GONE
 
         val container = bubbleView?.findViewById<View>(R.id.bubble_container)
+        val closeButton = bubbleView?.findViewById<ImageView>(R.id.close_button)
 
         var initialX = 0
         var initialY = 0
         var initialTouchX = 0f
         var initialTouchY = 0f
         var isMoved = false
-        val touchSlop = 10f
+        val touchSlop = dp(4).toFloat()
 
         container?.setOnTouchListener { view, event ->
             when (event.action) {
@@ -386,18 +641,20 @@ class CaptainBubbleService : Service() {
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
                     isMoved = false
+                    closeButton?.visibility = View.GONE
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val moveX = event.rawX - initialTouchX
                     val moveY = event.rawY - initialTouchY
 
-                    if (Math.abs(moveX) > touchSlop || Math.abs(moveY) > touchSlop) {
+                    if (kotlin.math.abs(moveX) > touchSlop || kotlin.math.abs(moveY) > touchSlop) {
                         isMoved = true
                     }
 
                     params.x = initialX + moveX.toInt()
                     params.y = initialY + moveY.toInt()
+                    clampBubbleWithinScreen(params, computedBubbleSize, computedBubbleSize)
                     windowManager.updateViewLayout(bubbleView, params)
                     true
                 }
@@ -409,15 +666,13 @@ class CaptainBubbleService : Service() {
                         }
                         startActivity(intent)
                     } else {
-                        // Drag released -> Snap to nearest screen edge
-                        val displayMetrics = resources.displayMetrics
-                        val screenWidth = displayMetrics.widthPixels
-                        
-                        val middle = screenWidth / 2
-                        val targetX = if (params.x + (view.width / 2) < middle) 0 else (screenWidth - view.width)
-                        
-                        params.x = targetX
-                        windowManager.updateViewLayout(bubbleView, params)
+                        // Drag released -> snap to nearest safe edge and persist position.
+                        snapBubbleToEdge(
+                            params = params,
+                            bubbleW = computedBubbleSize,
+                            bubbleH = computedBubbleSize,
+                            animate = true
+                        )
                     }
                     true
                 }
@@ -425,13 +680,19 @@ class CaptainBubbleService : Service() {
             }
         }
 
+        container?.setOnLongClickListener {
+            closeButton?.visibility = if (closeButton?.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            true
+        }
+
         // Do not stop the service (driver stays ONLINE). Open app so they can go offline.
-        bubbleView?.findViewById<ImageView>(R.id.close_button)?.setOnClickListener {
+        closeButton?.setOnClickListener {
             val i = Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 putExtra("from_bubble", true)
             }
             startActivity(i)
+            closeButton.visibility = View.GONE
         }
     }
 
@@ -468,9 +729,9 @@ class CaptainBubbleService : Service() {
         )
 
         val body = if (suppressBubbleOverlay) {
-            "Tap to return to the app. You are online."
+            "Waiting For Rides..."
         } else {
-            "Floating bubble active — tap bubble or notification to open the app."
+            "Waiting For Rides..."
         }
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("UGO Driver — Online")

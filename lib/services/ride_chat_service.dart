@@ -50,8 +50,7 @@ class RideChatMessage {
   }
 
   static RideChatMessage? fromApiJson(Map<String, dynamic> m, int rideId) {
-    final text =
-        (m['message_text'] ?? m['message'])?.toString().trim() ?? '';
+    final text = (m['message_text'] ?? m['message'])?.toString().trim() ?? '';
     if (text.isEmpty) return null;
     final sid = _parseInt(m['sender_id']);
     if (sid == null) return null;
@@ -119,6 +118,12 @@ class RideChatService {
     }
 
     final cleanToken = token.replaceFirst('Bearer ', '').trim();
+    if (cleanToken.isEmpty ||
+        cleanToken.toLowerCase() == 'null' ||
+        cleanToken.toLowerCase() == 'undefined') {
+      _errors.add('Not signed in');
+      return;
+    }
 
     _socket?.dispose();
     _socket = IO.io(

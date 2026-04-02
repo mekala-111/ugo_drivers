@@ -130,8 +130,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         color: AppColors.primary.withValues(alpha: 0.9),
         size: 26,
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_fieldRadius),
         borderSide: const BorderSide(color: AppColors.greyBorder, width: 1),
@@ -158,8 +157,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
         color: AppColors.primary.withValues(alpha: 0.9),
         size: 22,
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_fieldRadius),
         borderSide: const BorderSide(color: AppColors.greyBorder, width: 1),
@@ -355,9 +353,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: _availableBalance > 0
-                  ? () => _setQuickAmount(amt)
-                  : null,
+              onTap: _availableBalance > 0 ? () => _setQuickAmount(amt) : null,
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding:
@@ -581,7 +577,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
       final token = FFAppState().accessToken;
       if (driverId == null || token.isEmpty) return;
 
-      final response = await GetWalletCall.call(driverId: driverId, token: token);
+      final response =
+          await GetWalletCall.call(driverId: driverId, token: token);
       if (!response.succeeded || !mounted) return;
 
       final raw = GetWalletCall.walletBalance(response.jsonBody);
@@ -596,8 +593,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
             getJsonField(response.jsonBody, r'$.data.limits.max_withdrawable');
         _minWithdrawal =
             double.tryParse(minRaw?.toString() ?? '') ?? _minWithdrawal;
-        _maxWithdrawable =
-            double.tryParse(maxRaw?.toString() ?? '') ?? parsed;
+        _maxWithdrawable = double.tryParse(maxRaw?.toString() ?? '') ?? parsed;
         if ((_model.textController1?.text.trim().isEmpty ?? true)) {
           _model.textController1?.text = _maxWithdrawable.toStringAsFixed(0);
         }
@@ -854,8 +850,9 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
             onPressed: () => context.pop(),
           ),
           title: Column(
-            crossAxisAlignment:
-                isSmallScreen ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+            crossAxisAlignment: isSmallScreen
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
@@ -959,8 +956,7 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                             height: buttonHeight,
                             width: double.infinity,
                             child: FilledButton(
-                              onPressed:
-                                  _isSubmitting ? null : _submitWithdraw,
+                              onPressed: _isSubmitting ? null : _submitWithdraw,
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
@@ -978,8 +974,8 @@ class _WithdrawWidgetState extends State<WithdrawWidget> {
                                       width: 24,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.5,
-                                        color: Colors.white.withValues(
-                                            alpha: 0.95),
+                                        color: Colors.white
+                                            .withValues(alpha: 0.95),
                                       ),
                                     )
                                   : Row(

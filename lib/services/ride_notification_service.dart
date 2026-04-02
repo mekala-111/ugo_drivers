@@ -255,9 +255,7 @@ class RideNotificationService {
     if (data['type'] == 'ride_chat') {
       final rideId = int.tryParse(
           data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0');
-      if (rideId != null &&
-          rideId > 0 &&
-          FFAppState().driverid > 0) {
+      if (rideId != null && rideId > 0 && FFAppState().driverid > 0) {
         final ctx = appNavigatorKey.currentContext;
         if (ctx != null && ctx.mounted) {
           showRideChatInAppFromForegroundFcm(

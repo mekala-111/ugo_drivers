@@ -27,12 +27,12 @@ class TeamReferralSnapshot {
   int get proMyTotalFromApi =>
       proMyBody != null ? DriverProReferralMyCall.totalReferrals(proMyBody) : 0;
 
-  List<Map<String, dynamic>> get todayLiveReferrals =>
-      _stripPhonesFromList(_listMap(_readList(dashboardBody, ['today_live', 'referrals'])));
+  List<Map<String, dynamic>> get todayLiveReferrals => _stripPhonesFromList(
+      _listMap(_readList(dashboardBody, ['today_live', 'referrals'])));
 
   List<Map<String, dynamic>> get yesterdayReferrals =>
-      _stripPhonesFromList(
-          _listMap(_readList(dashboardBody, ['yesterday_statistics', 'referrals'])));
+      _stripPhonesFromList(_listMap(
+          _readList(dashboardBody, ['yesterday_statistics', 'referrals'])));
 
   /// Every referred captain we know about (today row wins, then yesterday, then Pro roster).
   List<Map<String, dynamic>> get mergedTeamMembers {
@@ -141,7 +141,8 @@ class TeamReferralSnapshot {
         .toList();
   }
 
-  static List<dynamic> _readList(Map<String, dynamic>? root, List<String> path) {
+  static List<dynamic> _readList(
+      Map<String, dynamic>? root, List<String> path) {
     dynamic cur = root;
     for (final p in path) {
       if (cur is! Map) return [];

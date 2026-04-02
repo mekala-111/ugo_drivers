@@ -219,7 +219,8 @@ class _CancelRideSheetState extends State<_CancelRideSheet> {
                             ? null
                             : () => Navigator.pop(context, _selectedReason),
                         child: Text(
-                          FFLocalizations.of(context).getText('drv_cancel_ride'),
+                          FFLocalizations.of(context)
+                              .getText('drv_cancel_ride'),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,

@@ -34,10 +34,7 @@ class InputValidators {
 
   /// Strips separators for storage/API checks (Sarathi / Parivahan style).
   static String normalizeDrivingLicense(String value) {
-    return value
-        .trim()
-        .toUpperCase()
-        .replaceAll(RegExp(r'[\s\-\.\/]'), '');
+    return value.trim().toUpperCase().replaceAll(RegExp(r'[\s\-\.\/]'), '');
   }
 
   /// Indian driving licence — Sarathi/Parivahan (2-letter state + digits) plus

@@ -108,25 +108,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               _serverDocuments['imageLicense'] = d['license_front'] == true &&
                   d['license_back'] == true &&
                   d['license_number'] == true;
-              _serverDocuments['aadharImage'] = d['aadhaar_front'] == true &&
-                  d['aadhaar_back'] == true;
+              _serverDocuments['aadharImage'] =
+                  d['aadhaar_front'] == true && d['aadhaar_back'] == true;
               _serverDocuments['panImage'] = d['pan_image'] == true;
               _serverDocuments['vehicleImage'] = d['vehicle_image'] == true;
               _serverDocuments['registrationImage'] =
                   d['rc_front'] == true && d['rc_back'] == true;
             } else {
               _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
-              _serverDocuments['imageLicense'] = hasDoc(data['license_image']) ||
-                  hasDoc(data['license_front_image']) ||
-                  hasDoc(data['license_back_image']);
+              _serverDocuments['imageLicense'] =
+                  hasDoc(data['license_image']) ||
+                      hasDoc(data['license_front_image']) ||
+                      hasDoc(data['license_back_image']);
               _serverDocuments['aadharImage'] = hasDoc(data['aadhaar_image']) ||
                   hasDoc(data['aadhaar_front_image']) ||
                   hasDoc(data['aadhaar_back_image']);
               _serverDocuments['panImage'] = hasDoc(data['pan_image']);
               _serverDocuments['vehicleImage'] = hasDoc(data['vehicle_image']);
-              _serverDocuments['registrationImage'] = hasDoc(data['rc_image']) ||
-                  hasDoc(data['rc_front_image']) ||
-                  hasDoc(data['rc_back_image']);
+              _serverDocuments['registrationImage'] =
+                  hasDoc(data['rc_image']) ||
+                      hasDoc(data['rc_front_image']) ||
+                      hasDoc(data['rc_back_image']);
             }
           });
         }
@@ -266,9 +268,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ? FFAppState().aadharNumber
             : null,
         panimage: FFAppState().panImage,
-        panNumber: FFAppState().panNumber.isNotEmpty
-            ? FFAppState().panNumber
-            : null,
+        panNumber:
+            FFAppState().panNumber.isNotEmpty ? FFAppState().panNumber : null,
         vehicleImage: FFAppState().vehicleImage,
         registrationImage: FFAppState().registrationImage,
         rcFrontImage: FFAppState().rcFrontImage,
@@ -509,9 +510,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               )
                             else ...[
                               if (_showPersonalDocSection()) ...[
-                                _buildSectionHeader(
-                                    FFLocalizations.of(context)
-                                        .getText('docm0007')),
+                                _buildSectionHeader(FFLocalizations.of(context)
+                                    .getText('docm0007')),
                                 const SizedBox(height: 16),
                                 ..._spacedStepCards([
                                   if (_showProfileCard())
@@ -557,9 +557,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 const SizedBox(height: 24),
                               ],
                               if (_showVehicleDocSection()) ...[
-                                _buildSectionHeader(
-                                    FFLocalizations.of(context)
-                                        .getText('docm0012')),
+                                _buildSectionHeader(FFLocalizations.of(context)
+                                    .getText('docm0012')),
                                 const SizedBox(height: 16),
                                 ..._spacedStepCards([
                                   if (_showVehicleCard())

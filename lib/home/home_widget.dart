@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -68,6 +67,7 @@ class _HomeWidgetState extends State<HomeWidget>
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isIncentivePanelExpanded = false;
+
   /// Hide incentives while cash collect / rating sheet is open (overlay).
   bool _suppressIncentiveForPostRide = false;
   DateTime? _lastBackPressed;
@@ -279,7 +279,7 @@ class _HomeWidgetState extends State<HomeWidget>
       await _initLocationSafely();
 
       await _controller.init();
-      
+
       // Ensure local state is in sync with potentially updated controller status
       _lastOnlineState = _controller.isOnline;
       _controller.addListener(_onControllerChange);
@@ -709,7 +709,8 @@ class _HomeWidgetState extends State<HomeWidget>
 
       if (status == 'CANCELLED' ||
           status == 'REJECTED' ||
-          status == 'DECLINED') {
+          status == 'DECLINED' ||
+          status == 'EXPIRED') {
         _controller.setRideStatus('IDLE');
         Provider.of<RideState>(context, listen: false).clearRide();
         final rideId = rideData['id'] != null
@@ -850,10 +851,8 @@ class _HomeWidgetState extends State<HomeWidget>
   /// Matches UGO_USER `auto_book_widget.dart` `_fitMapToRideContext` status rules.
   static const double _kMinBoundsSpanDriver = 0.004;
 
-  String _normalizedDriverRideStatus() => _controller.currentRideStatus
-      .trim()
-      .toUpperCase()
-      .replaceAll('_', '');
+  String _normalizedDriverRideStatus() =>
+      _controller.currentRideStatus.trim().toUpperCase().replaceAll('_', '');
 
   bool _isPrePickupPhaseDriver(String n) {
     return n == 'ACCEPTED' ||
@@ -1211,7 +1210,9 @@ class _HomeWidgetState extends State<HomeWidget>
     _bubbleChannel.setMethodCallHandler(null);
     FFAppState().removeListener(_onFfAppStateDriverProfileRefresh);
     _controller.removeListener(_onControllerChange);
-    try { FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
+    try {
+      FloatingBubbleService.stopFloatingBubble();
+    } catch (_) {}
     _bubbleVisible = false;
     _model.dispose();
     _controller.dispose();
@@ -1234,8 +1235,16 @@ class _HomeWidgetState extends State<HomeWidget>
         final isRideLocked = c.isActiveRideBlockingOffline;
         // Only hide panels while a ride is actively running.
         final shouldShowPanels = !c.isActiveRideBlockingOffline;
+        final hasIncomingRequest =
+            c.currentRideStatus.trim().toUpperCase() == 'SEARCHING';
         final showIncentivePanel =
-            shouldShowPanels && !_suppressIncentiveForPostRide;
+            shouldShowPanels &&
+            !_suppressIncentiveForPostRide &&
+            !hasIncomingRequest;
+        final showSummaryPanel =
+            shouldShowPanels &&
+            !_suppressIncentiveForPostRide &&
+            !hasIncomingRequest;
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -1374,37 +1383,79 @@ class _HomeWidgetState extends State<HomeWidget>
                                   _suppressIncentiveForPostRide = suppress);
                             },
                           ),
+                          if (isOnline && showSummaryPanel)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(18),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 10,
+                                      offset: Offset(0, -2),
+                                    ),
+                                  ],
+                                ),
+                                child: SafeArea(
+                                  top: false,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      8,
+                                      12,
+                                      10,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (showIncentivePanel)
+                                          IncentivePanel(
+                                            isExpanded:
+                                                _isIncentivePanelExpanded,
+                                            isLoadingIncentives:
+                                                c.isLoadingIncentives,
+                                            incentiveTiers: c.incentiveTiers,
+                                            totalIncentiveEarned:
+                                                c.totalIncentiveEarned,
+                                            potentialBonusTotal:
+                                                c.incentivePotentialBonus,
+                                            onTap: () => setState(() =>
+                                                _isIncentivePanelExpanded =
+                                                    !_isIncentivePanelExpanded),
+                                            screenWidth: screenWidth,
+                                            isSmallScreen: isSmallScreen,
+                                          ),
+                                        EarningsSummary(
+                                          todayTotal: c.todayTotal,
+                                          teamEarnings: c.todayWallet,
+                                          ridesToday: c.todayRideCount,
+                                          lastRideEarnings: c.lastRideAmount,
+                                          isLoading: c.isLoadingEarnings,
+                                          isSmallScreen: isSmallScreen,
+                                          onRideCountTap: () =>
+                                              context.pushNamed(
+                                                  HistoryWidget.routeName),
+                                          onWalletTap: () => context.pushNamed(
+                                              WalletWidget.routeName),
+                                          onLastRideTap: () =>
+                                              context.pushNamed(
+                                                  LastOrderWidget.routeName),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                    if (showIncentivePanel)
-                      IncentivePanel(
-                        isExpanded: _isIncentivePanelExpanded,
-                        isLoadingIncentives: c.isLoadingIncentives,
-                        incentiveTiers: c.incentiveTiers,
-                        totalIncentiveEarned: c.totalIncentiveEarned,
-                        potentialBonusTotal: c.incentivePotentialBonus,
-                        onTap: () => setState(() => _isIncentivePanelExpanded =
-                            !_isIncentivePanelExpanded),
-                        screenWidth: screenWidth,
-                        isSmallScreen: isSmallScreen,
-                      ),
-                    if (shouldShowPanels && !_suppressIncentiveForPostRide)
-                      EarningsSummary(
-                        todayTotal: c.todayTotal,
-                        teamEarnings: c.todayWallet,
-                        ridesToday: c.todayRideCount,
-                        lastRideEarnings: c.lastRideAmount,
-                        isLoading: c.isLoadingEarnings,
-                        isSmallScreen: isSmallScreen,
-                        onRideCountTap: () =>
-                            context.pushNamed(HistoryWidget.routeName),
-                        onWalletTap: () =>
-                            context.pushNamed(WalletWidget.routeName),
-                        onLastRideTap: () =>
-                            context.pushNamed(LastOrderWidget.routeName),
-                      ),
-                    SizedBox(height: MediaQuery.sizeOf(context).height * 0.018),
                   ],
                 ),
               ),
@@ -1421,7 +1472,8 @@ class _HomeWidgetState extends State<HomeWidget>
     // 1. Check for Play Store In-App Updates (OTA)
     final remoteConfig = FirebaseRemoteConfigService();
     await remoteConfig.ensureInitialized();
-    final isMandatory = remoteConfig.getBool('is_update_mandatory', defaultValue: false);
+    final isMandatory =
+        remoteConfig.getBool('is_update_mandatory', defaultValue: false);
 
     // Complete any previously downloaded flexible update first.
     await InAppUpdateService().checkRemainingUpdate();
@@ -1436,7 +1488,8 @@ class _HomeWidgetState extends State<HomeWidget>
       final String latestVersion = remoteConfig.latestAppVersion;
       final String minRequiredVersion = remoteConfig.minRequiredVersion;
 
-      debugPrint('UGO_UPDATE: Current=$currentVersion, Latest=$latestVersion, Min=$minRequiredVersion');
+      debugPrint(
+          'UGO_UPDATE: Current=$currentVersion, Latest=$latestVersion, Min=$minRequiredVersion');
 
       // Mandatory Update (Blocker)
       if (_isVersionLower(currentVersion, minRequiredVersion)) {

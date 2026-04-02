@@ -444,7 +444,7 @@ class FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         trafficEnabled: widget.showTraffic,
         markers: _cachedMarkers,
         // circles: _cachedCircles,
-        circles:{},
+        circles: {},
         polylines: _cachedPolylines,
         gestureRecognizers: {
           if (mapHasGesturePreference)

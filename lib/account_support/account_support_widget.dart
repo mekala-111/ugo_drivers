@@ -2,6 +2,7 @@ import 'package:ugo_driver/account_support/edit_profile.dart';
 import 'package:ugo_driver/account_support/refer_friend.dart';
 
 import '/backend/api_requests/api_calls.dart';
+import '/auth/firebase_auth/auth_util.dart';
 import '/config.dart' as app_config;
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -47,6 +48,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
   // Stats Variables
   String driverRating = '5.0'; // Default to 5.0 to avoid "null"
   String driverYears = '0.0';
+  int driverTripCount = 0;
 
   @override
   void initState() {
@@ -65,28 +67,34 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     setState(() => isLoading = true);
 
     try {
+      final token = FFAppState().accessToken;
       final response = await DriverIdfetchCall.call(
-        token: FFAppState().accessToken,
+        token: token,
         id: FFAppState().driverid,
       );
 
       if (response.succeeded) {
         final data = DriverIdfetchCall.driverData(response.jsonBody);
+        final dataMap = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+        final rawTrips = dataMap['total_rides_completed'];
 
         setState(() {
-          driverData = data;
+          driverData = dataMap;
+          driverTripCount = rawTrips is int
+              ? rawTrips
+              : (rawTrips is num ? rawTrips.toInt() : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
 
           // 1. Get Rating
-          driverRating = data['driver_rating']?.toString() ?? '5.0';
+          driverRating = dataMap['driver_rating']?.toString() ?? '5.0';
           if (driverRating == 'null' || driverRating.isEmpty) {
             driverRating = '5.0';
           }
 
           // 2. Calculate Years from 'created_at'
-          if (data['created_at'] != null) {
+          if (dataMap['created_at'] != null) {
             try {
               DateTime createdDate =
-                  DateTime.parse(data['created_at'].toString());
+                  DateTime.parse(dataMap['created_at'].toString());
               DateTime now = DateTime.now();
               double years = now.difference(createdDate).inDays / 365.0;
               if (years < 0.1) years = 0.1;
@@ -179,6 +187,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     } catch (_) {
       // Ignore logout API errors; local sign-out must still proceed.
     }
+    try {
+      await authManager.signOut();
+    } catch (_) {}
     await FFAppState().clearAppState();
     await _clearSessionUiAfterLogout();
     if (!mounted) return;
@@ -579,7 +590,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                     ),
                                     const SizedBox(height: 12),
                                     _buildStatItem(
-                                      "${driverData?['total_rides_completed'] ?? 0}",
+                                      '$driverTripCount',
                                       FFLocalizations.of(context)
                                           .getText('accsup0004'),
                                       Icons.local_taxi_rounded,
@@ -615,7 +626,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                                       height: 36,
                                       color: Colors.grey[300]),
                                   _buildStatItem(
-                                    "${driverData?['total_rides_completed'] ?? 0}",
+                                    '$driverTripCount',
                                     FFLocalizations.of(context)
                                         .getText('accsup0004'),
                                     Icons.local_taxi_rounded,

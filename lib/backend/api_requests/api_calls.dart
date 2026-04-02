@@ -246,8 +246,8 @@ class DriverProReferralHistoryCall {
 
   static List<dynamic> companyEarnings(dynamic response) =>
       (getJsonField(response, r'$.data.company_earnings_on_your_pairs', true)
-              as List?) ??
-          [];
+          as List?) ??
+      [];
 }
 
 class DriverProReferralCreateCall {
@@ -686,7 +686,8 @@ class GetRideSettlementBreakdownCall {
   }
 
   static List<Map<String, dynamic>> ledgerEntries(dynamic response) {
-    final raw = getJsonField(response, r'$.data.driver_settlement.ledger_entries');
+    final raw =
+        getJsonField(response, r'$.data.driver_settlement.ledger_entries');
     if (raw is! List) return [];
     return raw
         .whereType<Map>()
@@ -2071,9 +2072,10 @@ class RazorpayPayoutCall {
     final body = <String, dynamic>{
       'driver_id': driverId,
       'amount': amount,
-      'withdrawal_method': (withdrawalMethod == null || withdrawalMethod.isEmpty)
-          ? 'bank'
-          : withdrawalMethod,
+      'withdrawal_method':
+          (withdrawalMethod == null || withdrawalMethod.isEmpty)
+              ? 'bank'
+              : withdrawalMethod,
       if (fundAccountId != null && fundAccountId.isNotEmpty)
         'fund_account_id': fundAccountId,
       if (upiId != null && upiId.isNotEmpty) 'upi_id': upiId,
@@ -2624,18 +2626,18 @@ class ReferralDashboardCall {
 
   static int additionalCommissionIfMatchedAll(dynamic response) =>
       castToType<int>(getJsonField(
-              response, r'$.today_live.additional_commission_if_you_match_all')) ??
-          0;
+          response, r'$.today_live.additional_commission_if_you_match_all')) ??
+      0;
 
   static int todayMyProRides(dynamic response) =>
       castToType<int>(getJsonField(
-              response, r'$.today_live.my_performance.pro_rides_completed')) ??
-          0;
+          response, r'$.today_live.my_performance.pro_rides_completed')) ??
+      0;
 
   static String walletCreditSchedule(dynamic response) =>
-      castToType<String>(getJsonField(
-              response, r'$.today_live.wallet_credit_schedule')) ??
-          'end_of_day';
+      castToType<String>(
+          getJsonField(response, r'$.today_live.wallet_credit_schedule')) ??
+      'end_of_day';
 
   static List<dynamic> referrals(dynamic response) =>
       ((getJsonField(response, r'$.today_live.referrals', true) as List?) ??
@@ -2692,15 +2694,18 @@ class ReferralEarningsCall {
   }
 
   static int totalEarnings(dynamic response) =>
-      castToType<int>(getJsonField(response, r'$.data.summary.total_earnings')) ??
+      castToType<int>(
+          getJsonField(response, r'$.data.summary.total_earnings')) ??
       0;
 
-  static int totalCoinsEarned(dynamic response) => castToType<int>(
+  static int totalCoinsEarned(dynamic response) =>
+      castToType<int>(
           getJsonField(response, r'$.data.summary.total_coins_earned')) ??
       0;
 
-  static int successfulReferralsCount(dynamic response) => castToType<int>(
-          getJsonField(response, r'$.data.summary.successful_referrals_count')) ??
+  static int successfulReferralsCount(dynamic response) =>
+      castToType<int>(getJsonField(
+          response, r'$.data.summary.successful_referrals_count')) ??
       0;
 
   static List<dynamic> earningsByType(dynamic response) =>
@@ -2861,6 +2866,69 @@ class RideChatRegisterDeviceTokenCall {
         'fcm_token': fcmToken,
         if (platform != null && platform.isNotEmpty) 'platform': platform,
       }),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+      alwaysAllowBody: true,
+    );
+  }
+}
+
+class AuthGetSessionsCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'authGetSessions',
+      apiUrl: '$_baseUrl/api/auth/sessions',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+}
+
+class AuthLogoutAllCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'authLogoutAll',
+      apiUrl: '$_baseUrl/api/auth/logout-all',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: '{}',
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+      alwaysAllowBody: true,
+    );
+  }
+}
+
+class AuthRevokeSessionCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int sessionId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'authRevokeSession',
+      apiUrl: '$_baseUrl/api/auth/revoke-session/$sessionId',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: '{}',
       bodyType: BodyType.JSON,
       returnBody: true,
       cache: false,

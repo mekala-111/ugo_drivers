@@ -62,17 +62,22 @@ class _TeampageWidgetState extends State<TeampageWidget>
           driverId: FFAppState().driverid,
         );
         if (earningsRes.succeeded) {
-          final details = ReferralEarningsCall.referredDetails(earningsRes.jsonBody);
+          final details =
+              ReferralEarningsCall.referredDetails(earningsRes.jsonBody);
           if (details.isNotEmpty) {
             final mapped = details.map((d) {
-              final item = d is Map ? Map<String, dynamic>.from(d) : <String, dynamic>{};
+              final item =
+                  d is Map ? Map<String, dynamic>.from(d) : <String, dynamic>{};
               return <String, dynamic>{
                 'driver_id': item['driver_id'],
-                'name': (item['name'] ?? item['referred_name'] ?? 'Unknown').toString(),
-                'pro_rides_completed': _asInt(item['pro_rides'] ?? item['pro_rides_completed']),
-                'normal_rides_completed':
-                    _asInt(item['normal_rides'] ?? item['normal_rides_completed']),
-                'commission_earned': _asNum(item['amount'] ?? item['commission_earned']),
+                'name': (item['name'] ?? item['referred_name'] ?? 'Unknown')
+                    .toString(),
+                'pro_rides_completed':
+                    _asInt(item['pro_rides'] ?? item['pro_rides_completed']),
+                'normal_rides_completed': _asInt(
+                    item['normal_rides'] ?? item['normal_rides_completed']),
+                'commission_earned':
+                    _asNum(item['amount'] ?? item['commission_earned']),
                 'my_pro_rides_today': _asInt(item['my_pro_rides_today']),
                 'additional_rides_needed_to_match':
                     _asInt(item['additional_rides_needed_to_match']),
@@ -83,7 +88,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
               dashboardBody,
               mapped,
               totalReferrals: details.length,
-              lifetimeEarnings: ReferralEarningsCall.totalEarnings(earningsRes.jsonBody),
+              lifetimeEarnings:
+                  ReferralEarningsCall.totalEarnings(earningsRes.jsonBody),
             );
           }
         }
@@ -115,7 +121,9 @@ class _TeampageWidgetState extends State<TeampageWidget>
     required int totalReferrals,
     required int lifetimeEarnings,
   }) {
-    final root = current is Map ? Map<String, dynamic>.from(current) : <String, dynamic>{};
+    final root = current is Map
+        ? Map<String, dynamic>.from(current)
+        : <String, dynamic>{};
     final driver = root['driver'] is Map
         ? Map<String, dynamic>.from(root['driver'] as Map)
         : <String, dynamic>{};
@@ -152,9 +160,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
     final dash = _model.referralData != null
         ? ReferralDashboardCall.totalReferrals(_model.referralData)
         : 0;
-    final pro = snap != null
-        ? math.max(snap.proMyTotalFromApi, merged)
-        : merged;
+    final pro =
+        snap != null ? math.max(snap.proMyTotalFromApi, merged) : merged;
     return '${math.max(dash, pro)}';
   }
 
@@ -189,6 +196,23 @@ class _TeampageWidgetState extends State<TeampageWidget>
     }
     if (_model.referralData == null) return [];
     return ReferralDashboardCall.referrals(_model.referralData);
+  }
+
+  String get _myName {
+    if (_model.referralData != null) {
+      final info = ReferralDashboardCall.driverInfo(_model.referralData);
+      final fromApi = (info?['name'] ?? '').toString().trim();
+      if (fromApi.isNotEmpty) return fromApi;
+    }
+    final first = FFAppState().firstName.trim();
+    final last = FFAppState().lastName.trim();
+    final full = '$first $last'.trim();
+    return full.isNotEmpty ? full : 'Captain';
+  }
+
+  int get _myProRideCount {
+    if (_model.referralData == null) return 0;
+    return ReferralDashboardCall.todayMyProRides(_model.referralData);
   }
 
   // ── Build ────────────────────────────────────────────────────────────────
@@ -337,6 +361,91 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.28),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      _myName.isNotEmpty
+                                          ? _myName[0].toUpperCase()
+                                          : 'C',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _myName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.interTight(
+                                          color: Colors.white,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Text(
+                                        'My Pro ride count (today)',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.white70,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.22),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '$_myProRideCount',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 

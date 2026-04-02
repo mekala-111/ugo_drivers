@@ -28,8 +28,10 @@ class AppHeader extends StatelessWidget {
   final bool isDataLoaded;
   final VoidCallback onToggleOnline;
   final bool showOnlineToggle;
+
   /// Admin disabled driver (`is_active: false`) — show label, not an ON switch.
   final bool accountInactive;
+
   /// While on an active ride, keep the online switch on (cannot slide off).
   final bool preventGoingOffline;
   final double screenWidth;
@@ -59,8 +61,9 @@ class AppHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _tapTarget(
-                onTap:
-                    isRideLocked ? null : () => scaffoldKey.currentState?.openDrawer(),
+                onTap: isRideLocked
+                    ? null
+                    : () => scaffoldKey.currentState?.openDrawer(),
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
@@ -116,7 +119,8 @@ class AppHeader extends StatelessWidget {
               if (isRideLocked)
                 _tapTarget(
                   onTap: null,
-                  child: Icon(Icons.lock, color: Colors.white, size: iconSz - 2),
+                  child:
+                      Icon(Icons.lock, color: Colors.white, size: iconSz - 2),
                   minSize: minTap,
                 )
               else if (notificationCount > 0)
@@ -141,8 +145,9 @@ class AppHeader extends StatelessWidget {
                   minSize: minTap,
                 ),
               _tapTarget(
-                onTap:
-                    isRideLocked ? null : () => context.pushNamed(TeampageWidget.routeName),
+                onTap: isRideLocked
+                    ? null
+                    : () => context.pushNamed(TeampageWidget.routeName),
                 child: Icon(Icons.people, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),

@@ -389,10 +389,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
                                             _buildStepRow('2', 'They register',
                                                 'They complete onboarding with your code (or the install link you shared).'),
                                             _buildConnectorLine(),
-
-                                            _buildStepRow(
-                                                '3',
-                                                'You earn',
+                                            _buildStepRow('3', 'You earn',
                                                 'Referral rewards accrue on qualifying Pro rides. Open Team / earnings to see balance and history.'),
                                           ],
                                         ),

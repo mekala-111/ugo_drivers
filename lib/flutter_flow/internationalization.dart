@@ -6172,11 +6172,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'राइड क्वेस्ट',
       'te': 'రైడ్ క్వెస్ట్'
     },
-    'drv_incentive_slot': {
-      'en': 'Slot',
-      'hi': 'समय स्लॉट',
-      'te': 'స్లాట్'
-    },
+    'drv_incentive_slot': {'en': 'Slot', 'hi': 'समय स्लॉट', 'te': 'స్లాట్'},
     'drv_incentive_recurrence_daily': {
       'en': 'Daily',
       'hi': 'दैनिक',

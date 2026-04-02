@@ -9,7 +9,11 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:background="@drawable/bubble_background"
-        android:elevation="8dp">
+        android:elevation="8dp"
+        android:contentDescription="Driver quick bubble"
+        android:importantForAccessibility="yes"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
             android:id="@+id/bubble_icon"
@@ -17,7 +21,8 @@
             android:layout_height="match_parent"
             android:layout_margin="6dp"
             android:src="@drawable/ugo_notification"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"
+            android:contentDescription="Open driver app" />
 
         <!-- Notification Badge -->
         <View
@@ -40,6 +45,7 @@
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:background="@drawable/close_button_bg"
         android:padding="8dp"
+        android:contentDescription="Open app and manage status"
         android:visibility="gone" />
 
 </FrameLayout>

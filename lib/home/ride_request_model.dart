@@ -139,8 +139,9 @@ class RideRequest {
               ? _parseToInt(json['vehicle']['vehicle_type_id'])
               : null),
       pickupCityId: _parseToInt(json['pickup_city_id']),
-      driverPickupDistanceKm: _parseToDouble(json['driver_pickup_distance_km']) ??
-          _parseToDouble(json['pickup_distance_km']),
+      driverPickupDistanceKm:
+          _parseToDouble(json['driver_pickup_distance_km']) ??
+              _parseToDouble(json['pickup_distance_km']),
     );
   }
 

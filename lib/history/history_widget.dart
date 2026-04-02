@@ -84,7 +84,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
               m['completedAt'] ??
               m['created_at'],
           'distance_km': m['ride_distance_km'] ?? m['distance_km'],
-          'duration_minutes': m['actual_duration_minutes'] ?? m['durationMinutes'],
+          'duration_minutes':
+              m['actual_duration_minutes'] ?? m['durationMinutes'],
           'duration_label': m['duration']?.toString(),
         }),
       );
@@ -133,7 +134,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             _items
               ..clear()
               ..addAll(parsed);
-            _totalCount = DriverAppHistoryCall.totalCount(res.jsonBody) ?? parsed.length;
+            _totalCount =
+                DriverAppHistoryCall.totalCount(res.jsonBody) ?? parsed.length;
             _hasMore = DriverAppHistoryCall.hasMore(res.jsonBody);
             _page = 1;
             _error = null;
@@ -231,7 +233,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
               FlutterFlowIconButton(
                 borderRadius: 20.0,
                 buttonSize: 48.0,
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.white, size: 26),
                 onPressed: () async => context.safePop(),
               ),
               const SizedBox(width: 4),
@@ -448,8 +451,7 @@ class _CaptainHistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dt = trip.tripDate;
-    final dateStr =
-        DateFormat('EEE, MMM d • h:mm a').format(dt);
+    final dateStr = DateFormat('EEE, MMM d • h:mm a').format(dt);
     final statusColor = _statusColor(trip.status);
     final payColor = _payColor(trip.paymentMethod);
     final payLabel = (trip.paymentMethod ?? '—').toUpperCase();
@@ -565,8 +567,7 @@ class _CaptainHistoryCard extends StatelessWidget {
                       style: TextStyle(color: Colors.grey.shade400),
                     ),
                     Text(
-                      trip.durationLabel ??
-                          '${trip.durationMinutes} min',
+                      trip.durationLabel ?? '${trip.durationMinutes} min',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -577,9 +578,19 @@ class _CaptainHistoryCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              _dotLine(Icons.circle, AppColors.primary, (trip.pickupArea ?? 'Pickup').trim().isEmpty ? 'Pickup' : trip.pickupArea!),
+              _dotLine(
+                  Icons.circle,
+                  AppColors.primary,
+                  (trip.pickupArea ?? 'Pickup').trim().isEmpty
+                      ? 'Pickup'
+                      : trip.pickupArea!),
               const SizedBox(height: 10),
-              _dotLine(Icons.flag_rounded, const Color(0xFF2E7D32), (trip.dropArea ?? 'Drop').trim().isEmpty ? 'Drop' : trip.dropArea!),
+              _dotLine(
+                  Icons.flag_rounded,
+                  const Color(0xFF2E7D32),
+                  (trip.dropArea ?? 'Drop').trim().isEmpty
+                      ? 'Drop'
+                      : trip.dropArea!),
               const SizedBox(height: 12),
               Row(
                 children: [

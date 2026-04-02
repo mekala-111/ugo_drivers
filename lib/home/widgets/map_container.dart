@@ -14,6 +14,7 @@ class MapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showDriversPanel,
+
     /// Same UX as UGO_USER [AutoBookWidget]: one control — refresh route + fit, or center on driver.
     this.onMapPrimaryAction,
     this.markers,

@@ -60,7 +60,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
           _myCode = DriverProReferralMyCall.referralCode(my.jsonBody);
           _totalReferrals = DriverProReferralMyCall.totalReferrals(my.jsonBody);
         } else {
-          _error = my.bodyText.isNotEmpty ? my.bodyText : 'Failed to load referrals';
+          _error =
+              my.bodyText.isNotEmpty ? my.bodyText : 'Failed to load referrals';
         }
         if (daily.succeeded) {
           final d = DriverProReferralDailyEarningsCall.data(daily.jsonBody);
@@ -69,8 +70,10 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
           }
         }
         if (hist.succeeded) {
-          _histDriver = DriverProReferralHistoryCall.driverEarnings(hist.jsonBody);
-          _histCompany = DriverProReferralHistoryCall.companyEarnings(hist.jsonBody);
+          _histDriver =
+              DriverProReferralHistoryCall.driverEarnings(hist.jsonBody);
+          _histCompany =
+              DriverProReferralHistoryCall.companyEarnings(hist.jsonBody);
         }
         _loading = false;
       });
@@ -102,7 +105,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
         foregroundColor: Colors.white,
         title: Text(
           'Pro ride referrals',
-          style: GoogleFonts.interTight(fontWeight: FontWeight.w600, fontSize: 18),
+          style:
+              GoogleFonts.interTight(fontWeight: FontWeight.w600, fontSize: 18),
         ),
         actions: [
           IconButton(
@@ -123,7 +127,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
+                    padding:
+                        EdgeInsets.all(Responsive.horizontalPadding(context)),
                     children: [
                       if (_myCode != null && _myCode!.isNotEmpty) ...[
                         _card(
@@ -132,7 +137,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
                             children: [
                               Text('Your referral code',
                                   style: GoogleFonts.inter(
-                                      fontSize: 12, color: Colors.grey.shade700)),
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700)),
                               const SizedBox(height: 8),
                               SelectableText(
                                 _myCode!,
@@ -147,7 +153,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
                                       await Clipboard.setData(
                                           ClipboardData(text: _myCode!));
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
                                               content: Text('Code copied')),
                                         );
@@ -245,10 +252,15 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
                       const SizedBox(height: 8),
                       if (_histDriver.isEmpty && _histCompany.isEmpty)
                         Text('No entries yet.',
-                            style: GoogleFonts.inter(color: Colors.grey.shade600))
+                            style:
+                                GoogleFonts.inter(color: Colors.grey.shade600))
                       else ...[
-                        ..._histDriver.take(8).map((e) => _ledgerTile(e, 'You')),
-                        ..._histCompany.take(8).map((e) => _ledgerTile(e, 'Company')),
+                        ..._histDriver
+                            .take(8)
+                            .map((e) => _ledgerTile(e, 'You')),
+                        ..._histCompany
+                            .take(8)
+                            .map((e) => _ledgerTile(e, 'Company')),
                       ],
                     ],
                   ),
@@ -285,8 +297,8 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
             child: Text(label, style: GoogleFonts.inter(fontSize: 13)),
           ),
           Text(value,
-              style:
-                  GoogleFonts.interTight(fontWeight: FontWeight.w700, fontSize: 14)),
+              style: GoogleFonts.interTight(
+                  fontWeight: FontWeight.w700, fontSize: 14)),
         ],
       ),
     );

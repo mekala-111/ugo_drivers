@@ -61,9 +61,9 @@ void main() {
       debugPrint('UGO_STARTUP: Initializing Remote Config...');
       // Initialize Firebase Remote Config (for secure Razorpay keys) with a timeout
       await FirebaseRemoteConfigService().initialize().timeout(
-        const Duration(seconds: 5),
-        onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
-      );
+            const Duration(seconds: 5),
+            onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
+          );
 
       // Before FCM / notifications touch FFAppState.fcmToken (writes prefs).
       debugPrint('UGO_STARTUP: Loading App State...');
@@ -71,9 +71,9 @@ void main() {
 
       debugPrint('UGO_STARTUP: Initializing Notifications...');
       await RideNotificationService().initialize().timeout(
-        const Duration(seconds: 5),
-        onTimeout: () => debugPrint('UGO_STARTUP: Notifications Timeout'),
-      );
+            const Duration(seconds: 5),
+            onTimeout: () => debugPrint('UGO_STARTUP: Notifications Timeout'),
+          );
 
       await RideNotificationService().cancelRideNotification();
 
@@ -84,7 +84,8 @@ void main() {
       debugPrint('UGO_STARTUP: Initializing Theme...');
       await FlutterFlowTheme.initialize();
 
-      debugPrint('UGO_STARTUP: Sync driver bubble / FGS with persisted online state...');
+      debugPrint(
+          'UGO_STARTUP: Sync driver bubble / FGS with persisted online state...');
       try {
         if (!kIsWeb && Platform.isAndroid) {
           if (appState.isonline) {
@@ -121,7 +122,8 @@ void main() {
       }
       FlutterError.presentError(details);
       if (!kIsWeb) {
-        final isOverflow = details.exceptionAsString().contains('RenderFlex overflowed');
+        final isOverflow =
+            details.exceptionAsString().contains('RenderFlex overflowed');
         if (details.silent || isOverflow) {
           FirebaseCrashlytics.instance.recordFlutterError(details);
         } else {
@@ -191,6 +193,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           .toList();
   late Stream<BaseAuthUser> userStream;
 
+  Future<void> _showForcedLogoutDialog({required bool anotherDevice}) async {
+    final ctx = appNavigatorKey.currentContext;
+    if (ctx == null || !ctx.mounted) return;
+    await showDialog<void>(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Session Ended'),
+          content: Text(
+            anotherDevice
+                ? 'Your account was logged in on another device. Please login again.'
+                : 'Your session expired. Please login again.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -208,7 +235,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     debugPrint('UGO_STARTUP: Starting User Stream...');
     userStream = ugoDriverFirebaseUserStream()
       ..listen((user) {
-        debugPrint('UGO_STARTUP: User state changed: ${user.uid != null ? "Logged In" : "Logged Out"}');
+        debugPrint(
+            'UGO_STARTUP: User state changed: ${user.uid != null ? "Logged In" : "Logged Out"}');
         _appStateNotifier.update(user);
       });
     // Dismiss splash after 200ms; re-check at 1.5s as a hard safety net
@@ -233,7 +261,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     };
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
-    ApiManager.onUnauthenticated = () {
+    ApiManager.onUnauthenticated = (reason) {
       if (!FFAppState().isLoggedIn) return;
 
       // Grace period: avoid logout on 401 within 10s of login (handles race with first API calls)
@@ -247,6 +275,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
 
       // 1. Clear Local State
+      authManager.signOut().catchError((_) => null);
       FFAppState().update(() {
         FFAppState().accessToken = '';
         FFAppState().refreshToken = '';
@@ -266,17 +295,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // 2. Redirect to Login
       _router.goNamed(LoginWidget.routeName);
 
-      // 3. Show Alert
-      appScaffoldMessengerKey.currentState?.showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Session expired. You have been logged in on another device.',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 4),
-        ),
-      );
+      final isAnotherDevice = (reason ?? '').contains('another_device');
+      unawaited(Future<void>.delayed(const Duration(milliseconds: 120), () {
+        return _showForcedLogoutDialog(anotherDevice: isAnotherDevice);
+      }));
     };
   }
 

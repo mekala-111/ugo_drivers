@@ -296,12 +296,10 @@ class CompleteRideCard extends StatelessWidget {
                             context,
                             Icon(Icons.chat_bubble_rounded,
                                 color: Colors.black87,
-                                size:
-                                    Responsive.iconSize(context, base: 24)),
+                                size: Responsive.iconSize(context, base: 24)),
                             onChat!,
                           ),
-                          SizedBox(
-                              height: Responsive.verticalSpacing(context)),
+                          SizedBox(height: Responsive.verticalSpacing(context)),
                         ],
                         _buildSquareIconBtn(
                           context,

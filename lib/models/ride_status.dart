@@ -7,6 +7,7 @@ enum RideStatus {
   completed,
   cancelled,
   rejected,
+  expired,
   unknown,
 }
 
@@ -29,6 +30,8 @@ extension RideStatusX on RideStatus {
         return 'CANCELLED';
       case RideStatus.rejected:
         return 'REJECTED';
+      case RideStatus.expired:
+        return 'EXPIRED';
       default:
         return 'UNKNOWN';
     }
@@ -57,6 +60,8 @@ extension RideStatusX on RideStatus {
         return RideStatus.rejected;
       case 'rejected':
         return RideStatus.rejected;
+      case 'expired':
+        return RideStatus.expired;
       default:
         return RideStatus.unknown;
     }

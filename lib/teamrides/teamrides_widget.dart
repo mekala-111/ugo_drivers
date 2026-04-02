@@ -128,8 +128,8 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
                                 physics: const AlwaysScrollableScrollPhysics(
                                   parent: BouncingScrollPhysics(),
                                 ),
-                                padding: const EdgeInsets.fromLTRB(
-                                    16, 10, 16, 24),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 10, 16, 24),
                                 itemCount: _rows.length,
                                 itemBuilder: (context, index) =>
                                     _buildReferralTile(_rows[index]),
@@ -163,9 +163,9 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
       final referredByObj =
           driverObj['referred_by'] as Map<String, dynamic>? ?? {};
 
-      final myTodayPerf = (dash['today_live']?['my_performance']
-              as Map<String, dynamic>?) ??
-          {};
+      final myTodayPerf =
+          (dash['today_live']?['my_performance'] as Map<String, dynamic>?) ??
+              {};
       final myYdayPerf = (dash['yesterday_statistics']?['my_performance']
               as Map<String, dynamic>?) ??
           {};
@@ -188,9 +188,9 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
       int tlTodayPro =
           (myTodayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
       if (tlTodayPro == 0 && snapshot.proDailyBody != null) {
-        tlTodayPro = (snapshot.proDailyBody!['my_pro_rides_today'] as num?)
-                ?.toInt() ??
-            0;
+        tlTodayPro =
+            (snapshot.proDailyBody!['my_pro_rides_today'] as num?)?.toInt() ??
+                0;
       }
       final int tlYdayPro =
           (myYdayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
@@ -210,8 +210,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
       for (final m in todayRefs) {
         final id = (m['driver_id'] as num?)?.toInt();
         final yday = id != null ? ydayById[id] : null;
-        final int todayPro =
-            (m['pro_rides_completed'] as num?)?.toInt() ?? 0;
+        final int todayPro = (m['pro_rides_completed'] as num?)?.toInt() ?? 0;
         final int ydayPro =
             (yday?['pro_rides_completed'] as num?)?.toInt() ?? 0;
         final perRide = (m['amount_per_pro_ride'] as num?)?.toDouble() ?? 10.0;
@@ -241,17 +240,14 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
           rows.fold<int>(0, (sum, e) => sum + (e['yesterday'] as int));
 
       final earnTotal = ReferralEarningsCall.totalEarnings(earn);
-      final lifetimeDash =
-          ReferralDashboardCall.totalEarnings(dash);
-      final int earningsTotal =
-          earnTotal > 0 ? earnTotal : lifetimeDash;
+      final lifetimeDash = ReferralDashboardCall.totalEarnings(dash);
+      final int earningsTotal = earnTotal > 0 ? earnTotal : lifetimeDash;
 
       if (!mounted) return;
       setState(() {
         _tlName = driverObj['name']?.toString() ?? '';
-        _referredByName = referredByObj.isNotEmpty
-            ? referredByObj['name']?.toString()
-            : null;
+        _referredByName =
+            referredByObj.isNotEmpty ? referredByObj['name']?.toString() : null;
         _teamSize = teamSize;
         _totalProRidesToday = totalTeamToday;
         _totalProRidesYesterday = totalTeamYesterday;
@@ -391,8 +387,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
             flex: 3,
             child: Row(
               children: [
-                const Icon(Icons.account_circle,
-                    size: 18, color: Colors.grey),
+                const Icon(Icons.account_circle, size: 18, color: Colors.grey),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
@@ -458,5 +453,4 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
       ),
     );
   }
-
 }

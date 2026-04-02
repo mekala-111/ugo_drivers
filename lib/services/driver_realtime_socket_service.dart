@@ -166,6 +166,7 @@ class DriverRealtimeSocketService {
 
     s.off('driver_rides');
     s.off('ride_updated');
+    s.off('ride_expired');
     s.off('ride_location_updated');
     s.off('ride_taken');
     s.off('ride_assigned');
@@ -184,6 +185,20 @@ class DriverRealtimeSocketService {
         cb.onSocketRideData(data);
       }),
     );
+
+    s.on('ride_expired', guard((data) {
+      if (kDebugMode) debugPrint('🔔 Socket ride_expired event: $data');
+      if (data is! Map) return;
+      final d = Map<String, dynamic>.from(Map.from(data));
+      final rideId = d['ride_id'] ?? d['rideId'];
+      if (rideId != null) {
+        cb.onSocketRideData({
+          'id': rideId,
+          'ride_status': 'EXPIRED',
+          'replaced_by_ride_id': d['replaced_by_ride_id'],
+        });
+      }
+    }));
 
     s.on('ride_location_updated', guard(_wrapRideLocationUpdated(cb)));
 

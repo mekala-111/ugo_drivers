@@ -58,7 +58,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
 
   Future<void> _loadRide() async {
     final incomingRideId = widget.rideId ?? 0;
-    final rideId = incomingRideId > 0 ? incomingRideId : FFAppState().activeRideId;
+    final rideId =
+        incomingRideId > 0 ? incomingRideId : FFAppState().activeRideId;
     if (rideId <= 0) {
       setState(() {
         _isLoading = false;
@@ -390,7 +391,9 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                       )
                                     else
                                       Text(
-                                        mobile.isNotEmpty ? mobile : 'No mobile',
+                                        mobile.isNotEmpty
+                                            ? mobile
+                                            : 'No mobile',
                                         style: GoogleFonts.inter(
                                           fontSize: 12,
                                           color: AppColors.greyMedium,
@@ -466,8 +469,8 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                   dropLng: dropLng,
                                 );
                               },
-                              initialLocation:
-                                  _model.googleMapsCenter ??= initialMapLocation,
+                              initialLocation: _model.googleMapsCenter ??=
+                                  initialMapLocation,
                               markerColor: GoogleMarkerColor.orange,
                               mapType: MapType.normal,
                               style: GoogleMapStyle.standard,
@@ -505,8 +508,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                           icon: Icons.radio_button_checked,
                           iconColor: AppColors.primary,
                           title: 'From',
-                          value:
-                              pickup.isNotEmpty ? pickup : 'Unknown pickup',
+                          value: pickup.isNotEmpty ? pickup : 'Unknown pickup',
                         ),
                         const SizedBox(height: 10),
                         _infoRow(
@@ -523,8 +525,7 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                             if (distanceKm != null)
                               _chip('${distanceKm.toStringAsFixed(2)} km'),
                             if (otp.isNotEmpty) _chip('OTP $otp'),
-                            if (otpVerifiedAt.isNotEmpty)
-                              _chip('OTP Verified'),
+                            if (otpVerifiedAt.isNotEmpty) _chip('OTP Verified'),
                           ],
                         ),
                       ],

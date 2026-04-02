@@ -63,9 +63,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final s = FFAppState();
-      if (s.isRegistered &&
-          s.driverid > 0 &&
-          s.accessToken.isNotEmpty) {
+      if (s.isRegistered && s.driverid > 0 && s.accessToken.isNotEmpty) {
         context.goNamed(HomeWidget.routeName);
       }
     });

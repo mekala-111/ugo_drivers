@@ -116,8 +116,9 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
         return bVal.compareTo(aVal);
       });
       setState(() {
-        lastRide =
-            rides.first is Map ? Map<String, dynamic>.from(rides.first as Map) : null;
+        lastRide = rides.first is Map
+            ? Map<String, dynamic>.from(rides.first as Map)
+            : null;
         loading = false;
         loadError = null;
       });
@@ -158,10 +159,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
   }
 
   static dynamic _fareRaw(Map<dynamic, dynamic> m) =>
-      m['final_fare'] ??
-      m['estimated_fare'] ??
-      m['fare'] ??
-      m['amount'];
+      m['final_fare'] ?? m['estimated_fare'] ?? m['fare'] ?? m['amount'];
 
   static String _fareRupee(Map<dynamic, dynamic> m) {
     final v = _fareRaw(m);
@@ -235,16 +233,25 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
 
   static bool _hasRouteDetails(Map<dynamic, dynamic> m) {
     String? s(dynamic x) => x?.toString().trim();
-    return (s(m['pickupAddress'] ?? m['pickup_address'] ?? m['pickup_location_address'] ?? m['from'])?.isNotEmpty ?? false) ||
-        (s(m['dropAddress'] ?? m['drop_address'] ?? m['drop_location_address'] ?? m['to'])?.isNotEmpty ?? false);
+    return (s(m['pickupAddress'] ??
+                    m['pickup_address'] ??
+                    m['pickup_location_address'] ??
+                    m['from'])
+                ?.isNotEmpty ??
+            false) ||
+        (s(m['dropAddress'] ??
+                    m['drop_address'] ??
+                    m['drop_location_address'] ??
+                    m['to'])
+                ?.isNotEmpty ??
+            false);
   }
 
   @override
   Widget build(BuildContext context) {
     String dateStr = 'Unknown Date';
     String timeStr = '';
-    final dateVal =
-        lastRide != null ? _completedAtRaw(lastRide!) : null;
+    final dateVal = lastRide != null ? _completedAtRaw(lastRide!) : null;
     if (dateVal != null) {
       try {
         final dt = DateTime.parse(dateVal.toString());
@@ -326,8 +333,7 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                         const SizedBox(height: 16),
                         Center(
                           child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 32),
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
                             child: Text(
                               loadError ??
                                   'No completed trips yet. Finish a ride to see it here.',
@@ -349,134 +355,142 @@ class _LastOrderWidgetState extends State<LastOrderWidget> {
                       ],
                     )
                   : SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics()),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Order ID & Status Header
-                      AnimatedListItem(
-                        index: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Trip #${lastRide!['rideId'] ?? lastRide!['ride_id'] ?? lastRide!['orderId'] ?? lastRide!['id'] ?? '—'}',
-                              style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.success.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'Completed',
-                                style: GoogleFonts.interTight(
-                                    fontSize: 13,
-                                    color: AppColors.success,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // 2. Beautiful Earnings Card
-                      AnimatedListItem(index: 1, child: _buildEarningsCard()),
-                      const SizedBox(height: 16),
-
-                      // 3. Premium Route Info Card
-                      AnimatedListItem(index: 2, child: _buildRouteInfoCard()),
-                      const SizedBox(height: 16),
-
-                      // 4. Clean Payment Info
-                      AnimatedListItem(
-                        index: 3,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4))
-                            ],
-                          ),
-                          child: Theme(
-                            data: Theme.of(context)
-                                .copyWith(dividerColor: Colors.transparent),
-                            child: ExpansionTile(
-                              iconColor: AppColors.primary,
-                              collapsedIconColor: Colors.grey.shade400,
-                              title: Text('Payment info',
-                                  style: GoogleFonts.interTight(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                              initiallyExpanded: true,
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 1. Order ID & Status Header
+                          AnimatedListItem(
+                            index: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Trip fare',
-                                              style: GoogleFonts.inter(
-                                                  color: Colors.grey.shade600,
-                                                  fontWeight: FontWeight.w500)),
-                                          Text(
-                                            '₹${_fareRupee(lastRide!)}',
-                                            style: GoogleFonts.interTight(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                                color: AppColors.success),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Payment type',
-                                              style: GoogleFonts.inter(
-                                                  color: Colors.grey.shade600,
-                                                  fontWeight: FontWeight.w500)),
-                                          Text(
-                                            _paymentLabel(lastRide!),
-                                            style: GoogleFonts.interTight(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 15,
-                                                color: Colors.black87),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                Text(
+                                  'Trip #${lastRide!['rideId'] ?? lastRide!['ride_id'] ?? lastRide!['orderId'] ?? lastRide!['id'] ?? '—'}',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.success
+                                        .withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                )
+                                  child: Text(
+                                    'Completed',
+                                    style: GoogleFonts.interTight(
+                                        fontSize: 13,
+                                        color: AppColors.success,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+
+                          // 2. Beautiful Earnings Card
+                          AnimatedListItem(
+                              index: 1, child: _buildEarningsCard()),
+                          const SizedBox(height: 16),
+
+                          // 3. Premium Route Info Card
+                          AnimatedListItem(
+                              index: 2, child: _buildRouteInfoCard()),
+                          const SizedBox(height: 16),
+
+                          // 4. Clean Payment Info
+                          AnimatedListItem(
+                            index: 3,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4))
+                                ],
+                              ),
+                              child: Theme(
+                                data: Theme.of(context)
+                                    .copyWith(dividerColor: Colors.transparent),
+                                child: ExpansionTile(
+                                  iconColor: AppColors.primary,
+                                  collapsedIconColor: Colors.grey.shade400,
+                                  title: Text('Payment info',
+                                      style: GoogleFonts.interTight(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16)),
+                                  initiallyExpanded: true,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 0, 16, 16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Trip fare',
+                                                  style: GoogleFonts.inter(
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                      fontWeight:
+                                                          FontWeight.w500)),
+                                              Text(
+                                                '₹${_fareRupee(lastRide!)}',
+                                                style: GoogleFonts.interTight(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                    color: AppColors.success),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Payment type',
+                                                  style: GoogleFonts.inter(
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                      fontWeight:
+                                                          FontWeight.w500)),
+                                              Text(
+                                                _paymentLabel(lastRide!),
+                                                style: GoogleFonts.interTight(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15,
+                                                    color: Colors.black87),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
                       ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
+                    ),
             ),
     );
   }

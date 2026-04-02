@@ -135,12 +135,9 @@ class _NewRequestCardState extends State<NewRequestCard> {
     final urgent = widget.remainingTime <= 10 && widget.remainingTime > 0;
     final headerBg = urgent
         ? const Color(0xFFE53935)
-        : (isPro
-            ? const Color(0xFFE3CA43)
-            : const Color(0xFF4CAF50));
-    final headerFg = urgent
-        ? Colors.white
-        : (isPro ? Colors.black : Colors.white);
+        : (isPro ? const Color(0xFFE3CA43) : const Color(0xFF4CAF50));
+    final headerFg =
+        urgent ? Colors.white : (isPro ? Colors.black : Colors.white);
 
     final header = Container(
       padding: EdgeInsets.symmetric(
@@ -183,7 +180,8 @@ class _NewRequestCardState extends State<NewRequestCard> {
                   children: [
                     _buildPickupDistanceInfo(
                       context,
-                      FFLocalizations.of(context).getText('drv_pickup_distance'),
+                      FFLocalizations.of(context)
+                          .getText('drv_pickup_distance'),
                       ride,
                     ),
                     _buildDropDistanceInfo(
@@ -271,9 +269,7 @@ class _NewRequestCardState extends State<NewRequestCard> {
                       FFLocalizations.of(context)
                           .getText('drv_accept')
                           .toUpperCase(),
-                      isPro
-                          ? const Color(0xFFE3CA43)
-                          : const Color(0xFF3C9A40),
+                      isPro ? const Color(0xFFE3CA43) : const Color(0xFF3C9A40),
                       widget.onAccept,
                       isPro: isPro)),
         ],
@@ -296,7 +292,8 @@ class _NewRequestCardState extends State<NewRequestCard> {
                   color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
             ],
             border: Border.all(
-                color: isPro ? const Color(0xFFE3CA43) : NewRequestCard.ugoOrange,
+                color:
+                    isPro ? const Color(0xFFE3CA43) : NewRequestCard.ugoOrange,
                 width: 2),
           ),
           child: bounded
@@ -355,7 +352,8 @@ class _NewRequestCardState extends State<NewRequestCard> {
         const Icon(Icons.arrow_forward, size: 16),
         Padding(
           padding: EdgeInsets.only(
-            bottom: (MediaQuery.sizeOf(context).height * 0.015).clamp(6.0, 16.0),
+            bottom:
+                (MediaQuery.sizeOf(context).height * 0.015).clamp(6.0, 16.0),
           ),
           child: Container(
             padding: EdgeInsets.symmetric(
@@ -497,8 +495,8 @@ class _NewRequestCardState extends State<NewRequestCard> {
         ride.pickupLng == 0 ||
         ride.dropLat == 0 ||
         ride.dropLng == 0) {
-      return _buildDistanceInfo(context, label,
-          NewRequestCard._formatDistance(null),
+      return _buildDistanceInfo(
+          context, label, NewRequestCard._formatDistance(null),
           alignRight: true);
     }
 

@@ -50,7 +50,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadSettlementBreakdown());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _loadSettlementBreakdown());
   }
 
   /// Backend settles wallet asynchronously after complete-ride; retry briefly.
@@ -66,7 +67,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     try {
       for (var attempt = 0; attempt < 6; attempt++) {
-        if (attempt > 0) await Future.delayed(const Duration(milliseconds: 700));
+        if (attempt > 0)
+          await Future.delayed(const Duration(milliseconds: 700));
         if (!mounted) return;
 
         final res = await GetRideSettlementBreakdownCall.call(
@@ -84,8 +86,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
         setState(() {
           _settlementLoading = false;
-          _customerFare =
-              GetRideSettlementBreakdownCall.customerFareBreakdown(res.jsonBody);
+          _customerFare = GetRideSettlementBreakdownCall.customerFareBreakdown(
+              res.jsonBody);
           _myLedgerLines = myLines;
         });
         return;
@@ -134,9 +136,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
       case 'platform_commission':
         return FFLocalizations.of(context).getText('drv_ledger_platform');
       case 'referral_deduction':
-        return FFLocalizations.of(context).getText('drv_ledger_referral_deduction');
+        return FFLocalizations.of(context)
+            .getText('drv_ledger_referral_deduction');
       case 'referral_reward':
-        return FFLocalizations.of(context).getText('drv_ledger_referral_reward');
+        return FFLocalizations.of(context)
+            .getText('drv_ledger_referral_reward');
       case 'adjustment':
         return FFLocalizations.of(context).getText('drv_ledger_adjustment');
       default:
@@ -161,7 +165,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
             Expanded(
               child: Text(
                 loc.getText('drv_settlement_loading'),
-                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
+                style:
+                    GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
               ),
             ),
           ],
@@ -230,7 +235,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 final isCredit =
                     (e['direction'] ?? '').toString().toLowerCase() == 'credit';
                 final prefix = isCredit ? '+' : '−';
-                final color = isCredit ? Colors.green.shade700 : Colors.orange.shade800;
+                final color =
+                    isCredit ? Colors.green.shade700 : Colors.orange.shade800;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Row(

@@ -3,11 +3,13 @@
 class IncentiveTier {
   final int id;
   final int targetRides;
+
   /// Rides counted toward this quest (per incentive row — not shared across quests).
   final int completedRides;
   final double rewardAmount;
   final bool isLocked;
   final String? description;
+
   /// Raw time strings from API (e.g. "06:00:00") for slot-based quests.
   final String? startTime;
   final String? endTime;
@@ -38,7 +40,8 @@ class IncentiveTier {
           (json['reward_amount'] ?? json['rewardAmount'] ?? 0).toDouble(),
       isLocked: json['is_locked'] ?? json['isLocked'] ?? false,
       description: json['description'],
-      startTime: json['start_time']?.toString() ?? json['startTime']?.toString(),
+      startTime:
+          json['start_time']?.toString() ?? json['startTime']?.toString(),
       endTime: json['end_time']?.toString() ?? json['endTime']?.toString(),
       recurrenceType: json['recurrence_type']?.toString() ??
           json['recurrenceType']?.toString(),

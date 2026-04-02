@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/uploaded_file.dart';
 import '/services/secure_storage_service.dart';
 import 'dart:convert';
+import 'dart:math';
 
 class FFAppState extends ChangeNotifier {
   static final FFAppState _instance = FFAppState._internal();
@@ -20,7 +21,7 @@ class FFAppState extends ChangeNotifier {
   bool hasPan = false;
   bool hasVehicleImage = false;
   bool hasRC = false;
-  
+
   int _activeRideId = 0;
   String _activeRideStatus = '';
   bool locationPermissionAsked = false;
@@ -102,6 +103,15 @@ class FFAppState extends ChangeNotifier {
         }
       }
       if (token != null && token.isNotEmpty) _refreshToken = token;
+    } catch (_) {}
+    try {
+      final sec = SecureStorageService.instance;
+      var storedDeviceId = await sec.read(SecureStorageService.keyDeviceId);
+      if (storedDeviceId == null || storedDeviceId.isEmpty) {
+        storedDeviceId = _generateDeviceId();
+        await sec.write(SecureStorageService.keyDeviceId, storedDeviceId);
+      }
+      _deviceId = storedDeviceId;
     } catch (_) {}
     _safeInit(() {
       _kycStatus = prefs.getString('ff_kycStatus') ?? _kycStatus;
@@ -1379,6 +1389,18 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _deviceId = '';
+  String get deviceId => _deviceId;
+  set deviceId(String value) {
+    _deviceId = value;
+    final sec = SecureStorageService.instance;
+    if (value.isEmpty) {
+      sec.delete(SecureStorageService.keyDeviceId);
+    } else {
+      sec.write(SecureStorageService.keyDeviceId, value);
+    }
+  }
+
   String _kycStatus = '';
   String get kycStatus => _kycStatus;
 
@@ -1507,6 +1529,15 @@ class FFAppState extends ChangeNotifier {
 
     notifyListeners();
   }
+}
+
+String _generateDeviceId() {
+  final random = Random.secure();
+  final ts = DateTime.now().microsecondsSinceEpoch.toRadixString(16);
+  final salt = List<int>.generate(8, (_) => random.nextInt(256))
+      .map((n) => n.toRadixString(16).padLeft(2, '0'))
+      .join();
+  return 'ugo-driver-$ts-$salt';
 }
 
 void _safeInit(Function() initializeField) {

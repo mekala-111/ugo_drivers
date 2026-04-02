@@ -15,20 +15,20 @@ class RideAlertAudioService {
     if (player == null) return;
     try {
       await player.stop();
-    } on MissingPluginException catch (_) {}
-    catch (_) {}
+    } on MissingPluginException catch (_) {
+    } catch (_) {}
     try {
       await player.dispose();
-    } on MissingPluginException catch (_) {}
-    catch (_) {}
+    } on MissingPluginException catch (_) {
+    } catch (_) {}
   }
 
   static Future<void> stopLingeringAlertAudio() async {
     for (final method in ['stop', 'release', 'dispose']) {
       try {
         await _channel.invokeMethod(method, {'playerId': playerId});
-      } on MissingPluginException catch (_) {}
-      catch (_) {}
+      } on MissingPluginException catch (_) {
+      } catch (_) {}
     }
   }
 }

@@ -170,6 +170,9 @@ class _OfflineDashboardState extends State<OfflineDashboard>
               Text(
                 widget.driverName,
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: Responsive.fontSize(context, 32),
                   color: Colors.black87,
@@ -485,6 +488,8 @@ class _CaptainHomeStatsRow extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: Responsive.fontSize(context, 22),
                 fontWeight: FontWeight.w900,

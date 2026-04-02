@@ -130,8 +130,7 @@ class DriverSignupSubmitService {
       vehicleJsonData['license_plate'] = FFAppState().licensePlate;
     }
     if (FFAppState().registrationNumber.isNotEmpty) {
-      vehicleJsonData['registration_number'] =
-          FFAppState().registrationNumber;
+      vehicleJsonData['registration_number'] = FFAppState().registrationNumber;
     }
     if (FFAppState().registrationDate.isNotEmpty) {
       vehicleJsonData['registration_date'] =
@@ -169,27 +168,22 @@ class DriverSignupSubmitService {
       accessToken ??=
           getJsonField(jsonBody, r'''$.data.accessToken''')?.toString();
       accessToken ??= getJsonField(jsonBody, r'''$.data.token''')?.toString();
-      accessToken ??=
-          getJsonField(jsonBody, r'''$.access_token''')?.toString();
-      accessToken ??=
-          getJsonField(jsonBody, r'''$.accessToken''')?.toString();
-      if (accessToken == 'null' ||
-          accessToken == null ||
-          accessToken.isEmpty) {
+      accessToken ??= getJsonField(jsonBody, r'''$.access_token''')?.toString();
+      accessToken ??= getJsonField(jsonBody, r'''$.accessToken''')?.toString();
+      if (accessToken == 'null' || accessToken == null || accessToken.isEmpty) {
         accessToken = null;
       }
 
       int driverId =
-          castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id''')) ??
-              0;
+          castToType<int>(getJsonField(jsonBody, r'''$.data.driver.id''')) ?? 0;
       if (driverId == 0) {
         driverId =
             castToType<int>(getJsonField(jsonBody, r'''$.data.id''')) ?? 0;
       }
       if (driverId == 0) {
-        driverId = castToType<int>(
-                getJsonField(jsonBody, r'''$.data.driver_id''')) ??
-            0;
+        driverId =
+            castToType<int>(getJsonField(jsonBody, r'''$.data.driver_id''')) ??
+                0;
       }
 
       final vehicleData = getJsonField(jsonBody, r'''$.data.vehicle''');
@@ -228,9 +222,7 @@ class DriverSignupSubmitService {
         }
       }
 
-      if (accessToken != null &&
-          accessToken.isNotEmpty &&
-          driverId > 0) {
+      if (accessToken != null && accessToken.isNotEmpty && driverId > 0) {
         lastLoginTime = DateTime.now();
         FFAppState().update(() {
           FFAppState().isLoggedIn = true;

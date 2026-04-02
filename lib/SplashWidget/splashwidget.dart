@@ -30,7 +30,8 @@ class _SplashWidgetState extends State<SplashWidget> {
         } else {
           // ⚠️ Logged In BUT Not Registered -> Resume from where user stopped
           final registrationStep = FFAppState().registrationStep;
-          debugPrint('UGO_SPLASH: User is NOT Registered. Step: $registrationStep');
+          debugPrint(
+              'UGO_SPLASH: User is NOT Registered. Step: $registrationStep');
 
           // Route based on current registration step
           if (registrationStep >= 4) {

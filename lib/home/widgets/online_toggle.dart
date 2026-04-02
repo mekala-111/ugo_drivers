@@ -15,6 +15,7 @@ class OnlineToggle extends StatelessWidget {
   final bool switchValue;
   final bool isDataLoaded;
   final VoidCallback onToggle;
+
   /// While online on an active ride, disable turning the switch off (Rapido-style).
   final bool blockGoingOffline;
 
@@ -22,8 +23,7 @@ class OnlineToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final pad = Responsive.horizontalPadding(context) * 0.75;
     final vPad = MediaQuery.sizeOf(context).height * 0.006;
-    final canInteract =
-        isDataLoaded && !(blockGoingOffline && switchValue);
+    final canInteract = isDataLoaded && !(blockGoingOffline && switchValue);
     return Container(
       padding:
           EdgeInsets.symmetric(horizontal: pad, vertical: vPad.clamp(2.0, 8.0)),

@@ -254,7 +254,8 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
         centerTitle: true,
         leading: InkWell(
           onTap: () => context.pop(),
-          child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
+          child: const Icon(Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary, size: 20),
         ),
         title: Text('Incentives',
             style: GoogleFonts.inter(
@@ -266,7 +267,8 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
             padding: const EdgeInsets.only(right: 12),
             child: OutlinedButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.support_agent, size: 18, color: AppColors.textPrimary),
+              icon: const Icon(Icons.support_agent,
+                  size: 18, color: AppColors.textPrimary),
               label: Text(
                 'Help',
                 style: GoogleFonts.inter(
@@ -276,7 +278,8 @@ class _IncentivePageWidgetState extends State<IncentivePageWidget>
               ),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade400),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
             ),
           )
@@ -591,7 +594,8 @@ class _IncentiveList extends StatelessWidget {
         final end = DriverIncentivesCall.itemEndTime(group.first);
         final hasTime = start.isNotEmpty && end.isNotEmpty;
         return Padding(
-          padding: EdgeInsets.only(bottom: index == groupedList.length - 1 ? 0 : 20),
+          padding:
+              EdgeInsets.only(bottom: index == groupedList.length - 1 ? 0 : 20),
           child: Column(
             children: [
               if (hasTime)
@@ -599,7 +603,9 @@ class _IncentiveList extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Row(
                     children: [
-                      Expanded(child: Divider(color: Colors.grey.shade400, thickness: 1)),
+                      Expanded(
+                          child: Divider(
+                              color: Colors.grey.shade400, thickness: 1)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
@@ -611,7 +617,9 @@ class _IncentiveList extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Expanded(child: Divider(color: Colors.grey.shade400, thickness: 1)),
+                      Expanded(
+                          child: Divider(
+                              color: Colors.grey.shade400, thickness: 1)),
                     ],
                   ),
                 ),
@@ -637,8 +645,13 @@ class _RapidoIncentiveCard extends StatelessWidget {
         .map((e) => DriverIncentivesCall.itemRewardAmount(e))
         .fold<double>(0, (a, b) => a + b);
     final vehicleTypes = items
-        .expand((e) => ((getJsonField(e, r'$.incentive.vehicleTypes', true) as List?) ?? const []))
-        .map((v) => getJsonField(v, r'$.vehicle_type')?.toString() ?? getJsonField(v, r'$.name')?.toString() ?? '')
+        .expand((e) =>
+            ((getJsonField(e, r'$.incentive.vehicleTypes', true) as List?) ??
+                const []))
+        .map((v) =>
+            getJsonField(v, r'$.vehicle_type')?.toString() ??
+            getJsonField(v, r'$.name')?.toString() ??
+            '')
         .where((v) => v.isNotEmpty)
         .toSet()
         .toList();
@@ -667,7 +680,8 @@ class _RapidoIncentiveCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 color: const Color(0xFFF5C400),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                 child: Column(
                   children: [
                     Text(
@@ -694,7 +708,8 @@ class _RapidoIncentiveCard extends StatelessWidget {
               Container(
                 width: double.infinity,
                 color: const Color(0xFF353535),
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                 child: Text(
                   vehicleLabel,
                   style: GoogleFonts.inter(
@@ -710,14 +725,21 @@ class _RapidoIncentiveCard extends StatelessWidget {
               child: Column(
                 children: List.generate(items.length, (index) {
                   final item = items[index];
-                  final targetRides = DriverIncentivesCall.itemTargetRides(item);
-                  final completedRides = DriverIncentivesCall.itemCompletedRides(item);
-                  final rewardAmount = DriverIncentivesCall.itemRewardAmount(item);
-                  final isCompleted = DriverIncentivesCall.itemIsCompleted(item);
-                  final ridesLeft = (targetRides - completedRides).clamp(0, targetRides);
+                  final targetRides =
+                      DriverIncentivesCall.itemTargetRides(item);
+                  final completedRides =
+                      DriverIncentivesCall.itemCompletedRides(item);
+                  final rewardAmount =
+                      DriverIncentivesCall.itemRewardAmount(item);
+                  final isCompleted =
+                      DriverIncentivesCall.itemIsCompleted(item);
+                  final ridesLeft =
+                      (targetRides - completedRides).clamp(0, targetRides);
                   final isLast = index == items.length - 1;
-                  final activeDot = index == 0 ? AppColors.primary : Colors.grey.shade400;
-                  final rowColor = isCompleted ? AppColors.success : const Color(0xFF2F2F2F);
+                  final activeDot =
+                      index == 0 ? AppColors.primary : Colors.grey.shade400;
+                  final rowColor =
+                      isCompleted ? AppColors.success : const Color(0xFF2F2F2F);
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -735,8 +757,8 @@ class _RapidoIncentiveCard extends StatelessWidget {
                             ),
                             if (!isLast)
                               Container(
-                              width: 2,
-                              height: 52,
+                                width: 2,
+                                height: 52,
                                 color: Colors.grey.shade300,
                               ),
                           ],

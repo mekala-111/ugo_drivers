@@ -94,7 +94,8 @@ class _WalletWidgetState extends State<WalletWidget> {
   }
 
   Future<void> _openWithdrawFlow() async {
-    final hasAccount = bankAccountNumber != null && bankAccountNumber!.isNotEmpty;
+    final hasAccount =
+        bankAccountNumber != null && bankAccountNumber!.isNotEmpty;
     if (!mounted) return;
 
     if (hasAccount) {
@@ -286,14 +287,12 @@ class _WalletWidgetState extends State<WalletWidget> {
           _fetchWallet();
         }
       }),
-      _buildHeaderAction(Icons.account_balance_wallet, 'Withdraw', ()  {
-
+      _buildHeaderAction(Icons.account_balance_wallet, 'Withdraw', () {
         context.pushNamedAuth(
           WithdrawWidget.routeName,
           mounted,
           ignoreRedirect: true,
         );
-
       }),
       _buildHeaderAction(Icons.account_balance, 'Bank Account', () async {
         await _openWithdrawFlow();
@@ -466,10 +465,10 @@ class _WalletWidgetState extends State<WalletWidget> {
                           ),
                         ),
                         SizedBox(height: 12.0 * scale),
-
                         if (_loadingRecentTx)
                           Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16.0 * scale),
+                            padding:
+                                EdgeInsets.symmetric(vertical: 16.0 * scale),
                             child: Center(
                               child: SizedBox(
                                 width: 28,
@@ -506,7 +505,6 @@ class _WalletWidgetState extends State<WalletWidget> {
                               ),
                             ),
                           ),
-
                         SizedBox(height: 8.0 * scale),
                         Center(
                           child: TextButton(
@@ -655,5 +653,4 @@ class _WalletWidgetState extends State<WalletWidget> {
       ),
     );
   }
-
 }
