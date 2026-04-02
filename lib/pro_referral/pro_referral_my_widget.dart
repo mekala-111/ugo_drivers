@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -87,13 +89,36 @@ class _ProReferralMyWidgetState extends State<ProReferralMyWidget> {
     }
   }
 
+  Future<XFile> _getLogoXFile() async {
+    final byteData = await rootBundle.load('assets/images/app_icon.png');
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/ugo_driver_referral_logo.png');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return XFile(file.path);
+  }
+
   Future<void> _shareCode() async {
     final c = (_myCode ?? '').trim();
     if (c.isEmpty) return;
-    await Share.share(
-      'Join me on UGO Driver — use my Pro referral code: $c',
-      subject: 'UGO Driver referral',
-    );
+    final message = 
+        '🚖 *Join the UGO Driver Team!* 🚖\n\n'
+        'Earn more with Pro referrals. Use my Code: *$c* 🎁\n\n'
+        'Download the Driver App:\n'
+        'https://play.google.com/store/apps/details?id=com.ugotaxi_rajkumar.driver';
+
+    try {
+      final logo = await _getLogoXFile();
+      await Share.shareXFiles(
+        [logo],
+        text: message,
+        subject: 'UGO Driver — Referral',
+      );
+    } catch (e) {
+      await Share.share(
+        message,
+        subject: 'UGO Driver referral',
+      );
+    }
   }
 
   @override

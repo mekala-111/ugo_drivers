@@ -37,12 +37,17 @@ class RideRequestOverlay extends StatefulWidget {
   final VoidCallback? onRideComplete;
 
   /// True while cash collection / rating UI is covering the map — hide home chrome (e.g. incentives).
+  /// Valid on startup: if active_ride_id exists but fetch fails (404), unlock the UI.
+  final VoidCallback? onGhostRideCleared;
+
+  /// Callback to notify HomeWidget whether to suppress the incentive tracker (e.g. during cash collection).
   final ValueChanged<bool>? onPostRideIncentiveSuppress;
 
   const RideRequestOverlay({
     super.key,
     this.driverLocation,
     this.onRideComplete,
+    this.onGhostRideCleared,
     this.onPostRideIncentiveSuppress,
   });
 
@@ -677,6 +682,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         FFAppState().activeRideId = 0;
         if (mounted) {
           Provider.of<RideState>(context, listen: false).clearRide();
+          widget.onGhostRideCleared?.call();
         }
       }
     }

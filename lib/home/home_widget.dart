@@ -1375,6 +1375,7 @@ class _HomeWidgetState extends State<HomeWidget>
                           BottomRidePanel(
                             overlayKey: _overlayKey,
                             onRideComplete: _onRideComplete,
+                            onGhostRideCleared: _onRideComplete,
                             driverLocation:
                                 c.currentUserLocation ?? userLocation,
                             onPostRideIncentiveSuppress: (suppress) {

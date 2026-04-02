@@ -10,12 +10,14 @@ class BottomRidePanel extends StatelessWidget {
     required this.overlayKey,
     required this.onRideComplete,
     required this.driverLocation,
+    this.onGhostRideCleared,
     this.onPostRideIncentiveSuppress,
   });
 
   final GlobalKey<RideRequestOverlayState> overlayKey;
   final VoidCallback onRideComplete;
   final LatLng? driverLocation;
+  final VoidCallback? onGhostRideCleared;
   final ValueChanged<bool>? onPostRideIncentiveSuppress;
 
   @override
@@ -23,6 +25,7 @@ class BottomRidePanel extends StatelessWidget {
     return RideRequestOverlay(
       key: overlayKey,
       onRideComplete: onRideComplete,
+      onGhostRideCleared: onGhostRideCleared,
       driverLocation: driverLocation,
       onPostRideIncentiveSuppress: onPostRideIncentiveSuppress,
     );
