@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '/auth/login_timestamp.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import '/services/document_verification_service.dart';
 
 /// Submits driver signup after profile/vehicle/city/earning preferences, without
@@ -239,6 +240,7 @@ class DriverSignupSubmitService {
           FFAppState().accessToken = accessToken!;
           FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
         });
+        syncDriverRideChatFcmRegistration();
         return null;
       }
 
@@ -284,6 +286,7 @@ class DriverSignupSubmitService {
             FFAppState().refreshToken =
                 LoginCall.refreshToken(loginRes.jsonBody) ?? '';
           });
+          syncDriverRideChatFcmRegistration();
           return null;
         }
       }

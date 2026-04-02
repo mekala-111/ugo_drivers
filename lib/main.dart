@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'dart:io' show Platform;
+
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,11 +21,13 @@ import 'flutter_flow/firebase_app_check_util.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 // ✅ IMPORT API MANAGER & LOGIN
 import '/backend/api_requests/api_manager.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import '/services/ride_notification_service.dart';
 import '/services/firebase_remote_config_service.dart';
 import '/services/install_referrer_service.dart';
 import '/services/ride_alert_audio_service.dart';
 import '/services/floating_bubble_service.dart';
+import '/services/driver_realtime_socket_service.dart';
 import '/auth/login_timestamp.dart';
 import '/login/login_widget.dart';
 
@@ -48,9 +52,6 @@ void main() {
     // This guarantees that if a background service or plugin crashes,
     // it won't skip runApp() and cause a permanent white screen.
     try {
-      debugPrint('UGO_STARTUP: Cleaning up orphaned floating bubble...');
-      try { await FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
-
       debugPrint('UGO_STARTUP: Stopping lingering audio...');
       await RideAlertAudioService.stopLingeringAlertAudio();
 
@@ -63,6 +64,10 @@ void main() {
         const Duration(seconds: 5),
         onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
       );
+
+      // Before FCM / notifications touch FFAppState.fcmToken (writes prefs).
+      debugPrint('UGO_STARTUP: Loading App State...');
+      await appState.initializePersistedState();
 
       debugPrint('UGO_STARTUP: Initializing Notifications...');
       await RideNotificationService().initialize().timeout(
@@ -79,8 +84,24 @@ void main() {
       debugPrint('UGO_STARTUP: Initializing Theme...');
       await FlutterFlowTheme.initialize();
 
-      debugPrint('UGO_STARTUP: Loading App State...');
-      await appState.initializePersistedState();
+      debugPrint('UGO_STARTUP: Sync driver bubble / FGS with persisted online state...');
+      try {
+        if (!kIsWeb && Platform.isAndroid) {
+          if (appState.isonline) {
+            final ok = await FloatingBubbleService.checkOverlayPermission();
+            if (ok) {
+              await FloatingBubbleService.startFloatingBubble(
+                overlaySuppressedInitially: true,
+              );
+              await FloatingBubbleService.setBubbleOverlaySuppressed(true);
+            }
+          } else {
+            await FloatingBubbleService.stopFloatingBubble();
+          }
+        }
+      } catch (e) {
+        debugPrint('UGO_STARTUP: bubble sync skipped: $e');
+      }
 
       debugPrint('UGO_STARTUP: Finalizing localizations...');
       await InstallReferrerService.captureReferralCodeIfAvailable();
@@ -155,10 +176,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
 
-  // ✅ GLOBAL MESSENGER KEY FOR SNACK BARS
-  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
-  GlobalKey<ScaffoldMessengerState>();
-
   String getRoute([RouteMatch? routeMatch]) {
     final RouteMatch lastMatch =
         routeMatch ?? _router.routerDelegate.currentConfiguration.last;
@@ -209,6 +226,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
     });
 
+    ApiManager.onAccessTokenRefreshed = () {
+      syncDriverRideChatFcmRegistration();
+      // New JWT (session) — recycle Socket.IO so handshake auth matches REST.
+      DriverRealtimeSocketService.instance.reconnectWithLatestToken();
+    };
+
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
     ApiManager.onUnauthenticated = () {
       if (!FFAppState().isLoggedIn) return;
@@ -230,11 +253,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         FFAppState().isLoggedIn = false;
       });
 
+      // Drop stale ride overlay (Provider survives route change).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = appNavigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          try {
+            ctx.read<RideState>().clearRide();
+          } catch (_) {}
+        }
+      });
+
       // 2. Redirect to Login
       _router.goNamed(LoginWidget.routeName);
 
       // 3. Show Alert
-      rootScaffoldMessengerKey.currentState?.showSnackBar(
+      appScaffoldMessengerKey.currentState?.showSnackBar(
         const SnackBar(
           content: Text(
             'Session expired. You have been logged in on another device.',
@@ -275,7 +308,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       WakelockPlus.disable();
     } else if (state == AppLifecycleState.detached) {
       WakelockPlus.disable();
-      try { FloatingBubbleService.stopFloatingBubble(); } catch (_) {}
+      // Native foreground service + bubble are tied to OFFLINE / logout — not app detach.
     }
   }
 
@@ -288,7 +321,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      scaffoldMessengerKey: rootScaffoldMessengerKey, // ✅ Attach Global Key
+      scaffoldMessengerKey: appScaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'ugo_driver',
       localizationsDelegates: const [

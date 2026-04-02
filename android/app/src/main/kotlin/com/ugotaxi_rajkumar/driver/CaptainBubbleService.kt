@@ -26,6 +26,21 @@ import kotlinx.coroutines.flow.collectLatest
 class CaptainBubbleService : Service() {
     companion object {
         private const val TAG = "CaptainBubbleService"
+        const val ACTION_SET_SUPPRESS_OVERLAY = "com.ugotaxi_rajkumar.driver.SET_SUPPRESS_OVERLAY"
+        const val EXTRA_SUPPRESS_OVERLAY = "suppress_overlay"
+        const val ACTION_UPDATE_BADGE = "com.ugotaxi_rajkumar.driver.UPDATE_BADGE"
+        const val EXTRA_PENDING_COUNT = "pending_count"
+
+        /**
+         * When true, the small draggable bubble is hidden (driver is inside the app UI).
+         * Foreground service + notification stay active so Android 15+ and OEMs see a valid FGS.
+         */
+        @Volatile
+        var suppressBubbleOverlay: Boolean = false
+
+        /** Optional badge on bubble (e.g. stacked SEARCHING rides). */
+        @Volatile
+        var pendingRequestCount: Int = 0
     }
 
     private lateinit var windowManager: WindowManager
@@ -37,6 +52,7 @@ class CaptainBubbleService : Service() {
     private val channelId = "floating_bubble_service"
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private var lastRideState: RideState = RideState.Idle
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -49,26 +65,82 @@ class CaptainBubbleService : Service() {
 
         serviceScope.launch {
             RideEventRepository.rideState.collectLatest { state ->
-                when (state) {
-                    is RideState.NewRequest -> {
-                        hideBubble()
-                        showRideRequestOverlay(state)
-                    }
-                    is RideState.Idle -> {
-                        hideRideRequestOverlay()
-                        showBubble()
-                    }
-                    is RideState.Ongoing -> {
-                        hideRideRequestOverlay()
-                        showBubble()
-                    }
-                }
+                lastRideState = state
+                applyRideState(state)
             }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_SET_SUPPRESS_OVERLAY -> {
+                suppressBubbleOverlay = intent.getBooleanExtra(EXTRA_SUPPRESS_OVERLAY, suppressBubbleOverlay)
+                refreshOverlayForCurrentState()
+                startForeground(notificationId, createNotification())
+            }
+            ACTION_UPDATE_BADGE -> {
+                pendingRequestCount = intent.getIntExtra(EXTRA_PENDING_COUNT, 0).coerceAtLeast(0)
+                bubbleView?.findViewById<View>(R.id.bubble_badge)?.visibility =
+                    if (pendingRequestCount > 0) View.VISIBLE else View.GONE
+            }
+        }
         return START_STICKY
+    }
+
+    /**
+     * Swiping the app from Recents: restart FGS if the driver is still marked ONLINE in prefs.
+     * Does not guarantee survival on aggressive OEMs (MIUI, etc.).
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        if (!DriverOnlinePrefs.isDriverOnline(this)) {
+            Log.i(TAG, "onTaskRemoved: driver offline — not restarting")
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Log.w(TAG, "onTaskRemoved: no overlay permission — not restarting")
+            return
+        }
+        try {
+            val i = Intent(applicationContext, CaptainBubbleService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                applicationContext.startForegroundService(i)
+            } else {
+                applicationContext.startService(i)
+            }
+            Log.i(TAG, "onTaskRemoved: restarted foreground service (still online)")
+        } catch (e: Exception) {
+            Log.e(TAG, "onTaskRemoved: restart failed", e)
+        }
+    }
+
+    private fun applyRideState(state: RideState) {
+        when (state) {
+            is RideState.NewRequest -> {
+                hideBubble()
+                showRideRequestOverlay(state)
+            }
+            is RideState.Idle -> {
+                hideRideRequestOverlay()
+                showBubbleIfAllowed()
+            }
+            is RideState.Ongoing -> {
+                hideRideRequestOverlay()
+                showBubbleIfAllowed()
+            }
+        }
+    }
+
+    private fun refreshOverlayForCurrentState() {
+        applyRideState(lastRideState)
+    }
+
+    private fun showBubbleIfAllowed() {
+        if (suppressBubbleOverlay) {
+            hideBubble()
+            return
+        }
+        showBubble()
     }
 
     private fun showRideRequestOverlay(state: RideState.NewRequest) {
@@ -294,6 +366,9 @@ class CaptainBubbleService : Service() {
             return
         }
 
+        bubbleView?.findViewById<View>(R.id.bubble_badge)?.visibility =
+            if (pendingRequestCount > 0) View.VISIBLE else View.GONE
+
         val container = bubbleView?.findViewById<View>(R.id.bubble_container)
 
         var initialX = 0
@@ -350,8 +425,13 @@ class CaptainBubbleService : Service() {
             }
         }
 
+        // Do not stop the service (driver stays ONLINE). Open app so they can go offline.
         bubbleView?.findViewById<ImageView>(R.id.close_button)?.setOnClickListener {
-            stopSelf()
+            val i = Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                putExtra("from_bubble", true)
+            }
+            startActivity(i)
         }
     }
 
@@ -387,12 +467,18 @@ class CaptainBubbleService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val body = if (suppressBubbleOverlay) {
+            "Tap to return to the app. You are online."
+        } else {
+            "Floating bubble active — tap bubble or notification to open the app."
+        }
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Ugo Taxi")
-            .setContentText("Waiting for Rides ....")
+            .setContentTitle("UGO Driver — Online")
+            .setContentText(body)
             .setSmallIcon(R.drawable.ugo_notification)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
 

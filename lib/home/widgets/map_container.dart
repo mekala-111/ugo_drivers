@@ -14,7 +14,8 @@ class MapContainer extends StatelessWidget {
     required this.mapCenter,
     required this.availableDriversCount,
     required this.showDriversPanel,
-    this.onCenterCurrentLocation,
+    /// Same UX as UGO_USER [AutoBookWidget]: one control — refresh route + fit, or center on driver.
+    this.onMapPrimaryAction,
     this.markers,
   });
 
@@ -25,7 +26,7 @@ class MapContainer extends StatelessWidget {
   final latlng.LatLng? mapCenter;
   final int availableDriversCount;
   final bool showDriversPanel;
-  final Future<void> Function()? onCenterCurrentLocation;
+  final Future<void> Function()? onMapPrimaryAction;
   final List<FlutterFlowMarker>? markers;
 
   @override
@@ -53,7 +54,7 @@ class MapContainer extends StatelessWidget {
         ),
         if (showDriversPanel)
           RideStatusPanel(availableDriversCount: availableDriversCount),
-        if (onCenterCurrentLocation != null)
+        if (onMapPrimaryAction != null)
           Positioned(
             top: showDriversPanel ? 88.0 : 16.0,
             right: 16.0,
@@ -63,8 +64,8 @@ class MapContainer extends StatelessWidget {
               shadowColor: Colors.black26,
               shape: const CircleBorder(),
               child: IconButton(
-                tooltip: 'Current location',
-                onPressed: onCenterCurrentLocation,
+                tooltip: 'Show full route',
+                onPressed: () => onMapPrimaryAction!(),
                 icon: const Icon(
                   Icons.my_location_rounded,
                   color: Colors.orange,

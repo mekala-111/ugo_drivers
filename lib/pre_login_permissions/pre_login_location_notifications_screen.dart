@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '/app_state.dart';
 import '/index.dart';
 
 /// Before login: Location first, then Notifications permission.
@@ -39,6 +40,21 @@ class _PreLoginLocationNotificationsScreenState
     });
   }
 
+  Future<void> _maybeUpgradeAndroidBackground() async {
+    if (!Platform.isAndroid || !mounted) return;
+    if (FFAppState().hasAskedBackgroundLocation) return;
+    FFAppState().hasAskedBackgroundLocation = true;
+    final agreed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const BackgroundLocationNoticeWidget(),
+      ),
+    );
+    if (agreed == true) {
+      await Geolocator.requestPermission();
+    }
+  }
+
   Future<void> _requestLocation() async {
     if (_isRequesting || !mounted) return;
     setState(() => _isRequesting = true);
@@ -54,23 +70,55 @@ class _PreLoginLocationNotificationsScreenState
       }
 
       var permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            _locationRequested = true;
+            _isRequesting = false;
+          });
+        }
+        return;
+      }
+
+      if (permission == LocationPermission.always) {
+        if (mounted) {
+          setState(() {
+            _locationRequested = true;
+            _isRequesting = false;
+          });
+        }
+        return;
+      }
+
+      if (permission == LocationPermission.whileInUse) {
+        await _maybeUpgradeAndroidBackground();
+        if (mounted) {
+          setState(() {
+            _locationRequested = true;
+            _isRequesting = false;
+          });
+        }
+        return;
+      }
+
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
 
-      // Android: request background location if "while in use" granted
-      if (Platform.isAndroid &&
-          permission == LocationPermission.whileInUse &&
-          mounted) {
-        final agreed = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const BackgroundLocationNoticeWidget(),
-          ),
-        );
-        if (agreed == true) {
-          await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            _locationRequested = true;
+            _isRequesting = false;
+          });
         }
+        return;
+      }
+
+      if (permission == LocationPermission.whileInUse) {
+        await _maybeUpgradeAndroidBackground();
       }
 
       if (mounted) {
@@ -95,9 +143,25 @@ class _PreLoginLocationNotificationsScreenState
 
     try {
       final status = await Permission.notification.status;
-      if (!status.isGranted) {
-        await Permission.notification.request();
+      if (status.isGranted || status.isLimited) {
+        if (mounted) {
+          setState(() {
+            _notificationRequested = true;
+            _isRequesting = false;
+          });
+        }
+        return;
       }
+      if (status.isPermanentlyDenied) {
+        if (mounted) {
+          setState(() {
+            _notificationRequested = true;
+            _isRequesting = false;
+          });
+        }
+        return;
+      }
+      await Permission.notification.request();
 
       if (mounted) {
         setState(() {

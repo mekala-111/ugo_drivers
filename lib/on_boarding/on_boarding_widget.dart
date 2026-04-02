@@ -2,6 +2,7 @@ import '/auth/login_timestamp.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import '/services/document_verification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -845,6 +846,7 @@ class _OnBoardingWidgetState extends State<OnBoardingWidget> {
                 FFAppState().refreshToken =
                     LoginCall.refreshToken(loginRes.jsonBody) ?? '';
               });
+              syncDriverRideChatFcmRegistration();
 
               if (mounted) {
                 context.pushReplacementNamed(HomeWidget.routeName);

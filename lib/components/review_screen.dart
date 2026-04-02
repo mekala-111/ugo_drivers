@@ -30,6 +30,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _isSubmitting = false;
   final List<String> _selectedTagKeys = [];
 
+  bool _settlementLoading = false;
+  bool _settlementTimedOut = false;
+  Map<String, dynamic>? _customerFare;
+  List<Map<String, dynamic>> _myLedgerLines = [];
+
   // Figma tags matching screenshot + Rapido style
   static const List<String> _reviewTagKeys = [
     'drv_review_friendly',
@@ -41,6 +46,282 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   String get _fareAmount =>
       '₹${(widget.ride.finalFare ?? widget.ride.estimatedFare)?.toStringAsFixed(2) ?? '0.00'}';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadSettlementBreakdown());
+  }
+
+  /// Backend settles wallet asynchronously after complete-ride; retry briefly.
+  Future<void> _loadSettlementBreakdown() async {
+    final token = FFAppState().accessToken;
+    final did = FFAppState().driverid;
+    if (token.isEmpty || did <= 0 || !mounted) return;
+
+    setState(() {
+      _settlementLoading = true;
+      _settlementTimedOut = false;
+    });
+
+    try {
+      for (var attempt = 0; attempt < 6; attempt++) {
+        if (attempt > 0) await Future.delayed(const Duration(milliseconds: 700));
+        if (!mounted) return;
+
+        final res = await GetRideSettlementBreakdownCall.call(
+          rideId: widget.ride.id,
+          token: token,
+        );
+        if (!mounted) return;
+        if (!res.succeeded) continue;
+
+        final myLines = GetRideSettlementBreakdownCall.ledgerEntriesForDriver(
+          res.jsonBody,
+          did,
+        );
+        if (myLines.isEmpty) continue;
+
+        setState(() {
+          _settlementLoading = false;
+          _customerFare =
+              GetRideSettlementBreakdownCall.customerFareBreakdown(res.jsonBody);
+          _myLedgerLines = myLines;
+        });
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _settlementLoading = false;
+          _settlementTimedOut = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _settlementLoading = false;
+          _settlementTimedOut = true;
+        });
+      }
+    }
+  }
+
+  double _parseMoney(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0;
+  }
+
+  double _netWalletFromMyLedger() {
+    var net = 0.0;
+    for (final e in _myLedgerLines) {
+      final a = _parseMoney(e['amount_inr']);
+      final dir = (e['direction'] ?? '').toString().toLowerCase();
+      if (dir == 'credit') {
+        net += a;
+      } else {
+        net -= a;
+      }
+    }
+    return net;
+  }
+
+  String _ledgerEntryTypeLabel(BuildContext context, String type) {
+    switch (type) {
+      case 'ride_earning':
+        return FFLocalizations.of(context).getText('drv_ledger_ride_earning');
+      case 'platform_commission':
+        return FFLocalizations.of(context).getText('drv_ledger_platform');
+      case 'referral_deduction':
+        return FFLocalizations.of(context).getText('drv_ledger_referral_deduction');
+      case 'referral_reward':
+        return FFLocalizations.of(context).getText('drv_ledger_referral_reward');
+      case 'adjustment':
+        return FFLocalizations.of(context).getText('drv_ledger_adjustment');
+      default:
+        return type;
+    }
+  }
+
+  Widget _buildSettlementSection() {
+    final loc = FFLocalizations.of(context);
+
+    if (_settlementLoading) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                loc.getText('drv_settlement_loading'),
+                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_myLedgerLines.isEmpty) {
+      if (_settlementTimedOut) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            loc.getText('drv_settlement_note'),
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
+
+    final riderPaid = _customerFare != null
+        ? _parseMoney(_customerFare!['total_payable'])
+        : (widget.ride.finalFare ?? widget.ride.estimatedFare ?? 0);
+    final netWallet = _netWalletFromMyLedger();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          loc.getText('drv_settlement_title'),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _settlementRow(
+                loc.getText('drv_rider_paid_total'),
+                '₹${riderPaid.toStringAsFixed(2)}',
+                isMuted: false,
+              ),
+              const Divider(height: 22),
+              ..._myLedgerLines.map((e) {
+                final type = (e['entry_type'] ?? '').toString();
+                final label = _ledgerEntryTypeLabel(context, type);
+                final amt = _parseMoney(e['amount_inr']);
+                final isCredit =
+                    (e['direction'] ?? '').toString().toLowerCase() == 'credit';
+                final prefix = isCredit ? '+' : '−';
+                final color = isCredit ? Colors.green.shade700 : Colors.orange.shade800;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              label,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            if ((e['note'] ?? '').toString().isNotEmpty)
+                              Text(
+                                e['note'].toString(),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                  height: 1.25,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '$prefix₹${amt.toStringAsFixed(2)}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const Divider(height: 22),
+              _settlementRow(
+                loc.getText('drv_net_wallet_credit'),
+                '₹${netWallet.toStringAsFixed(2)}',
+                isMuted: false,
+                emphasize: true,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                loc.getText('drv_settlement_note'),
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _settlementRow(String label, String value,
+      {bool isMuted = false, bool emphasize = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: emphasize ? 15 : 14,
+              fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
+              color: isMuted ? Colors.grey[600] : Colors.black87,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: emphasize ? 16 : 14,
+            fontWeight: FontWeight.w800,
+            color: emphasize ? AppColors.primary : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
 
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
@@ -193,6 +474,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
               const SizedBox(height: 40),
               // Fare Display
               _buildFareCard(),
+
+              const SizedBox(height: 24),
+              _buildSettlementSection(),
 
               const SizedBox(height: 40),
               // Submit Button

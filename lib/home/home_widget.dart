@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmf;
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
@@ -550,46 +554,43 @@ class _HomeWidgetState extends State<HomeWidget>
 
   Future<void> _syncFloatingBubble({bool force = false}) async {
     if (!mounted) return;
+    if (kIsWeb || !Platform.isAndroid) return;
 
     final appState = WidgetsBinding.instance.lifecycleState;
-    // Show bubble ONLY when (Online AND app is NOT in foreground)
-    // We check if appState is null (initial state) or not resumed.
-    // Usually, if it's null it means we are just starting, likely resumed soon.
-    final shouldShowBubble = _controller.isOnline &&
-        (appState != null && appState != AppLifecycleState.resumed);
+    final inForeground =
+        appState == null || appState == AppLifecycleState.resumed;
 
-    final syncKey = '${_controller.isOnline}_$shouldShowBubble';
+    final syncKey = '${_controller.isOnline}_$inForeground';
     if (!force && _lastBubbleSyncKey == syncKey) {
       return;
     }
     _lastBubbleSyncKey = syncKey;
 
-    if (shouldShowBubble) {
-      // Use native foreground service notification outside app.
-      await RideNotificationService().hideOnlineNotification();
+    if (_controller.isOnline) {
       final granted = await FloatingBubbleService.checkOverlayPermission();
       if (granted) {
-        if (!_bubbleVisible) {
-          await FloatingBubbleService.startFloatingBubble();
-          _bubbleVisible = true;
+        await RideNotificationService().hideOnlineNotification();
+        final running = await FloatingBubbleService.isBubbleServiceRunning();
+        if (!running) {
+          await FloatingBubbleService.startFloatingBubble(
+            overlaySuppressedInitially: inForeground,
+          );
         }
+        await FloatingBubbleService.setBubbleOverlaySuppressed(inForeground);
+        _bubbleVisible = true;
       } else {
-        if (_bubbleVisible) {
+        if (await FloatingBubbleService.isBubbleServiceRunning()) {
           await FloatingBubbleService.stopFloatingBubble();
-          _bubbleVisible = false;
         }
+        _bubbleVisible = false;
+        await RideNotificationService().showOnlineNotification();
       }
     } else {
-      // Inside app (while online), keep a single persistent online notification.
-      if (_controller.isOnline) {
-        await RideNotificationService().showOnlineNotification();
-      } else {
-        await RideNotificationService().hideOnlineNotification();
-      }
-      if (_bubbleVisible) {
+      await RideNotificationService().hideOnlineNotification();
+      if (await FloatingBubbleService.isBubbleServiceRunning()) {
         await FloatingBubbleService.stopFloatingBubble();
-        _bubbleVisible = false;
       }
+      _bubbleVisible = false;
     }
   }
 
@@ -667,9 +668,17 @@ class _HomeWidgetState extends State<HomeWidget>
     });
   }
 
-  void _passDataToOverlay(dynamic data) {
+  void _passDataToOverlay(dynamic data, {int attempt = 0}) {
     if (!mounted) return;
-    if (_overlayKey.currentState == null) return;
+    // Overlay may not be attached for a few frames after login / route swap.
+    // Dropping socket events here made the map look "dead" until restart.
+    if (_overlayKey.currentState == null) {
+      if (attempt >= 12) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _passDataToOverlay(data, attempt: attempt + 1);
+      });
+      return;
+    }
 
     Map<String, dynamic>? unwrap(dynamic d) {
       if (d is Map<String, dynamic>) {
@@ -739,7 +748,8 @@ class _HomeWidgetState extends State<HomeWidget>
             GoogleMarkerColor.green,
           ));
         }
-        if (hasDrop && isStarted) {
+        // Show drop once ride is accepted so refresh / fit-bounds matches rider view.
+        if (hasDrop && (isAccepted || isStarted)) {
           markers.add(FlutterFlowMarker(
             'drop_${rr.id}',
             latlng.LatLng(rr.dropLat, rr.dropLng),
@@ -763,7 +773,7 @@ class _HomeWidgetState extends State<HomeWidget>
             strokeWidth: 2,
           ));
         }
-        if (hasDrop && isStarted) {
+        if (hasDrop && (isAccepted || isStarted)) {
           circles.add(Circle(
             circleId: CircleId('drop_circle_${rr.id}'),
             center: latlng.LatLng(rr.dropLat, rr.dropLng).toGoogleMaps(),
@@ -829,6 +839,193 @@ class _HomeWidgetState extends State<HomeWidget>
       ),
     );
     _model.googleMapsCenter = currentLoc;
+  }
+
+  bool _isValidMapCoord(double lat, double lng) {
+    if (lat == 0 && lng == 0) return false;
+    if (lat.abs() > 90 || lng.abs() > 180) return false;
+    return true;
+  }
+
+  /// Matches UGO_USER `auto_book_widget.dart` `_fitMapToRideContext` status rules.
+  static const double _kMinBoundsSpanDriver = 0.004;
+
+  String _normalizedDriverRideStatus() => _controller.currentRideStatus
+      .trim()
+      .toUpperCase()
+      .replaceAll('_', '');
+
+  bool _isPrePickupPhaseDriver(String n) {
+    return n == 'ACCEPTED' ||
+        n == 'ARRIVED' ||
+        n == 'QRSCANNED' ||
+        n == 'DRIVERASSIGNED' ||
+        n == 'FETCHING';
+  }
+
+  bool _isOnTripPhaseDriver(String n) {
+    return n == 'STARTED' ||
+        n == 'ONTRIP' ||
+        n == 'PICKEDUP' ||
+        n == 'INPROGRESS';
+  }
+
+  Future<void> _driverAnimateCameraToBounds(
+    List<gmf.LatLng> points,
+    double paddingPx,
+  ) async {
+    final ctrl = await _model.googleMapsController.future;
+    if (!mounted) return;
+
+    final valid = points
+        .where((p) => p.latitude.abs() > 1e-6 || p.longitude.abs() > 1e-6)
+        .toList();
+    if (valid.isEmpty) {
+      await _centerMapOnCurrentLocation();
+      return;
+    }
+
+    if (valid.length == 1) {
+      _lastCameraCenter =
+          latlng.LatLng(valid.first.latitude, valid.first.longitude);
+      _lastCameraMoveTime = DateTime.now();
+      await ctrl.animateCamera(
+        gmf.CameraUpdate.newLatLngZoom(valid.first, 15.0),
+      );
+      _model.googleMapsCenter = _lastCameraCenter;
+      return;
+    }
+
+    var minLat = valid.first.latitude;
+    var maxLat = valid.first.latitude;
+    var minLng = valid.first.longitude;
+    var maxLng = valid.first.longitude;
+    for (final point in valid) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    var latPad = (maxLat - minLat) * 0.15;
+    var lngPad = (maxLng - minLng) * 0.15;
+    if (maxLat - minLat < _kMinBoundsSpanDriver) {
+      latPad = _kMinBoundsSpanDriver / 2;
+      minLat -= latPad;
+      maxLat += latPad;
+    } else {
+      minLat -= latPad;
+      maxLat += latPad;
+    }
+    if (maxLng - minLng < _kMinBoundsSpanDriver) {
+      lngPad = _kMinBoundsSpanDriver / 2;
+      minLng -= lngPad;
+      maxLng += lngPad;
+    } else {
+      minLng -= lngPad;
+      maxLng += lngPad;
+    }
+
+    try {
+      await ctrl.animateCamera(
+        gmf.CameraUpdate.newLatLngBounds(
+          gmf.LatLngBounds(
+            southwest: gmf.LatLng(minLat, minLng),
+            northeast: gmf.LatLng(maxLat, maxLng),
+          ),
+          paddingPx,
+        ),
+      );
+    } catch (e) {
+      debugPrint('UGO_HOME: camera bounds failed, zoom fallback: $e');
+      await ctrl.animateCamera(
+        gmf.CameraUpdate.newLatLngZoom(
+          gmf.LatLng((minLat + maxLat) / 2, (minLng + maxLng) / 2),
+          12.0,
+        ),
+      );
+    }
+
+    _lastCameraCenter = latlng.LatLng(
+      (minLat + maxLat) / 2,
+      (minLng + maxLng) / 2,
+    );
+    _lastCameraMoveTime = DateTime.now();
+    _model.googleMapsCenter = _lastCameraCenter;
+  }
+
+  /// Same framing as UGO_USER `AutoBookWidget._fitMapToRideContext`.
+  Future<void> _fitMapToRideContextLikeUser() async {
+    if (!mounted) return;
+
+    final ride = Provider.of<RideState>(context, listen: false).currentRide;
+    final n = _normalizedDriverRideStatus();
+    final pts = <gmf.LatLng>[];
+
+    void addPickup() {
+      if (ride == null) return;
+      if (_isValidMapCoord(ride.pickupLat, ride.pickupLng)) {
+        pts.add(gmf.LatLng(ride.pickupLat, ride.pickupLng));
+      }
+    }
+
+    void addDrop() {
+      if (ride == null) return;
+      if (_isValidMapCoord(ride.dropLat, ride.dropLng)) {
+        pts.add(gmf.LatLng(ride.dropLat, ride.dropLng));
+      }
+    }
+
+    void addDriver() {
+      final d = _controller.currentUserLocation;
+      if (d != null) {
+        pts.add(gmf.LatLng(d.latitude, d.longitude));
+      }
+    }
+
+    if (n == 'SEARCHING' || n == 'IDLE') {
+      addPickup();
+      addDrop();
+    } else if (_isPrePickupPhaseDriver(n)) {
+      addDriver();
+      addPickup();
+    } else if (_isOnTripPhaseDriver(n)) {
+      addPickup();
+      addDrop();
+      addDriver();
+    } else {
+      addPickup();
+      addDrop();
+      addDriver();
+    }
+
+    if (pts.isEmpty) {
+      await _centerMapOnCurrentLocation();
+      return;
+    }
+
+    final bottomInset = MediaQuery.sizeOf(context).height * 0.35;
+    final paddingPx = 72.0 + bottomInset * 0.15;
+    await _driverAnimateCameraToBounds(pts, paddingPx);
+  }
+
+  /// UGO_USER parity: refresh polyline then fit (or center when no active ride).
+  Future<void> _onMapPrimaryActionLikeUser() async {
+    if (!mounted) return;
+    final ride = Provider.of<RideState>(context, listen: false).currentRide;
+    if (ride != null) {
+      try {
+        await _updateRoutePolyline(
+          rr: ride,
+          status: _controller.currentRideStatus,
+        );
+      } catch (e) {
+        debugPrint('UGO_HOME: map primary action polyline: $e');
+      }
+      if (mounted) await _fitMapToRideContextLikeUser();
+      return;
+    }
+    await _centerMapOnCurrentLocation();
   }
 
   Future<void> _updateRoutePolyline({
@@ -1031,17 +1228,12 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
-        final canShowGoOnlineControls = c.canGoOnline || isOnline;
-        final activeRideStatuses = [
-          'ACCEPTED',
-          'ARRIVED',
-          'STARTED',
-          'ONTRIP'
-        ];
-        final currentStatusUpper = c.currentRideStatus.toUpperCase();
-        final isRideLocked = activeRideStatuses.contains(currentStatusUpper);
+        final accountInactive = !c.isAccountActive;
+        final canShowInteractiveToggle =
+            c.isAccountActive && (c.canGoOnline || isOnline);
+        final isRideLocked = c.isActiveRideBlockingOffline;
         // Only hide panels while a ride is actively running.
-        final shouldShowPanels = !activeRideStatuses.contains(currentStatusUpper);
+        final shouldShowPanels = !c.isActiveRideBlockingOffline;
         final showIncentivePanel =
             shouldShowPanels && !_suppressIncentiveForPostRide;
         // Use fallback location when unavailable - avoid blocking home screen
@@ -1088,11 +1280,14 @@ class _HomeWidgetState extends State<HomeWidget>
                   children: [
                     AppHeader(
                       scaffoldKey: scaffoldKey,
-                      switchValue: c.isOnline,
+                      switchValue: accountInactive ? false : c.isOnline,
                       isDataLoaded: c.isDataLoaded,
                       onToggleOnline: () => c.toggleOnlineStatus(),
-                      showOnlineToggle: canShowGoOnlineControls,
+                      showOnlineToggle: canShowInteractiveToggle,
+                      accountInactive: accountInactive,
                       isRideLocked: isRideLocked,
+                      preventGoingOffline:
+                          c.isActiveRideBlockingOffline && isOnline,
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
                       notificationCount: c.notificationUnreadCount,
@@ -1116,10 +1311,7 @@ class _HomeWidgetState extends State<HomeWidget>
                                 mapCenter: c.currentUserLocation,
                                 availableDriversCount: c.availableDriversCount,
                                 showDriversPanel: shouldShowPanels,
-                                onCenterCurrentLocation:
-                                    c.currentUserLocation != null
-                                        ? _centerMapOnCurrentLocation
-                                        : null,
+                                onMapPrimaryAction: _onMapPrimaryActionLikeUser,
                                 // Inject custom driver marker
                                 markers: (c.currentUserLocation != null &&
                                         isOnline)
@@ -1150,8 +1342,10 @@ class _HomeWidgetState extends State<HomeWidget>
                               verificationStatus: c.verificationStatus,
                               rejectionReason: c.verificationRejectionReason,
                               canGoOnline: c.canGoOnline,
+                              accountInactive: accountInactive,
                               documentsIncomplete: c.kycDocStatusFromApi &&
                                   !c.allDocumentsUploaded,
+                              captainDashboard: c.captainDashboardSummary,
                               onGoOnline: () => c.toggleOnlineStatus(),
                               onOpenDocuments: () async {
                                 await Navigator.push<void>(

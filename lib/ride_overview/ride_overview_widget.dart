@@ -2,7 +2,8 @@ import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/backend/api_requests/api_calls.dart' show RideByIdCall;
+import '/backend/api_requests/api_calls.dart'
+    show ApiCallResponse, RideByIdCall, DriverAppHistoryRideCall;
 import '/services/route_polyline_service.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,19 @@ export 'ride_overview_model.dart';
 
 /// Ride Details Overview
 class RideOverviewWidget extends StatefulWidget {
-  const RideOverviewWidget({super.key, this.rideId});
+  const RideOverviewWidget({
+    super.key,
+    this.rideId,
+    this.hideRiderContact = false,
+  });
 
   static String routeName = 'ride_overview';
   static String routePath = '/rideOverview';
   final int? rideId;
+
+  /// When true (e.g. opened from History), rider phone is hidden and the
+  /// header shows a generic label — driver-friendly trip record only.
+  final bool hideRiderContact;
 
   @override
   State<RideOverviewWidget> createState() => _RideOverviewWidgetState();
@@ -64,19 +73,31 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
     });
 
     try {
-      final res = await RideByIdCall.call(
-        token: FFAppState().accessToken,
-        id: rideId,
-      );
+      final ApiCallResponse res;
+      if (widget.hideRiderContact) {
+        res = await DriverAppHistoryRideCall.call(
+          token: FFAppState().accessToken,
+          rideId: rideId,
+        );
+      } else {
+        res = await RideByIdCall.call(
+          token: FFAppState().accessToken,
+          id: rideId,
+        );
+      }
       if (!res.succeeded) {
         setState(() {
-          _error = 'Failed to load ride details';
+          _error = widget.hideRiderContact
+              ? 'Could not load this trip record'
+              : 'Failed to load ride details';
           _isLoading = false;
         });
         return;
       }
 
-      final data = getJsonField(res.jsonBody, r'$.data');
+      final data = widget.hideRiderContact
+          ? DriverAppHistoryRideCall.data(res.jsonBody)
+          : getJsonField(res.jsonBody, r'$.data');
       if (data is Map) {
         _ride = Map<String, dynamic>.from(data);
       } else {
@@ -93,6 +114,19 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
     if (v == null) return null;
     if (v is num) return v.toDouble();
     return double.tryParse(v.toString());
+  }
+
+  static String _paymentLabel(String raw) {
+    switch (raw.toLowerCase()) {
+      case 'cash':
+        return 'Cash';
+      case 'online':
+        return 'Online payment';
+      case 'wallet':
+        return 'Wallet';
+      default:
+        return raw.isNotEmpty ? raw : 'Payment';
+    }
   }
 
   Future<void> _updateRoutePolyline({
@@ -208,12 +242,19 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
   @override
   Widget build(BuildContext context) {
     final ride = _ride ?? <String, dynamic>{};
+    final rideIdVal = _toDouble(ride['id'])?.toInt() ??
+        widget.rideId ??
+        FFAppState().activeRideId;
     final firstName = (ride['first_name'] ?? '').toString().trim();
     final mobile = (ride['mobile_number'] ?? '').toString().trim();
     final status = (ride['ride_status'] ?? '').toString().trim();
     final pickup = (ride['pickup_location_address'] ?? '').toString().trim();
     final drop = (ride['drop_location_address'] ?? '').toString().trim();
-    final fare = _toDouble(ride['estimated_fare']) ?? 0.0;
+    final fare = _toDouble(ride['final_fare']) ??
+        _toDouble(ride['estimated_fare']) ??
+        0.0;
+    final paymentMethod =
+        (ride['payment_method'] ?? ride['paymentMode'] ?? '').toString().trim();
     final distanceKm = _toDouble(ride['ride_distance_km']);
     final otp = (ride['otp'] ?? '').toString().trim();
     final otpVerifiedAt = (ride['otp_verified_at'] ?? '').toString().trim();
@@ -326,9 +367,11 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      firstName.isNotEmpty
-                                          ? firstName
-                                          : 'Passenger',
+                                      widget.hideRiderContact
+                                          ? 'Rider'
+                                          : (firstName.isNotEmpty
+                                              ? firstName
+                                              : 'Passenger'),
                                       style: GoogleFonts.inter(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -336,14 +379,36 @@ class _RideOverviewWidgetState extends State<RideOverviewWidget> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      mobile.isNotEmpty ? mobile : 'No mobile',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: AppColors.greyMedium,
-                                        fontWeight: FontWeight.w500,
+                                    if (widget.hideRiderContact)
+                                      Text(
+                                        'Trip #$rideIdVal',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: AppColors.greyMedium,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      )
+                                    else
+                                      Text(
+                                        mobile.isNotEmpty ? mobile : 'No mobile',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: AppColors.greyMedium,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
+                                    if (widget.hideRiderContact &&
+                                        paymentMethod.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _paymentLabel(paymentMethod),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),

@@ -8,6 +8,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import '/auth/login_timestamp.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'otpverification_model.dart';
 export 'otpverification_model.dart';
@@ -488,6 +489,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
 
         FFAppState().accessToken = LoginCall.accessToken(jsonResponse) ?? '';
         FFAppState().refreshToken = LoginCall.refreshToken(jsonResponse) ?? '';
+        syncDriverRideChatFcmRegistration();
 
         if (mounted) {
           // Before login: Location first, then Notifications.

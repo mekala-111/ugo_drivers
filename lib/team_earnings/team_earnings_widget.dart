@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-
-import 'package:ugo_driver/team_earnings/all_orders_widget.dart';
-import 'package:ugo_driver/team_earnings/last_order_widget.dart';
-import 'package:ugo_driver/constants/app_colors.dart';
+import 'package:ugo_driver/services/team_referral_aggregate.dart';
 import 'package:ugo_driver/team_earnings/view_rate_card_widget.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
 import 'team_earnings_model.dart';
 export 'team_earnings_model.dart';
 
@@ -56,17 +55,24 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   String todaysEarnings = '0';
   bool isLoading = true;
 
-  // Data Variables - Team Earnings
-  String teamEarnings = '0';
-  String pendingToday = '0';
-  String additionalIfMatchedAll = '0';
+  // Data Variables - Team Earnings (Pro referral commission)
+  String teamEarnings = '₹0';
+  String pendingToday = '₹0';
+  String additionalIfMatchedAll = '₹0';
   String totalReferrals = '0';
-  List<dynamic> referredDrivers = [];
+  List<dynamic> _referralsToday = [];
+  List<dynamic> _referralsYesterday = [];
+  Map<String, dynamic>? _dashboardDriver;
+  int _myProRidesToday = 0;
+  String _walletSchedule = 'end_of_day';
   bool isLoadingTeam = true;
+  String? _proReferralCode;
+  List<dynamic> _recentDriverPayouts = [];
+  double _dailyReferralInr = 0;
+  int _dailyMatchedRides = 0;
+  /// When dashboard today/yesterday are empty but Pro roster has drivers.
+  List<Map<String, dynamic>> _rosterFallback = [];
 
-  // Weekly Chart Data
-  List<double> dailyEarningsList = [0, 0, 0, 0, 0, 0, 0];
-  bool isLoadingWeekly = true;
   Timer? _refreshTimer;
 
   @override
@@ -75,7 +81,6 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
     _model = createModel(context, () => TeamEarningsModel());
     _tabController = TabController(length: 2, vsync: this);
     _fetchEarningsData();
-    _fetchWeeklyEarnings();
     _fetchTeamData();
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (mounted) _fetchTeamData();
@@ -126,110 +131,91 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
   Future<void> _fetchTeamData() async {
     setState(() => isLoadingTeam = true);
     try {
-      final dashboardResponse = await ReferralDashboardCall.call(
-        token: FFAppState().accessToken,
-        driverId: FFAppState().driverid,
-      );
-      final earningsResponse = await ReferralEarningsCall.call(
+      final snapshot = await loadTeamReferralSnapshot(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
 
-      if (dashboardResponse.succeeded || earningsResponse.succeeded) {
-        final dashboardBody = dashboardResponse.succeeded
-            ? dashboardResponse.jsonBody
-            : <String, dynamic>{};
-        final earningsBody = earningsResponse.succeeded
-            ? earningsResponse.jsonBody
-            : <String, dynamic>{};
+      final dashboardBody = snapshot.dashboardBody ?? <String, dynamic>{};
+      final earningsBody = snapshot.earningsBody ?? <String, dynamic>{};
 
-        final dashboardReferrals =
-            ReferralDashboardCall.totalReferrals(dashboardBody);
-        final successfulReferrals =
-            ReferralEarningsCall.successfulReferralsCount(earningsBody);
-        final referredCount = (successfulReferrals > 0
-                ? successfulReferrals
-                : dashboardReferrals)
-            .toString();
+      final dashboardReferrals =
+          ReferralDashboardCall.totalReferrals(dashboardBody);
+      final successfulReferrals =
+          ReferralEarningsCall.successfulReferralsCount(earningsBody);
+      final mergedN = snapshot.mergedTeamMembers.length;
+      final proN = snapshot.proMyTotalFromApi;
+      final referredCount = math
+          .max(
+            math.max(dashboardReferrals, successfulReferrals),
+            math.max(mergedN, proN),
+          )
+          .toString();
 
-        final earningsTotal = ReferralEarningsCall.totalEarnings(earningsBody);
-        final lifetimeCommission = earningsTotal > 0
-            ? earningsTotal
-            : ReferralDashboardCall.totalEarnings(dashboardBody);
+      final earningsTotal = ReferralEarningsCall.totalEarnings(earningsBody);
+      final lifetimeCommission = earningsTotal > 0
+          ? earningsTotal
+          : ReferralDashboardCall.totalEarnings(dashboardBody);
 
-        final List<dynamic> dashboardDrivers =
-            ReferralDashboardCall.referrals(dashboardBody);
-        final List<dynamic> earningsDetails =
-            ReferralEarningsCall.referredDetails(earningsBody);
-        final List<dynamic> drivers =
-            dashboardDrivers.isNotEmpty ? dashboardDrivers : earningsDetails;
+      final todayList = snapshot.todayLiveReferrals
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+      snapshot.applyDailyProToRows(todayList);
 
-        setState(() {
-          teamEarnings = '₹$lifetimeCommission';
-          pendingToday =
-              '₹${ReferralDashboardCall.todayPendingCommission(dashboardBody)}';
-          additionalIfMatchedAll =
-              '₹${ReferralDashboardCall.additionalCommissionIfMatchedAll(dashboardBody)}';
-          totalReferrals = referredCount;
-          referredDrivers = drivers;
-          isLoadingTeam = false;
-        });
-      } else {
-        setState(() => isLoadingTeam = false);
-      }
+      final yesterdayList = snapshot.yesterdayReferrals
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+
+      final daily = snapshot.proDailyBody;
+      final dailyInr = _parseAmount(daily?['my_referral_earnings_inr']);
+      final matched = _parseIntAny(daily?['matched_rides_total']);
+
+      setState(() {
+        teamEarnings = '₹$lifetimeCommission';
+        pendingToday =
+            '₹${ReferralDashboardCall.todayPendingCommission(dashboardBody)}';
+        additionalIfMatchedAll =
+            '₹${ReferralDashboardCall.additionalCommissionIfMatchedAll(dashboardBody)}';
+        totalReferrals = referredCount;
+        _referralsToday = todayList;
+        _referralsYesterday = yesterdayList;
+        _dashboardDriver = ReferralDashboardCall.driverInfo(dashboardBody);
+        _myProRidesToday = daily != null
+            ? _parseIntAny(daily['my_pro_rides_today'])
+            : ReferralDashboardCall.todayMyProRides(dashboardBody);
+        _walletSchedule =
+            ReferralDashboardCall.walletCreditSchedule(dashboardBody);
+        _proReferralCode = snapshot.proReferralCode;
+        _recentDriverPayouts = snapshot.proHistoryDriverRows.take(6).toList();
+        _dailyReferralInr = dailyInr;
+        _dailyMatchedRides = matched;
+        if (todayList.isEmpty &&
+            yesterdayList.isEmpty &&
+            snapshot.mergedTeamMembers.isNotEmpty) {
+          _rosterFallback =
+              snapshot.mergedTeamMembers.map((e) => Map<String, dynamic>.from(e)).toList();
+        } else {
+          _rosterFallback = [];
+        }
+        isLoadingTeam = false;
+      });
     } catch (e) {
       debugPrint('Error fetching team data: $e');
       setState(() => isLoadingTeam = false);
     }
   }
 
-  // 3. Fetch Weekly Earnings and Aggregate by Day
-  Future<void> _fetchWeeklyEarnings() async {
-    setState(() => isLoadingWeekly = true);
-    try {
-      final response = await DriverEarningsCall.call(
-        driverId: FFAppState().driverid,
-        token: FFAppState().accessToken,
-        period: 'weekly',
-      );
+  static double _parseAmount(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0;
+  }
 
-      if (response.succeeded) {
-        final rides = DriverEarningsCall.rides(response.jsonBody) ?? [];
-        final List<double> aggregated = [0, 0, 0, 0, 0, 0, 0];
-
-        final now = DateTime.now();
-        final firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        final startOfWeek = DateTime(
-            firstDayOfWeek.year, firstDayOfWeek.month, firstDayOfWeek.day);
-
-        for (var ride in rides) {
-          final createdAtStr = ride['created_at'];
-          if (createdAtStr == null) continue;
-
-          final createdAt = DateTime.tryParse(createdAtStr.toString());
-          if (createdAt == null) continue;
-
-          if (createdAt
-              .isAfter(startOfWeek.subtract(const Duration(seconds: 1)))) {
-            final dayIndex = createdAt.weekday - 1; // 0 for Mon, 6 for Sun
-            if (dayIndex >= 0 && dayIndex < 7) {
-              final fare = (ride['estimated_fare'] ?? 0).toDouble();
-              aggregated[dayIndex] += fare;
-            }
-          }
-        }
-
-        setState(() {
-          dailyEarningsList = aggregated;
-          isLoadingWeekly = false;
-        });
-      } else {
-        setState(() => isLoadingWeekly = false);
-      }
-    } catch (e) {
-      debugPrint('Error fetching weekly earnings: $e');
-      setState(() => isLoadingWeekly = false);
-    }
+  static int _parseIntAny(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? 0;
   }
 
   @override
@@ -249,7 +235,7 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
           child: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
         ),
         title: Text(
-          'Earnings Dashboard',
+          'Earnings',
           style: GoogleFonts.interTight(
             color: Colors.black87,
             fontSize: 18,
@@ -274,8 +260,8 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
               unselectedLabelStyle:
                   GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
               tabs: const [
-                Tab(text: 'All Earnings'),
-                Tab(text: 'Team Earnings'),
+                Tab(text: 'My trips'),
+                Tab(text: 'Pro referrals'),
               ],
             ),
           ),
@@ -347,313 +333,889 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
                   ),
                 ),
 
-          // ── TAB 2: Team / Pro Ride Earnings – redesigned to match provided UI ──
+          // ── TAB 2: Pro referral commission (clear for captains) ─────────────
           isLoadingTeam
-              ? const Center(
-                  child: CircularProgressIndicator(color: Colors.green),
-                )
-              : SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Top total earnings + date (similar to second mockup header)
-                      AnimatedListItem(
-                        index: 0,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              teamEarnings.replaceFirst('₹', ''),
-                              style: GoogleFonts.interTight(
-                                fontSize: 40,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black87,
-                              ),
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              : RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: _fetchTeamData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedListItem(
+                          index: 0,
+                          child: _buildYouProfileCard(brand),
+                        ),
+                        if (_proReferralCode != null &&
+                            _proReferralCode!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          AnimatedListItem(
+                            index: 1,
+                            child: _buildReferralCodeCaptainCard(brand, context),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        AnimatedListItem(
+                          index: 2,
+                          child: _buildTotalCommissionCard(brand),
+                        ),
+                        const SizedBox(height: 12),
+                        AnimatedListItem(
+                          index: 3,
+                          child: _buildTodaySnapshotRow(brand),
+                        ),
+                        if (_dailyReferralInr > 0 || _dailyMatchedRides > 0) ...[
+                          const SizedBox(height: 12),
+                          AnimatedListItem(
+                            index: 4,
+                            child: _buildProDailyV2Card(brand),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        AnimatedListItem(
+                          index: 5,
+                          child: _buildExplainBox(),
+                        ),
+                        if (_recentDriverPayouts.isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          AnimatedListItem(
+                            index: 6,
+                            child: _buildRecentPayoutsCard(brand),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        Text(
+                          'Friends you referred — Pro rides only',
+                          style: GoogleFonts.interTight(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'We only count Pro bookings. Commission is ₹10 per matched Pro ride (you and your friend both complete Pro trips the same day).',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            height: 1.35,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        if (_referralsToday.isEmpty &&
+                            _referralsYesterday.isEmpty &&
+                            _rosterFallback.isEmpty)
+                          _buildEmptyReferrals()
+                        else if (_referralsToday.isEmpty &&
+                            _referralsYesterday.isEmpty &&
+                            _rosterFallback.isNotEmpty) ...[
+                          Text(
+                            'Your invited team',
+                            style: GoogleFonts.interTight(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black87,
                             ),
-                            const SizedBox(height: 4),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Live Pro stats will appear here once the dashboard syncs. These captains joined with your code.',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              height: 1.35,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ..._rosterFallback.asMap().entries.map(
+                                (e) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: AnimatedListItem(
+                                    index: 30 + e.key,
+                                    child: _buildFriendReferralCard(
+                                      e.value,
+                                      yesterday: true,
+                                      brand: brand,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                        ]
+                        else ...[
+                          if (_referralsToday.isNotEmpty) ...[
                             Text(
-                              DateFormat('dd-MM-yy EEEE')
-                                  .format(DateTime.now()),
+                              'Today',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: brand,
+                                letterSpacing: 0.3,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.calendar_today_rounded,
-                                      size: 14, color: Colors.orange),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Daily',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.orange,
+                            const SizedBox(height: 8),
+                            ..._referralsToday.asMap().entries.map(
+                                  (e) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: AnimatedListItem(
+                                      index: 8 + e.key,
+                                      child: _buildFriendReferralCard(
+                                        Map<String, dynamic>.from(
+                                          e.value as Map,
+                                        ),
+                                        yesterday: false,
+                                        brand: brand,
+                                      ),
                                     ),
                                   ),
-                                  const Icon(Icons.arrow_drop_down_rounded,
-                                      color: Colors.orange, size: 18),
-                                ],
-                              ),
-                            ),
+                                ),
                           ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Simple sparkline-style earnings chart using weekly data
-                      AnimatedListItem(
-                        index: 1,
-                        child: Container(
-                          height: 140,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              )
-                            ],
-                          ),
-                          child: CustomPaint(
-                            painter: _EarningsLineChartPainter(
-                              data: dailyEarningsList,
-                              lineColor: Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Table header: Total earnings for team, rides count
-                      AnimatedListItem(
-                        index: 2,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'My Team',
-                                  style: GoogleFonts.interTight(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Total riders $totalReferrals',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Pending today',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                                Text(
-                                  pendingToday,
-                                  style: GoogleFonts.interTight(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.green.shade600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Data table matching the "s/no – name – vehicle – yesterday – today" UI
-                      AnimatedListItem(
-                        index: 3,
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
+                          if (_referralsYesterday.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Yesterday (already settled)',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade700,
+                                letterSpacing: 0.3,
                               ),
-                            ],
-                          ),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              headingRowColor:
-                                  WidgetStateProperty.all(Colors.grey[100]),
-                              columnSpacing: 18,
-                              columns: [
-                                DataColumn(
-                                  label: Text(
-                                    's/no',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'Names',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'Vehicle no',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'Yesterday',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'Today',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              rows: referredDrivers.asMap().entries.map((e) {
-                                final index = e.key;
-                                final driver =
-                                    e.value as Map<String, dynamic>;
-
-                                final name = (driver['name'] ??
-                                        driver['referred_name'] ??
-                                        'Unknown')
-                                    .toString();
-                                final vehicleNo =
-                                    (driver['vehicle_number'] ?? '—')
-                                        .toString();
-
-                                // We do not yet have explicit per‑day fields per driver from backend.
-                                // As a reasonable approximation:
-                                //  - "Today" uses pro_rides_completed
-                                //  - "Yesterday" uses normal_rides_completed
-                                final todayPro =
-                                    (driver['pro_rides_completed'] as num?)
-                                            ?.toInt() ??
-                                        0;
-                                final yesterdayNormal =
-                                    (driver['normal_rides_completed'] as num?)
-                                            ?.toInt() ??
-                                        0;
-
-                                return DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Text(
-                                        '${index + 1}',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.account_circle,
-                                              size: 18,
-                                              color: Colors.grey),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            name,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        vehicleNo,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        '$yesterdayNormal',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        '$todayPro',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
+                            const SizedBox(height: 8),
+                            ..._referralsYesterday.asMap().entries.map(
+                                  (e) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: AnimatedListItem(
+                                      index: 20 + e.key,
+                                      child: _buildFriendReferralCard(
+                                        Map<String, dynamic>.from(
+                                          e.value as Map,
+                                        ),
+                                        yesterday: true,
+                                        brand: brand,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          ],
+                        ],
+                      ],
+                    ),
                   ),
                 ),
         ],
       ),
+    );
+  }
+
+  String _driverDisplayName() {
+    final n = _dashboardDriver?['name']?.toString().trim();
+    if (n != null && n.isNotEmpty && n != 'null') return n;
+    final f = FFAppState().firstName.trim();
+    final l = FFAppState().lastName.trim();
+    final joined = '$f $l'.trim();
+    return joined.isEmpty ? 'Captain' : joined;
+  }
+
+  String _formatMobile() {
+    final m = FFAppState().mobileNo;
+    if (m <= 0) return '';
+    return m.toString();
+  }
+
+  double _readNum(Map<String, dynamic> m, List<String> keys) {
+    for (final k in keys) {
+      final v = m[k];
+      if (v == null) continue;
+      final n = num.tryParse(v.toString());
+      if (n != null) return n.toDouble();
+    }
+    return 0;
+  }
+
+  Widget _buildYouProfileCard(Color brand) {
+    final initial = _driverDisplayName().isNotEmpty
+        ? _driverDisplayName().substring(0, 1).toUpperCase()
+        : '?';
+    final referredBy = _dashboardDriver?['referred_by'];
+    String? referredByName;
+    if (referredBy is Map) {
+      referredByName = referredBy['name']?.toString();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: brand.withValues(alpha: 0.15),
+            child: Text(
+              initial,
+              style: GoogleFonts.interTight(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: brand,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'You',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _driverDisplayName(),
+                  style: GoogleFonts.interTight(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (_formatMobile().isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatMobile(),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+                if (referredByName != null &&
+                    referredByName.trim().isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.waving_hand_rounded,
+                            size: 16, color: Colors.green.shade700),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'You were referred by $referredByName',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green.shade900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalCommissionCard(Color brand) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [brand, brand.withValues(alpha: 0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: brand.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.groups_rounded,
+                  color: Colors.white.withValues(alpha: 0.9), size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Total referral commission earned',
+                  style: GoogleFonts.inter(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            teamEarnings,
+            style: GoogleFonts.interTight(
+              color: Colors.white,
+              fontSize: 38,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This is all Pro-referral money credited to you from friends’ matched Pro rides (paid after daily calculation).',
+            style: GoogleFonts.inter(
+              color: Colors.white.withValues(alpha: 0.88),
+              fontSize: 12.5,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTodaySnapshotRow(Color brand) {
+    return Row(
+      children: [
+        Expanded(
+          child: _snapshotTile(
+            icon: Icons.electric_moped_rounded,
+            label: 'Your Pro rides today',
+            value: '$_myProRidesToday',
+            sub: 'You need Pro trips to “match” friends',
+            color: brand,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _snapshotTile(
+            icon: Icons.people_outline_rounded,
+            label: 'Friends referred',
+            value: totalReferrals,
+            sub: 'Active in your team',
+            color: const Color(0xFF5C6BC0),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _snapshotTile({
+    required IconData icon,
+    required String label,
+    required String value,
+    required String sub,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: GoogleFonts.interTight(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            sub,
+            style: GoogleFonts.inter(fontSize: 10.5, color: Colors.grey.shade500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExplainBox() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.orange.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lightbulb_outline_rounded,
+                  color: Colors.orange.shade800, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Pending today',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  color: Colors.orange.shade900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$pendingToday — estimated commission if today’s Pro rides stay matched. '
+            'Extra if you catch up: $additionalIfMatchedAll.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              height: 1.35,
+              color: Colors.brown.shade800,
+            ),
+          ),
+          if (_walletSchedule.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              _walletSchedule == 'end_of_day'
+                  ? 'Wallet credit: usually at end of day after we match rides.'
+                  : 'Wallet credit: $_walletSchedule',
+              style: GoogleFonts.inter(
+                fontSize: 11.5,
+                color: Colors.brown.shade700,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReferralCodeCaptainCard(Color brand, BuildContext context) {
+    final code = _proReferralCode!.trim();
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      elevation: 1,
+      shadowColor: Colors.black26,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.qr_code_2_rounded, color: brand, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Your captain invite code',
+                    style: GoogleFonts.interTight(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SelectableText(
+              code,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: brand,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              children: [
+                FilledButton.tonal(
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: code));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Code copied')),
+                      );
+                    }
+                  },
+                  child: const Text('Copy code'),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      context.pushNamed(ProReferralMyWidget.routeName),
+                  child: Text(
+                    'Open referral hub',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: brand,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProDailyV2Card(Color brand) {
+    final rupees = _dailyReferralInr % 1 == 0
+        ? _dailyReferralInr.toInt().toString()
+        : _dailyReferralInr.toStringAsFixed(2);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8EAF6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.indigo.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.bolt_rounded, color: Colors.indigo.shade700, size: 22),
+              const SizedBox(width: 8),
+              Text(
+                'Today · live Pro referral',
+                style: GoogleFonts.interTight(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  color: Colors.indigo.shade900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Matched rides today: $_dailyMatchedRides',
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Your referral earnings (today’s calc): ₹$rupees',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              height: 1.35,
+              color: Colors.indigo.shade900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _shortPayoutDate(dynamic raw) {
+    final s = raw?.toString() ?? '';
+    final d = DateTime.tryParse(s);
+    if (d != null) {
+      final l = d.toLocal();
+      return '${l.day}/${l.month} ${l.hour}:${l.minute.toString().padLeft(2, '0')}';
+    }
+    return s.length > 20 ? '${s.substring(0, 20)}…' : s;
+  }
+
+  Widget _buildRecentPayoutsCard(Color brand) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.payments_rounded, color: brand, size: 22),
+              const SizedBox(width: 8),
+              Text(
+                'Recent referral credits',
+                style: GoogleFonts.interTight(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ..._recentDriverPayouts.take(5).map((raw) {
+            if (raw is! Map) return const SizedBox.shrink();
+            final m = Map<String, dynamic>.from(raw);
+            final amt = _parseAmount(
+                m['amount'] ?? m['driver_reward_amount'] ?? m['reward_amount']);
+            final rupees =
+                amt % 1 == 0 ? amt.toInt().toString() : amt.toStringAsFixed(2);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _shortPayoutDate(m['created_at']),
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '₹$rupees',
+                    style: GoogleFonts.interTight(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyReferrals() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.person_add_alt_1_rounded,
+              size: 40, color: Colors.grey.shade400),
+          const SizedBox(height: 12),
+          Text(
+            'No referred captains yet',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.interTight(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Share your referral code from Refer & earn. When friends join and drive Pro rides, their Pro trip counts show here and you earn commission on matched days.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              height: 1.4,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFriendReferralCard(
+    Map<String, dynamic> row, {
+    required bool yesterday,
+    required Color brand,
+  }) {
+    final name =
+        (row['name'] ?? row['referred_name'] ?? 'Friend').toString();
+    final vehicle = (row['vehicle_number'] ?? '—').toString();
+    final proOnly =
+        _readNum(row, ['pro_rides_completed']).round();
+    final commission = yesterday
+        ? _readNum(row, ['commission_earned'])
+        : _readNum(row, ['commission_earned', 'commission_earned_by_72']);
+    final perRide = _readNum(row, ['amount_per_pro_ride']);
+    final matched = _readNum(row, ['matched_rides_now']).round();
+    final needMore = _readNum(row, ['additional_rides_needed_to_match']).round();
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: brand.withValues(alpha: 0.12),
+                child: Icon(Icons.person_rounded, color: brand, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.interTight(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      vehicle == 'null' || vehicle.isEmpty ? 'Vehicle —' : vehicle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _miniStat(
+                  'Their Pro rides',
+                  '$proOnly',
+                  subtitle: yesterday ? '(that day)' : '(today)',
+                ),
+              ),
+              Expanded(
+                child: _miniStat(
+                  'Your commission',
+                  '₹${commission % 1 == 0 ? commission.toInt().toString() : commission.toStringAsFixed(2)}',
+                  subtitle: yesterday ? 'Paid to wallet' : 'If matched today',
+                ),
+              ),
+            ],
+          ),
+          if (!yesterday && (matched > 0 || needMore > 0 || perRide > 0)) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                needMore > 0
+                    ? 'You need $needMore more Pro ride${needMore == 1 ? '' : 's'} today to match their $proOnly and unlock up to ₹${(needMore * (perRide > 0 ? perRide : 10)).toStringAsFixed(0)} more.'
+                    : 'Matched $matched Pro ride${matched == 1 ? '' : 's'} today — commission uses ₹${perRide > 0 ? perRide.toStringAsFixed(0) : '10'} per match.',
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  height: 1.35,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _miniStat(String label, String value, {required String subtitle}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.interTight(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade500),
+        ),
+      ],
     );
   }
 
@@ -708,26 +1270,6 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTeamStat(
-      String label, String value, IconData icon, Color iconColor) {
-    return Column(
-      children: [
-        Icon(icon, color: iconColor.withValues(alpha: 0.7), size: 22),
-        const SizedBox(height: 6),
-        Text(value,
-            style: GoogleFonts.interTight(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87)),
-        Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.grey.shade500,
-                fontWeight: FontWeight.w500)),
-      ],
     );
   }
 
@@ -793,60 +1335,5 @@ class _TeamEarningsWidgetState extends State<TeamEarningsWidget>
         ),
       ),
     );
-  }
-}
-
-/// Lightweight sparkline‑style chart painter for weekly earnings.
-class _EarningsLineChartPainter extends CustomPainter {
-  _EarningsLineChartPainter({
-    required this.data,
-    required this.lineColor,
-  });
-
-  final List<double> data;
-  final Color lineColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (data.isEmpty || data.every((v) => v == 0)) {
-      final paint = Paint()
-        ..color = Colors.grey.withValues(alpha: 0.3)
-        ..strokeWidth = 2
-        ..style = PaintingStyle.stroke;
-      final path = Path()
-        ..moveTo(0, size.height * 0.6)
-        ..lineTo(size.width, size.height * 0.6);
-      canvas.drawPath(path, paint);
-      return;
-    }
-
-    final maxVal = data.reduce((a, b) => a > b ? a : b);
-    final minVal = data.reduce((a, b) => a < b ? a : b);
-    final range = (maxVal - minVal).abs() < 1 ? 1.0 : (maxVal - minVal);
-
-    final dx = data.length == 1 ? size.width : size.width / (data.length - 1);
-
-    final path = Path();
-    for (var i = 0; i < data.length; i++) {
-      final x = dx * i;
-      final normalized = (data[i] - minVal) / range;
-      final y = size.height - (normalized * (size.height * 0.7)) - 10;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    final paint = Paint()
-      ..color = lineColor
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _EarningsLineChartPainter oldDelegate) {
-    return oldDelegate.data != data || oldDelegate.lineColor != lineColor;
   }
 }

@@ -2,6 +2,8 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/constants/app_colors.dart';
+import '/services/team_referral_aggregate.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'teamrides_model.dart';
@@ -78,9 +80,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
             },
           ),
           title: Text(
-            FFLocalizations.of(context).getText(
-              'xfnx6i08' /* My Team */,
-            ),
+            'Team Pro rides',
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   font: GoogleFonts.interTight(
                     fontWeight:
@@ -104,20 +104,37 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
         body: SafeArea(
           top: true,
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary))
               : Column(
                   children: [
                     _buildSummary(),
                     Expanded(
-                      child: _rows.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 10, 16, 24),
-                              itemCount: _rows.length,
-                              itemBuilder: (context, index) =>
-                                  _buildReferralTile(_rows[index]),
-                            ),
+                      child: RefreshIndicator(
+                        color: AppColors.primary,
+                        onRefresh: _loadTeamRides,
+                        child: _rows.isEmpty
+                            ? ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(
+                                    height: MediaQuery.sizeOf(context).height *
+                                        0.15,
+                                  ),
+                                  _buildEmptyState(),
+                                ],
+                              )
+                            : ListView.builder(
+                                physics: const AlwaysScrollableScrollPhysics(
+                                  parent: BouncingScrollPhysics(),
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                    16, 10, 16, 24),
+                                itemCount: _rows.length,
+                                itemBuilder: (context, index) =>
+                                    _buildReferralTile(_rows[index]),
+                              ),
+                      ),
                     ),
                   ],
                 ),
@@ -129,22 +146,18 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
   Future<void> _loadTeamRides() async {
     setState(() => _isLoading = true);
     try {
-      final dashboardRes = await ReferralDashboardCall.call(
-        token: FFAppState().accessToken,
-        driverId: FFAppState().driverid,
-      );
-      final earningsRes = await ReferralEarningsCall.call(
+      final snapshot = await loadTeamReferralSnapshot(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
 
-      if (!dashboardRes.succeeded && !earningsRes.succeeded) {
+      final dash = snapshot.dashboardBody ?? <String, dynamic>{};
+      final earn = snapshot.earningsBody ?? <String, dynamic>{};
+
+      if (dash.isEmpty && earn.isEmpty && snapshot.mergedTeamMembers.isEmpty) {
         if (mounted) setState(() => _isLoading = false);
         return;
       }
-
-      final dash = dashboardRes.jsonBody ?? {};
-      final earn = earningsRes.jsonBody ?? {};
 
       final driverObj = dash['driver'] as Map<String, dynamic>? ?? {};
       final referredByObj =
@@ -157,12 +170,14 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
               as Map<String, dynamic>?) ??
           {};
 
-      final List<dynamic> todayRefs =
-          (dash['today_live']?['referrals'] as List?) ?? [];
+      var todayRefs = snapshot.todayLiveReferrals
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+      snapshot.applyDailyProToRows(todayRefs);
+
       final List<dynamic> ydayRefs =
           (dash['yesterday_statistics']?['referrals'] as List?) ?? [];
 
-      // Map yesterday stats by driver_id for quick lookup
       final Map<int, Map<String, dynamic>> ydayById = {};
       for (final item in ydayRefs) {
         final m = (item as Map).cast<String, dynamic>();
@@ -170,39 +185,41 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
         if (id != null) ydayById[id] = m;
       }
 
-      // TL row (first row in table)
-      final int tlTodayPro =
+      int tlTodayPro =
           (myTodayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
+      if (tlTodayPro == 0 && snapshot.proDailyBody != null) {
+        tlTodayPro = (snapshot.proDailyBody!['my_pro_rides_today'] as num?)
+                ?.toInt() ??
+            0;
+      }
       final int tlYdayPro =
           (myYdayPerf['pro_rides_completed'] as num?)?.toInt() ?? 0;
 
       final List<Map<String, dynamic>> rows = [];
       rows.add({
         'is_tl': true,
-        'name': driverObj['name']?.toString() ?? 'You',
+        'name': driverObj['name']?.toString().trim().isNotEmpty == true
+            ? driverObj['name'].toString()
+            : 'You (captain)',
         'vehicle_number': null,
         'yesterday': tlYdayPro,
         'today': tlTodayPro,
         'commission': 0,
       });
 
-      const int perRideCommission = 10;
-
-      // Member rows
-      for (final item in todayRefs) {
-        final m = (item as Map).cast<String, dynamic>();
+      for (final m in todayRefs) {
         final id = (m['driver_id'] as num?)?.toInt();
         final yday = id != null ? ydayById[id] : null;
         final int todayPro =
             (m['pro_rides_completed'] as num?)?.toInt() ?? 0;
         final int ydayPro =
             (yday?['pro_rides_completed'] as num?)?.toInt() ?? 0;
-        // Commission display: each PRO ride gives ₹10
-        final double commission = todayPro * perRideCommission.toDouble();
+        final perRide = (m['amount_per_pro_ride'] as num?)?.toDouble() ?? 10.0;
+        final double commission = todayPro * perRide;
 
         rows.add({
           'is_tl': false,
-          'name': (m['name'] ?? m['referred_name'] ?? 'Unknown').toString(),
+          'name': (m['name'] ?? m['referred_name'] ?? 'Captain').toString(),
           'vehicle_number': m['vehicle_number']?.toString(),
           'yesterday': ydayPro,
           'today': todayPro,
@@ -210,15 +227,24 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
         });
       }
 
-      final int teamSize =
+      final mergedN = snapshot.mergedTeamMembers.length;
+      final dashCount =
           (driverObj['referred_driver_count'] as num?)?.toInt() ?? 0;
+      var teamSize = dashCount;
+      if (mergedN > teamSize) teamSize = mergedN;
+      final memberRows = rows.length - 1;
+      if (memberRows > teamSize) teamSize = memberRows;
+
       final int totalTeamToday =
           rows.fold<int>(0, (sum, e) => sum + (e['today'] as int));
       final int totalTeamYesterday =
           rows.fold<int>(0, (sum, e) => sum + (e['yesterday'] as int));
 
+      final earnTotal = ReferralEarningsCall.totalEarnings(earn);
+      final lifetimeDash =
+          ReferralDashboardCall.totalEarnings(dash);
       final int earningsTotal =
-          ReferralEarningsCall.totalEarnings(earn); // team commission
+          earnTotal > 0 ? earnTotal : lifetimeDash;
 
       if (!mounted) return;
       setState(() {
@@ -274,7 +300,7 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
             children: [
               Expanded(
                 child: _statCard(
-                  label: 'Total rides',
+                  label: 'Pro rides (today · all)',
                   value: '$_totalProRidesToday',
                   icon: Icons.directions_car_filled_rounded,
                 ),
@@ -282,12 +308,21 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: _statCard(
-                  label: 'Total earnings',
+                  label: 'Referral earnings',
                   value: _totalTeamEarnings,
                   icon: Icons.account_balance_wallet_rounded,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Captains on your team: $_teamSize  ·  Pro rides yesterday (sum): $_totalProRidesYesterday',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: FlutterFlowTheme.of(context).secondaryText,
+            ),
           ),
         ],
       ),
@@ -424,10 +459,4 @@ class _TeamridesWidgetState extends State<TeamridesWidget> {
     );
   }
 
-  String _formatDate(String? iso) {
-    if (iso == null || iso.isEmpty) return '-';
-    final parsed = DateTime.tryParse(iso);
-    if (parsed == null) return iso;
-    return DateFormat('dd MMM yyyy, h:mm a').format(parsed.toLocal());
-  }
 }

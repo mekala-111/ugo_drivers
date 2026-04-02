@@ -12,6 +12,8 @@ class AppHeader extends StatelessWidget {
     required this.isDataLoaded,
     required this.onToggleOnline,
     this.showOnlineToggle = true,
+    this.accountInactive = false,
+    this.preventGoingOffline = false,
     required this.screenWidth,
     required this.isSmallScreen,
     this.balance,
@@ -26,6 +28,10 @@ class AppHeader extends StatelessWidget {
   final bool isDataLoaded;
   final VoidCallback onToggleOnline;
   final bool showOnlineToggle;
+  /// Admin disabled driver (`is_active: false`) — show label, not an ON switch.
+  final bool accountInactive;
+  /// While on an active ride, keep the online switch on (cannot slide off).
+  final bool preventGoingOffline;
   final double screenWidth;
   final bool isSmallScreen;
   final double? balance;
@@ -66,11 +72,30 @@ class AppHeader extends StatelessWidget {
                 )
               else
                 const SizedBox(width: minTap, height: minTap),
-              if (showOnlineToggle)
+              if (accountInactive)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    FFLocalizations.of(context).getText('drv_header_inactive'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                )
+              else if (showOnlineToggle)
                 OnlineToggle(
                   switchValue: switchValue,
                   isDataLoaded: isDataLoaded,
                   onToggle: isRideLocked ? () {} : onToggleOnline,
+                  blockGoingOffline: preventGoingOffline,
                 )
               else
                 Container(

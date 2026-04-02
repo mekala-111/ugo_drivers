@@ -241,46 +241,6 @@ class StartRideCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '₹${ride.estimatedFare?.toInt() ?? 0}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: ride.paymentMode.isCash
-                                          ? Colors.green.shade50
-                                          : Colors.blue.shade50,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: ride.paymentMode.isCash
-                                            ? Colors.green.shade200
-                                            : Colors.blue.shade200,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      ride.rawPaymentMode.toUpperCase(),
-                                      style: TextStyle(
-                                        color: ride.paymentMode.isCash
-                                            ? Colors.green.shade700
-                                            : Colors.blue.shade700,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                           const SizedBox(height: 16),

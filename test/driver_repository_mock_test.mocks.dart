@@ -264,4 +264,29 @@ class MockDriverRepositoryInterface extends _i1.Mock
           ),
         )),
       ) as _i4.Future<_i2.ApiCallResponse>);
+
+  @override
+  _i4.Future<_i2.ApiCallResponse> fetchAppDashboard({
+    required String? token,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #fetchAppDashboard,
+          [],
+          {
+            #token: token,
+          },
+        ),
+        returnValue:
+            _i4.Future<_i2.ApiCallResponse>.value(_FakeApiCallResponse_0(
+          this,
+          Invocation.method(
+            #fetchAppDashboard,
+            [],
+            {
+              #token: token,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.ApiCallResponse>);
 }

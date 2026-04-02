@@ -32,13 +32,33 @@ class InputValidators {
     return digits.length == 12;
   }
 
-  /// Indian Driving License: XX00 00000000000 (15 chars)
+  /// Strips separators for storage/API checks (Sarathi / Parivahan style).
+  static String normalizeDrivingLicense(String value) {
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll(RegExp(r'[\s\-\.\/]'), '');
+  }
+
+  /// Indian driving licence — Sarathi/Parivahan (2-letter state + digits) plus
+  /// legacy prefixes seen on TG/AP smart cards (e.g. DLFAP0222632005 — 5 letters + 10 digits).
+  ///
+  /// After normalization: length 13–18, ASCII A–Z and digits only.
   static bool isValidLicense(String? value) {
     if (value == null || value.isEmpty) return false;
-    final cleaned = value.trim().toUpperCase().replaceAll(' ', '');
-    return RegExp(r'^[A-Z]{2}[0-9]{2}[0-9]{11}$').hasMatch(cleaned) &&
-        cleaned.length == 15;
+    final s = normalizeDrivingLicense(value);
+    if (s.length < 13 || s.length > 18) return false;
+    if (RegExp(r'^[A-Z]{2}\d{11,16}$').hasMatch(s)) return true;
+    if (RegExp(r'^[A-Z]{3,5}\d{10,12}$').hasMatch(s)) return true;
+    return false;
   }
+
+  /// Contiguous DL string for the text field (no spaces; separators stripped).
+  static String formatDrivingLicenseForDisplay(String normalized) =>
+      normalizeDrivingLicense(normalized);
+
+  static String get licenseInvalidFormatMessage =>
+      'Invalid format (e.g. TS022018001234 or legacy DLFAP0222632005)';
 
   /// License expiry: YYYY-MM-DD or DD/MM/YYYY, must not be in past
   static bool isValidLicenseExpiry(String? value) {
@@ -96,10 +116,10 @@ class InputValidators {
       isValidAadhaar(value) ? null : 'Enter valid 12-digit Aadhaar number';
 
   static String? licenseError(String? value) {
-    if (value == null || value.isEmpty) return 'License number is required';
-    if (!isValidLicense(value)) {
-      return 'Invalid format (e.g. KA01 20200001234)';
+    if (value == null || value.trim().isEmpty) {
+      return 'License number is required';
     }
+    if (!isValidLicense(value)) return licenseInvalidFormatMessage;
     return null;
   }
 

@@ -104,3 +104,5 @@ export '/vehicle_image/vehicle_image_update.dart' show VehicleImageUpdateWidget;
 
 export '/registration_image/registration_image_update.dart'
     show RegistrationUpdateWidget;
+
+export '/pro_referral/pro_referral_my_widget.dart' show ProReferralMyWidget;

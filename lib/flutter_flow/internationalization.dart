@@ -911,14 +911,17 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'te': 'దయచేసి లైసెన్స్ నంబర్ నమోదు చేయండి',
     },
     'dl0028': {
-      'en': 'Invalid license format (e.g., KA0120200001234)',
-      'hi': 'अमान्य लाइसेंस फॉर्मेट (उदा., KA0120200001234)',
-      'te': 'చెల్లని లైసెన్స్ ఫార్మాట్ (ఉదా., KA0120200001234)',
+      'en':
+          'Invalid format — no spaces (e.g. TS022018001234 or DLFAP0222632005)',
+      'hi':
+          'अमान्य फॉर्मेट — बिना स्पेस (उदा. TS022018001234 या DLFAP0222632005)',
+      'te':
+          'చెల్లని ఫార్మాట్ — ఖాళీలు వద్దు (ఉదా. TS022018001234 లేదా DLFAP0222632005)',
     },
     'dl0029': {
-      'en': 'License must be 15 characters',
-      'hi': 'लाइसेंस 15 अक्षरों का होना चाहिए',
-      'te': 'లైసెన్స్ 15 అక్షరాలు ఉండాలి',
+      'en': 'License number length or format is not valid',
+      'hi': 'लाइसेंस नंबर की लंबाई या फॉर्मेट मान्य नहीं',
+      'te': 'లైసెన్స్ నంబర్ పొడవు లేదా ఫార్మాట్ చెల్లదు',
     },
   },
   // aadhaar_upload
@@ -6124,6 +6127,19 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'आप वर्तमान में ऑफलाइन हैं',
       'te': 'మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు'
     },
+    'drv_header_inactive': {
+      'en': 'INACTIVE',
+      'hi': 'निष्क्रिय',
+      'te': 'నిష్క్రియం'
+    },
+    'drv_account_inactive': {
+      'en':
+          'Your account is inactive. Contact support when your profile is enabled.',
+      'hi':
+          'आपका खाता निष्क्रिय है। प्रोफ़ाइल सक्षम होने पर सहायता से संपर्क करें।',
+      'te':
+          'మీ ఖాతా నిష్క్రియంగా ఉంది. ప్రొఫైల్ ప్రారంభించబడిన తర్వాత సపోర్ట్‌ను సంప్రదించండి.',
+    },
     'drv_go_online': {
       'en': 'GO ONLINE',
       'hi': 'ऑनलाइन जाएं',
@@ -6336,6 +6352,59 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'Total Fare',
       'hi': 'कुल किराया',
       'te': 'మొత్తం ఛార్జీ'
+    },
+    'drv_settlement_title': {
+      'en': 'Your trip settlement',
+      'hi': 'आपकी यात्रा निपटान',
+      'te': 'మీ ప్రయాణ నివృత్తి'
+    },
+    'drv_rider_paid_total': {
+      'en': 'Rider paid (invoice)',
+      'hi': 'यात्री ने भुगतान (चालान)',
+      'te': 'రైడర్ చెల్లింపు (ఇన్వాయిస్)'
+    },
+    'drv_net_wallet_credit': {
+      'en': 'Net in-app wallet credit',
+      'hi': 'नेट इन-ऐप वॉलेट क्रेडिट',
+      'te': 'నికర ఇన్-యాప్ వాలెట్ క్రెడిట్'
+    },
+    'drv_settlement_loading': {
+      'en': 'Loading settlement details…',
+      'hi': 'निपटान विवरण लोड हो रहा है…',
+      'te': 'నివృత్తి వివరాలు లోడ్ అవుతున్నాయి…'
+    },
+    'drv_settlement_note': {
+      'en':
+          'Referral and platform fees apply only to your wallet — they are not deducted from the rider’s fare.',
+      'hi':
+          'रेफरल और प्लेटफॉर्म शुल्क केवल आपके वॉलेट पर लागू होते हैं — यात्री के किराए से नहीं काटे जाते।',
+      'te':
+          'రిఫరల్ మరియు ప్లాట్‌ఫారమ్ ఫీజులు మీ వాలెట్‌కే వర్తిస్తాయి — రైడర్ ఛార్జీ నుండి తీసివేయబడవు.'
+    },
+    'drv_ledger_ride_earning': {
+      'en': 'Trip gross',
+      'hi': 'यात्रा कुल',
+      'te': 'ప్రయాణ మొత్తం'
+    },
+    'drv_ledger_platform': {
+      'en': 'Platform fee',
+      'hi': 'प्लेटफॉर्म शुल्क',
+      'te': 'ప్లాట్‌ఫారమ్ ఫీజు'
+    },
+    'drv_ledger_referral_deduction': {
+      'en': 'Driver referral',
+      'hi': 'ड्राइवर रेफरल',
+      'te': 'డ్రైవర్ రిఫరల్'
+    },
+    'drv_ledger_referral_reward': {
+      'en': 'Referral reward',
+      'hi': 'रेफरल इनाम',
+      'te': 'రిఫరల్ రివార్డ్'
+    },
+    'drv_ledger_adjustment': {
+      'en': 'Adjustment',
+      'hi': 'समायोजन',
+      'te': 'సర్దుబాటు'
     },
     'drv_submit': {'en': 'Submit', 'hi': 'जमा करें', 'te': 'సమర్పించండి'},
     'drv_skip': {'en': 'Skip', 'hi': 'छोड़ें', 'te': 'దాటవేయి'},

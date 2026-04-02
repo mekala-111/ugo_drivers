@@ -1432,8 +1432,13 @@ class FFAppState extends ChangeNotifier {
     _activeRideId = 0;
     _activeRideStatus = '';
     _sessionDeclinedRideIds.clear();
+    pendingRideIdFromNotification = 0;
+    notificationUnreadCount = 0;
     _kycStatus = '';
     _isonline = false;
+
+    // Push token in memory (prefs cleared above; avoid stale token until login sets it again)
+    _fcmToken = '';
 
     // 🔥 Profile
     _profilePhotoUrl = '';

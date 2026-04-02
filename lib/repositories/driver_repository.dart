@@ -47,6 +47,7 @@ abstract class DriverRepositoryInterface {
     required String token,
     required int driverId,
   });
+  Future<ApiCallResponse> fetchAppDashboard({required String token});
 }
 
 /// Repository layer for driver-related API calls.
@@ -151,4 +152,8 @@ class DriverRepository implements DriverRepositoryInterface {
     required int driverId,
   }) =>
       DriverRideHistoryCall.call(token: token, id: driverId);
+
+  @override
+  Future<ApiCallResponse> fetchAppDashboard({required String token}) =>
+      DriverAppDashboardCall.call(token: token);
 }

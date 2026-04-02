@@ -173,6 +173,106 @@ class DriverLinkReferralCall {
   static dynamic data(dynamic response) => getJsonField(response, r'$.data');
 }
 
+/// Pro driver referrals (V2)
+class DriverProReferralMyCall {
+  static Future<ApiCallResponse> call({required String token}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverProReferralMy',
+      apiUrl: '$_baseUrl/api/drivers/referral/my-referrals',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static List<dynamic> referrals(dynamic response) =>
+      (getJsonField(response, r'$.data.referrals', true) as List?) ?? [];
+
+  static String? referralCode(dynamic response) =>
+      castToType<String>(getJsonField(response, r'$.data.referral_code'));
+
+  static int totalReferrals(dynamic response) =>
+      castToType<int>(getJsonField(response, r'$.data.total_referrals')) ?? 0;
+}
+
+class DriverProReferralDailyEarningsCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    String? date,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverProReferralDaily',
+      apiUrl: '$_baseUrl/api/drivers/referral/daily-earnings',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {if (date != null && date.isNotEmpty) 'date': date},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static dynamic data(dynamic response) => getJsonField(response, r'$.data');
+}
+
+class DriverProReferralHistoryCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    int limit = 40,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverProReferralHistory',
+      apiUrl: '$_baseUrl/api/drivers/referral/history',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {'limit': '$limit'},
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static List<dynamic> driverEarnings(dynamic response) =>
+      (getJsonField(response, r'$.data.driver_earnings', true) as List?) ?? [];
+
+  static List<dynamic> companyEarnings(dynamic response) =>
+      (getJsonField(response, r'$.data.company_earnings_on_your_pairs', true)
+              as List?) ??
+          [];
+}
+
+class DriverProReferralCreateCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required String referralCode,
+  }) async {
+    final body = json.encode({'referral_code': referralCode});
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverProReferralCreate',
+      apiUrl: '$_baseUrl/api/drivers/referral/create',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+    );
+  }
+}
+
 class ChoosevehicleCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(
@@ -495,22 +595,26 @@ class CompleteRideCall {
     required int driverId,
     required int userId,
     String? token = '',
+    double? finalFare,
   }) async {
-    final ffApiRequestBody = '''
-{
-  "ride_id": $rideId,
-  "driver_id": $driverId,
-  "user_id": $userId
-}''';
+    final body = <String, dynamic>{
+      'ride_id': rideId,
+      'driver_id': driverId,
+      'user_id': userId,
+    };
+    if (finalFare != null) {
+      body['final_fare'] = finalFare;
+    }
     return ApiManager.instance.makeApiCall(
       callName: 'completeRide',
       apiUrl: '$_baseUrl/api/drivers/complete-ride',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization': 'Bearer $token',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
       },
       params: {},
-      body: ffApiRequestBody,
+      body: json.encode(body),
       bodyType: BodyType.JSON,
       returnBody: true,
       encodeBodyUtf8: false,
@@ -543,6 +647,66 @@ class CompleteRideCall {
       return v?.toString();
     }
     return null;
+  }
+}
+
+/// GET /api/drivers/rides/:rideId/settlement-breakdown — driver-side earnings & referral ledger (not rider invoice).
+class GetRideSettlementBreakdownCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    String? token = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'getRideSettlementBreakdown',
+      apiUrl: '$_baseUrl/api/drivers/rides/$rideId/settlement-breakdown',
+      callType: ApiCallType.GET,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static Map<String, dynamic>? customerFareBreakdown(dynamic response) {
+    final raw = getJsonField(response, r'$.data.customer_fare_breakdown');
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return null;
+  }
+
+  static Map<String, dynamic>? driverSettlement(dynamic response) {
+    final raw = getJsonField(response, r'$.data.driver_settlement');
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return null;
+  }
+
+  static List<Map<String, dynamic>> ledgerEntries(dynamic response) {
+    final raw = getJsonField(response, r'$.data.driver_settlement.ledger_entries');
+    if (raw is! List) return [];
+    return raw
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  static List<Map<String, dynamic>> ledgerEntriesForDriver(
+    dynamic response,
+    int driverId,
+  ) {
+    return ledgerEntries(response)
+        .where((e) => _asInt(e['driver_id']) == driverId)
+        .toList();
+  }
+
+  static int _asInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    return int.tryParse(v.toString()) ?? 0;
   }
 }
 
@@ -2219,6 +2383,90 @@ class DriverRideHistoryCall {
   }
 }
 
+/// Driver app — aggregated dashboard (today / week / wallet / active ride).
+/// GET /api/drivers/app/dashboard
+class DriverAppDashboardCall {
+  static Future<ApiCallResponse> call({required String token}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverAppDashboard',
+      apiUrl: '$_baseUrl/api/drivers/app/dashboard',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static Map<String, dynamic>? data(dynamic response) {
+    final d = getJsonField(response, r'$.data');
+    return d is Map ? Map<String, dynamic>.from(d) : null;
+  }
+}
+
+/// Paginated trip history — **no rider phone numbers** in items.
+/// GET /api/drivers/app/history?page=&page_size=
+class DriverAppHistoryCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverAppHistory',
+      apiUrl:
+          '$_baseUrl/api/drivers/app/history?page=$page&page_size=$pageSize',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static List<dynamic> items(dynamic response) {
+    final list = getJsonField(response, r'$.data.items', true);
+    return list is List ? List<dynamic>.from(list) : [];
+  }
+
+  static int? totalCount(dynamic response) {
+    final v = getJsonField(response, r'$.data.total_count');
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v?.toString() ?? '');
+  }
+
+  static bool hasMore(dynamic response) =>
+      getJsonField(response, r'$.data.has_more') == true;
+}
+
+/// Single trip for history / trip record — **no full rider phone**.
+/// GET /api/drivers/app/history/:rideId
+class DriverAppHistoryRideCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required int rideId,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverAppHistoryRide',
+      apiUrl: '$_baseUrl/api/drivers/app/history/$rideId',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      returnBody: true,
+      cache: false,
+    );
+  }
+
+  static Map<String, dynamic>? data(dynamic response) {
+    final d = getJsonField(response, r'$.data');
+    return d is Map ? Map<String, dynamic>.from(d) : null;
+  }
+}
+
 // 📅 DAILY INCENTIVES
 // GET /api/driver-incentives/daily-incentives?driver_id=X&date=YYYY-MM-DD
 // ─────────────────────────────────────────────────────────────
@@ -2357,6 +2605,13 @@ class ReferralDashboardCall {
           getJsonField(response, r'$.driver.referred_driver_count')) ??
       0;
 
+  /// Logged-in captain block: `driver_id`, `name`, `referred_by`, `referred_driver_count`
+  static Map<String, dynamic>? driverInfo(dynamic response) {
+    final v = getJsonField(response, r'$.driver');
+    if (v is Map) return Map<String, dynamic>.from(v);
+    return null;
+  }
+
   static int totalEarnings(dynamic response) =>
       castToType<int>(getJsonField(
           response, r'$.lifetime_statistics.total_commission_earned')) ??
@@ -2387,6 +2642,12 @@ class ReferralDashboardCall {
           (getJsonField(response, r'$.yesterday_statistics.referrals', true)
               as List?) ??
           []);
+
+  /// Friends list with yesterday Pro stats + paid commission (for “yesterday” section).
+  static List<dynamic> yesterdayReferralsOnly(dynamic response) =>
+      (getJsonField(response, r'$.yesterday_statistics.referrals', true)
+          as List?) ??
+      [];
 
   static int yesterdayRideEarnings(dynamic response) =>
       castToType<int>(getJsonField(
@@ -2503,5 +2764,107 @@ class VehiclePricingCall {
     }
 
     return path;
+  }
+}
+
+/// ---------------------------------------------------------------------------
+/// RIDE CHAT (REST + FCM registry — same as rider app)
+/// ---------------------------------------------------------------------------
+
+class RideChatGetMessagesCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    String? token,
+    int? beforeId,
+    int limit = 100,
+  }) async {
+    final q = <String, String>{
+      'limit': limit.clamp(1, 100).toString(),
+      if (beforeId != null) 'before_id': beforeId.toString(),
+    };
+    final qs = q.entries.map((e) => '${e.key}=${e.value}').join('&');
+    return ApiManager.instance.makeApiCall(
+      callName: 'RideChatGetMessages',
+      apiUrl: '$_baseUrl/api/chat/ride/$rideId/messages?$qs',
+      callType: ApiCallType.GET,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+    );
+  }
+}
+
+class RideChatMarkReadCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    String? token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'RideChatMarkRead',
+      apiUrl: '$_baseUrl/api/chat/ride/$rideId/read',
+      callType: ApiCallType.POST,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      cache: false,
+      alwaysAllowBody: true,
+    );
+  }
+}
+
+class RideChatInitCall {
+  static Future<ApiCallResponse> call({
+    required int rideId,
+    String? token,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'RideChatInit',
+      apiUrl: '$_baseUrl/api/chat/ride/init',
+      callType: ApiCallType.POST,
+      headers: {
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: jsonEncode({'ride_id': rideId}),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+      alwaysAllowBody: true,
+    );
+  }
+}
+
+/// Registers FCM token for ride-chat pushes.
+class RideChatRegisterDeviceTokenCall {
+  static Future<ApiCallResponse> call({
+    required String fcmToken,
+    String? platform,
+    String? accessToken,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'RideChatRegisterDeviceToken',
+      apiUrl: '$_baseUrl/api/chat/device/token',
+      callType: ApiCallType.POST,
+      headers: {
+        if (accessToken != null && accessToken.isNotEmpty)
+          'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: jsonEncode({
+        'fcm_token': fcmToken,
+        if (platform != null && platform.isNotEmpty) 'platform': platform,
+      }),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      cache: false,
+      alwaysAllowBody: true,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import 'package:ugo_driver/index.dart';
+import 'package:ugo_driver/models/driver_dashboard_summary.dart';
 
 /// Offline state dashboard: greeting, driver name, "Go Online" CTA.
 /// Shown when driver is offline (MapContainer is hidden).
@@ -16,6 +17,8 @@ class OfflineDashboard extends StatefulWidget {
     required this.rejectionReason,
     required this.canGoOnline,
     this.documentsIncomplete = false,
+    this.accountInactive = false,
+    this.captainDashboard,
   });
 
   final String driverName;
@@ -29,6 +32,11 @@ class OfflineDashboard extends StatefulWidget {
   final bool canGoOnline;
   /// True when API `kyc_doc_status.all_uploaded` is false.
   final bool documentsIncomplete;
+  /// Admin has set `is_active: false` on the driver account.
+  final bool accountInactive;
+
+  /// Optional aggregated stats from GET /api/drivers/app/dashboard.
+  final DriverDashboardSummary? captainDashboard;
 
   @override
   State<OfflineDashboard> createState() => _OfflineDashboardState();
@@ -87,7 +95,13 @@ class _OfflineDashboardState extends State<OfflineDashboard>
     IconData stateIcon = Icons.bedtime_rounded;
     Color stateColor = Colors.grey.shade400;
 
-    if (isPending) {
+    if (widget.accountInactive) {
+      titleText = FFLocalizations.of(context).getText('drv_header_inactive');
+      subtitleText =
+          FFLocalizations.of(context).getText('drv_account_inactive');
+      stateIcon = Icons.person_off_rounded;
+      stateColor = Colors.deepOrange.shade400;
+    } else if (isPending) {
       titleText = 'Pending for verification';
       subtitleText = 'Waiting for admin approval. Your documents are under review.';
       stateIcon = Icons.hourglass_top_rounded;
@@ -163,6 +177,13 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                   letterSpacing: -0.5,
                 ),
               ),
+
+              if (isApproved &&
+                  !widget.accountInactive &&
+                  widget.captainDashboard != null) ...[
+                SizedBox(height: Responsive.verticalSpacing(context) * 2),
+                _CaptainHomeStatsRow(summary: widget.captainDashboard!),
+              ],
 
               SizedBox(height: Responsive.verticalSpacing(context) * 5),
 
@@ -241,7 +262,26 @@ class _OfflineDashboardState extends State<OfflineDashboard>
 
               SizedBox(height: Responsive.verticalSpacing(context) * 5),
 
-              if (isPending)
+              if (widget.accountInactive)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.deepOrange.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.deepOrange.shade200),
+                  ),
+                  child: Text(
+                    FFLocalizations.of(context).getText('drv_account_inactive'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      height: 1.4,
+                    ),
+                  ),
+                )
+              else if (isPending)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
@@ -341,6 +381,129 @@ class _OfflineDashboardState extends State<OfflineDashboard>
               SizedBox(height: Responsive.verticalSpacing(context) * 2),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Large tap-friendly earnings row (captain / Rapido-style).
+class _CaptainHomeStatsRow extends StatelessWidget {
+  const _CaptainHomeStatsRow({required this.summary});
+
+  final DriverDashboardSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final pad = Responsive.horizontalPadding(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: pad * 0.25),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _bigStat(
+                  context,
+                  label: 'Today',
+                  value: '₹${summary.todayEarnings.toStringAsFixed(0)}',
+                  sub: '${summary.todayTripCount} trips',
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _bigStat(
+                  context,
+                  label: 'Wallet',
+                  value: '₹${summary.walletBalance.toStringAsFixed(0)}',
+                  sub: 'Balance',
+                  color: const Color(0xFF2E7D32),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _bigStat(
+                  context,
+                  label: 'This week',
+                  value: '₹${summary.weeklyEarnings.toStringAsFixed(0)}',
+                  sub: summary.rating != null
+                      ? '★ ${summary.rating!.toStringAsFixed(1)}'
+                      : 'Earnings',
+                  color: const Color(0xFF1565C0),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _bigStat(
+                  context,
+                  label: 'Trips (all)',
+                  value: '${summary.totalRidesCompleted}',
+                  sub: summary.cancellationRate != null
+                      ? '${summary.cancellationRate!.toStringAsFixed(0)}% cancel (30d)'
+                      : 'Lifetime',
+                  color: Colors.grey.shade800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bigStat(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required String sub,
+    required Color color,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 2,
+      shadowColor: Colors.black26,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: color.withValues(alpha: 0.85),
+                letterSpacing: 0.6,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: Responsive.fontSize(context, 22),
+                fontWeight: FontWeight.w900,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              sub,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
+                height: 1.2,
+              ),
+            ),
+          ],
         ),
       ),
     );

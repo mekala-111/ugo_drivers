@@ -7,7 +7,14 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'package:ugo_driver/account_support/documents.dart';
 import 'package:ugo_driver/account_support/edit_address.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
+import 'package:provider/provider.dart';
+
+import '/providers/ride_provider.dart';
+import '/services/floating_bubble_service.dart';
+import '/services/ride_notification_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -173,8 +180,24 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       // Ignore logout API errors; local sign-out must still proceed.
     }
     await FFAppState().clearAppState();
+    await _clearSessionUiAfterLogout();
     if (!mounted) return;
     context.go(LoginWidget.routePath);
+  }
+
+  /// In-memory providers / services not covered by [FFAppState.clearAppState].
+  Future<void> _clearSessionUiAfterLogout() async {
+    try {
+      if (mounted) context.read<RideState>().clearRide();
+    } catch (_) {}
+    try {
+      await RideNotificationService().cancelRideNotification();
+    } catch (_) {}
+    try {
+      if (!kIsWeb && Platform.isAndroid) {
+        await FloatingBubbleService.stopFloatingBubble();
+      }
+    } catch (_) {}
   }
 
   /// Delete account - call API, clear state, navigate to login
@@ -215,6 +238,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       if (!mounted) return;
       if (res.succeeded) {
         await FFAppState().clearAppState();
+        await _clearSessionUiAfterLogout();
         if (!mounted) return;
         context.go(LoginWidget.routePath);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

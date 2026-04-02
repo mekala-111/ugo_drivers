@@ -2,6 +2,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import '/index.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import '/services/document_verification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -265,6 +266,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
             FFAppState().accessToken = accessToken!;
             FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
           });
+          syncDriverRideChatFcmRegistration();
           if (mounted) {
             context.pushNamedAndRemoveUntil(
               HomeWidget.routeName,
@@ -317,6 +319,7 @@ class _RCUploadWidgetState extends State<RCUploadWidget> {
                 FFAppState().refreshToken =
                     LoginCall.refreshToken(loginRes.jsonBody) ?? '';
               });
+              syncDriverRideChatFcmRegistration();
               if (mounted) {
                 context.pushNamedAndRemoveUntil(
                   HomeWidget.routeName,

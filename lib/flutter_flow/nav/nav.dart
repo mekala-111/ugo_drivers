@@ -20,6 +20,10 @@ const kTransitionInfoKey = '__transition_info__';
 
 GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Global SnackBars (e.g. ride-chat banner while not on chat route).
+GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class AppStateNotifier extends ChangeNotifier {
   AppStateNotifier._();
 
@@ -353,6 +357,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const AccountSupportWidget(),
         ),
         FFRoute(
+          name: ProReferralMyWidget.routeName,
+          path: ProReferralMyWidget.routePath,
+          builder: (context, params) => const ProReferralMyWidget(),
+        ),
+        FFRoute(
           name: SupportRideWidget.routeName,
           path: SupportRideWidget.routePath,
           builder: (context, params) => const SupportRideWidget(),
@@ -365,6 +374,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'rideId',
               ParamType.int,
             ),
+            hideRiderContact: params.getParam(
+                  'hideRiderContact',
+                  ParamType.bool,
+                ) ??
+                false,
           ),
         ),
         FFRoute(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 
@@ -32,6 +31,21 @@ class _PreLoginLocationPermissionWidgetState
     extends State<PreLoginLocationPermissionWidget> {
   bool _isRequesting = false;
 
+  Future<void> _maybeUpgradeAndroidBackground() async {
+    if (!Platform.isAndroid || !mounted) return;
+    if (FFAppState().hasAskedBackgroundLocation) return;
+    FFAppState().hasAskedBackgroundLocation = true;
+    final agreed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const BackgroundLocationNoticeWidget(),
+      ),
+    );
+    if (agreed == true) {
+      await Geolocator.requestPermission();
+    }
+  }
+
   Future<void> _requestPermissionAndComplete() async {
     if (_isRequesting || !mounted) return;
     setState(() => _isRequesting = true);
@@ -45,23 +59,36 @@ class _PreLoginLocationPermissionWidgetState
       }
 
       var permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) _complete();
+        return;
+      }
+
+      // Already granted — do not call requestPermission() again (avoids duplicate prompts)
+      if (permission == LocationPermission.always) {
+        if (mounted) _complete();
+        return;
+      }
+
+      if (permission == LocationPermission.whileInUse) {
+        await _maybeUpgradeAndroidBackground();
+        if (mounted) _complete();
+        return;
+      }
+
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
 
-      // Android: if "while in use" granted, request background for ride matching
-      if (Platform.isAndroid &&
-          permission == LocationPermission.whileInUse &&
-          mounted) {
-        final agreed = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const BackgroundLocationNoticeWidget(),
-          ),
-        );
-        if (agreed == true) {
-          await Geolocator.requestPermission();
-        }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) _complete();
+        return;
+      }
+
+      if (permission == LocationPermission.whileInUse) {
+        await _maybeUpgradeAndroidBackground();
       }
 
       if (mounted) _complete();

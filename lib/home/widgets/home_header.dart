@@ -82,6 +82,7 @@ class HomeHeader extends StatelessWidget {
                 switchValue: switchValue,
                 isDataLoaded: isDataLoaded,
                 onToggle: onToggleOnline,
+                blockGoingOffline: false,
               ),
 
               // --- RIGHT SECTION: Team Avatar ---

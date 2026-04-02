@@ -74,7 +74,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
     _licenseNumberController.addListener(() {
       FFAppState().licenseNumber =
-          _licenseNumberController.text.trim().toUpperCase();
+          InputValidators.normalizeDrivingLicense(_licenseNumberController.text);
     });
     _licenseExpiryController.addListener(() {
       FFAppState().licenseExpiryDate = _licenseExpiryController.text.trim();
@@ -153,12 +153,17 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
 
     // Load license number
     if (FFAppState().licenseNumber.isNotEmpty) {
+      final contiguous = InputValidators.normalizeDrivingLicense(
+          FFAppState().licenseNumber);
       setState(() {
-        _licenseNumberController.text =
-            FFAppState().licenseNumber.toUpperCase();
+        _licenseNumberController.text = contiguous;
         _isLicenseNumberValid =
             _validateLicenseNumber(_licenseNumberController.text) == null;
       });
+      if (FFAppState().licenseNumber != contiguous) {
+        FFAppState().licenseNumber = contiguous;
+        FFAppState().update(() {});
+      }
     }
     if (FFAppState().licenseExpiryDate.isNotEmpty) {
       _licenseExpiryController.text = FFAppState().licenseExpiryDate;
@@ -234,68 +239,56 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
     }
   }
 
-  // Extract DL number from OCR text
+  // Extract DL number from OCR text (Parivahan-style + TS-style segments)
   String? _extractDLNumber(String text) {
-    // Remove all whitespace and newlines
-    String cleanedText = text.replaceAll(RegExp(r'\s+'), '');
+    final cleanedText = text.replaceAll(RegExp(r'\s+'), '');
 
-    // Indian DL format patterns
-    List<RegExp> patterns = [
-      // Standard format: XX00 00000000000 or XX-00-00000000000
-      RegExp(r'[A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{11}', caseSensitive: false),
-      // Without separators: XX0000000000000
-      RegExp(r'[A-Z]{2}[0-9]{13}', caseSensitive: false),
-      // With space: XX00 00000000000
-      RegExp(r'[A-Z]{2}\s?[0-9]{2}\s?[0-9]{11}', caseSensitive: false),
+    final patterns = <RegExp>[
+      RegExp(r'[A-Z]{3,5}[-\s]?[0-9]{10,12}', caseSensitive: false),
+      RegExp(
+        r'[A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{5,8}',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'[A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{11,14}',
+        caseSensitive: false,
+      ),
+      RegExp(r'[A-Z]{2}[0-9]{11,16}', caseSensitive: false),
     ];
 
-    for (var pattern in patterns) {
+    for (final pattern in patterns) {
       final match = pattern.firstMatch(cleanedText);
       if (match != null) {
-        String dlNumber = match.group(0)!.toUpperCase();
-        // Remove hyphens and extra spaces
-        dlNumber = dlNumber.replaceAll(RegExp(r'[-\s]'), '');
-
-        // Format: XX00 00000000000
-        if (dlNumber.length == 15) {
-          return '${dlNumber.substring(0, 4)} ${dlNumber.substring(4)}';
+        final normalized =
+            InputValidators.normalizeDrivingLicense(match.group(0)!);
+        if (InputValidators.isValidLicense(normalized)) {
+          return InputValidators.formatDrivingLicenseForDisplay(normalized);
         }
       }
     }
 
-    // Try to find any 15-character alphanumeric string starting with 2 letters
-    RegExp fallbackPattern =
-        RegExp(r'[A-Z]{2}[0-9A-Z]{13}', caseSensitive: false);
-    final fallbackMatch = fallbackPattern.firstMatch(cleanedText);
-    if (fallbackMatch != null) {
-      String dlNumber = fallbackMatch.group(0)!.toUpperCase();
-      if (dlNumber.length == 15) {
-        return '${dlNumber.substring(0, 4)} ${dlNumber.substring(4)}';
+    for (var i = 0; i <= cleanedText.length - 13; i++) {
+      for (var len = 18; len >= 13; len--) {
+        if (i + len > cleanedText.length) continue;
+        final slice = cleanedText.substring(i, i + len);
+        final normalized = InputValidators.normalizeDrivingLicense(slice);
+        if (InputValidators.isValidLicense(normalized)) {
+          return InputValidators.formatDrivingLicenseForDisplay(normalized);
+        }
       }
     }
 
     return null;
   }
 
-  // Driving License Number Validation (India format)
   String? _validateLicenseNumber(String? value) {
-    if (value == null || value.isEmpty) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) {
       return FFLocalizations.of(context).getText('dl0027');
     }
-
-    String cleanedValue = value.trim().toUpperCase().replaceAll(' ', '');
-
-    // Indian DL format: XX0000000000000 (15 chars)
-    RegExp dlRegex = RegExp(r'^[A-Z]{2}[0-9]{2}\s?[0-9]{11}$');
-
-    if (!dlRegex.hasMatch(cleanedValue)) {
+    if (!InputValidators.isValidLicense(v)) {
       return FFLocalizations.of(context).getText('dl0028');
     }
-
-    if (cleanedValue.length != 15) {
-      return FFLocalizations.of(context).getText('dl0029');
-    }
-
     return null;
   }
 
@@ -921,8 +914,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                               textCapitalization: TextCapitalization.characters,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp(r'[A-Za-z0-9\s]')),
-                                LengthLimitingTextInputFormatter(16),
+                                    RegExp(r'[A-Za-z0-9\-]')),
+                                LengthLimitingTextInputFormatter(24),
                                 _LicenseInputFormatter(),
                               ],
                               decoration: InputDecoration(
@@ -967,7 +960,8 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 });
                                 if (_isLicenseNumberValid) {
                                   FFAppState().licenseNumber =
-                                      value.trim().toUpperCase();
+                                      InputValidators.normalizeDrivingLicense(
+                                          value);
                                   FFAppState().update(() {});
                                 }
                               },
@@ -1151,8 +1145,11 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 }
 
                                 // Validate license number and expiry
-                                final licenseErr = InputValidators.licenseError(
-                                    _licenseNumberController.text.trim());
+                                final licenseNorm = InputValidators
+                                    .normalizeDrivingLicense(
+                                        _licenseNumberController.text.trim());
+                                final licenseErr =
+                                    InputValidators.licenseError(licenseNorm);
                                 if (licenseErr != null) {
                                   _showSnackBar(licenseErr, isError: true);
                                   return;
@@ -1174,10 +1171,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                 FFAppState().imageLicense = _frontImage;
                                 FFAppState().licenseFrontImage = _frontImage;
                                 FFAppState().licenseBackImage = _backImage;
-                                FFAppState().licenseNumber =
-                                    _licenseNumberController.text
-                                        .trim()
-                                        .toUpperCase();
+                                FFAppState().licenseNumber = licenseNorm;
                                 FFAppState().licenseExpiryDate =
                                     _licenseExpiryController.text.trim();
                                 if (_frontImage?.bytes != null) {
@@ -1201,9 +1195,7 @@ class _DrivingDlWidgetState extends State<DrivingDlWidget>
                                       licenseimage: _frontImage,
                                       licenseFrontImage: _frontImage,
                                       licenseBackImage: _backImage,
-                                      licenseNumber: _licenseNumberController.text
-                                          .trim()
-                                          .toUpperCase(),
+                                      licenseNumber: licenseNorm,
                                       licenseExpiryDate: _licenseExpiryController
                                               .text
                                               .trim()
@@ -1300,20 +1292,11 @@ class _LicenseInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    final text = newValue.text.toUpperCase().replaceAll(' ', '');
-    final buffer = StringBuffer();
-
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      if (i == 3 && i + 1 != text.length) {
-        buffer.write(' ');
-      }
-    }
-
-    final formatted = buffer.toString();
+    final upper = newValue.text.toUpperCase();
+    if (upper == newValue.text) return newValue;
     return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
+      text: upper,
+      selection: newValue.selection,
     );
   }
 }

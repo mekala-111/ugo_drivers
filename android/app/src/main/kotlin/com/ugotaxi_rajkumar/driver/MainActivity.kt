@@ -33,8 +33,27 @@ class MainActivity: FlutterActivity() {
         methodChannel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "startFloatingBubble" -> {
+                    val suppressInitially =
+                        call.argument<Boolean>("overlaySuppressedInitially") ?: false
+                    CaptainBubbleService.suppressBubbleOverlay = suppressInitially
                     startFloatingBubbleService()
                     result.success("Floating bubble started")
+                }
+                "setBubbleOverlaySuppressed" -> {
+                    val suppressed = call.argument<Boolean>("suppressed") ?: true
+                    setBubbleOverlaySuppressed(suppressed)
+                    result.success(null)
+                }
+                "updateBubbleBadge" -> {
+                    val count = call.argument<Int>("count") ?: 0
+                    sendBubbleServiceCommand(
+                        CaptainBubbleService.ACTION_UPDATE_BADGE,
+                        mapOf(CaptainBubbleService.EXTRA_PENDING_COUNT to count)
+                    )
+                    result.success(null)
+                }
+                "isBubbleServiceRunning" -> {
+                    result.success(isServiceRunning(CaptainBubbleService::class.java))
                 }
                 "stopFloatingBubble" -> {
                     stopFloatingBubbleService()
@@ -180,7 +199,13 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun startFloatingBubbleService() {
-        val serviceIntent = Intent(this, CaptainBubbleService::class.java)
+        val serviceIntent = Intent(this, CaptainBubbleService::class.java).apply {
+            action = CaptainBubbleService.ACTION_SET_SUPPRESS_OVERLAY
+            putExtra(
+                CaptainBubbleService.EXTRA_SUPPRESS_OVERLAY,
+                CaptainBubbleService.suppressBubbleOverlay
+            )
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         } else {
@@ -188,7 +213,35 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    private fun setBubbleOverlaySuppressed(suppressed: Boolean) {
+        CaptainBubbleService.suppressBubbleOverlay = suppressed
+        sendBubbleServiceCommand(
+            CaptainBubbleService.ACTION_SET_SUPPRESS_OVERLAY,
+            mapOf(CaptainBubbleService.EXTRA_SUPPRESS_OVERLAY to suppressed)
+        )
+    }
+
+    private fun sendBubbleServiceCommand(action: String, extras: Map<String, Any>) {
+        val i = Intent(this, CaptainBubbleService::class.java).apply {
+            this.action = action
+            extras.forEach { (k, v) ->
+                when (v) {
+                    is Boolean -> putExtra(k, v)
+                    is Int -> putExtra(k, v)
+                    else -> putExtra(k, v.toString())
+                }
+            }
+        }
+        if (!isServiceRunning(CaptainBubbleService::class.java)) {
+            return
+        }
+        // Service is already in foreground — deliver intent with startService only.
+        startService(i)
+    }
+
     private fun stopFloatingBubbleService() {
+        CaptainBubbleService.suppressBubbleOverlay = false
+        CaptainBubbleService.pendingRequestCount = 0
         val serviceIntent = Intent(this, CaptainBubbleService::class.java)
         stopService(serviceIntent)
     }
@@ -288,9 +341,6 @@ class MainActivity: FlutterActivity() {
     }
 
     /** Mirrors Flutter [FFAppState].isonline persisted via shared_preferences. */
-    private fun isFlutterDriverCaptainOnline(): Boolean {
-        val p = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
-        return p.getBoolean("flutter.ff_isonline", false) ||
-            p.getBoolean("ff_isonline", false)
-    }
+    private fun isFlutterDriverCaptainOnline(): Boolean =
+        DriverOnlinePrefs.isDriverOnline(this)
 }

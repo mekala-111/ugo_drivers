@@ -1062,6 +1062,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         driverId: FFAppState().driverid,
         userId: userId,
         token: FFAppState().accessToken,
+        finalFare: ride.finalFare ?? ride.estimatedFare,
       );
       if (!mounted) return;
       if (res.succeeded) {

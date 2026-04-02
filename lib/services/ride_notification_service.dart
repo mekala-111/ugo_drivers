@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/widgets.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ugo_driver/constants/app_colors.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ugo_driver/app_state.dart';
 import 'package:ugo_driver/flutter_flow/nav/nav.dart';
 import 'package:ugo_driver/home/home_widget.dart';
+import 'package:ugo_driver/notifications/ride_chat_in_app_banner.dart';
 
 const String _kChannelId = 'ride_requests';
 const String _kChannelName = 'New Ride Requests';
@@ -179,8 +180,38 @@ class RideNotificationService {
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
 
+    FirebaseMessaging.instance.getToken().then((t) {
+      if (t != null && t.isNotEmpty) {
+        FFAppState().fcmToken = t;
+        syncDriverRideChatFcmRegistration();
+      }
+    });
+    FirebaseMessaging.instance.onTokenRefresh.listen((t) {
+      FFAppState().fcmToken = t;
+      syncDriverRideChatFcmRegistration();
+    });
+
     final initialMsg = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMsg != null) _setPendingRideFromMessage(initialMsg);
+    if (initialMsg != null) {
+      final d = initialMsg.data;
+      if (d['type'] == 'ride_chat') {
+        final rideId = int.tryParse(
+            d['ride_id']?.toString() ?? d['rideId']?.toString() ?? '0');
+        if (rideId != null && rideId > 0 && FFAppState().driverid > 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final ctx = appNavigatorKey.currentContext;
+            if (ctx != null && ctx.mounted) {
+              openRideChatFromFcmData(
+                GoRouter.of(ctx),
+                Map<String, dynamic>.from(d),
+              );
+            }
+          });
+        }
+      } else {
+        _setPendingRideFromMessage(initialMsg);
+      }
+    }
 
     final launchDetails = await _local.getNotificationAppLaunchDetails();
     if (launchDetails?.didNotificationLaunchApp == true &&
@@ -210,19 +241,48 @@ class RideNotificationService {
   }
 
   void _onForegroundMessage(RemoteMessage msg) {
-  if (msg.data['type'] == 'ride_request') {
+    final data = msg.data;
+    if (data['type'] == 'ride_request') {
+      FFAppState().update(() {
+        FFAppState().notificationUnreadCount++;
+      });
 
-    // ✅ increase count
-    FFAppState().update(() {
-      FFAppState().notificationUnreadCount++;
-    });
+      if (FFAppState().activeRideId != 0) return;
 
-    if (FFAppState().activeRideId != 0) return;
-
-    _setPendingRideFromMessage(msg);
+      _setPendingRideFromMessage(msg);
+      return;
+    }
+    if (data['type'] == 'ride_chat') {
+      final rideId = int.tryParse(
+          data['ride_id']?.toString() ?? data['rideId']?.toString() ?? '0');
+      if (rideId != null &&
+          rideId > 0 &&
+          FFAppState().driverid > 0) {
+        final ctx = appNavigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          showRideChatInAppFromForegroundFcm(
+            GoRouter.of(ctx),
+            msg,
+            Map<String, dynamic>.from(data),
+            rideId,
+          );
+        }
+      }
+    }
   }
-}
+
   void _onMessageOpenedApp(RemoteMessage msg) {
+    final data = msg.data;
+    if (data['type'] == 'ride_chat') {
+      final ctx = appNavigatorKey.currentContext;
+      if (ctx != null && ctx.mounted) {
+        openRideChatFromFcmData(
+          GoRouter.of(ctx),
+          Map<String, dynamic>.from(data),
+        );
+      }
+      return;
+    }
     _setPendingRideFromMessage(msg);
     _navigateToHome();
   }

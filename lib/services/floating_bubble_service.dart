@@ -1,16 +1,51 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 
 class FloatingBubbleService {
   static const MethodChannel _channel =
       MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
 
-  /// Start the floating bubble service
-  static Future<String> startFloatingBubble() async {
+  /// Start the foreground service (and bubble when overlay is not suppressed).
+  /// [overlaySuppressedInitially]: when true, only the notification runs (driver inside app).
+  static Future<String> startFloatingBubble({
+    bool overlaySuppressedInitially = false,
+  }) async {
+    if (kIsWeb) return 'skipped_web';
     try {
-      final String result = await _channel.invokeMethod('startFloatingBubble');
+      final String result = await _channel.invokeMethod('startFloatingBubble', {
+        'overlaySuppressedInitially': overlaySuppressedInitially,
+      });
       return result;
     } on PlatformException catch (e) {
       return 'Failed to start floating bubble: ${e.message}';
+    }
+  }
+
+  /// Hide/show the TYPE_APPLICATION_OVERLAY bubble while keeping the foreground service.
+  static Future<void> setBubbleOverlaySuppressed(bool suppressed) async {
+    if (kIsWeb) return;
+    try {
+      await _channel.invokeMethod('setBubbleOverlaySuppressed', {
+        'suppressed': suppressed,
+      });
+    } on PlatformException catch (_) {}
+  }
+
+  /// Optional badge on the bubble (e.g. stacked incoming requests).
+  static Future<void> updateBubbleBadge(int count) async {
+    if (kIsWeb) return;
+    try {
+      await _channel.invokeMethod('updateBubbleBadge', {'count': count});
+    } on PlatformException catch (_) {}
+  }
+
+  static Future<bool> isBubbleServiceRunning() async {
+    if (kIsWeb) return false;
+    try {
+      final v = await _channel.invokeMethod('isBubbleServiceRunning');
+      return v == true;
+    } on PlatformException catch (_) {
+      return false;
     }
   }
 

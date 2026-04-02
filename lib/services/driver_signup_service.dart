@@ -3,6 +3,7 @@ import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/notifications/ride_chat_in_app_banner.dart';
 import 'package:flutter/material.dart';
 
 /// Shared driver signup (profile + optional docs) after pre-registration steps.
@@ -228,6 +229,7 @@ class DriverSignupService {
           FFAppState().accessToken = accessToken!;
           FFAppState().refreshToken = LoginCall.refreshToken(jsonBody) ?? '';
         });
+        syncDriverRideChatFcmRegistration();
 
         if (context.mounted) {
           context.pushReplacementNamed(HomeWidget.routeName);
@@ -287,6 +289,7 @@ class DriverSignupService {
             FFAppState().refreshToken =
                 LoginCall.refreshToken(loginRes.jsonBody) ?? '';
           });
+          syncDriverRideChatFcmRegistration();
 
           if (context.mounted) {
             context.pushReplacementNamed(HomeWidget.routeName);

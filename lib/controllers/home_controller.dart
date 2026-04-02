@@ -4,14 +4,16 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
-
 import 'package:ugo_driver/config.dart';
+import 'package:ugo_driver/services/driver_realtime_socket_service.dart';
 import 'package:ugo_driver/home/incentive_model.dart';
+import 'package:ugo_driver/notifications/ride_chat_in_app_banner.dart';
 import 'package:ugo_driver/repositories/driver_repository.dart';
+import 'package:ugo_driver/models/driver_dashboard_summary.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart'
     show
         DriverIdfetchCall,
+        DriverAppDashboardCall,
         GetAllDriversCall,
         NotificationHistoryCall,
         AddMoneyToWalletCall,
@@ -22,6 +24,24 @@ import '../flutter_flow/flutter_flow_util.dart';
 const double _locationUpdateThreshold = 50.0;
 const double _notifyDistanceThreshold = 100.0;
 const Duration _notifyTimeThreshold = Duration(seconds: 2);
+
+/// Ride phases where the driver must not go offline (normalized: upper, no underscores).
+const _kRideStatusesBlockingOffline = <String>{
+  'ACCEPTED',
+  'ARRIVED',
+  'STARTED',
+  'ONTRIP',
+  'PICKEDUP',
+  'INPROGRESS',
+  'DRIVERASSIGNED',
+  'QRSCANNED',
+  'FETCHING',
+};
+
+bool _normalizedRideStatusBlocksOffline(String raw) {
+  final n = raw.trim().toUpperCase().replaceAll('_', '');
+  return _kRideStatusesBlockingOffline.contains(n);
+}
 
 /// Holds all Home screen logic: fetch, socket, location, earnings.
 /// HomeWidget listens and delegates UI via callbacks.
@@ -38,12 +58,13 @@ class HomeController extends ChangeNotifier {
     required this.onFetchRideById,
   }) {
     // ✅ Synchronous Initialization: Ensures UI sees correct state on first frame
-    isOnline = FFAppState().isonline; 
+    isOnline = FFAppState().isonline;
     driverName = '${FFAppState().firstName} ${FFAppState().lastName}';
   }
 
   final Future<void> Function(String status, String? rejectionReason)
       onShowKycDialog;
+
   /// When API says required documents are missing — route user to upload flow.
   final Future<void> Function() onDocumentsIncompleteNavigate;
   final Future<bool> Function() onShowLocationDisclosure;
@@ -54,16 +75,17 @@ class HomeController extends ChangeNotifier {
   final void Function(dynamic data) onSocketRideData;
   final void Function(int rideId) onFetchRideById;
 
-  late io.Socket _socket;
   StreamSubscription<Position>? _locationSub;
   Position? _lastSavedPosition;
   DateTime? _lastNotifyTime;
   Position? _lastNotifyPosition;
   bool _isTrackingLocation = false;
   Timer? _availableDriversTimer;
-  bool _socketInitialized = false;
+  bool _driverSocketStarted = false;
   bool _disposed = false;
   int _currentDistanceFilter = 50;
+  int _subscribedRideChatRideId = 0;
+  int? _lastChatBannerMessageId;
   DateTime? _lastResumeSyncAt;
 
   // ── State ───────────────────────────────────────────────────────────────────
@@ -74,12 +96,21 @@ class HomeController extends ChangeNotifier {
   String driverName = '';
   String profileImageUrl = '';
   bool isOnline = false;
+
+  /// From API `data.is_active`. When false, admin has deactivated the driver — no go-online.
+  bool _accountActive = true;
+  bool get isAccountActive => _accountActive;
+
+  /// True while assigned to a trip the rider still depends on (Rapido-style: no offline mid-ride).
+  bool get isActiveRideBlockingOffline =>
+      _normalizedRideStatusBlocksOffline(currentRideStatus);
   String currentRideStatus = 'IDLE';
   String verificationStatus = '';
   String verificationRejectionReason = '';
 
   int currentRides = 0;
   double totalIncentiveEarned = 0.0;
+
   /// Sum of reward_amount for all ongoing quests (Rapido-style “bonus up to” header).
   double incentivePotentialBonus = 0.0;
   List<IncentiveTier> incentiveTiers = [];
@@ -93,6 +124,10 @@ class HomeController extends ChangeNotifier {
   double todayWallet = 0.0;
   double lastRideAmount = 0.0;
   bool isLoadingEarnings = true;
+
+  /// Captain dashboard from GET /api/drivers/app/dashboard (wallet, today, week, rates).
+  DriverDashboardSummary? captainDashboardSummary;
+  bool isLoadingCaptainDashboard = false;
 
   int availableDriversCount = 0;
   int notificationUnreadCount = 0;
@@ -122,8 +157,9 @@ class HomeController extends ChangeNotifier {
   bool _allDocumentsUploaded = true;
   bool get allDocumentsUploaded => _allDocumentsUploaded;
 
-  /// Go online only when every required document is uploaded **and** KYC is approved.
+  /// Go online only when account is active, every required document is uploaded **and** KYC is approved.
   bool get canGoOnline {
+    if (!_accountActive) return false;
     if (_kycDocStatusFromApi) {
       return _allDocumentsUploaded && isVerificationApproved;
     }
@@ -131,9 +167,8 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> promptKycStatusDialog() async {
-    final status = verificationStatus.trim().isEmpty
-        ? 'pending'
-        : verificationStatus;
+    final status =
+        verificationStatus.trim().isEmpty ? 'pending' : verificationStatus;
     final reason = verificationRejectionReason.trim().isEmpty
         ? null
         : verificationRejectionReason;
@@ -152,52 +187,59 @@ class HomeController extends ChangeNotifier {
       _fetchDriverProfile(),
       _fetchIncentiveData(),
       _fetchTodayEarnings(),
+      _fetchCaptainDashboard(),
     ]);
     isDataLoaded = true;
     _notify();
-    _initSocket();
+    _startDriverSocket();
+    FFAppState().addListener(_onFfAppStateForRideChat);
     _fetchNotificationCount();
   }
+
+  void _onFfAppStateForRideChat() {
+    if (_disposed) return;
+    _syncRideChatSocketSubscription();
+  }
+
   /// Call this after the user opens the notifications screen.
-    Future<void> refreshNotificationCount() async {
-      await _fetchNotificationCount();
-    }
-   
-   
-    void resetNotificationCount() {
-  notificationUnreadCount = 0;
-  _notify();
-}
+  Future<void> refreshNotificationCount() async {
+    await _fetchNotificationCount();
+  }
+
+  void resetNotificationCount() {
+    notificationUnreadCount = 0;
+    _notify();
+  }
 
   Future<void> _fetchNotificationCount() async {
-  if (_disposed) return;
-  final token = FFAppState().accessToken;
-  if (token.isEmpty) return;
-  try {
-    final res = await NotificationHistoryCall.call(token: token);
-    if (_disposed || !res.succeeded) return;
-    final serverUnread = NotificationHistoryCall.unreadCount(res.jsonBody);
-    int count;
-    if (serverUnread != null) {
-      count = serverUnread;
-    } else {
-      final list = NotificationHistoryCall.notifications(res.jsonBody);
-      if (list == null) return;
-      count = 0;
-      for (final n in list) {
-        final isRead = getJsonField(n, r'$.is_read');
-        if (isRead != true) count++;
-      }
-    }
     if (_disposed) return;
-    notificationUnreadCount = count;
-    // ✅ Keep FFAppState in sync too
-    FFAppState().update(() {
-      FFAppState().notificationUnreadCount = count;
-    });
-    _notify();
-  } catch (_) {}
-}
+    final token = FFAppState().accessToken;
+    if (token.isEmpty) return;
+    try {
+      final res = await NotificationHistoryCall.call(token: token);
+      if (_disposed || !res.succeeded) return;
+      final serverUnread = NotificationHistoryCall.unreadCount(res.jsonBody);
+      int count;
+      if (serverUnread != null) {
+        count = serverUnread;
+      } else {
+        final list = NotificationHistoryCall.notifications(res.jsonBody);
+        if (list == null) return;
+        count = 0;
+        for (final n in list) {
+          final isRead = getJsonField(n, r'$.is_read');
+          if (isRead != true) count++;
+        }
+      }
+      if (_disposed) return;
+      notificationUnreadCount = count;
+      // ✅ Keep FFAppState in sync too
+      FFAppState().update(() {
+        FFAppState().notificationUnreadCount = count;
+      });
+      _notify();
+    } catch (_) {}
+  }
 
   void handlePendingRideFromNotification(int rideId) {
     if (rideId <= 0) return;
@@ -205,7 +247,10 @@ class HomeController extends ChangeNotifier {
   }
 
   /// Refetch driver profile (e.g. after document upload) so verification status matches the server.
-  Future<void> refreshDriverProfile() => _fetchDriverProfile();
+  Future<void> refreshDriverProfile() async {
+    await _fetchDriverProfile();
+    await Future.wait([_fetchTodayEarnings(), _fetchCaptainDashboard()]);
+  }
 
   Future<void> _fetchDriverProfile() async {
     final userDetails = await DriverRepository.instance.fetchDriverProfile(
@@ -243,7 +288,8 @@ class HomeController extends ChangeNotifier {
       // Update displayed driver name only when we have enough data.
       if (hasFirst || hasLast) {
         final fullName = '${hasFirst ? fetchedFirstName.trim() : ''} '
-            '${hasLast ? fetchedLastName.trim() : ''}'.trim();
+                '${hasLast ? fetchedLastName.trim() : ''}'
+            .trim();
         if (fullName.isNotEmpty) driverName = fullName;
 
         // Keep app state consistent for any other flows using these values.
@@ -262,7 +308,7 @@ class HomeController extends ChangeNotifier {
       if (img != null && img.isNotEmpty) {
         profileImageUrl =
             img.startsWith('http') ? img : '${Config.baseUrl}/$img';
-        // Pre-cache or validate URL if needed, but the main.dart change 
+        // Pre-cache or validate URL if needed, but the main.dart change
         // already prevents the 404 from being a "Fatal Crash".
         if (kDebugMode) {
           debugPrint('✅ Final profileImageUrl: $profileImageUrl');
@@ -309,6 +355,9 @@ class HomeController extends ChangeNotifier {
     }
     // If API did not return a preferred city, keep existing app state (e.g. set during registration)
 
+    final activeFlag = DriverIdfetchCall.isActive(userDetails.jsonBody);
+    _accountActive = activeFlag != false;
+
     _updateVerificationStateFromDriverData(
       getJsonField((userDetails.jsonBody ?? ''), r'''$.data'''),
     );
@@ -318,20 +367,23 @@ class HomeController extends ChangeNotifier {
     ).toString();
 
     final isOnlineFromApi = DriverIdfetchCall.isonline(userDetails.jsonBody);
-    
+
     // ✅ SYNC LOGIC:
-    // If the driver is NOT locally online, but the API says they ARE online, 
+    // If the driver is NOT locally online, but the API says they ARE online,
     // it means a previous session was left hanging. Sync it.
     if (!isOnline && isOnlineFromApi == true && canGoOnline) {
-      if (kDebugMode) debugPrint('♻️ Syncing Online status from API (Previously hanging session)');
+      if (kDebugMode)
+        debugPrint(
+            '♻️ Syncing Online status from API (Previously hanging session)');
       isOnline = true;
       FFAppState().isonline = true;
       _startLocationTracking();
-    } 
-    // If the driver IS locally online, but the API says they are NOT, 
+    }
+    // If the driver IS locally online, but the API says they are NOT,
     // we already re-asserted in init() if it was silent, but we'll double-check here.
-    else if (isOnline && isOnlineFromApi != true) {
-      if (kDebugMode) debugPrint('♻️ Re-asserting Online status (Server mismatch)');
+    else if (isOnline && isOnlineFromApi != true && _accountActive) {
+      if (kDebugMode)
+        debugPrint('♻️ Re-asserting Online status (Server mismatch)');
       await goOnline(silent: true);
     } else {
       // If API and local state are consistent, ensure FFAppState is updated
@@ -339,10 +391,17 @@ class HomeController extends ChangeNotifier {
       FFAppState().isonline = isOnline; // Sync local intent with API
     }
 
-    if (!canGoOnline && isOnline) {
+    if (!canGoOnline && isOnline && !isActiveRideBlockingOffline) {
       await goOffline();
       FFAppState().isonline = false;
       isOnline = false;
+    }
+
+    if (!_accountActive && isOnline && !isActiveRideBlockingOffline) {
+      await goOffline();
+      FFAppState().isonline = false;
+      isOnline = false;
+      _stopLocationTracking();
     }
 
     if (isOnline) {
@@ -352,6 +411,10 @@ class HomeController extends ChangeNotifier {
         const Duration(seconds: 45),
         (_) => _fetchAvailableDrivers(),
       );
+    }
+    if (_driverSocketStarted && !_disposed) {
+      DriverRealtimeSocketService.instance
+          .emitWatchEntity(reason: 'profile_refreshed');
     }
     _notify();
   }
@@ -381,6 +444,14 @@ class HomeController extends ChangeNotifier {
   // ── Online/Offline ─────────────────────────────────────────────────────────
 
   Future<void> goOnline({bool silent = false}) async {
+    if (!_accountActive) {
+      isOnline = false;
+      _notify();
+      if (!silent) {
+        onShowSnackBar('drv_account_inactive', isError: true);
+      }
+      return;
+    }
     if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
       isOnline = false;
       _notify();
@@ -489,6 +560,7 @@ class HomeController extends ChangeNotifier {
         const Duration(seconds: 45),
         (_) => _fetchAvailableDrivers(),
       );
+      _emitWatchEntity();
       if (!silent) onShowSnackBar('drv_you_online', isError: false);
     } else {
       isOnline = false;
@@ -505,6 +577,10 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> goOffline() async {
+    if (isActiveRideBlockingOffline) {
+      onShowSnackBar('drv_cannot_offline', isError: true);
+      return;
+    }
     _stopLocationTracking();
     final res = await DriverRepository.instance.setOnlineStatus(
       token: FFAppState().accessToken,
@@ -535,6 +611,11 @@ class HomeController extends ChangeNotifier {
   Future<void> toggleOnlineStatus() async {
     final intendedValue = !isOnline;
 
+    if (intendedValue && !_accountActive) {
+      onShowSnackBar('drv_account_inactive', isError: true);
+      return;
+    }
+
     if (intendedValue && !canGoOnline) {
       if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
         await onDocumentsIncompleteNavigate();
@@ -563,16 +644,14 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    if (!intendedValue) {
-      final status = currentRideStatus.toUpperCase();
-      if (['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP'].contains(status)) {
-        onShowSnackBar('drv_cannot_offline', isError: true);
-        return;
-      }
+    if (!intendedValue && isActiveRideBlockingOffline) {
+      onShowSnackBar('drv_cannot_offline', isError: true);
+      return;
     }
 
     isOnline = intendedValue;
-    FFAppState().isonline = intendedValue; // ✅ Optimistic; aligned again after API below
+    FFAppState().isonline =
+        intendedValue; // ✅ Optimistic; aligned again after API below
     _notify();
 
     if (intendedValue) {
@@ -596,8 +675,19 @@ class HomeController extends ChangeNotifier {
     _lastResumeSyncAt = now;
 
     await _fetchDriverProfile();
-    if (FFAppState().isonline && isOnline && canGoOnline) {
-      if (kDebugMode) debugPrint('♻️ App Resumed: Re-asserting Online status to ensure background drop did not happen');
+    if (_driverSocketStarted && !_disposed) {
+      try {
+        DriverRealtimeSocketService.instance.reconnectIfDisconnected();
+        DriverRealtimeSocketService.instance
+            .emitWatchEntity(reason: 'app_resumed');
+      } catch (e) {
+        if (kDebugMode) debugPrint('Socket resume error: $e');
+      }
+    }
+    if (FFAppState().isonline && isOnline && canGoOnline && _accountActive) {
+      if (kDebugMode)
+        debugPrint(
+            '♻️ App Resumed: Re-asserting Online status to ensure background drop did not happen');
       await DriverRepository.instance.setOnlineStatus(
         token: FFAppState().accessToken,
         isOnline: true,
@@ -688,10 +778,7 @@ class HomeController extends ChangeNotifier {
 
   void _adjustLocationFilter(String status) {
     int newFilter = 50;
-    if (status == 'ACCEPTED' ||
-        status == 'ARRIVED' ||
-        status == 'STARTED' ||
-        status == 'ONTRIP') {
+    if (_normalizedRideStatusBlocksOffline(status)) {
       newFilter = 10;
     }
 
@@ -712,8 +799,7 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> _handleLocationUpdate(Position newPosition) async {
-    final hasActiveRide = ['ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP']
-        .contains(currentRideStatus.toUpperCase());
+    final hasActiveRide = _normalizedRideStatusBlocksOffline(currentRideStatus);
 
     if (_lastSavedPosition == null) {
       _lastSavedPosition = newPosition;
@@ -779,17 +865,89 @@ class HomeController extends ChangeNotifier {
     }
   }
 
+  /// Re-subscribe driver room on the socket using **current** JWT + driver id.
+  /// Must not capture stale values from login/session boundaries.
+  void _emitWatchEntity() {
+    if (!_driverSocketStarted || _disposed) return;
+    DriverRealtimeSocketService.instance
+        .emitWatchEntity(reason: 'home_controller');
+    _syncRideChatSocketSubscription();
+  }
+
+  void _syncRideChatSocketSubscription() {
+    final svc = DriverRealtimeSocketService.instance;
+    if (!_driverSocketStarted || _disposed || !svc.isConnected) return;
+    final active = FFAppState().activeRideId;
+    if (active <= 0) {
+      if (_subscribedRideChatRideId > 0) {
+        final rid = _subscribedRideChatRideId;
+        svc.emitUnsubscribeRideChat(rid);
+        _subscribedRideChatRideId = 0;
+        _lastChatBannerMessageId = null;
+      }
+      return;
+    }
+    if (_subscribedRideChatRideId == active) return;
+    if (_subscribedRideChatRideId > 0) {
+      final old = _subscribedRideChatRideId;
+      svc.emitUnsubscribeRideChat(old);
+    }
+    _subscribedRideChatRideId = active;
+    _lastChatBannerMessageId = null;
+    try {
+      svc.emitSubscribeRideChat(active);
+      if (kDebugMode) {
+        debugPrint('📡 subscribe_ride_chat for ride $active');
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('subscribe_ride_chat error: $e');
+    }
+  }
+
+  void _onRideChatSocketMessageForBanner(dynamic raw) {
+    if (_disposed || raw is! Map) return;
+    final ctx = appNavigatorKey.currentContext;
+    if (ctx == null || !ctx.mounted) return;
+    final m = Map<String, dynamic>.from(raw);
+    final rid = m['ride_id'] ?? m['rideId'];
+    final id = rid is int ? rid : int.tryParse(rid?.toString() ?? '');
+    if (id == null || id <= 0) return;
+    if (id != FFAppState().activeRideId) return;
+    final sidRaw = m['sender_id'] ?? m['senderId'];
+    final senderId =
+        sidRaw is int ? sidRaw : int.tryParse(sidRaw?.toString() ?? '') ?? 0;
+    if (senderId == FFAppState().driverid) return;
+    final st =
+        (m['sender_type'] ?? m['senderType'])?.toString().toLowerCase() ?? '';
+    if (st == 'driver') return;
+    final text = (m['message_text'] ?? m['message'])?.toString().trim() ?? '';
+    if (text.isEmpty) return;
+    final senderName =
+        (m['sender_name'] ?? m['senderName'])?.toString().trim() ?? '';
+    final msgId = m['id'];
+    final mid = msgId is int ? msgId : int.tryParse(msgId?.toString() ?? '');
+    if (mid != null && mid == _lastChatBannerMessageId) return;
+    if (mid != null) _lastChatBannerMessageId = mid;
+
+    final router = GoRouter.of(ctx);
+    final preview = text.length > 120 ? '${text.substring(0, 120)}…' : text;
+    showRideChatInAppSnackBar(
+      router,
+      rideId: id,
+      title: senderName.isNotEmpty ? senderName : 'Passenger message',
+      preview: preview,
+      onOpen: () => openRideChatForRide(router, id),
+    );
+  }
+
   /// WebSocket path for lower-latency rider map updates (backend also broadcasts from REST).
   void _emitSocketLiveLocation(Position position) {
-    if (!_socketInitialized || _disposed) return;
+    if (!_driverSocketStarted || _disposed) return;
     final rideId = FFAppState().activeRideId;
     if (rideId <= 0) return;
-    final st = currentRideStatus.toUpperCase();
-    const tracking = {'ACCEPTED', 'ARRIVED', 'STARTED', 'ONTRIP', 'QR_SCANNED'};
-    if (!tracking.contains(st)) return;
+    if (!_normalizedRideStatusBlocksOffline(currentRideStatus)) return;
     try {
-      if (!_socket.connected) return;
-      _socket.emit('driver_location', {
+      DriverRealtimeSocketService.instance.emitDriverLocation({
         'latitude': position.latitude,
         'longitude': position.longitude,
         'accuracy': position.accuracy,
@@ -818,121 +976,39 @@ class HomeController extends ChangeNotifier {
     _notify();
   }
 
-  // ── Socket ─────────────────────────────────────────────────────────────────
-  void _initSocket() {
-    if (_socketInitialized) return;
-    _socketInitialized = true;
+  // ── Socket (singleton service: reconnect + token refresh safe) ─────────────
+  void _startDriverSocket() {
+    if (_driverSocketStarted) return;
+    _driverSocketStarted = true;
 
-    var token = FFAppState().accessToken.trim();
-    if (token.toLowerCase().startsWith('bearer ')) {
-      token = token.substring(7).trim();
-    }
-    final driverId = FFAppState().driverid;
-
-    void emitWatchEntity() {
-      if (driverId <= 0 || token.isEmpty) return;
-      _socket.emit('watch_entity', {'type': 'driver', 'id': driverId});
-    }
-
-    _socket = io.io(
-      Config.baseUrl,
-      io.OptionBuilder()
-          .setPath('/socket.io/')
-          .setTransports(['websocket', 'polling'])
-          .setTimeout(20000)
-          .enableReconnection()
-          .setReconnectionAttempts(5)
-          .setReconnectionDelay(2000)
-          .disableAutoConnect()
-          .enableForceNew()
-          .setAuth({'token': token})
-          .build(),
+    final cb = DriverSocketCallbacks(
+      accessTokenProvider: () => FFAppState().accessToken,
+      driverIdProvider: () => FFAppState().driverid,
+      isDisposed: () => _disposed,
+      onSocketRideData: onSocketRideData,
+      onRideLocationUpdated: (m) {
+        if (_disposed) return;
+        final did = m['driver_id'];
+        if (did == null) return;
+        final myId = FFAppState().driverid;
+        if (myId <= 0 || int.tryParse(did.toString()) != myId) return;
+        final rideIdRaw = m['ride_id'] ?? m['rideId'];
+        final rideId = rideIdRaw is int
+            ? rideIdRaw
+            : int.tryParse(rideIdRaw?.toString() ?? '');
+        if (rideId == null || rideId <= 0) return;
+        if (kDebugMode) {
+          debugPrint('📍 ride_location_updated → refetch ride $rideId');
+        }
+        onFetchRideById(rideId);
+      },
+      onRideChatMessage: _onRideChatSocketMessageForBanner,
+      onDriverProfileSocketUpdate: (data) {
+        if (_disposed) return;
+        _updateVerificationStateFromDriverData(data);
+      },
     );
-
-    _socket.onConnect((_) {
-      if (kDebugMode) debugPrint('Socket CONNECTED');
-      emitWatchEntity();
-    });
-
-    _socket.onReconnect((_) {
-      if (kDebugMode) debugPrint('Socket RECONNECTED');
-      emitWatchEntity();
-    });
-
-    _socket.onConnectError((dynamic err) {
-      if (kDebugMode) debugPrint('Socket connect error: $err');
-    });
-
-    // Ensure we don't accumulate multiple listeners
-    _socket.off('driver_rides');
-    _socket.off('ride_updated');
-    _socket.off('ride_location_updated');
-    _socket.off('ride_taken');
-    _socket.off('ride_assigned');
-    _socket.off('driver_updated');
-    _socket.off('driver_profile_updated');
-    _socket.off('kyc_status_updated');
-
-    _socket.on('driver_rides', (data) {
-      if (!_disposed) onSocketRideData(data);
-    });
-
-    _socket.on('ride_updated', (data) {
-      if (kDebugMode) debugPrint('🔔 Socket ride_updated event: $data');
-      if (!_disposed) onSocketRideData(data);
-    });
-
-    /// Rider changed pickup/drop — refresh assigned ride from API (markers, overlay, route).
-    _socket.on('ride_location_updated', (data) {
-      if (_disposed || data is! Map) return;
-      final m = Map<String, dynamic>.from(Map.from(data));
-      final did = m['driver_id'];
-      if (did == null) return;
-      final myId = FFAppState().driverid;
-      if (myId <= 0 || int.tryParse(did.toString()) != myId) return;
-      final rideIdRaw = m['ride_id'] ?? m['rideId'];
-      final rideId = rideIdRaw is int
-          ? rideIdRaw
-          : int.tryParse(rideIdRaw?.toString() ?? '');
-      if (rideId == null || rideId <= 0) return;
-      if (kDebugMode) {
-        debugPrint('📍 ride_location_updated → refetch ride $rideId');
-      }
-      onFetchRideById(rideId);
-    });
-
-    // Rapido-style: when another driver accepts, backend may emit ride_taken/ride_assigned
-    void onRideTaken(dynamic data) {
-      if (_disposed) return;
-      final d = data is Map ? Map<String, dynamic>.from(Map.from(data)) : null;
-      if (d == null) return;
-
-      final rideId = d['ride_id'] ?? d['rideId'];
-      final otherDriverId = d['driver_id'];
-      final myId = FFAppState().driverid;
-
-      if (rideId != null && otherDriverId != null && otherDriverId != myId) {
-        onSocketRideData(
-          {'id': rideId, 'driver_id': otherDriverId, 'ride_status': 'ACCEPTED'},
-        );
-      }
-    }
-
-    _socket.on('ride_taken', onRideTaken);
-    _socket.on('ride_assigned', onRideTaken);
-
-    void onDriverStatusUpdate(dynamic data) {
-      if (_disposed || data is! Map) return;
-      _updateVerificationStateFromDriverData(
-        Map<String, dynamic>.from(Map.from(data)),
-      );
-    }
-
-    _socket.on('driver_updated', onDriverStatusUpdate);
-    _socket.on('driver_profile_updated', onDriverStatusUpdate);
-    _socket.on('kyc_status_updated', onDriverStatusUpdate);
-
-    _socket.connect();
+    DriverRealtimeSocketService.instance.connect(cb);
   }
 
   // ── Incentives & Earnings ──────────────────────────────────────────────────
@@ -1124,12 +1200,14 @@ class HomeController extends ChangeNotifier {
           token: FFAppState().accessToken,
         );
         if (walletRes.succeeded) {
-          todayWallet = _asDouble(GetWalletCall.walletBalance(walletRes.jsonBody));
+          todayWallet =
+              _asDouble(GetWalletCall.walletBalance(walletRes.jsonBody));
         } else {
           // Keep previously loaded wallet value if wallet API fails.
           // `walletEarnings` is not wallet balance; it is only wallet-paid ride sum.
           if (kDebugMode) {
-            debugPrint('Wallet API failed, keeping previous todayWallet value.');
+            debugPrint(
+                'Wallet API failed, keeping previous todayWallet value.');
           }
         }
         final rides = data['rides'] as List? ?? [];
@@ -1150,6 +1228,35 @@ class HomeController extends ChangeNotifier {
   Future<void> fetchTodayEarnings() => _fetchTodayEarnings();
   Future<void> fetchIncentiveData() => _fetchIncentiveData();
 
+  Future<void> _fetchCaptainDashboard() async {
+    final token = FFAppState().accessToken;
+    if (token.isEmpty || FFAppState().driverid <= 0) return;
+    try {
+      isLoadingCaptainDashboard = true;
+      _notify();
+      final res =
+          await DriverRepository.instance.fetchAppDashboard(token: token);
+      if (_disposed) return;
+      if (res.succeeded) {
+        final d = DriverAppDashboardCall.data(res.jsonBody);
+        captainDashboardSummary =
+            d != null ? DriverDashboardSummary.fromJson(d) : null;
+      } else {
+        captainDashboardSummary = null;
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('Captain dashboard: $e');
+      captainDashboardSummary = null;
+    } finally {
+      if (!_disposed) {
+        isLoadingCaptainDashboard = false;
+        _notify();
+      }
+    }
+  }
+
+  Future<void> refreshCaptainDashboard() => _fetchCaptainDashboard();
+
   void setRideStatus(String status) {
     currentRideStatus = status;
     _adjustLocationFilter(status);
@@ -1162,6 +1269,7 @@ class HomeController extends ChangeNotifier {
     _notify();
     debugPrint('🔄 Ride completed. Refreshing earnings and incentives...');
     _fetchTodayEarnings();
+    _fetchCaptainDashboard();
     _fetchIncentiveData(); // ✅ Explicitly refresh incentives to update ride count
   }
 
@@ -1245,12 +1353,15 @@ class HomeController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    FFAppState().removeListener(_onFfAppStateForRideChat);
     _stopLocationTracking();
-    if (_socketInitialized) {
-      try {
-        _socket.disconnect();
-      } catch (_) {}
-    }
+    try {
+      if (_subscribedRideChatRideId > 0) {
+        DriverRealtimeSocketService.instance
+            .emitUnsubscribeRideChat(_subscribedRideChatRideId);
+      }
+    } catch (_) {}
+    DriverRealtimeSocketService.instance.dispose();
     super.dispose();
   }
 }

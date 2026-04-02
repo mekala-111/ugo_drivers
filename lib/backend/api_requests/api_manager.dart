@@ -221,6 +221,8 @@ class ApiManager {
 
   // ✅ ADDED: Global callback for Token Expiry / Concurrent Login
   static Function()? onUnauthenticated;
+  /// Called after a successful silent access-token refresh (e.g. re-register FCM for chat).
+  static void Function()? onAccessTokenRefreshed;
   static bool _isRefreshingToken = false;
 
   static void clearCache(String callName) => _apiCache.keys
@@ -678,6 +680,7 @@ class ApiManager {
       if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
         appState.refreshToken = newRefreshToken;
       }
+      onAccessTokenRefreshed?.call();
       return newAccessToken;
     } catch (_) {
       return null;

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math' as math;
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/constants/app_colors.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/index.dart';
+import '/services/team_referral_aggregate.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'teampage_model.dart';
@@ -30,6 +32,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
   bool _isLoading = true;
   Timer? _refreshTimer;
+  TeamReferralSnapshot? _teamSnapshot;
 
   @override
   void initState() {
@@ -45,17 +48,15 @@ class _TeampageWidgetState extends State<TeampageWidget>
     setState(() => _isLoading = true);
 
     try {
-      final response = await ReferralDashboardCall.call(
+      final snapshot = await loadTeamReferralSnapshot(
         token: FFAppState().accessToken,
         driverId: FFAppState().driverid,
       );
 
-      dynamic dashboardBody = response.succeeded ? response.jsonBody : null;
-      final dashboardReferrals =
-          dashboardBody != null ? ReferralDashboardCall.referrals(dashboardBody) : <dynamic>[];
+      dynamic dashboardBody = snapshot.dashboardBody;
+      final merged = snapshot.mergedTeamMembers;
 
-      // Fallback: if dashboard has no referrals, use referral earnings list.
-      if (dashboardReferrals.isEmpty) {
+      if (merged.isEmpty && dashboardBody == null) {
         final earningsRes = await ReferralEarningsCall.call(
           token: FFAppState().accessToken,
           driverId: FFAppState().driverid,
@@ -89,6 +90,7 @@ class _TeampageWidgetState extends State<TeampageWidget>
       }
 
       setState(() {
+        _teamSnapshot = snapshot;
         _model.referralData = dashboardBody;
         _isLoading = false;
       });
@@ -143,32 +145,48 @@ class _TeampageWidgetState extends State<TeampageWidget>
 
   // ── JSON path helpers ────────────────────────────────────────────────────
 
-  /// $.driver.referred_driver_count
+  /// $.driver.referred_driver_count + Pro roster merge
   String get _referredCount {
-    if (_model.referralData == null) return '0';
-    return '${ReferralDashboardCall.totalReferrals(_model.referralData)}';
+    final snap = _teamSnapshot;
+    final merged = snap?.mergedTeamMembers.length ?? 0;
+    final dash = _model.referralData != null
+        ? ReferralDashboardCall.totalReferrals(_model.referralData)
+        : 0;
+    final pro = snap != null
+        ? math.max(snap.proMyTotalFromApi, merged)
+        : merged;
+    return '${math.max(dash, pro)}';
   }
 
   /// $.lifetime_statistics.total_commission_earned
   String get _lifetimeCommission {
+    final earn = _teamSnapshot?.earningsBody;
+    if (earn != null) {
+      final t = ReferralEarningsCall.totalEarnings(earn);
+      if (t > 0) return '₹$t';
+    }
     if (_model.referralData == null) return '₹0';
     return '₹${ReferralDashboardCall.totalEarnings(_model.referralData)}';
   }
 
-  /// $.today_live.my_performance.ride_earnings
-  String get _yesterdayEarnings {
+  /// Today ride earnings (from live dashboard)
+  String get _todayRideEarnings {
     if (_model.referralData == null) return '₹0';
     return '₹${castToType<int>(getJsonField(_model.referralData, r'$.today_live.my_performance.ride_earnings')) ?? 0}';
   }
 
-  /// $.today_live.pending_commission_today
-  String get _yesterdayCommission {
+  /// Pending commission today
+  String get _pendingCommissionToday {
     if (_model.referralData == null) return '₹0';
     return '₹${ReferralDashboardCall.todayPendingCommission(_model.referralData)}';
   }
 
-  /// Today live referrals (fallback to yesterday for older backend responses)
+  /// Merged referrals: dashboard + Pro invite list (no phone)
   List<dynamic> get _referralsList {
+    final snap = _teamSnapshot;
+    if (snap != null && snap.mergedTeamMembers.isNotEmpty) {
+      return snap.mergedTeamMembers;
+    }
     if (_model.referralData == null) return [];
     return ReferralDashboardCall.referrals(_model.referralData);
   }
@@ -244,6 +262,19 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 ),
                               ),
                               const Spacer(),
+                              FlutterFlowIconButton(
+                                borderColor:
+                                    Colors.white.withValues(alpha: 0.3),
+                                borderRadius: 30.0,
+                                borderWidth: 1.0,
+                                buttonSize: 42.0,
+                                fillColor: Colors.white.withValues(alpha: 0.2),
+                                icon: const Icon(Icons.card_giftcard_rounded,
+                                    color: Colors.white, size: 20.0),
+                                onPressed: () => context
+                                    .pushNamed(ProReferralMyWidget.routeName),
+                              ),
+                              const SizedBox(width: 6),
                               FlutterFlowIconButton(
                                 borderColor:
                                     Colors.white.withValues(alpha: 0.3),
@@ -369,18 +400,19 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'My Referrals',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                          'Your team',
+                                          style: GoogleFonts.interTight(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w800,
                                             color: Colors.black87,
                                           ),
                                         ),
                                         Text(
-                                          'Your referred drivers',
+                                          'Captains you invited · Pro stats when synced',
                                           style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            color: Colors.grey[500],
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ],
@@ -405,7 +437,13 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                Expanded(child: _buildTeamList()),
+                                Expanded(
+                                  child: RefreshIndicator(
+                                    color: ugoOrange,
+                                    onRefresh: _loadReferralData,
+                                    child: _buildTeamList(),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -452,13 +490,13 @@ class _TeampageWidgetState extends State<TeampageWidget>
             ),
             const Spacer(),
             _miniStat(
-                label: 'Ride Earnings',
-                value: _yesterdayEarnings,
+                label: 'Your ride earnings',
+                value: _todayRideEarnings,
                 color: ugoGreen),
             const SizedBox(width: 20),
             _miniStat(
-                label: 'Pending Commission',
-                value: _yesterdayCommission,
+                label: 'Pending commission',
+                value: _pendingCommissionToday,
                 color: ugoBlue),
           ],
         ),
@@ -558,34 +596,47 @@ class _TeampageWidgetState extends State<TeampageWidget>
     final referrals = _referralsList;
 
     if (referrals.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
-            const SizedBox(height: 12),
-            Text(
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        children: [
+          const SizedBox(height: 48),
+          Icon(Icons.people_outline, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Center(
+            child: Text(
               'No referrals yet',
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[400],
+              style: GoogleFonts.interTight(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Share your code to grow your team',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[400]),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'Share your captain code from Earnings → Pro referrals or Referral hub.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                height: 1.35,
+                color: Colors.grey[500],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 20),
       itemCount: referrals.length,
-      physics: const BouncingScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       itemBuilder: (context, index) {
         final driver = referrals[index] as Map<String, dynamic>;
 
@@ -616,23 +667,31 @@ class _TeampageWidgetState extends State<TeampageWidget>
               child: Opacity(
                 opacity: val,
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                     border: Border.all(
                       color: isActive
-                          ? ugoGreen.withValues(alpha: 0.3)
+                          ? ugoGreen.withValues(alpha: 0.45)
                           : Colors.grey[200]!,
+                      width: isActive ? 1.5 : 1,
                     ),
                   ),
                   child: Row(
                     children: [
                       // Avatar
                       Container(
-                        width: 46,
-                        height: 46,
+                        width: 52,
+                        height: 52,
                         decoration: BoxDecoration(
                           color: isActive
                               ? ugoGreen.withValues(alpha: 0.12)
@@ -644,8 +703,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
                             name.isNotEmpty ? name[0].toUpperCase() : '?',
                             style: GoogleFonts.interTight(
                               color: isActive ? ugoGreen : ugoOrange,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
                             ),
                           ),
                         ),
@@ -662,9 +721,9 @@ class _TeampageWidgetState extends State<TeampageWidget>
                                 Expanded(
                                   child: Text(
                                     name,
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                    style: GoogleFonts.interTight(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 17,
                                       color: Colors.black87,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -732,8 +791,8 @@ class _TeampageWidgetState extends State<TeampageWidget>
                           Text(
                             '₹${commission.toStringAsFixed(0)}',
                             style: GoogleFonts.interTight(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                               color:
                                   commission > 0 ? ugoGreen : Colors.grey[400],
                             ),
