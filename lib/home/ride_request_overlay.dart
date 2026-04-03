@@ -282,6 +282,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       } else {
         // Active ride lock: never allow additional SEARCHING rides while one is ongoing.
         if (status == RideStatus.searching && _driverHasActiveRideLock) return;
+
+        // Uber-style exclusive ringing: never allow a new SEARCHING ride if one is already ringing.
+        if (status == RideStatus.searching &&
+            _activeRequests.any((r) => r.status == RideStatus.searching)) {
+          return;
+        }
+
         if (activeRideId != 0 &&
             updatedRide.id != activeRideId &&
             status != RideStatus.completed &&
@@ -397,9 +404,6 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       }
     });
     if (_activeRequests.isEmpty) _stopAlert();
-    if (_activeRequests.every((r) => r.status != RideStatus.searching)) {
-      _stopSearchingPoll();
-    }
     if (!_isAppInForeground) {
       FloatingBubbleService.hideRideRequest();
     }
@@ -600,19 +604,17 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     } catch (_) {}
   }
 
-  /// Rapido-style: Poll SEARCHING rides to remove when another driver accepts.
+  /// Uber flow: exclusive dispatch, do not poll aggressively.
   void _startSearchingPoll() {
-    if (_searchingPollTimer?.isActive == true) return;
-    _searchingPollTimer = Timer.periodic(
-        const Duration(seconds: 2), (_) => _pollSearchingRides());
+    // Disabled to stop "fastest finger first" ripping UI aggressively.
   }
 
   void _stopSearchingPoll() {
-    _searchingPollTimer?.cancel();
-    _searchingPollTimer = null;
+    // Disabled to stop "fastest finger first" ripping UI aggressively.
   }
 
   Future<void> _pollSearchingRides() async {
+    // Disabled to stop "fastest finger first" ripping UI aggressively.
     if (!mounted) return;
     final searchingIds = _activeRequests
         .where((r) => r.status == RideStatus.searching)
@@ -771,6 +773,16 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _updateRideStatus(rideId, RideStatus.accepted);
         FFAppState().activeRideId = rideId;
         VoiceService().rideAccepted();
+        
+        // Grab the ride from local state to get pickup coordinates
+        double? pickupLat;
+        double? pickupLng;
+        try {
+          final acceptedRide = _activeRequests.firstWhere((r) => r.id == rideId);
+          pickupLat = acceptedRide.pickupLat;
+          pickupLng = acceptedRide.pickupLng;
+        } catch (_) {}
+
         // ✅ Uber-style: once one ride is accepted, stop and clear other requests
         setState(() {
           _activeRequests.removeWhere(
@@ -778,7 +790,19 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           _timers.removeWhere((key, _) => key != rideId);
         });
         _stopAlert();
-        _stopSearchingPoll();
+
+        // ✅ Uber-style: Auto-launch navigation seamlessly when accepted
+        if (pickupLat != null && pickupLng != null && pickupLat != 0 && pickupLng != 0) {
+          final uri = Uri.parse('google.navigation:q=$pickupLat,$pickupLng&mode=d');
+          canLaunchUrl(uri).then((canLaunch) {
+            if (canLaunch) {
+              launchUrl(uri, mode: LaunchMode.externalApplication);
+            } else {
+              // Fallback to standard intent URL
+              launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$pickupLat,$pickupLng&travelmode=driving'), mode: LaunchMode.externalApplication);
+            }
+          });
+        }
       } else {
         if (mounted) {
           var apiMsg = AcceptRideCall.message(acceptRes.jsonBody)?.trim();

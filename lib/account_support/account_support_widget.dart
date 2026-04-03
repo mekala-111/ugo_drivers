@@ -104,14 +104,58 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
             }
           }
 
+          FFAppState().cachedDriverData = response.bodyText;
+          FFAppState().offlineMode = false;
           isLoading = false;
         });
       } else {
-        setState(() => isLoading = false);
+        if (response.statusCode == 401 || response.statusCode == 403) {
+          _logout();
+          return;
+        }
+        _fallbackToCache();
       }
     } catch (e) {
-      setState(() => isLoading = false);
+      _fallbackToCache();
     }
+  }
+
+  void _fallbackToCache() {
+    if (FFAppState().cachedDriverData.isNotEmpty) {
+      try {
+        final cachedJson = jsonDecode(FFAppState().cachedDriverData);
+        final data = DriverIdfetchCall.driverData(cachedJson);
+        final dataMap = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+        final rawTrips = dataMap['total_rides_completed'];
+
+        setState(() {
+          driverData = dataMap;
+          driverTripCount = rawTrips is int
+              ? rawTrips
+              : (rawTrips is num ? rawTrips.toInt() : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
+
+          driverRating = dataMap['driver_rating']?.toString() ?? '5.0';
+          if (driverRating == 'null' || driverRating.isEmpty) driverRating = '5.0';
+
+          if (dataMap['created_at'] != null) {
+            try {
+              DateTime createdDate = DateTime.parse(dataMap['created_at'].toString());
+              DateTime now = DateTime.now();
+              double years = now.difference(createdDate).inDays / 365.0;
+              if (years < 0.1) years = 0.1;
+              driverYears = years.toStringAsFixed(1);
+            } catch (e) {
+              driverYears = '0.1';
+            }
+          }
+
+          FFAppState().offlineMode = true;
+          isLoading = false;
+        });
+        return;
+      } catch (_) {}
+    }
+    setState(() => isLoading = false);
   }
 
   // String getFullImageUrl(String? imagePath) {
@@ -650,6 +694,35 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                             },
                           ),
                         ),
+
+                        if (FFAppState().offlineMode)
+                          Padding(
+                            padding: EdgeInsets.only(top: 16.0, left: horizontalPadding, right: horizontalPadding),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.orange.shade400),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.cloud_off, color: Colors.orange.shade800, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Offline Mode - Displaying cached data',
+                                      style: TextStyle(
+                                        color: Colors.orange.shade900,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
 
                         const SizedBox(height: 24),
 

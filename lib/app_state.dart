@@ -217,6 +217,9 @@ class FFAppState extends ChangeNotifier {
       _hasAskedBackgroundLocation =
           prefs.getBool('ff_hasAskedBackgroundLocation') ?? false;
     });
+    _safeInit(() {
+      _cachedDriverData = prefs.getString('ff_cachedDriverData') ?? '';
+    });
     // Aadhaar/PAN: migrate from SharedPreferences then load from secure storage
     await _loadAadharPanFromSecureStorage();
 
@@ -698,6 +701,21 @@ class FFAppState extends ChangeNotifier {
   set isLoggedIn(bool value) {
     _isLoggedIn = value;
     prefs.setBool('ff_isLoggedIn', value);
+    notifyListeners();
+  }
+
+  String _cachedDriverData = '';
+  String get cachedDriverData => _cachedDriverData;
+  set cachedDriverData(String value) {
+    _cachedDriverData = value;
+    prefs.setString('ff_cachedDriverData', value);
+    notifyListeners();
+  }
+
+  bool _offlineMode = false;
+  bool get offlineMode => _offlineMode;
+  set offlineMode(bool value) {
+    _offlineMode = value;
     notifyListeners();
   }
 
@@ -1438,6 +1456,8 @@ class FFAppState extends ChangeNotifier {
     _registrationStep = 0;
     _selectvehicle = '';
     _adminVehicleId = 0;
+    _cachedDriverData = '';
+    _offlineMode = false;
 
     // Basic info
     _mobileNo = 0;

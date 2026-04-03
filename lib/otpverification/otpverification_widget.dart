@@ -507,7 +507,7 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
             ),
           );
         }
-      } else {
+      } else if (_model.apiResultk3y?.statusCode == 404) {
         // ❌ NEW USER -> Go to Registration (First Details)
         lastLoginTime = DateTime.now();
         FFAppState().isLoggedIn = true;
@@ -540,6 +540,16 @@ class _OtpverificationWidgetState extends State<OtpverificationWidget> {
                   }
                 },
               ),
+            ),
+          );
+        }
+      } else {
+        // Network error or server error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Something went wrong. Please try again.'),
+              backgroundColor: Colors.red,
             ),
           );
         }

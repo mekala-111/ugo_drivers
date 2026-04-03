@@ -14,7 +14,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:label="UGO-DRIVER"
@@ -75,15 +74,7 @@
             android:foregroundServiceType="dataSync">
         </service>
 
-        <!-- Restore FGS after reboot if driver was still ONLINE (best-effort; OEM may defer). -->
-        <receiver
-            android:name=".DriverOnlineBootReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+        <!-- Boot receiver removed due to Android 15 Foreground Service Restrictions -->
 
         <activity
             android:name=".OngoingRideActivity"
