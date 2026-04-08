@@ -309,6 +309,22 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           return;
         }
 
+        // Distance filter: only show rides if driver is within 3km of pickup
+        if (status == RideStatus.searching && widget.driverLocation != null) {
+          final distanceMeters = Geolocator.distanceBetween(
+            widget.driverLocation!.latitude,
+            widget.driverLocation!.longitude,
+            updatedRide.pickupLat,
+            updatedRide.pickupLng,
+          );
+          if (distanceMeters > 3000) {
+            if (kDebugMode) {
+              debugPrint('UGO_FILTER: Ride ${updatedRide.id} ignored (too far: ${(distanceMeters / 1000).toStringAsFixed(1)}km)');
+            }
+            return;
+          }
+        }
+
         if (!mounted) return;
         setState(() {
           final validStatuses = [
