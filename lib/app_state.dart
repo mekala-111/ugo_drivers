@@ -142,6 +142,10 @@ class FFAppState extends ChangeNotifier {
       _isonline = prefs.getBool('ff_isonline') ?? false;
     });
     _safeInit(() {
+      final list = prefs.getStringList('ff_sessionDeclinedRideIds') ?? [];
+      _sessionDeclinedRideIds.addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
+    });
+    _safeInit(() {
       _autoAccept = prefs.getBool('ff_autoAccept') ?? false;
     });
     _safeInit(() {
@@ -510,7 +514,18 @@ class FFAppState extends ChangeNotifier {
 
   void rememberSessionDeclinedRide(int rideId) {
     if (rideId <= 0) return;
+    if (_sessionDeclinedRideIds.contains(rideId)) return;
     _sessionDeclinedRideIds.add(rideId);
+
+    // Keep the list manageable (last 50 rejections)
+    if (_sessionDeclinedRideIds.length > 50) {
+      _sessionDeclinedRideIds.remove(_sessionDeclinedRideIds.first);
+    }
+
+    prefs.setStringList(
+      'ff_sessionDeclinedRideIds',
+      _sessionDeclinedRideIds.map((e) => e.toString()).toList(),
+    );
   }
 
   bool isSessionDeclinedRide(int rideId) =>
@@ -1474,6 +1489,7 @@ class FFAppState extends ChangeNotifier {
     _activeRideId = 0;
     _activeRideStatus = '';
     _sessionDeclinedRideIds.clear();
+    prefs.remove('ff_sessionDeclinedRideIds');
     pendingRideIdFromNotification = 0;
     notificationUnreadCount = 0;
     _kycStatus = '';

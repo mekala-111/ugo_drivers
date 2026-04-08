@@ -25,7 +25,19 @@ class MainActivity: FlutterActivity() {
     private val rideRequestsChannelId = "ride_requests"
     private var pendingRideAction: Map<String, Any>? = null
 
+    companion object {
+        private var instance: MainActivity? = null
+
+        fun sendRideActionDirectly(action: String, rideId: Int): Boolean {
+            val inst = instance ?: return false
+            if (!inst::methodChannel.isInitialized) return false
+            inst.methodChannel.invokeMethod("rideAction", mapOf("action" to action, "rideId" to rideId))
+            return true
+        }
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        instance = this
         super.configureFlutterEngine(flutterEngine)
         createNotificationChannels()
 
@@ -304,8 +316,13 @@ class MainActivity: FlutterActivity() {
         if (intent == null) return
         val action = intent.getStringExtra("ride_action") ?: return
         val rideId = intent.getIntExtra("ride_id", 0)
+        val isBackground = intent.getBooleanExtra("background_action", false)
         if (rideId <= 0) return
-        pendingRideAction = mapOf("action" to action, "rideId" to rideId)
+        pendingRideAction = mapOf(
+            "action" to action, 
+            "rideId" to rideId,
+            "backgroundAction" to isBackground
+        )
     }
 
     private fun flushPendingRideAction() {
@@ -343,4 +360,9 @@ class MainActivity: FlutterActivity() {
     /** Mirrors Flutter [FFAppState].isonline persisted via shared_preferences. */
     private fun isFlutterDriverCaptainOnline(): Boolean =
         DriverOnlinePrefs.isDriverOnline(this)
+
+    override fun onDestroy() {
+        if (instance == this) instance = null
+        super.onDestroy()
+    }
 }

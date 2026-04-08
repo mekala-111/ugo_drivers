@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.animation.ValueAnimator
 import android.graphics.PixelFormat
 import android.os.Build
+import android.content.pm.ServiceInfo
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.provider.Settings
@@ -69,7 +70,8 @@ class CaptainBubbleService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(notificationId, createNotification())
+        
+        safeStartForeground()
         
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
@@ -86,7 +88,7 @@ class CaptainBubbleService : Service() {
             ACTION_SET_SUPPRESS_OVERLAY -> {
                 suppressBubbleOverlay = intent.getBooleanExtra(EXTRA_SUPPRESS_OVERLAY, suppressBubbleOverlay)
                 refreshOverlayForCurrentState()
-                startForeground(notificationId, createNotification())
+                safeStartForeground()
             }
             ACTION_UPDATE_BADGE -> {
                 pendingRequestCount = intent.getIntExtra(EXTRA_PENDING_COUNT, 0).coerceAtLeast(0)
@@ -233,7 +235,11 @@ class CaptainBubbleService : Service() {
         val targetX = if (params.x + (bubbleW / 2) < screenW / 2) 0 else (screenW - bubbleW).coerceAtLeast(0)
         if (!animate) {
             params.x = targetX
-            bubbleView?.let { windowManager.updateViewLayout(it, params) }
+            bubbleView?.let {
+                if (it.isAttachedToWindow) {
+                    windowManager.updateViewLayout(it, params)
+                }
+            }
             persistBubblePosition(params.x, params.y)
             return
         }
@@ -242,7 +248,11 @@ class CaptainBubbleService : Service() {
             duration = 180L
             addUpdateListener { animator ->
                 params.x = animator.animatedValue as Int
-                bubbleView?.let { windowManager.updateViewLayout(it, params) }
+                bubbleView?.let {
+                    if (it.isAttachedToWindow) {
+                        windowManager.updateViewLayout(it, params)
+                    }
+                }
             }
             start()
         }
@@ -566,12 +576,47 @@ class CaptainBubbleService : Service() {
     }
 
     private fun sendActionToMain(action: String, rideId: Int) {
-        // Decline must reach Flutter (reject API + local ignore set); overlay-only clear
-        // left the ride SEARCHING and forced a second decline in-app.
+        // 1. If decline, persist immediately from native so Flutter sees it on cold start.
+        if (action == "decline") {
+            try {
+                val p = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+                val currentSet = p.getStringSet("flutter.ff_sessionDeclinedRideIds", null) ?: mutableSetOf<String>()
+                val newSet = currentSet.toMutableSet()
+                newSet.add(rideId.toString())
+                
+                // Keep the list manageable (match Flutter side limit)
+                if (newSet.size > 50) {
+                    val iterator = newSet.iterator()
+                    if (iterator.hasNext()) {
+                        iterator.next()
+                        iterator.remove()
+                    }
+                }
+                
+                p.edit().putStringSet("flutter.ff_sessionDeclinedRideIds", newSet).apply()
+                Log.d(TAG, "Native: Persisted declined ride $rideId to SharedPreferences")
+            } catch (e: Exception) {
+                Log.e(TAG, "Native: Failed to persist decline", e)
+            }
+        }
+
+        // 2. Try direct method channel if MainActivity instance is alive (warm start)
+        if (action == "decline") {
+            val sent = MainActivity.sendRideActionDirectly(action, rideId)
+            if (sent) {
+                RideEventRepository.clearState()
+                return
+            }
+        }
+
+        // 3. Fallback: Start activity (Accept always starts activity; Decline starts if process was dead)
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("ride_action", action)
             putExtra("ride_id", rideId)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            if (action == "decline") {
+                putExtra("background_action", true)
+            }
         }
         startActivity(intent)
         RideEventRepository.clearState()
@@ -655,7 +700,11 @@ class CaptainBubbleService : Service() {
                     params.x = initialX + moveX.toInt()
                     params.y = initialY + moveY.toInt()
                     clampBubbleWithinScreen(params, computedBubbleSize, computedBubbleSize)
-                    windowManager.updateViewLayout(bubbleView, params)
+                    bubbleView?.let {
+                        if (it.isAttachedToWindow) {
+                            windowManager.updateViewLayout(it, params)
+                        }
+                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
@@ -741,6 +790,31 @@ class CaptainBubbleService : Service() {
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+    }
+
+    /**
+     * Safely starts the foreground service with the correct type for Android 14+.
+     * Catches ForegroundServiceStartNotAllowedException on Android 12+.
+     */
+    private fun safeStartForeground() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    notificationId,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+            } else {
+                startForeground(notificationId, createNotification())
+            }
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && 
+                e is ForegroundServiceStartNotAllowedException) {
+                Log.e(TAG, "Failed to start foreground service from background", e)
+            } else {
+                Log.e(TAG, "Failed to start foreground service", e)
+            }
+        }
     }
 
     override fun onDestroy() {

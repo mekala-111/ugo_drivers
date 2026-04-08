@@ -12,12 +12,12 @@ import 'package:ugo_driver/repositories/driver_repository.dart';
 import 'package:ugo_driver/models/driver_dashboard_summary.dart';
 import 'package:ugo_driver/backend/api_requests/api_calls.dart'
     show
-        DriverIdfetchCall,
-        DriverAppDashboardCall,
-        GetAllDriversCall,
-        NotificationHistoryCall,
-        AddMoneyToWalletCall,
-        GetWalletCall;
+    DriverIdfetchCall,
+    DriverAppDashboardCall,
+    GetAllDriversCall,
+    NotificationHistoryCall,
+    AddMoneyToWalletCall,
+    GetWalletCall;
 
 import '../flutter_flow/flutter_flow_util.dart';
 
@@ -63,7 +63,7 @@ class HomeController extends ChangeNotifier {
   }
 
   final Future<void> Function(String status, String? rejectionReason)
-      onShowKycDialog;
+  onShowKycDialog;
 
   /// When API says required documents are missing — route user to upload flow.
   final Future<void> Function() onDocumentsIncompleteNavigate;
@@ -87,6 +87,19 @@ class HomeController extends ChangeNotifier {
   int _subscribedRideChatRideId = 0;
   int? _lastChatBannerMessageId;
   DateTime? _lastResumeSyncAt;
+
+  /// Session-level guard: true once the GoOnline permissions screen has been
+  /// shown in this app session (battery + background location). Prevents
+  /// showing it again on every toggleOnlineStatus() call.
+  bool _hasShownGoOnlinePermissionsThisSession = false;
+
+  /// Session-level guard: true once the location disclosure dialog has been
+  /// accepted this session. Prevents re-showing it if the driver toggles
+  /// online/offline multiple times.
+  bool _hasShownLocationDisclosureThisSession = false;
+
+  /// Exposed so HomeWidget can read it to gate the overlay permission dialog.
+  bool hasPromptedOverlayThisSession = false;
 
   // ── State ───────────────────────────────────────────────────────────────────
 
@@ -137,19 +150,22 @@ class HomeController extends ChangeNotifier {
       .toLowerCase()
       .replaceAll('-', '_')
       .replaceAll(' ', '_');
+
   bool get isVerificationApproved =>
       _normalizedVerificationStatus == 'approved' ||
-      _normalizedVerificationStatus == 'verified';
+          _normalizedVerificationStatus == 'verified';
+
   bool get isVerificationRejected =>
       _normalizedVerificationStatus == 'rejected' ||
-      _normalizedVerificationStatus == 'declined';
+          _normalizedVerificationStatus == 'declined';
+
   bool get isVerificationPending =>
       _normalizedVerificationStatus == 'pending' ||
-      _normalizedVerificationStatus == 'in_review' ||
-      _normalizedVerificationStatus == 'under_review' ||
-      _normalizedVerificationStatus == 'pending_verification' ||
-      _normalizedVerificationStatus == 'submitted' ||
-      _normalizedVerificationStatus == 'awaiting_kyc';
+          _normalizedVerificationStatus == 'awaiting_kyc' || // ✅ Strict check for your payload
+          _normalizedVerificationStatus == 'in_review' ||
+          _normalizedVerificationStatus == 'under_review' ||
+          _normalizedVerificationStatus == 'pending_verification' ||
+          _normalizedVerificationStatus == 'submitted';
 
   /// Set when API includes `data.kyc_doc_status` (signup-with-vehicle / driver fetch).
   bool _kycDocStatusFromApi = false;
@@ -157,18 +173,27 @@ class HomeController extends ChangeNotifier {
   bool _allDocumentsUploaded = true;
   bool get allDocumentsUploaded => _allDocumentsUploaded;
 
-  /// Go online only when account is active, every required document is uploaded **and** KYC is approved.
+  /// Strict Sequential Check for Going Online
   bool get canGoOnline {
-    if (!_accountActive) return false;
-    if (_kycDocStatusFromApi) {
-      return _allDocumentsUploaded && isVerificationApproved;
+    // 1. Ask driver for KYC documentation
+    if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
+      return false;
     }
-    return isVerificationApproved;
+    // 2. Wait for verification (Pending/Awaiting KYC or Rejected)
+    if (!isVerificationApproved) {
+      return false;
+    }
+    // 3. Driver is Inactive (Approved but admin disabled them)
+    if (!_accountActive) {
+      return false;
+    }
+    // 4. Driver can start earning
+    return true;
   }
 
   Future<void> promptKycStatusDialog() async {
     final status =
-        verificationStatus.trim().isEmpty ? 'pending' : verificationStatus;
+    verificationStatus.trim().isEmpty ? 'pending' : verificationStatus;
     final reason = verificationRejectionReason.trim().isEmpty
         ? null
         : verificationRejectionReason;
@@ -288,7 +313,7 @@ class HomeController extends ChangeNotifier {
       // Update displayed driver name only when we have enough data.
       if (hasFirst || hasLast) {
         final fullName = '${hasFirst ? fetchedFirstName.trim() : ''} '
-                '${hasLast ? fetchedLastName.trim() : ''}'
+            '${hasLast ? fetchedLastName.trim() : ''}'
             .trim();
         if (fullName.isNotEmpty) driverName = fullName;
 
@@ -307,7 +332,7 @@ class HomeController extends ChangeNotifier {
 
       if (img != null && img.isNotEmpty) {
         profileImageUrl =
-            img.startsWith('http') ? img : '${Config.baseUrl}/$img';
+        img.startsWith('http') ? img : '${Config.baseUrl}/$img';
         // Pre-cache or validate URL if needed, but the main.dart change
         // already prevents the 404 from being a "Fatal Crash".
         if (kDebugMode) {
@@ -326,13 +351,13 @@ class HomeController extends ChangeNotifier {
     String? parsedCityName;
     if (body != null) {
       final preferredCityIdRaw =
-          getJsonField(body, r'''$.data.preferred_city_id''');
+      getJsonField(body, r'''$.data.preferred_city_id''');
       if (preferredCityIdRaw != null) {
         parsedCityId = int.tryParse(preferredCityIdRaw.toString());
       }
       if (parsedCityId == null || parsedCityId <= 0) {
         final preferredCityObj =
-            getJsonField(body, r'''$.data.preferred_city''');
+        getJsonField(body, r'''$.data.preferred_city''');
         if (preferredCityObj != null && preferredCityObj is Map) {
           final id = preferredCityObj['id'];
           if (id != null) parsedCityId = int.tryParse(id.toString());
@@ -409,7 +434,7 @@ class HomeController extends ChangeNotifier {
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
         const Duration(seconds: 45),
-        (_) => _fetchAvailableDrivers(),
+            (_) => _fetchAvailableDrivers(),
       );
     }
     if (_driverSocketStarted && !_disposed) {
@@ -444,14 +469,6 @@ class HomeController extends ChangeNotifier {
   // ── Online/Offline ─────────────────────────────────────────────────────────
 
   Future<void> goOnline({bool silent = false}) async {
-    if (!_accountActive) {
-      isOnline = false;
-      _notify();
-      if (!silent) {
-        onShowSnackBar('drv_account_inactive', isError: true);
-      }
-      return;
-    }
     if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
       isOnline = false;
       _notify();
@@ -469,6 +486,14 @@ class HomeController extends ChangeNotifier {
       }
       return;
     }
+    if (!_accountActive) {
+      isOnline = false;
+      _notify();
+      if (!silent) {
+        onShowSnackBar('drv_account_inactive', isError: true);
+      }
+      return;
+    }
 
     if (FFAppState().preferredCityId <= 0) {
       isOnline = false;
@@ -477,22 +502,31 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    // First time going online: show "Give all permissions" (Display over apps, Battery, Background Location)
-    if (!FFAppState().hasSeenGoOnlinePermissions) {
-      if (silent) {
-        isOnline = false;
-        _notify();
-        return;
+    // First time going online (or first time this session): show "Give all permissions"
+    // (Battery + Background Location screen). This covers the location disclosure too,
+    // so we mark _hasShownLocationDisclosureThisSession to skip the separate one below.
+    if (!FFAppState().hasSeenGoOnlinePermissions || !_hasShownGoOnlinePermissionsThisSession) {
+      if (!FFAppState().hasSeenGoOnlinePermissions) {
+        if (silent) {
+          isOnline = false;
+          _notify();
+          return;
+        }
+        final completed = await onShowGoOnlinePermissions();
+        if (!completed) {
+          isOnline = false;
+          _notify();
+          return;
+        }
+        // The permissions screen covered location disclosure — mark it done.
+        _hasShownLocationDisclosureThisSession = true;
       }
-      final completed = await onShowGoOnlinePermissions();
-      if (!completed) {
-        isOnline = false;
-        _notify();
-        return;
-      }
+      _hasShownGoOnlinePermissionsThisSession = true;
     }
 
-    // Rapido-style: location requested at pre-login. Only show disclosure if not yet granted.
+    // Only check permission status — don't show location disclosure again if
+    // the GoOnline permissions screen already handled it, or if the driver
+    // already agreed this session.
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.deniedForever) {
       if (!silent) await onShowPermissionDialog();
@@ -501,18 +535,22 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    // ONLY show disclosure if permission is actually denied
+    // Show location disclosure ONLY if permission is denied AND we haven't
+    // already shown it this session (prevents repeated nags on toggle).
     if (permission == LocationPermission.denied) {
       if (silent) {
         isOnline = false;
         _notify();
         return;
       }
-      final agreed = await onShowLocationDisclosure();
-      if (!agreed) {
-        isOnline = false;
-        _notify();
-        return;
+      if (!_hasShownLocationDisclosureThisSession) {
+        _hasShownLocationDisclosureThisSession = true;
+        final agreed = await onShowLocationDisclosure();
+        if (!agreed) {
+          isOnline = false;
+          _notify();
+          return;
+        }
       }
       // Request permission after user agrees to disclosure
       permission = await Geolocator.requestPermission();
@@ -529,7 +567,7 @@ class HomeController extends ChangeNotifier {
     try {
       position = await Geolocator.getCurrentPosition(
         locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high),
+        const LocationSettings(accuracy: LocationAccuracy.high),
       );
     } catch (e) {
       if (kDebugMode) debugPrint('Geolocator error: $e');
@@ -558,7 +596,7 @@ class HomeController extends ChangeNotifier {
       _availableDriversTimer?.cancel();
       _availableDriversTimer = Timer.periodic(
         const Duration(seconds: 45),
-        (_) => _fetchAvailableDrivers(),
+            (_) => _fetchAvailableDrivers(),
       );
       _emitWatchEntity();
       if (!silent) onShowSnackBar('drv_you_online', isError: false);
@@ -611,47 +649,50 @@ class HomeController extends ChangeNotifier {
   Future<void> toggleOnlineStatus() async {
     final intendedValue = !isOnline;
 
-    if (intendedValue && !_accountActive) {
-      onShowSnackBar('drv_account_inactive', isError: true);
-      return;
-    }
-
+    // If driver tries to go online but doesn't meet the requirements
     if (intendedValue && !canGoOnline) {
+      // Rule 1: "all_uploaded": false -> Ask driver for KYC documentation
       if (_kycDocStatusFromApi && !_allDocumentsUploaded) {
-        await onDocumentsIncompleteNavigate();
+        await onDocumentsIncompleteNavigate(); // Routes to Document Upload UI
         return;
       }
-      if (_kycDocStatusFromApi &&
-          _allDocumentsUploaded &&
-          !isVerificationApproved) {
-        await onShowKycDialog(
-            _normalizedVerificationStatus, verificationRejectionReason);
+
+      // Rule 2: "all_uploaded": true but NOT approved yet
+      if (!isVerificationApproved) {
+        if (isVerificationPending) {
+          onShowSnackBar(
+              'Your documents are awaiting verification (Awaiting KYC).',
+              isError: true);
+        } else if (isVerificationRejected) {
+          final reason = verificationRejectionReason.trim();
+          final msg = reason.isEmpty
+              ? 'Documents rejected. Please re-upload to continue.'
+              : 'Documents rejected: $reason';
+          onShowSnackBar(msg, isError: true);
+        } else {
+          onShowSnackBar('Complete documents to start earning.', isError: true);
+        }
         return;
       }
-      if (isVerificationPending) {
-        onShowSnackBar(
-            'Waiting for admin approval. Your documents are under review.',
-            isError: true);
-      } else if (isVerificationRejected) {
-        final reason = verificationRejectionReason.trim();
-        final msg = reason.isEmpty
-            ? 'Documents rejected. Please re-upload to continue.'
-            : 'Documents rejected: $reason';
-        onShowSnackBar(msg, isError: true);
-      } else {
-        onShowSnackBar('Complete documents to start earning', isError: true);
+
+      // Rule 3: Approved but "is_active": false -> Driver is inactive
+      if (!_accountActive) {
+        onShowSnackBar('Your account is inactive. Please contact support.', isError: true);
+        return;
       }
+
       return;
     }
 
+    // Rule 4: Driver can start earning (Go Online like Uber)
     if (!intendedValue && isActiveRideBlockingOffline) {
       onShowSnackBar('drv_cannot_offline', isError: true);
       return;
     }
 
     isOnline = intendedValue;
-    FFAppState().isonline =
-        intendedValue; // ✅ Optimistic; aligned again after API below
+    // ✅ Optimistic; aligned again after API below
+    FFAppState().isonline = intendedValue;
     _notify();
 
     if (intendedValue) {
@@ -659,6 +700,7 @@ class HomeController extends ChangeNotifier {
     } else {
       await goOffline();
     }
+
     if (!_disposed) {
       FFAppState().isonline = isOnline;
     }
@@ -709,7 +751,14 @@ class HomeController extends ChangeNotifier {
 
     var permission = await Geolocator.checkPermission();
 
-    if (!skipDisclosure && permission == LocationPermission.denied) {
+    // Only show location disclosure if:
+    // – skipDisclosure is NOT set, AND
+    // – we have NOT already shown it this session (prevents nag on toggle), AND
+    // – permission is actually denied (not just whileInUse)
+    if (!skipDisclosure &&
+        !_hasShownLocationDisclosureThisSession &&
+        permission == LocationPermission.denied) {
+      _hasShownLocationDisclosureThisSession = true;
       final agreed = await onShowLocationDisclosure();
       if (!agreed) {
         _isTrackingLocation = false;
@@ -732,10 +781,13 @@ class HomeController extends ChangeNotifier {
       return;
     }
 
-    // Rapido/Uber-style: require background location for ride matching when app is backgrounded
+    // Rapido/Uber-style: require background location for ride matching when app is backgrounded.
+    // Only ask if not already asked this session AND not asked in a previous session.
     if (Platform.isAndroid &&
         permission == LocationPermission.whileInUse &&
-        !FFAppState().hasAskedBackgroundLocation) {
+        !FFAppState().hasAskedBackgroundLocation &&
+        !_hasShownLocationDisclosureThisSession) {
+      _hasShownLocationDisclosureThisSession = true;
       FFAppState().hasAskedBackgroundLocation = true;
       final agreed = await onShowBackgroundLocationNotice();
       if (!agreed) {
@@ -755,7 +807,7 @@ class HomeController extends ChangeNotifier {
     try {
       final initialPosition = await Geolocator.getCurrentPosition(
         locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high),
+        const LocationSettings(accuracy: LocationAccuracy.high),
       );
       _lastSavedPosition = initialPosition;
       await _updateLocationToServer(initialPosition);
@@ -836,11 +888,11 @@ class HomeController extends ChangeNotifier {
           _lastNotifyPosition == null ||
           DateTime.now().difference(_lastNotifyTime!) >= _notifyTimeThreshold ||
           Geolocator.distanceBetween(
-                _lastNotifyPosition!.latitude,
-                _lastNotifyPosition!.longitude,
-                newPosition.latitude,
-                newPosition.longitude,
-              ) >=
+            _lastNotifyPosition!.latitude,
+            _lastNotifyPosition!.longitude,
+            newPosition.latitude,
+            newPosition.longitude,
+          ) >=
               _notifyDistanceThreshold;
       if (shouldNotify) {
         _lastNotifyTime = DateTime.now();
@@ -915,7 +967,7 @@ class HomeController extends ChangeNotifier {
     if (id != FFAppState().activeRideId) return;
     final sidRaw = m['sender_id'] ?? m['senderId'];
     final senderId =
-        sidRaw is int ? sidRaw : int.tryParse(sidRaw?.toString() ?? '') ?? 0;
+    sidRaw is int ? sidRaw : int.tryParse(sidRaw?.toString() ?? '') ?? 0;
     if (senderId == FFAppState().driverid) return;
     final st =
         (m['sender_type'] ?? m['senderType'])?.toString().toLowerCase() ?? '';
@@ -1032,7 +1084,7 @@ class HomeController extends ChangeNotifier {
       if (_disposed) return;
       if (response.succeeded) {
         final incentivesArray =
-            getJsonField(response.jsonBody, r'''$.data''', true);
+        getJsonField(response.jsonBody, r'''$.data''', true);
 
         if (incentivesArray != null && incentivesArray is List) {
           // 🎯 Filter to show ONLY currently running incentives
@@ -1115,7 +1167,7 @@ class HomeController extends ChangeNotifier {
               targetRides: item['target_rides'] ?? 0,
               completedRides: item['completed_rides'] ?? 0,
               rewardAmount:
-                  double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
+              double.tryParse(item['reward_amount'] ?? '0') ?? 0.0,
               isLocked: false,
               description: inc?['name'],
               startTime: inc?['start_time']?.toString(),
@@ -1235,12 +1287,12 @@ class HomeController extends ChangeNotifier {
       isLoadingCaptainDashboard = true;
       _notify();
       final res =
-          await DriverRepository.instance.fetchAppDashboard(token: token);
+      await DriverRepository.instance.fetchAppDashboard(token: token);
       if (_disposed) return;
       if (res.succeeded) {
         final d = DriverAppDashboardCall.data(res.jsonBody);
         captainDashboardSummary =
-            d != null ? DriverDashboardSummary.fromJson(d) : null;
+        d != null ? DriverDashboardSummary.fromJson(d) : null;
       } else {
         captainDashboardSummary = null;
       }
@@ -1323,10 +1375,10 @@ class HomeController extends ChangeNotifier {
         source.containsKey('reason');
     final dynamicReason = hasExplicitReason
         ? (source['kyc_rejection_reason'] ??
-            source['document_rejection_reason'] ??
-            source['rejection_reason'] ??
-            source['reject_reason'] ??
-            source['reason'])
+        source['document_rejection_reason'] ??
+        source['rejection_reason'] ??
+        source['reject_reason'] ??
+        source['reason'])
         : verificationRejectionReason;
     final nextReason = (dynamicReason ?? '').toString().trim();
 

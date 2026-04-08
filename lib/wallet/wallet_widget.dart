@@ -484,7 +484,7 @@ class _WalletWidgetState extends State<WalletWidget> {
                           Padding(
                             padding: EdgeInsets.only(bottom: 8.0 * scale),
                             child: Text(
-                              'No recent activity yet. Ride earnings and wallet top-ups will show here.',
+                              'No recent activity yet. Wallet credits and debits will show here.',
                               style: GoogleFonts.inter(
                                 fontSize: 14.0 * scale,
                                 color: Colors.grey[600],

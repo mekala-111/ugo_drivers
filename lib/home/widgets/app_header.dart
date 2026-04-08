@@ -20,7 +20,7 @@ class AppHeader extends StatelessWidget {
     this.profileImageUrl,
     this.notificationCount = 0,
     this.onNotificationTap,
-    this.isRideLocked = false,
+    this.isRideLocked = false, // Kept to prevent breaking home_widget.dart, but ignored in UI
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -46,9 +46,10 @@ class AppHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconSz = Responsive.iconSize(context, base: isSmallScreen ? 24 : 28);
     final headerH =
-        Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
+    Responsive.value(context, small: 48.0, medium: 54.0, large: 60.0);
     final hPad = Responsive.horizontalPadding(context);
     const minTap = Responsive.minTouchTarget;
+
     return Container(
       width: double.infinity,
       height: headerH,
@@ -60,14 +61,16 @@ class AppHeader extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+
+              // 1. Menu Icon (Always Unlocked like Uber)
               _tapTarget(
-                onTap: isRideLocked
-                    ? null
-                    : () => scaffoldKey.currentState?.openDrawer(),
+                onTap: () => scaffoldKey.currentState?.openDrawer(),
                 child: Icon(Icons.menu, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
-              if (switchValue && !isRideLocked)
+
+              // 2. Scan to Book (Available when Online)
+              if (switchValue)
                 _tapTarget(
                   onTap: () => context.pushNamed(ScanToBookWidget.routeName),
                   child: Icon(Icons.qr_code, color: Colors.white, size: iconSz),
@@ -75,10 +78,12 @@ class AppHeader extends StatelessWidget {
                 )
               else
                 const SizedBox(width: minTap, height: minTap),
+
+              // 3. Center Status / Online Toggle
               if (accountInactive)
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
@@ -97,13 +102,13 @@ class AppHeader extends StatelessWidget {
                 OnlineToggle(
                   switchValue: switchValue,
                   isDataLoaded: isDataLoaded,
-                  onToggle: isRideLocked ? () {} : onToggleOnline,
-                  blockGoingOffline: preventGoingOffline,
+                  onToggle: onToggleOnline,
+                  blockGoingOffline: preventGoingOffline, // Safely blocks turning off during rides
                 )
               else
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
@@ -116,14 +121,9 @@ class AppHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (isRideLocked)
-                _tapTarget(
-                  onTap: null,
-                  child:
-                      Icon(Icons.lock, color: Colors.white, size: iconSz - 2),
-                  minSize: minTap,
-                )
-              else if (notificationCount > 0)
+
+              // 4. Notifications (Always Unlocked)
+              if (notificationCount > 0)
                 Badge(
                   label: Text('$notificationCount'),
                   child: _tapTarget(
@@ -144,13 +144,14 @@ class AppHeader extends StatelessWidget {
                       color: Colors.white, size: iconSz),
                   minSize: minTap,
                 ),
+
+              // 5. Team Page (Always Unlocked)
               _tapTarget(
-                onTap: isRideLocked
-                    ? null
-                    : () => context.pushNamed(TeampageWidget.routeName),
+                onTap: () => context.pushNamed(TeampageWidget.routeName),
                 child: Icon(Icons.people, color: Colors.white, size: iconSz),
                 minSize: minTap,
               ),
+
             ],
           ),
         ),

@@ -61,9 +61,9 @@ class _HomeWidgetState extends State<HomeWidget>
   late HomeController _controller;
 
   final GlobalKey<RideRequestOverlayState> _overlayKey =
-      GlobalKey<RideRequestOverlayState>();
+  GlobalKey<RideRequestOverlayState>();
   final GlobalKey<FlutterFlowGoogleMapState> _mapKey =
-      GlobalKey<FlutterFlowGoogleMapState>();
+  GlobalKey<FlutterFlowGoogleMapState>();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isIncentivePanelExpanded = false;
@@ -94,7 +94,7 @@ class _HomeWidgetState extends State<HomeWidget>
   Circle? _routeDotCircle;
 
   final MethodChannel _bubbleChannel =
-      const MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
+  const MethodChannel('com.ugotaxi_rajkumar.driver/floating_bubble');
   static const Duration _circleFlushInterval = Duration(milliseconds: 120);
 
   @override
@@ -132,7 +132,7 @@ class _HomeWidgetState extends State<HomeWidget>
     _controller = HomeController(
       onDocumentsIncompleteNavigate: () async {
         if (!mounted) return;
-        context.goNamed(DocumentsScreen.routeName);
+        context.pushNamed(DocumentsScreen.routeName);
       },
       onShowKycDialog: (status, rejectionReason) async {
         if (!mounted) return;
@@ -147,7 +147,7 @@ class _HomeWidgetState extends State<HomeWidget>
             normalized == 'awaiting_kyc') {
           title = 'Pending for verification';
           message =
-              'Waiting for admin approval. Your documents are under review.';
+          'Waiting for admin approval. Your documents are under review.';
         } else if (normalized == 'rejected' || normalized == 'declined') {
           title = 'Documents rejected';
           final reason = rejectionReason?.trim() ?? '';
@@ -187,7 +187,7 @@ class _HomeWidgetState extends State<HomeWidget>
               FilledButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
                 style:
-                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                FilledButton.styleFrom(backgroundColor: AppColors.primary),
                 child: const Text('Agree'),
               ),
             ],
@@ -228,7 +228,7 @@ class _HomeWidgetState extends State<HomeWidget>
                   await Geolocator.openAppSettings();
                 },
                 style:
-                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                FilledButton.styleFrom(backgroundColor: AppColors.primary),
                 child: Text(
                     FFLocalizations.of(context).getText('drv_open_settings')),
               ),
@@ -294,56 +294,69 @@ class _HomeWidgetState extends State<HomeWidget>
     });
   }
 
-  /// After profile load: missing docs → documents screen; docs OK but KYC not approved → dialog only.
+  /// After profile load: Strict routing based on the 4-step logic
   Future<void> _applyKycEntryRouting() async {
     if (!mounted) return;
     final c = _controller;
     if (!c.isDataLoaded || !c.kycDocStatusFromApi) return;
-    if (!c.allDocumentsUploaded) {
-      context.goNamed(DocumentsScreen.routeName);
+
+    // ✅ If the driver is already approved, skip all routing — go straight to offline dashboard.
+    if (c.isVerificationApproved) {
+      // Only show inactive dialog if needed
+      if (!c.isAccountActive && !_sessionKycGateDialogShown) {
+        _sessionKycGateDialogShown = true;
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account Inactive'),
+            content: const Text('Your account has been verified but is currently inactive. Please contact support to activate your profile and start earning.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(FFLocalizations.of(context).getText('drv_ok')),
+              )
+            ],
+          ),
+        );
+      }
       return;
     }
+
+    // 1. "all_uploaded": false -> Route to Documents Screen
+    if (!c.allDocumentsUploaded) {
+      context.pushNamed(DocumentsScreen.routeName);
+      return;
+    }
+
+    // 2. "all_uploaded": true but NOT approved -> Show waiting/rejected dialog
     if (!c.isVerificationApproved && !_sessionKycGateDialogShown) {
       _sessionKycGateDialogShown = true;
       await c.promptKycStatusDialog();
+      return;
     }
   }
 
   Future<void> _initLocationSafely() async {
     try {
-      if (FFAppState().locationPermissionAsked == true) {
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        ).timeout(const Duration(seconds: 8));
+      // Only CHECK permissions — never request them silently on app startup.
+      // Permission requests happen in goOnline() when the driver intends to go online.
+      final LocationPermission permission = await Geolocator.checkPermission();
 
-        _controller.setUserLocation(
-          LatLng(position.latitude, position.longitude),
-        );
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        // Not granted yet — the driver will be prompted when they try to go online.
         return;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      // Permission already granted — get current position silently.
+      FFAppState().locationPermissionAsked = true;
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 8));
 
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        return;
-      }
-
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        FFAppState().locationPermissionAsked = true;
-
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        ).timeout(const Duration(seconds: 8));
-
-        _controller.setUserLocation(
-          LatLng(position.latitude, position.longitude),
-        );
-      }
+      _controller.setUserLocation(
+        LatLng(position.latitude, position.longitude),
+      );
     } catch (e) {
       debugPrint('UGO_HOME: Location init failed (non-fatal): $e');
     }
@@ -421,6 +434,16 @@ class _HomeWidgetState extends State<HomeWidget>
     }
     _rideActionDedupeKey = dedupeKey;
     _rideActionDedupeAt = now;
+
+    if (action == 'decline') {
+      FFAppState().rememberSessionDeclinedRide(rideId);
+    }
+
+    final isBackground = args['backgroundAction'] == true;
+    if (isBackground) {
+      // Immediately push back to background to keep the driver's current app visible.
+      FloatingBubbleService.moveTaskToBack();
+    }
 
     try {
       if (action == 'accept') {
@@ -508,11 +531,11 @@ class _HomeWidgetState extends State<HomeWidget>
         final lastCenter = _lastCameraCenter;
         final movedFarEnough = lastCenter == null ||
             Geolocator.distanceBetween(
-                  lastCenter.latitude,
-                  lastCenter.longitude,
-                  currentLoc.latitude,
-                  currentLoc.longitude,
-                ) >
+              lastCenter.latitude,
+              lastCenter.longitude,
+              currentLoc.latitude,
+              currentLoc.longitude,
+            ) >
                 10.0;
 
         if (movedFarEnough) {
@@ -596,6 +619,11 @@ class _HomeWidgetState extends State<HomeWidget>
 
   Future<void> _checkAndRequestOverlayPermission() async {
     if (!mounted) return;
+    // Only nag once per app session. If the driver already dismissed the dialog
+    // (granted or denied), we respect their choice until the next app launch.
+    if (_controller.hasPromptedOverlayThisSession) return;
+    _controller.hasPromptedOverlayThisSession = true;
+
     final granted = await FloatingBubbleService.checkOverlayPermission();
     if (!granted && mounted) {
       final proceed = await showDialog<bool>(
@@ -691,7 +719,7 @@ class _HomeWidgetState extends State<HomeWidget>
 
     void process(Map<String, dynamic> rideData) {
       final status =
-          (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
+      (rideData['ride_status'] ?? 'SEARCHING').toString().toUpperCase();
 
       // ✅ Driver gets rides only when online
       if (status == 'SEARCHING' && !_controller.isOnline) return;
@@ -715,8 +743,8 @@ class _HomeWidgetState extends State<HomeWidget>
         Provider.of<RideState>(context, listen: false).clearRide();
         final rideId = rideData['id'] != null
             ? (rideData['id'] is int
-                ? rideData['id'] as int
-                : int.tryParse(rideData['id'].toString()))
+            ? rideData['id'] as int
+            : int.tryParse(rideData['id'].toString()))
             : null;
         if (rideId != null) _overlayKey.currentState?.removeRideById(rideId);
         clearMap();
@@ -870,9 +898,9 @@ class _HomeWidgetState extends State<HomeWidget>
   }
 
   Future<void> _driverAnimateCameraToBounds(
-    List<gmf.LatLng> points,
-    double paddingPx,
-  ) async {
+      List<gmf.LatLng> points,
+      double paddingPx,
+      ) async {
     final ctrl = await _model.googleMapsController.future;
     if (!mounted) return;
 
@@ -1229,9 +1257,13 @@ class _HomeWidgetState extends State<HomeWidget>
         final isSmallScreen = Responsive.isSmallPhone(context);
         final c = _controller;
         final isOnline = c.isOnline;
-        final accountInactive = !c.isAccountActive;
+
+        // Ensure "Account Inactive" logic perfectly follows the 4-step strict pipeline
+        final accountInactive = c.allDocumentsUploaded && c.isVerificationApproved && !c.isAccountActive;
+
         final canShowInteractiveToggle =
-            c.isAccountActive && (c.canGoOnline || isOnline);
+            !accountInactive; // Always show the ON/OFF toggle unless account is inactive.
+            // (toggle will be greyed/disabled while !isDataLoaded via OnlineToggle's canInteract)
         final isRideLocked = c.isActiveRideBlockingOffline;
         // Only hide panels while a ride is actively running.
         final shouldShowPanels = !c.isActiveRideBlockingOffline;
@@ -1239,12 +1271,12 @@ class _HomeWidgetState extends State<HomeWidget>
             c.currentRideStatus.trim().toUpperCase() == 'SEARCHING';
         final showIncentivePanel =
             shouldShowPanels &&
-            !_suppressIncentiveForPostRide &&
-            !hasIncomingRequest;
+                !_suppressIncentiveForPostRide &&
+                !hasIncomingRequest;
         final showSummaryPanel =
             shouldShowPanels &&
-            !_suppressIncentiveForPostRide &&
-            !hasIncomingRequest;
+                !_suppressIncentiveForPostRide &&
+                !hasIncomingRequest;
         // Use fallback location when unavailable - avoid blocking home screen
         final userLocation = c.currentUserLocation ??
             const LatLng(17.3850, 78.4867); // Default: Hyderabad
@@ -1296,7 +1328,7 @@ class _HomeWidgetState extends State<HomeWidget>
                       accountInactive: accountInactive,
                       isRideLocked: isRideLocked,
                       preventGoingOffline:
-                          c.isActiveRideBlockingOffline && isOnline,
+                      c.isActiveRideBlockingOffline && isOnline,
                       screenWidth: screenWidth,
                       isSmallScreen: isSmallScreen,
                       notificationCount: c.notificationUnreadCount,
@@ -1314,31 +1346,31 @@ class _HomeWidgetState extends State<HomeWidget>
                                 mapKey: _mapKey,
                                 controller: _model.googleMapsController,
                                 initialLocation:
-                                    c.currentUserLocation ?? userLocation,
+                                c.currentUserLocation ?? userLocation,
                                 onCameraIdle: (latLng) =>
-                                    _model.googleMapsCenter = latLng,
+                                _model.googleMapsCenter = latLng,
                                 mapCenter: c.currentUserLocation,
                                 availableDriversCount: c.availableDriversCount,
                                 showDriversPanel: shouldShowPanels,
                                 onMapPrimaryAction: _onMapPrimaryActionLikeUser,
                                 // Inject custom driver marker
                                 markers: (c.currentUserLocation != null &&
-                                        isOnline)
+                                    isOnline)
                                     ? [
-                                        FlutterFlowMarker(
-                                            'driver_current_location',
-                                            c.currentUserLocation!,
-                                            null,
-                                            null,
-                                            null, // image
-                                            const MarkerIcon(
-                                              icon: Icons.navigation,
-                                              color: Colors.white,
-                                              backgroundColor: Colors.orange,
-                                              borderColor: Colors.white,
-                                              size: 20.0,
-                                            ))
-                                      ]
+                                  FlutterFlowMarker(
+                                      'driver_current_location',
+                                      c.currentUserLocation!,
+                                      null,
+                                      null,
+                                      null, // image
+                                      const MarkerIcon(
+                                        icon: Icons.navigation,
+                                        color: Colors.white,
+                                        backgroundColor: Colors.orange,
+                                        borderColor: Colors.white,
+                                        size: 20.0,
+                                      ))
+                                ]
                                     : [],
                               ),
                             ),
@@ -1354,7 +1386,6 @@ class _HomeWidgetState extends State<HomeWidget>
                               accountInactive: accountInactive,
                               documentsIncomplete: c.kycDocStatusFromApi &&
                                   !c.allDocumentsUploaded,
-                              captainDashboard: c.captainDashboardSummary,
                               onGoOnline: () => c.toggleOnlineStatus(),
                               onOpenDocuments: () async {
                                 await Navigator.push<void>(
@@ -1377,14 +1408,14 @@ class _HomeWidgetState extends State<HomeWidget>
                             onRideComplete: _onRideComplete,
                             onGhostRideCleared: _onRideComplete,
                             driverLocation:
-                                c.currentUserLocation ?? userLocation,
+                            c.currentUserLocation ?? userLocation,
                             onPostRideIncentiveSuppress: (suppress) {
                               if (!mounted) return;
                               setState(() =>
-                                  _suppressIncentiveForPostRide = suppress);
+                              _suppressIncentiveForPostRide = suppress);
                             },
                           ),
-                          if (isOnline && showSummaryPanel)
+                          if (showSummaryPanel)
                             Positioned(
                               left: 0,
                               right: 0,
@@ -1418,17 +1449,17 @@ class _HomeWidgetState extends State<HomeWidget>
                                         if (showIncentivePanel)
                                           IncentivePanel(
                                             isExpanded:
-                                                _isIncentivePanelExpanded,
+                                            _isIncentivePanelExpanded,
                                             isLoadingIncentives:
-                                                c.isLoadingIncentives,
+                                            c.isLoadingIncentives,
                                             incentiveTiers: c.incentiveTiers,
                                             totalIncentiveEarned:
-                                                c.totalIncentiveEarned,
+                                            c.totalIncentiveEarned,
                                             potentialBonusTotal:
-                                                c.incentivePotentialBonus,
+                                            c.incentivePotentialBonus,
                                             onTap: () => setState(() =>
-                                                _isIncentivePanelExpanded =
-                                                    !_isIncentivePanelExpanded),
+                                            _isIncentivePanelExpanded =
+                                            !_isIncentivePanelExpanded),
                                             screenWidth: screenWidth,
                                             isSmallScreen: isSmallScreen,
                                           ),
@@ -1474,7 +1505,7 @@ class _HomeWidgetState extends State<HomeWidget>
     final remoteConfig = FirebaseRemoteConfigService();
     await remoteConfig.ensureInitialized();
     final isMandatory =
-        remoteConfig.getBool('is_update_mandatory', defaultValue: false);
+    remoteConfig.getBool('is_update_mandatory', defaultValue: false);
 
     // Complete any previously downloaded flexible update first.
     await InAppUpdateService().checkRemainingUpdate();

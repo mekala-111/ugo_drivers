@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_driver/flutter_flow/internationalization.dart';
 import 'package:ugo_driver/index.dart';
-import 'package:ugo_driver/models/driver_dashboard_summary.dart';
 
 /// Offline state dashboard: greeting, driver name, "Go Online" CTA.
 /// Shown when driver is offline (MapContainer is hidden).
@@ -18,7 +17,6 @@ class OfflineDashboard extends StatefulWidget {
     required this.canGoOnline,
     this.documentsIncomplete = false,
     this.accountInactive = false,
-    this.captainDashboard,
   });
 
   final String driverName;
@@ -34,9 +32,6 @@ class OfflineDashboard extends StatefulWidget {
   final bool documentsIncomplete;
   /// Admin has set `is_active: false` on the driver account.
   final bool accountInactive;
-
-  /// Optional aggregated stats from GET /api/drivers/app/dashboard.
-  final DriverDashboardSummary? captainDashboard;
 
   @override
   State<OfflineDashboard> createState() => _OfflineDashboardState();
@@ -95,37 +90,45 @@ class _OfflineDashboardState extends State<OfflineDashboard>
     IconData stateIcon = Icons.bedtime_rounded;
     Color stateColor = Colors.grey.shade400;
 
-    if (widget.accountInactive) {
-      titleText = FFLocalizations.of(context).getText('drv_header_inactive');
-      subtitleText =
-          FFLocalizations.of(context).getText('drv_account_inactive');
-      stateIcon = Icons.person_off_rounded;
-      stateColor = Colors.deepOrange.shade400;
-    } else if (isPending) {
-      titleText = 'Pending for verification';
-      subtitleText = 'Waiting for admin approval. Your documents are under review.';
-      stateIcon = Icons.hourglass_top_rounded;
-      stateColor = Colors.amber.shade700;
-    } else if (isRejected) {
-      titleText = 'Documents rejected';
-      final reason = widget.rejectionReason.trim();
-      subtitleText = reason.isEmpty
-          ? 'Your documents were rejected. Please upload clear and valid documents.'
-          : 'Reason: $reason';
-      stateIcon = Icons.cancel_rounded;
-      stateColor = Colors.red.shade400;
-    } else if (widget.documentsIncomplete) {
-      titleText = 'Documents required';
-      subtitleText =
-          'Upload all required documents to continue. You will be able to go online after admin approval.';
-      stateIcon = Icons.upload_file_rounded;
-      stateColor = AppColors.primary;
-    } else if (!isApproved) {
-      titleText = 'Offline';
-      subtitleText = 'Complete documents to start earning.';
-      stateIcon = Icons.file_present_rounded;
-      stateColor = AppColors.primary;
+    // --- 1. Text & Icon Priority Logic ---
+    // Only surface non-default states AFTER data has loaded from the server.
+    // This prevents KYC-approved drivers from seeing the "documents" state
+    // during the brief loading window at login.
+    if (widget.isDataLoaded) {
+      if (widget.documentsIncomplete) {
+        titleText = 'Documents required';
+        subtitleText =
+        'Upload all required documents to continue. You will be able to go online after admin approval.';
+        stateIcon = Icons.upload_file_rounded;
+        stateColor = AppColors.primary;
+      } else if (isRejected) {
+        titleText = 'Documents rejected';
+        final reason = widget.rejectionReason.trim();
+        subtitleText = reason.isEmpty
+            ? 'Your documents were rejected. Please upload clear and valid documents.'
+            : 'Reason: $reason';
+        stateIcon = Icons.cancel_rounded;
+        stateColor = Colors.red.shade400;
+      } else if (isPending) {
+        titleText = 'Pending for verification';
+        subtitleText = 'Waiting for admin approval. Your documents are under review.';
+        stateIcon = Icons.hourglass_top_rounded;
+        stateColor = Colors.amber.shade700;
+      } else if (!isApproved) {
+        titleText = 'Offline';
+        subtitleText = 'Complete documents to start earning.';
+        stateIcon = Icons.file_present_rounded;
+        stateColor = AppColors.primary;
+      } else if (widget.accountInactive) {
+        titleText = FFLocalizations.of(context).getText('drv_header_inactive');
+        subtitleText =
+            FFLocalizations.of(context).getText('drv_account_inactive');
+        stateIcon = Icons.person_off_rounded;
+        stateColor = Colors.deepOrange.shade400;
+      }
+      // else: isApproved && active -> default 'Offline' + Go Online button (already set above)
     }
+    // else: data still loading -> show neutral 'Offline' state (defaults set above)
 
     return Container(
       width: double.infinity,
@@ -146,9 +149,13 @@ class _OfflineDashboardState extends State<OfflineDashboard>
       child: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: pad,
-            vertical: Responsive.verticalSpacing(context) * 2,
+          padding: EdgeInsets.only(
+            left: pad,
+            right: pad,
+            top: Responsive.verticalSpacing(context) * 2,
+            // Extra bottom padding so the GO ONLINE button is not hidden
+            // behind the always-visible bottom incentive/earnings panel.
+            bottom: 180,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -180,13 +187,6 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                   letterSpacing: -0.5,
                 ),
               ),
-
-              if (isApproved &&
-                  !widget.accountInactive &&
-                  widget.captainDashboard != null) ...[
-                SizedBox(height: Responsive.verticalSpacing(context) * 2),
-                _CaptainHomeStatsRow(summary: widget.captainDashboard!),
-              ],
 
               SizedBox(height: Responsive.verticalSpacing(context) * 5),
 
@@ -265,54 +265,13 @@ class _OfflineDashboardState extends State<OfflineDashboard>
 
               SizedBox(height: Responsive.verticalSpacing(context) * 5),
 
-              if (widget.accountInactive)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.deepOrange.shade50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.deepOrange.shade200),
-                  ),
-                  child: Text(
-                    FFLocalizations.of(context).getText('drv_account_inactive'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      height: 1.4,
-                    ),
-                  ),
-                )
-              else if (isPending)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.amber.shade200),
-                  ),
-                  child: const Text(
-                    'Waiting for admin approval. Your documents are under review.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                )
-              else
+              // --- 2. Button / Action UI Priority Logic ---
+              // Only show documents/pending/inactive buttons after server data confirms it.
+              // Before data loads, always show the Go Online button (greyed to indicate loading).
+              if (widget.isDataLoaded && (widget.documentsIncomplete || isRejected))
+              // STEP 1: If documents are missing or rejected, force them to upload
                 GestureDetector(
-                  onTap: () {
-                    if (widget.canGoOnline && widget.isDataLoaded) {
-                      widget.onGoOnline();
-                    } else if (widget.documentsIncomplete) {
-                      widget.onOpenDocuments();
-                    } else {
-                      widget.onGoOnline();
-                    }
-                  },
+                  onTap: widget.onOpenDocuments,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsets.symmetric(
@@ -321,15 +280,10 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                     ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: (widget.canGoOnline && widget.isDataLoaded)
-                            ? [
-                                AppColors.primary,
-                                AppColors.primary.withValues(alpha: 0.8)
-                              ]
-                            : [
-                                AppColors.primary.withValues(alpha: 0.92),
-                                AppColors.primary.withValues(alpha: 0.8)
-                              ],
+                        colors: [
+                          AppColors.primary,
+                          AppColors.primary.withValues(alpha: 0.8)
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -352,24 +306,17 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                             color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
-                            widget.canGoOnline
-                                ? Icons.power_settings_new_rounded
-                                : Icons.upload_file_rounded,
+                          child: const Icon(
+                            Icons.upload_file_rounded,
                             color: Colors.white,
                             size: 22,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          widget.canGoOnline
-                              ? FFLocalizations.of(context)
-                                  .getText('drv_go_online')
-                              : (isRejected
-                                  ? 'Re-upload documents'
-                                  : (widget.documentsIncomplete
-                                      ? 'Complete documents'
-                                      : 'Verification status')),
+                          widget.documentsIncomplete
+                              ? 'Upload documents'
+                              : 'Re-upload documents',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: Responsive.fontSize(context, 17),
@@ -379,136 +326,117 @@ class _OfflineDashboardState extends State<OfflineDashboard>
                       ],
                     ),
                   ),
-                ),
+                )
+              else if (widget.isDataLoaded && isPending)
+              // STEP 2: Documents are done, but waiting for Admin Review
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: const Text(
+                    'Waiting for admin approval. Your documents are under review.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                )
+              else if (widget.isDataLoaded && widget.accountInactive)
+                // STEP 3: Admin approved documents but driver account is turned off
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.deepOrange.shade50,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.deepOrange.shade200),
+                    ),
+                    child: Text(
+                      FFLocalizations.of(context).getText('drv_account_inactive'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                  )
+                else
+                // STEP 4: All clear (or still loading). Show Go Online Button.
+                  GestureDetector(
+                    onTap: () {
+                      if (widget.canGoOnline && widget.isDataLoaded) {
+                        widget.onGoOnline();
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: pad * 2.5,
+                        vertical: btnH * 0.25,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: (widget.canGoOnline && widget.isDataLoaded)
+                              ? [
+                            AppColors.primary,
+                            AppColors.primary.withValues(alpha: 0.8)
+                          ]
+                              : [
+                            AppColors.primary.withValues(alpha: 0.92),
+                            AppColors.primary.withValues(alpha: 0.8)
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.power_settings_new_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            FFLocalizations.of(context).getText('drv_go_online'),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: Responsive.fontSize(context, 17),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
 
               SizedBox(height: Responsive.verticalSpacing(context) * 2),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Large tap-friendly earnings row (captain / Rapido-style).
-class _CaptainHomeStatsRow extends StatelessWidget {
-  const _CaptainHomeStatsRow({required this.summary});
-
-  final DriverDashboardSummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final pad = Responsive.horizontalPadding(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: pad * 0.25),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _bigStat(
-                  context,
-                  label: 'Today',
-                  value: '₹${summary.todayEarnings.toStringAsFixed(0)}',
-                  sub: '${summary.todayTripCount} trips',
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _bigStat(
-                  context,
-                  label: 'Wallet',
-                  value: '₹${summary.walletBalance.toStringAsFixed(0)}',
-                  sub: 'Balance',
-                  color: const Color(0xFF2E7D32),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _bigStat(
-                  context,
-                  label: 'This week',
-                  value: '₹${summary.weeklyEarnings.toStringAsFixed(0)}',
-                  sub: summary.rating != null
-                      ? '★ ${summary.rating!.toStringAsFixed(1)}'
-                      : 'Earnings',
-                  color: const Color(0xFF1565C0),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _bigStat(
-                  context,
-                  label: 'Trips (all)',
-                  value: '${summary.totalRidesCompleted}',
-                  sub: summary.cancellationRate != null
-                      ? '${summary.cancellationRate!.toStringAsFixed(0)}% cancel (30d)'
-                      : 'Lifetime',
-                  color: Colors.grey.shade800,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _bigStat(
-    BuildContext context, {
-    required String label,
-    required String value,
-    required String sub,
-    required Color color,
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
-      shadowColor: Colors.black26,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: color.withValues(alpha: 0.85),
-                letterSpacing: 0.6,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: Responsive.fontSize(context, 22),
-                fontWeight: FontWeight.w900,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              sub,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
-                height: 1.2,
-              ),
-            ),
-          ],
         ),
       ),
     );

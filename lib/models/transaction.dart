@@ -115,22 +115,8 @@ class Transaction {
 
   /// Get readable type
   String get readableType {
-    switch (type.toLowerCase()) {
-      case 'credit':
-        return 'Credit';
-      case 'debit':
-        return 'Debit';
-      case 'withdrawal':
-        return 'Withdrawal';
-      case 'refund':
-        return 'Refund';
-      case 'recharge':
-        return 'Wallet top-up';
-      case 'ride_payment':
-        return amount >= 0 ? 'Ride earning' : 'Ride payment';
-      default:
-        return type.replaceAll('_', ' ');
-    }
+    if (isCredit) return 'Credit';
+    return 'Debit';
   }
 }
 
