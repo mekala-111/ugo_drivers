@@ -222,6 +222,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<void> handleNewRide(Map<String, dynamic> rawData) async {
     try {
       final updatedRide = RideRequest.fromJson(rawData);
+      if (kDebugMode) {
+        debugPrint('UGO_RIDE: handleNewRide id=${updatedRide.id} status=${updatedRide.status.value} (raw=${rawData['ride_status']})');
+      }
       if (!mounted) return;
       bool shouldShowFloatingRide = false;
 
@@ -333,6 +336,11 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             RideStatus.arrived,
             RideStatus.started,
             RideStatus.onTrip,
+            RideStatus.pickedUp,
+            RideStatus.inProgress,
+            RideStatus.driverAssigned,
+            RideStatus.qrScanned,
+            RideStatus.fetching,
           ];
           if (validStatuses.contains(status)) {
             _activeRequests.add(updatedRide);
@@ -1204,7 +1212,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           r.status == RideStatus.arrived ||
           r.status == RideStatus.started ||
           r.status == RideStatus.onTrip ||
-          r.status == RideStatus.completed,
+          r.status == RideStatus.completed ||
+          r.status == RideStatus.pickedUp ||
+          r.status == RideStatus.inProgress ||
+          r.status == RideStatus.driverAssigned ||
+          r.status == RideStatus.qrScanned ||
+          r.status == RideStatus.fetching,
       orElse: () => searchingRides.isNotEmpty
           ? searchingRides.last
           : _activeRequests.last,
@@ -1389,6 +1402,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           ),
         );
       case RideStatus.accepted:
+      case RideStatus.driverAssigned:
         return Positioned.fill(
           child: RidePickupOverlay(
             ride: ride,
@@ -1402,6 +1416,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           ),
         );
       case RideStatus.arrived:
+      case RideStatus.qrScanned:
         return Positioned.fill(
           child: RideBottomOverlay(
             ride: ride,
@@ -1418,6 +1433,8 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         );
       case RideStatus.started:
       case RideStatus.onTrip:
+      case RideStatus.pickedUp:
+      case RideStatus.inProgress:
         return Positioned.fill(
           child: RideCompleteOverlay(
             ride: ride,
@@ -1431,6 +1448,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             isLoading: _isCompletingRide,
             onChat: () => _openRideChat(ride),
           ),
+        );
+      case RideStatus.fetching:
+        return const Center(
+          child: CircularProgressIndicator(),
         );
       default:
         return const SizedBox.shrink();

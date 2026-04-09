@@ -8,6 +8,11 @@ enum RideStatus {
   cancelled,
   rejected,
   expired,
+  pickedUp,
+  inProgress,
+  driverAssigned,
+  qrScanned,
+  fetching,
   unknown,
 }
 
@@ -32,6 +37,16 @@ extension RideStatusX on RideStatus {
         return 'REJECTED';
       case RideStatus.expired:
         return 'EXPIRED';
+      case RideStatus.pickedUp:
+        return 'PICKEDUP';
+      case RideStatus.inProgress:
+        return 'INPROGRESS';
+      case RideStatus.driverAssigned:
+        return 'DRIVERASSIGNED';
+      case RideStatus.qrScanned:
+        return 'QRSCANNED';
+      case RideStatus.fetching:
+        return 'FETCHING';
       default:
         return 'UNKNOWN';
     }
@@ -39,29 +54,38 @@ extension RideStatusX on RideStatus {
 
   static RideStatus fromString(String? s) {
     if (s == null) return RideStatus.unknown;
-    switch (s.toLowerCase()) {
-      case 'searching':
+    final normalized = s.trim().toUpperCase().replaceAll('_', '');
+    switch (normalized) {
+      case 'SEARCHING':
         return RideStatus.searching;
-      case 'accepted':
+      case 'ACCEPTED':
         return RideStatus.accepted;
-      case 'arrived':
+      case 'ARRIVED':
         return RideStatus.arrived;
-      case 'started':
+      case 'STARTED':
         return RideStatus.started;
-      case 'ontrip':
-      case 'on_trip':
+      case 'ONTRIP':
         return RideStatus.onTrip;
-      case 'completed':
+      case 'COMPLETED':
         return RideStatus.completed;
-      case 'cancelled':
-      case 'canceled':
+      case 'CANCELLED':
+      case 'CANCELED':
         return RideStatus.cancelled;
-      case 'declined':
+      case 'DECLINED':
+      case 'REJECTED':
         return RideStatus.rejected;
-      case 'rejected':
-        return RideStatus.rejected;
-      case 'expired':
+      case 'EXPIRED':
         return RideStatus.expired;
+      case 'PICKEDUP':
+        return RideStatus.pickedUp;
+      case 'INPROGRESS':
+        return RideStatus.inProgress;
+      case 'DRIVERASSIGNED':
+        return RideStatus.driverAssigned;
+      case 'QRSCANNED':
+        return RideStatus.qrScanned;
+      case 'FETCHING':
+        return RideStatus.fetching;
       default:
         return RideStatus.unknown;
     }

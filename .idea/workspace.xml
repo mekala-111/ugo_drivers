@@ -4,20 +4,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE 3.0.0 V 14">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE 3.0.0 V 16">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/CaptainBubbleService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/CaptainBubbleService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/kotlin/com/ugotaxi_rajkumar/driver/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app_state.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/controllers/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/home_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/home_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/app_header.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/offline_dashboard.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/home/widgets/online_toggle.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/home/widgets/online_toggle.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models/transaction.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/transaction.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/wallet/wallet_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -444,7 +432,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775667366006</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="PLAY STORE 3.0.0 V 16">
+      <option name="closed" value="true" />
+      <created>1775678347092</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1775678347092</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -459,7 +455,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="UPADTE PACKAGE" />
     <MESSAGE value="final audit fix done" />
     <MESSAGE value="responsive audit fix done" />
     <MESSAGE value="registation working  audit fix done" />
@@ -484,7 +479,8 @@
     <MESSAGE value="update" />
     <MESSAGE value="PLAY STORE 3.0.0 V 13" />
     <MESSAGE value="PLAY STORE 3.0.0 V 14" />
-    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE 3.0.0 V 14" />
+    <MESSAGE value="PLAY STORE 3.0.0 V 16" />
+    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE 3.0.0 V 16" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
 </project>
