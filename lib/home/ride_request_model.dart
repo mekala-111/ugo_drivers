@@ -127,7 +127,12 @@ class RideRequest {
       discountAmount: _parseToDouble(json['discount_amount']) ?? 0.0,
       paymentMode: parsePaymentMode(paymentValue),
       rawPaymentMode: paymentValue?.toString() ?? 'Unknown',
-      bookingMode: json['booking_mode']?.toString().toLowerCase() ?? 'normal',
+      bookingMode: (json['booking_mode'] ??
+              json['bookingMode'] ??
+              json['booking_type'] ??
+              'normal')
+          .toString()
+          .toLowerCase(),
       vehicleType: json['vehicle_type'] ??
           json['rideType'] ??
           json['ride_type'] ??

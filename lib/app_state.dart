@@ -315,6 +315,14 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _pollutionBase64 = prefs.getString('ff_pollutionBase64') ?? '';
     });
+
+    // ✅ Restore declined ride IDs to prevent them from showing again after restart
+    _safeInit(() {
+      final list = prefs.getStringList('ff_sessionDeclinedRideIds') ?? [];
+      _sessionDeclinedRideIds.clear();
+      _sessionDeclinedRideIds.addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
+    });
+
     _restoreUploadedFilesFromBase64();
   }
 

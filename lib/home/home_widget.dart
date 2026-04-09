@@ -751,6 +751,19 @@ class _HomeWidgetState extends State<HomeWidget>
         return;
       }
 
+      final rideId = rideData['id'] != null
+          ? (rideData['id'] is int
+              ? rideData['id'] as int
+              : int.tryParse(rideData['id'].toString()) ?? 0)
+          : 0;
+
+      // ✅ Defensive check: Don't set status to SEARCHING if we already declined this ride.
+      // This prevents the bottom panels from disappearing/flickering for ignored rides.
+      if (status == 'SEARCHING' &&
+          FFAppState().isSessionDeclinedRide(rideId)) {
+        return;
+      }
+
       _controller.setRideStatus(status);
       Provider.of<RideState>(context, listen: false)
           .updateRide(RideRequest.fromJson(rideData));
@@ -838,6 +851,18 @@ class _HomeWidgetState extends State<HomeWidget>
   void _onRideComplete() {
     if (!mounted) return;
     _controller.onRideComplete();
+
+    // ✅ Rapido-smooth redirection: If ride is cancelled/completed while driver is in Chat,
+    // automatically pop back to Home/Map.
+    try {
+      final currentPath = GoRouterState.of(context).uri.toString();
+      if (currentPath.contains('rideChat')) {
+        context.goNamed('home');
+      }
+    } catch (_) {
+      // Ignore if GoRouter state is not ready
+    }
+
     _mapKey.currentState?.updateMarkers(<FlutterFlowMarker>[]);
     _statusCircles = {};
     _routePoints = [];

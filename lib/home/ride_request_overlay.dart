@@ -233,6 +233,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
       // Fast-fail: ignore unknown statuses to prevent UI state corruption
       if (status == RideStatus.unknown) {
+        if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
         return;
       }
 
@@ -241,6 +242,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       if (status == RideStatus.searching &&
           (_locallyRejectedRideIds.contains(updatedRide.id) ||
               FFAppState().isSessionDeclinedRide(updatedRide.id))) {
+        if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
         return;
       }
 
@@ -250,19 +252,45 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       // Remove if cancelled, rejected, expired (superseded by retry), or completed by another driver
       if (status == RideStatus.cancelled ||
           status == RideStatus.rejected ||
-          status == RideStatus.expired) {
+          status == RideStatus.expired ||
+          status == RideStatus.completed) {
+        final isCurrentlyVisible =
+            _activeRequests.any((r) => r.id == updatedRide.id);
+
+        if (updatedRide.id == activeRideId) {
+          // ✅ Full refresh: re-fetch profile and clear map if our main ride was cancelled/completed
+          widget.onRideComplete?.call();
+        }
+
+        // ✅ Rapido-smooth feedback: notify driver if a ride they were looking at vanished
+        if (isCurrentlyVisible && mounted) {
+          final isExternalAction =
+              !_locallyRejectedRideIds.contains(updatedRide.id);
+          if (isExternalAction) {
+            String message = 'Ride no longer available';
+            if (status == RideStatus.cancelled) message = 'Ride was cancelled';
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(message),
+              duration: const Duration(seconds: 2),
+              backgroundColor: status == RideStatus.cancelled
+                  ? Colors.redAccent
+                  : Colors.orange,
+            ));
+          }
+        }
+
         removeRideById(updatedRide.id);
         return;
       }
 
-      // Rapido-style: Remove if another driver accepted (status changed to accepted/arrived/started/onTrip with different driver_id)
+      // Rapido-style: Remove if another driver accepted or is already servicing this ride
       final takenByOther = rideDriverId != null &&
           rideDriverId != 0 &&
           rideDriverId != myDriverId &&
-          (status == RideStatus.accepted ||
-              status == RideStatus.arrived ||
-              status == RideStatus.started ||
-              status == RideStatus.onTrip);
+          status != RideStatus.searching &&
+          status != RideStatus.unknown;
+
       if (takenByOther) {
         removeRideById(updatedRide.id);
         return;
@@ -284,11 +312,15 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         });
       } else {
         // Active ride lock: never allow additional SEARCHING rides while one is ongoing.
-        if (status == RideStatus.searching && _driverHasActiveRideLock) return;
+        if (status == RideStatus.searching && _driverHasActiveRideLock) {
+          if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
+          return;
+        }
 
         // Uber-style exclusive ringing: never allow a new SEARCHING ride if one is already ringing.
         if (status == RideStatus.searching &&
             _activeRequests.any((r) => r.status == RideStatus.searching)) {
+          // No cleanup call here because we already have an active searching ride
           return;
         }
 
@@ -297,18 +329,21 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             status != RideStatus.completed &&
             status != RideStatus.cancelled &&
             status != RideStatus.rejected) {
+          if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
           return;
         }
 
         // Vehicle type filter: only show rides matching driver's vehicle
         if (status == RideStatus.searching &&
             !_matchesDriverVehicle(updatedRide)) {
+          if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
           return;
         }
 
         // Zone filter: only show rides in driver's preferred city (when zone changes, don't get ride requests)
         if (status == RideStatus.searching &&
             !_matchesDriverZone(updatedRide)) {
+          if (_activeRequests.isEmpty) widget.onGhostRideCleared?.call();
           return;
         }
 
@@ -323,6 +358,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           if (distanceMeters > 3000) {
             if (kDebugMode) {
               debugPrint('UGO_FILTER: Ride ${updatedRide.id} ignored (too far: ${(distanceMeters / 1000).toStringAsFixed(1)}km)');
+            }
+            // ✅ Fix: If we ignore a ride and have nothing else, clear the "SEARCHING" ghost status
+            if (_activeRequests.isEmpty) {
+              widget.onGhostRideCleared?.call();
             }
             return;
           }
@@ -414,6 +453,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   void removeRideById(int id) {
     if (!mounted) return;
+
+    // ✅ If the ride being removed is the current "locked" ride in state, clear it.
+    // This ensures the OnlineDashboard/Bottom panels reappear immediately.
+    if (FFAppState().activeRideId == id) {
+      FFAppState().activeRideId = 0;
+      FFAppState().activeRideStatus = '';
+    }
+
     setState(() {
       _activeRequests.removeWhere((r) => r.id == id);
       _timers.remove(id);
@@ -427,7 +474,13 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         _otpControllers.remove(id);
       }
     });
-    if (_activeRequests.isEmpty) _stopAlert();
+
+    if (_activeRequests.isEmpty) {
+      _stopAlert();
+      // ✅ Notify HomeWidget that all ride UI is gone so it can clear markers/refresh.
+      widget.onGhostRideCleared?.call();
+    }
+
     if (!_isAppInForeground) {
       FloatingBubbleService.hideRideRequest();
     }
@@ -702,7 +755,12 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         options: Options(
             headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
       );
-      if (response.data['data'] != null) handleNewRide(response.data['data']);
+      if (response.data['data'] != null) {
+        if (kDebugMode) {
+          debugPrint('UGO_RIDE: fetched ride data: ${response.data['data']}');
+        }
+        handleNewRide(response.data['data']);
+      }
     } catch (e) {
       if (e is DioException && e.response?.statusCode == 404) {
         FFAppState().activeRideId = 0;
