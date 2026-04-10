@@ -252,8 +252,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
       // Remove if cancelled, rejected, expired (superseded by retry), or completed by another driver
       if (status == RideStatus.cancelled ||
           status == RideStatus.rejected ||
-          status == RideStatus.expired ||
-          status == RideStatus.completed) {
+          status == RideStatus.expired) {
         final isCurrentlyVisible =
             _activeRequests.any((r) => r.id == updatedRide.id);
 
@@ -304,6 +303,9 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           _activeRequests[index] = updatedRide;
           if (status == RideStatus.searching) {
             _timers[updatedRide.id] = rideRequestOfferSeconds;
+          }
+          if (status == RideStatus.completed) {
+            _paymentPendingRides.add(updatedRide.id);
           }
           if (status == RideStatus.arrived &&
               !_waitTimers.containsKey(updatedRide.id)) {
@@ -380,6 +382,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             RideStatus.driverAssigned,
             RideStatus.qrScanned,
             RideStatus.fetching,
+            RideStatus.completed,
           ];
           if (validStatuses.contains(status)) {
             _activeRequests.add(updatedRide);
