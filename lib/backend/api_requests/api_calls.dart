@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
@@ -9,13 +10,23 @@ export 'api_manager.dart' show ApiCallResponse;
 
 String get _baseUrl => Config.baseUrl;
 
+/// Firebase ID token proving the driver just verified their phone via OTP.
+/// The backend rejects login/signup without it (it no longer trusts a bare mobile number).
+Future<String> _firebaseIdToken() async {
+  try {
+    return await FirebaseAuth.instance.currentUser?.getIdToken() ?? '';
+  } catch (_) {
+    return '';
+  }
+}
+
 class LoginCall {
   static Future<ApiCallResponse> call({
     int? mobile,
     String? fcmToken,
     String? otp,
   }) async {
-    final body = <String, dynamic>{};
+    final body = <String, dynamic>{'firebase_id_token': await _firebaseIdToken()};
     if (otp != null && otp.isNotEmpty) {
       body['mobile'] = mobile?.toString() ?? '';
       body['otp'] = otp;
@@ -485,6 +496,7 @@ class CreateDriverCall {
     final driver = _serializeJson(driverJson);
 
     final vehicle = _serializeJson(vehicleJson);
+    final idToken = await _firebaseIdToken();
 
     // Do not log request body - may contain PII (driver, vehicle, tokens)
     return ApiManager.instance.makeApiCall(
@@ -510,6 +522,7 @@ class CreateDriverCall {
         'insurance_image': insuranceImage,
         'pollution_certificate_image': pollutionImage,
         'fcm_token': fcmToken,
+        'firebase_id_token': idToken,
       },
       bodyType: BodyType.MULTIPART,
       returnBody: true,
@@ -1526,11 +1539,21 @@ class AddMoneyToWalletCall {
     required double amount,
     required String currency,
     required String token,
+    String? razorpayPaymentId,
+    String? razorpayOrderId,
+    String? razorpaySignature,
   }) async {
+    // Backend fetches this payment from Razorpay and credits only what was actually paid.
     final ffApiRequestBody = jsonEncode({
       'driver_id': driverId,
       'amount': amount,
       'currency': currency,
+      if (razorpayPaymentId != null && razorpayPaymentId.isNotEmpty)
+        'razorpay_payment_id': razorpayPaymentId,
+      if (razorpayOrderId != null && razorpayOrderId.isNotEmpty)
+        'razorpay_order_id': razorpayOrderId,
+      if (razorpaySignature != null && razorpaySignature.isNotEmpty)
+        'razorpay_signature': razorpaySignature,
     });
 
     return ApiManager.instance.makeApiCall(

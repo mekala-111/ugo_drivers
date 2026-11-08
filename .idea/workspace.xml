@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE 3.0.0 V 16">
+    <list default="true" id="379021e6-8404-4cbe-8db7-751ea3ec972c" name="Changes" comment="PLAY STORE 3.0.0 V 18">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -440,7 +441,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775678347092</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="PLAY STORE 3.0.0 V 17">
+      <option name="closed" value="true" />
+      <created>1775756472501</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1775756472501</updated>
+    </task>
+    <task id="LOCAL-00045" summary="PLAY STORE 3.0.0 V 17">
+      <option name="closed" value="true" />
+      <created>1775762783015</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1775762783015</updated>
+    </task>
+    <task id="LOCAL-00046" summary="PLAY STORE 3.0.0 V 18">
+      <option name="closed" value="true" />
+      <created>1775835551470</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1775835551471</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -455,8 +480,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="final audit fix done" />
-    <MESSAGE value="responsive audit fix done" />
     <MESSAGE value="registation working  audit fix done" />
     <MESSAGE value="disable QR WHEN USER IS OFLINE&#10; audit fix done" />
     <MESSAGE value="fix complete with bubble" />
@@ -480,7 +503,9 @@
     <MESSAGE value="PLAY STORE 3.0.0 V 13" />
     <MESSAGE value="PLAY STORE 3.0.0 V 14" />
     <MESSAGE value="PLAY STORE 3.0.0 V 16" />
-    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE 3.0.0 V 16" />
+    <MESSAGE value="PLAY STORE 3.0.0 V 17" />
+    <MESSAGE value="PLAY STORE 3.0.0 V 18" />
+    <option name="LAST_COMMIT_MESSAGE" value="PLAY STORE 3.0.0 V 18" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
 </project>

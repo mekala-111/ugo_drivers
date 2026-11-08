@@ -71,6 +71,9 @@ class _AddMoneyWidgetState extends State<AddMoneyWidget> {
           amount: amount,
           currency: 'INR',
           token: FFAppState().accessToken,
+          razorpayPaymentId: response.paymentId,
+          razorpayOrderId: response.orderId,
+          razorpaySignature: response.signature,
         );
 
         if (mounted) {
