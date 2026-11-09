@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import '/app_state.dart';
 import '/config.dart';
+import '/backend/api_requests/api_manager.dart';
 
 class EmergencyContactsScreen extends StatefulWidget {
   const EmergencyContactsScreen({super.key});
@@ -24,6 +25,26 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       '${Config.baseUrl}/api/drivers/${FFAppState().driverid}/emergency-contacts';
   String get _accessToken => FFAppState().accessToken;
 
+  /// Sends with the current token; on 401 applies the app-wide policy
+  /// (shared refresh → one retry, or forced logout if the server ended the session).
+  Future<http.Response> _authed(Future<http.Response> Function(String token) send) async {
+    final token = _accessToken;
+    final first = await send(token);
+    if (first.statusCode != 401 && first.statusCode != 403) return first;
+    dynamic body;
+    try {
+      body = json.decode(first.body);
+    } catch (_) {}
+    final retryToken = await ApiManager.handleAuthFailure(
+      status: first.statusCode,
+      body: body,
+      requestToken: token,
+      alreadyRetried: false,
+    );
+    if (retryToken == null) return first;
+    return send(retryToken);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,13 +55,13 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
     if (!mounted) return;
     setState(() => isLoading = true);
     try {
-      final response = await http.get(
+      final response = await _authed((t) => http.get(
         Uri.parse(_baseUrl),
         headers: {
-          'Authorization': 'Bearer $_accessToken',
+          'Authorization': 'Bearer $t',
           'Content-Type': 'application/json',
         },
-      );
+      ));
 
       if (!mounted) return;
       if (response.statusCode == 200) {
@@ -85,22 +106,22 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       final method = existingId != null ? 'PUT' : 'POST';
 
       final response = await (method == 'POST'
-          ? http.post(
+          ? _authed((t) => http.post(
               Uri.parse(url),
               headers: {
-                'Authorization': 'Bearer $_accessToken',
+                'Authorization': 'Bearer $t',
                 'Content-Type': 'application/json',
               },
               body: json.encode(contact.toJson()),
-            )
-          : http.put(
+            ))
+          : _authed((t) => http.put(
               Uri.parse(url),
               headers: {
-                'Authorization': 'Bearer $_accessToken',
+                'Authorization': 'Bearer $t',
                 'Content-Type': 'application/json',
               },
               body: json.encode(contact.toJson()),
-            ));
+            )));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         _showSuccess(existingId != null ? 'Contact updated' : 'Contact added');
@@ -134,12 +155,12 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
     if (confirm == true) {
       try {
-        final response = await http.delete(
+        final response = await _authed((t) => http.delete(
           Uri.parse('$_baseUrl/$id'),
           headers: {
-            'Authorization': 'Bearer $_accessToken',
+            'Authorization': 'Bearer $t',
           },
-        );
+        ));
 
         if (!mounted) return;
         if (response.statusCode == 200) {

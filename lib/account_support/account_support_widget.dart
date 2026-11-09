@@ -2,7 +2,6 @@ import 'package:ugo_driver/account_support/edit_profile.dart';
 import 'package:ugo_driver/account_support/refer_friend.dart';
 
 import '/backend/api_requests/api_calls.dart';
-import '/auth/firebase_auth/auth_util.dart';
 import '/config.dart' as app_config;
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -16,6 +15,7 @@ import 'package:provider/provider.dart';
 import '/providers/ride_provider.dart';
 import '/services/floating_bubble_service.dart';
 import '/services/ride_notification_service.dart';
+import '/services/session_teardown.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -109,10 +109,9 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
           isLoading = false;
         });
       } else {
-        if (response.statusCode == 401 || response.statusCode == 403) {
-          _logout();
-          return;
-        }
+        // 401 is handled centrally (refresh or forced logout). Previously any
+        // 401/403 here opened the "Log out?" confirmation dialog.
+        if (response.statusCode == 401) return;
         _fallbackToCache();
       }
     } catch (e) {
@@ -231,11 +230,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     } catch (_) {
       // Ignore logout API errors; local sign-out must still proceed.
     }
-    try {
-      await authManager.signOut();
-    } catch (_) {}
-    await FFAppState().clearAppState();
-    await _clearSessionUiAfterLogout();
+    await tearDownDriverSession(context); // same teardown as forced logout
     if (!mounted) return;
     context.go(LoginWidget.routePath);
   }

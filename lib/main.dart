@@ -28,7 +28,7 @@ import '/services/install_referrer_service.dart';
 import '/services/ride_alert_audio_service.dart';
 import '/services/floating_bubble_service.dart';
 import '/services/driver_realtime_socket_service.dart';
-import '/auth/login_timestamp.dart';
+import '/services/session_teardown.dart';
 import '/login/login_widget.dart';
 
 /// Hot restart / engine detach tears down native audioplayers before the Dart
@@ -193,7 +193,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           .toList();
   late Stream<BaseAuthUser> userStream;
 
-  Future<void> _showForcedLogoutDialog({required bool anotherDevice}) async {
+  Future<void> _showForcedLogoutDialog(
+      {required bool anotherDevice, bool blocked = false}) async {
     final ctx = appNavigatorKey.currentContext;
     if (ctx == null || !ctx.mounted) return;
     await showDialog<void>(
@@ -203,9 +204,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return AlertDialog(
           title: const Text('Session Ended'),
           content: Text(
-            anotherDevice
-                ? 'Your account was logged in on another device. Please login again.'
-                : 'Your session expired. Please login again.',
+            blocked
+                ? 'Your account has been blocked. Please contact support.'
+                : anotherDevice
+                    ? 'Your account was logged in on another device. Please login again.'
+                    : 'Your session expired. Please login again.',
           ),
           actions: [
             TextButton(
@@ -261,44 +264,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     };
 
     // ✅ REGISTER GLOBAL LOGOUT LISTENER
+    // Called by AuthSessionGuard only when the SERVER ended the session (expired /
+    // revoked refresh, another device, blocked, account gone) — never for network
+    // errors or permission 403s — and at most once per burst of 401s.
     ApiManager.onUnauthenticated = (reason) {
-      if (!FFAppState().isLoggedIn) return;
-
-      // Grace period: avoid logout on 401 within 10s of login (handles race with first API calls)
-      final now = DateTime.now();
-      if (lastLoginTime != null &&
-          now.difference(lastLoginTime!).inSeconds < 10) {
-        if (kDebugMode) {
-          debugPrint('API 401: Ignoring during login grace period');
-        }
-        return;
-      }
-
-      // 1. Clear Local State
-      authManager.signOut().catchError((_) => null);
-      FFAppState().update(() {
-        FFAppState().accessToken = '';
-        FFAppState().refreshToken = '';
-        FFAppState().isLoggedIn = false;
-      });
-
-      // Drop stale ride overlay (Provider survives route change).
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final ctx = appNavigatorKey.currentContext;
-        if (ctx != null && ctx.mounted) {
-          try {
-            ctx.read<RideState>().clearRide();
-          } catch (_) {}
-        }
-      });
-
-      // 2. Redirect to Login
-      _router.goNamed(LoginWidget.routeName);
-
-      final isAnotherDevice = (reason ?? '').contains('another_device');
-      unawaited(Future<void>.delayed(const Duration(milliseconds: 120), () {
-        return _showForcedLogoutDialog(anotherDevice: isAnotherDevice);
-      }));
+      final r = reason ?? '';
+      final hadSession =
+          FFAppState().isLoggedIn || FFAppState().accessToken.isNotEmpty;
+      debugPrint('[auth] forced logout ($r)');
+      final isAnotherDevice =
+          r == 'SESSION_REPLACED' || r.contains('another_device');
+      final isBlocked = r == 'ACCOUNT_BLOCKED';
+      unawaited(() async {
+        await tearDownDriverSession(appNavigatorKey.currentContext);
+        if (!hadSession) return;
+        _router.goNamed(LoginWidget.routeName);
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        await _showForcedLogoutDialog(
+            anotherDevice: isAnotherDevice, blocked: isBlocked);
+      }());
     };
   }
 

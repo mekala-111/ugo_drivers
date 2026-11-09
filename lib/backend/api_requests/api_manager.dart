@@ -18,6 +18,7 @@ import '/flutter_flow/uploaded_file.dart';
 import '/app_state.dart';
 import '../../config.dart';
 
+import 'auth_session_guard.dart';
 import 'get_streamed_response.dart';
 
 enum ApiCallType {
@@ -220,14 +221,12 @@ class ApiManager {
   static ApiManager get instance => _instance ??= ApiManager._();
 
   static String? _accessToken;
-  static Future<String?>? _refreshInFlight;
 
   // ✅ ADDED: Global callback for Token Expiry / Concurrent Login
   static void Function(String? reason)? onUnauthenticated;
 
   /// Called after a successful silent access-token refresh (e.g. re-register FCM for chat).
   static void Function()? onAccessTokenRefreshed;
-  static bool _isRefreshingToken = false;
 
   static void clearCache(String callName) => _apiCache.keys
       .toSet()
@@ -485,6 +484,7 @@ class ApiManager {
     bool isStreamingApi = false,
     ApiCallOptions? options,
     http.Client? client,
+    bool hasRetriedAuth = false,
   }) async {
     headers = _injectDeviceHeaders(headers);
     final callOptions = options ??
@@ -622,15 +622,24 @@ class ApiManager {
           'API [$callName] → ${result.statusCode}$suffix response body: $bodyStr');
     }
 
-    final shouldTryRefresh = result.statusCode == 401 &&
-        FFAppState().refreshToken.isNotEmpty &&
-        requestHeaders.keys.any((k) => k.toLowerCase() == 'authorization');
-
-    if (shouldTryRefresh) {
-      final refreshed = await _tryRefreshAccessToken();
-      if (refreshed != null && refreshed.isNotEmpty) {
-        final retriedHeaders = Map<String, dynamic>.from(requestHeaders);
-        retriedHeaders[HttpHeaders.authorizationHeader] = 'Bearer $refreshed';
+    // Central auth handling (AuthSessionGuard): only calls that carried a token can
+    // refresh or end the session; one shared refresh; one retry; network errors and
+    // permission 403s never log out.
+    final requestToken = _bearerFrom(requestHeaders);
+    if (requestToken != null &&
+        requestToken.isNotEmpty &&
+        (result.statusCode == 401 || result.statusCode == 403)) {
+      _ensureAuthGuard();
+      final retryToken = await AuthSessionGuard.handleAuthFailure(
+        status: result.statusCode,
+        body: result.jsonBody,
+        requestToken: requestToken,
+        alreadyRetried: hasRetriedAuth,
+      );
+      if (retryToken != null) {
+        final retriedHeaders = Map<String, dynamic>.from(requestHeaders)
+          ..removeWhere((k, _) => k.toLowerCase() == 'authorization');
+        retriedHeaders[HttpHeaders.authorizationHeader] = 'Bearer $retryToken';
         return makeApiCall(
           callName: callName,
           apiUrl: apiUrl,
@@ -647,107 +656,61 @@ class ApiManager {
           isStreamingApi: isStreamingApi,
           options: options,
           client: client,
+          hasRetriedAuth: true,
         );
       }
-    }
-
-    if (result.statusCode == 401) {
-      final reason = _readPath(result.jsonBody, 'code')?.toString() ??
-          _readPath(result.jsonBody, 'data.code')?.toString();
-      onUnauthenticated?.call(reason);
     }
     return result;
   }
 
-  static Future<String?> _tryRefreshAccessToken() async {
-    if (_refreshInFlight != null) {
-      return _refreshInFlight;
+  static String? _bearerFrom(Map<String, dynamic> headers) {
+    for (final e in headers.entries) {
+      if (e.key.toLowerCase() == 'authorization') {
+        final v = e.value?.toString() ?? '';
+        if (v.toLowerCase().startsWith('bearer ')) return v.substring(7).trim();
+      }
     }
-    final completer = Completer<String?>();
-    _refreshInFlight = completer.future;
-    if (_isRefreshingToken) {
-      completer.complete(null);
-      _refreshInFlight = null;
-      return null;
-    }
-    _isRefreshingToken = true;
-    try {
+    return null;
+  }
+
+  /// Wire the shared auth policy (see auth_session_guard.dart) to this app once.
+  static void _ensureAuthGuard() {
+    if (AuthSessionGuard.configured) return;
+    AuthSessionGuard.configured = true;
+    AuthSessionGuard.baseUrl = () => Config.baseUrl;
+    AuthSessionGuard.readAccessToken = () => FFAppState().accessToken;
+    AuthSessionGuard.readRefreshToken = () => FFAppState().refreshToken;
+    AuthSessionGuard.writeTokens = (access, refresh) {
       final appState = FFAppState();
-      final refreshToken = appState.refreshToken;
-      if (refreshToken.isEmpty) {
-        completer.complete(null);
-        _refreshInFlight = null;
-        return null;
-      }
-
-      final response = await http.post(
-        Uri.parse('${Config.baseUrl}/api/auth/refresh'),
-        headers: {
-          'Content-Type': 'application/json',
-          ...toStringMap(_injectDeviceHeaders(const {})),
-        },
-        body: jsonEncode({'refreshToken': refreshToken}),
-      );
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        completer.complete(null);
-        _refreshInFlight = null;
-        return null;
-      }
-
-      dynamic decoded;
-      try {
-        decoded = jsonDecode(response.body);
-      } catch (_) {
-        completer.complete(null);
-        _refreshInFlight = null;
-        return null;
-      }
-
-      String? getToken(List<String> paths) {
-        for (final path in paths) {
-          final val = _readPath(decoded, path);
-          if (val is String && val.isNotEmpty && val != 'null') return val;
-        }
-        return null;
-      }
-
-      final newAccessToken = getToken(
-          const ['data.accessToken', 'data.access_token', 'accessToken']);
-      if (newAccessToken == null) {
-        completer.complete(null);
-        _refreshInFlight = null;
-        return null;
-      }
-      final newRefreshToken = getToken(
-          const ['data.refreshToken', 'data.refresh_token', 'refreshToken']);
-
-      appState.accessToken = newAccessToken;
-      if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
-        appState.refreshToken = newRefreshToken;
-      }
-      onAccessTokenRefreshed?.call();
-      completer.complete(newAccessToken);
-      _refreshInFlight = null;
-      return newAccessToken;
-    } catch (_) {
-      completer.complete(null);
-      _refreshInFlight = null;
-      return null;
-    } finally {
-      _isRefreshingToken = false;
-    }
+      appState.accessToken = access;
+      if (refresh != null && refresh.isNotEmpty) appState.refreshToken = refresh;
+    };
+    AuthSessionGuard.extraHeaders = () => toStringMap(_injectDeviceHeaders(const {}));
+    AuthSessionGuard.onRefreshed = () => onAccessTokenRefreshed?.call();
+    AuthSessionGuard.onSessionEnded = (reason) => onUnauthenticated?.call(reason);
   }
 
-  static dynamic _readPath(dynamic root, String path) {
-    dynamic current = root;
-    for (final part in path.split('.')) {
-      if (current is Map && current.containsKey(part)) {
-        current = current[part];
-      } else {
-        return null;
-      }
-    }
-    return current;
+  /// Shared single-flight refresh for code outside ApiManager (Dio, raw http).
+  static Future<RefreshOutcome> refreshSession() {
+    _ensureAuthGuard();
+    return AuthSessionGuard.refresh();
   }
+
+  /// Let code outside ApiManager apply the same 401/403 policy.
+  static Future<String?> handleAuthFailure({
+    required int status,
+    required dynamic body,
+    required String requestToken,
+    required bool alreadyRetried,
+  }) {
+    _ensureAuthGuard();
+    return AuthSessionGuard.handleAuthFailure(
+      status: status,
+      body: body,
+      requestToken: requestToken,
+      alreadyRetried: alreadyRetried,
+    );
+  }
+
+
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import '/backend/api_requests/auth_dio.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:geolocator/geolocator.dart';
@@ -706,7 +707,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
     for (final rideId in searchingIds) {
       try {
-        final response = await Dio().get(
+        final response = await authDio().get(
           '${Config.baseUrl}/api/rides/$rideId',
           options: Options(
               headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
@@ -753,7 +754,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
 
   Future<void> _fetchRideFromBackend(int rideId) async {
     try {
-      final response = await Dio().get(
+      final response = await authDio().get(
         '${Config.baseUrl}/api/rides/$rideId',
         options: Options(
             headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
@@ -795,7 +796,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
     setState(() => _isAcceptingRide = true);
     try {
-      final rideCheckRes = await Dio().get(
+      final rideCheckRes = await authDio().get(
         '${Config.baseUrl}/api/rides/$rideId',
         options: Options(
             headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
@@ -937,7 +938,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
   Future<void> _updateRideStatus(int rideId, RideStatus status) async {
     try {
       final payload = status.value.toLowerCase();
-      await Dio().post('${Config.baseUrl}/api/drivers/update-ride-status',
+      await authDio().post('${Config.baseUrl}/api/drivers/update-ride-status',
           data: {
             'ride_id': rideId,
             'status': payload,
@@ -958,7 +959,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     final otp = controllers.map((c) => c.text).join();
 
     try {
-      final res = await Dio().post('${Config.baseUrl}/api/rides/verify-otp',
+      final res = await authDio().post('${Config.baseUrl}/api/rides/verify-otp',
           data: {'otp': otp, 'ride_id': rideId},
           options: Options(headers: {
             'Authorization': 'Bearer ${FFAppState().accessToken}'

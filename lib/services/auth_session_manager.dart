@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/api_manager.dart';
-import '/config.dart';
+import '/backend/api_requests/auth_session_guard.dart';
 
 class AuthSessionManager {
   AuthSessionManager._();
@@ -36,37 +34,11 @@ class AuthSessionManager {
     await FFAppState().clearAppState();
   }
 
-  Future<bool> refreshToken() async {
-    final appState = FFAppState();
-    if (appState.refreshToken.isEmpty) return false;
-    final res = await ApiManager.instance.makeApiCall(
-      callName: 'authRefresh',
-      apiUrl: '${Config.baseUrl}/api/auth/refresh',
-      callType: ApiCallType.POST,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: jsonEncode({
-        'refreshToken': appState.refreshToken,
-      }),
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      cache: false,
-      alwaysAllowBody: true,
-    );
-    if (!res.succeeded) return false;
-    final access = LoginCall.accessToken(res.jsonBody) ??
-        (res.jsonBody is Map ? res.jsonBody['accessToken']?.toString() : null) ??
-        '';
-    final refresh = LoginCall.refreshToken(res.jsonBody) ??
-        (res.jsonBody is Map ? res.jsonBody['refreshToken']?.toString() : null) ??
-        '';
-    if (access.isEmpty) return false;
-    appState.accessToken = access;
-    if (refresh.isNotEmpty) appState.refreshToken = refresh;
-    return true;
-  }
+  /// Delegates to the app-wide single-flight refresh (AuthSessionGuard) so there is
+  /// only ONE refresh path — parallel refreshes with the same token used to look
+  /// like token replay to the server and kill the session.
+  Future<bool> refreshToken() async =>
+      await ApiManager.refreshSession() == RefreshOutcome.refreshed;
 
   Future<bool> restoreSession() async {
     final appState = FFAppState();

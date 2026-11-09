@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '/config.dart';
+import '/backend/api_requests/api_manager.dart';
 
 /// Singleton Socket.IO client for driver home: dispatch rooms, ride updates, chat banners.
 ///
@@ -62,6 +63,13 @@ class DriverRealtimeSocketService {
           .setAuth({'token': _authToken})
           .build(),
     );
+    // Read the token on every (re)connect so automatic reconnects after a refresh
+    // never present an expired token.
+    _socket!.auth = (cb) {
+      final provided = _callbacks?.accessTokenProvider();
+      final t = provided != null ? _stripBearer(provided) : '';
+      cb({'token': t.isNotEmpty ? t : _authToken});
+    };
 
     _attachCoreListeners();
     _attachRideListeners();
@@ -95,6 +103,7 @@ class DriverRealtimeSocketService {
 
     s.onConnectError((dynamic e) {
       _log('connect_error $e');
+      _handleHandshakeRejection(e);
     });
 
     s.onDisconnect((dynamic reason) {
@@ -281,6 +290,28 @@ class DriverRealtimeSocketService {
     } catch (e) {
       _log('unsubscribe_ride_chat error: $e');
     }
+  }
+
+  /// Server auth middleware rejections stop socket.io's auto-reconnect, so act on
+  /// the code (backend utils/authErrors): TOKEN_EXPIRED/INVALID → shared refresh
+  /// (onAccessTokenRefreshed then calls [reconnectWithLatestToken]); session-ending
+  /// codes → app-wide forced logout; inactive KYC / transient → nothing.
+  void _handleHandshakeRejection(dynamic e) {
+    String? code;
+    if (e is Map) {
+      final data = e['data'];
+      if (data is Map && data['code'] != null) code = data['code'].toString();
+    }
+    if (code == null) return;
+    final token = _stripBearer(_callbacks?.accessTokenProvider() ?? _authToken);
+    if (token.isEmpty) return;
+    _log('handshake rejected: $code');
+    unawaited(ApiManager.handleAuthFailure(
+      status: code == 'ACCOUNT_BLOCKED' || code == 'ACCOUNT_INACTIVE' ? 403 : 401,
+      body: {'code': code},
+      requestToken: token,
+      alreadyRetried: false,
+    )); // any successful refresh fires onAccessTokenRefreshed → reconnectWithLatestToken
   }
 
   /// After silent JWT refresh — old handshake auth is stale for the next reconnect.

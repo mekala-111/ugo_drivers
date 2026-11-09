@@ -6,6 +6,7 @@ import 'package:ugo_driver/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:dio/dio.dart';
+import '/backend/api_requests/auth_dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -85,7 +86,7 @@ class _ScanToBookWidgetState extends State<ScanToBookWidget>
     if (rideId == null || rideId <= 0) return;
 
     try {
-      final res = await Dio().get(
+      final res = await authDio().get(
         '${app_config.Config.baseUrl}/api/rides/$rideId',
         options: Options(
           headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'},
