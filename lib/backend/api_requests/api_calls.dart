@@ -922,6 +922,10 @@ class UpdateDriverCall {
     String? insuranceNumber,
     String? insuranceExpiryDate,
     String? pollutionExpiryDate,
+    String? rcExpiryDate,
+    FFUploadedFile? permitImage,
+    String? permitNumber,
+    String? permitExpiryDate,
     int? vehicleTypeId,
   }) async {
     // Build params dynamically - only include non-null values
@@ -1046,6 +1050,19 @@ class UpdateDriverCall {
     if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty) {
       params['pollution_expiry_date'] = pollutionExpiryDate;
     }
+    // Expiry enforcement (backend driverDocuments.service): renewals go to admin review.
+    if (rcExpiryDate != null && rcExpiryDate.isNotEmpty) {
+      params['rc_expiry_date'] = rcExpiryDate;
+    }
+    if (permitImage != null) {
+      params['permit_image'] = permitImage;
+    }
+    if (permitNumber != null && permitNumber.isNotEmpty) {
+      params['permit_number'] = permitNumber;
+    }
+    if (permitExpiryDate != null && permitExpiryDate.isNotEmpty) {
+      params['permit_expiry_date'] = permitExpiryDate;
+    }
     if (vehicleTypeId != null && vehicleTypeId > 0) {
       params['vehicle_type_id'] = vehicleTypeId;
     }
@@ -1083,6 +1100,38 @@ class UpdateDriverCall {
         response,
         r'''$.data.is_online''',
       ));
+}
+
+/// GET /api/drivers/documents/status — the signed-in driver's mandatory documents
+/// (licence, rc, insurance, puc, permit): required?, status, verified expiry, review.
+class DriverDocumentStatusCall {
+  static Future<ApiCallResponse> call({String? token = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverDocumentStatus',
+      apiUrl: '$_baseUrl/api/drivers/documents/status',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  /// The entry for one document type, or null.
+  static Map<String, dynamic>? document(dynamic response, String type) {
+    final docs = getJsonField(response, r'''$.data.documents''', true);
+    if (docs is! List) return null;
+    for (final d in docs) {
+      if (d is Map && d['type'] == type) return Map<String, dynamic>.from(d);
+    }
+    return null;
+  }
 }
 
 class DriverIdfetchCall {

@@ -310,6 +310,15 @@ class FFAppState extends ChangeNotifier {
       _pollutionExpiryDate = prefs.getString('ff_pollutionExpiryDate') ?? '';
     });
     _safeInit(() {
+      _rcExpiryDate = prefs.getString('ff_rcExpiryDate') ?? '';
+    });
+    _safeInit(() {
+      _permitNumber = prefs.getString('ff_permitNumber') ?? '';
+    });
+    _safeInit(() {
+      _permitExpiryDate = prefs.getString('ff_permitExpiryDate') ?? '';
+    });
+    _safeInit(() {
       _insuranceBase64 = prefs.getString('ff_insuranceBase64') ?? '';
     });
     _safeInit(() {
@@ -1292,6 +1301,51 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+// RC validity (vehicles.rc_expiry_date)
+  String _rcExpiryDate = '';
+  String get rcExpiryDate => _rcExpiryDate;
+  set rcExpiryDate(String value) {
+    _rcExpiryDate = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_rcExpiryDate');
+    } else {
+      prefs.setString('ff_rcExpiryDate', value);
+    }
+    notifyListeners();
+  }
+
+// Commercial permit (vehicles.permit_number / permit_expiry_date / permit_image)
+  String _permitNumber = '';
+  String get permitNumber => _permitNumber;
+  set permitNumber(String value) {
+    _permitNumber = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_permitNumber');
+    } else {
+      prefs.setString('ff_permitNumber', value);
+    }
+    notifyListeners();
+  }
+
+  String _permitExpiryDate = '';
+  String get permitExpiryDate => _permitExpiryDate;
+  set permitExpiryDate(String value) {
+    _permitExpiryDate = value;
+    if (value.isEmpty) {
+      prefs.remove('ff_permitExpiryDate');
+    } else {
+      prefs.setString('ff_permitExpiryDate', value);
+    }
+    notifyListeners();
+  }
+
+  FFUploadedFile? _permitImage;
+  FFUploadedFile? get permitImage => _permitImage;
+  set permitImage(FFUploadedFile? value) {
+    _permitImage = value;
+    notifyListeners();
+  }
+
 // Pollution Expiry Date (vehicles.pollution_expiry_date)
   String _pollutionExpiryDate = '';
   String get pollutionExpiryDate => _pollutionExpiryDate;
@@ -1555,6 +1609,10 @@ class FFAppState extends ChangeNotifier {
     _insuranceNumber = '';
     _insuranceExpiryDate = '';
     _pollutionExpiryDate = '';
+    _rcExpiryDate = '';
+    _permitNumber = '';
+    _permitExpiryDate = '';
+    _permitImage = null;
     _overlayBubbleEnabled = false;
 
     _rcFrontImageUrl = '';

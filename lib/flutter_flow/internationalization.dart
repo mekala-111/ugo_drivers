@@ -757,6 +757,26 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'hi': 'अपलोड हुआ',
       'te': 'అప్లోడ్ అయ్యింది',
     },
+    'docx0001': {
+      'en': 'Expired',
+      'hi': 'समाप्त हो गया',
+      'te': 'గడువు ముగిసింది',
+    },
+    'docx0002': {
+      'en': 'Expiring soon',
+      'hi': 'जल्द समाप्त होगा',
+      'te': 'త్వరలో గడువు ముగుస్తుంది',
+    },
+    'docx0003': {
+      'en': 'Rejected',
+      'hi': 'अस्वीकृत',
+      'te': 'తిరస్కరించబడింది',
+    },
+    'docx0004': {
+      'en': 'Required',
+      'hi': 'आवश्यक',
+      'te': 'అవసరం',
+    },
     'upload0006': {
       'en': 'Failed to load image',
       'hi': 'इमेज लोड नहीं हो सकी',

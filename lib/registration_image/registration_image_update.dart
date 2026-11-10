@@ -1,3 +1,5 @@
+import '/backend/api_requests/api_calls.dart';
+import '/components/date_picker_field.dart';
 import '/constants/app_colors.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -43,6 +45,17 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
   bool _isRegNumberValid = false;
   bool _isProcessingOCR = false;
+
+  // RC validity + commercial permit (backend document expiry enforcement).
+  String _rcExpiry = ''; // dd/MM/yyyy, like the other date fields
+  final _permitNumberController = TextEditingController();
+  String _permitExpiry = '';
+  FFUploadedFile? _permitImage;
+  bool _permitRequired = false; // from GET /api/drivers/documents/status
+  bool _rcOnServer = false;
+  bool _permitOnServer = false;
+  String? _rcStatus;
+  String? _permitStatus;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -146,6 +159,12 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
       });
     }
 
+    _rcExpiry = FFAppState().rcExpiryDate;
+    _permitExpiry = FFAppState().permitExpiryDate;
+    _permitNumberController.text = FFAppState().permitNumber;
+    _permitImage = FFAppState().permitImage;
+    _loadDocumentStatus();
+
     // Load registration number
     if (FFAppState().registrationNumber.isNotEmpty) {
       setState(() {
@@ -158,9 +177,155 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
     }
   }
 
+  /// Which documents this vehicle category needs and what the backend has on file.
+  Future<void> _loadDocumentStatus() async {
+    final res =
+        await DriverDocumentStatusCall.call(token: FFAppState().accessToken);
+    if (!mounted || !res.succeeded) return;
+    final rc = DriverDocumentStatusCall.document(res.jsonBody, 'rc');
+    final permit = DriverDocumentStatusCall.document(res.jsonBody, 'permit');
+    String fromApi(dynamic v) {
+      final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch('${v ?? ''}');
+      return m == null ? '' : '${m.group(3)}/${m.group(2)}/${m.group(1)}';
+    }
+    setState(() {
+      _rcOnServer = rc?['uploaded'] == true;
+      _rcStatus = rc?['status']?.toString();
+      _permitRequired = permit?['required'] == true;
+      _permitOnServer = permit?['uploaded'] == true;
+      _permitStatus = permit?['status']?.toString();
+      if (_rcExpiry.isEmpty) _rcExpiry = fromApi(rc?['submitted_expiry_date']);
+      if (_permitExpiry.isEmpty) {
+        _permitExpiry = fromApi(permit?['submitted_expiry_date']);
+      }
+    });
+  }
+
+  /// Short status line under a date, from the backend evaluation.
+  String? _statusNote(String? status) {
+    switch (status) {
+      case 'EXPIRED':
+        return 'Expired. Upload the renewed document to keep receiving rides.';
+      case 'EXPIRED_RENEWAL_PENDING':
+      case 'RENEWAL_PENDING':
+      case 'PENDING_REVIEW':
+        return 'Renewal submitted. Awaiting verification.';
+      case 'EXPIRING_SOON':
+        return 'Expiring soon. Upload the renewed document.';
+      case 'REJECTED':
+      case 'RENEWAL_REJECTED':
+        return 'Rejected. Please upload it again.';
+      case 'MISSING':
+      case 'NO_EXPIRY_DATE':
+        return 'Required to go online.';
+    }
+    return null;
+  }
+
+  Future<void> _pickDate(String current, ValueChanged<String> onPicked) async {
+    final now = DateTime.now();
+    final picked = await showDatePickerForField(
+      context,
+      currentValue: current,
+      firstDate: DateTime(now.year - 20, 1, 1),
+      lastDate: DateTime(now.year + 20, 12, 31),
+    );
+    if (picked != null) setState(() => onPicked(picked));
+  }
+
+  /// Same card + field look as "Registration Number".
+  Widget _buildDateCard({
+    required String title,
+    required IconData icon,
+    required String value,
+    required VoidCallback onTap,
+    String? note,
+  }) {
+    final isBad = note != null && !note.startsWith('Renewal submitted');
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: AppColors.registrationOrange, size: 20),
+              const SizedBox(width: 8),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundLight,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_month,
+                      color: AppColors.registrationOrange),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      value.isEmpty ? 'DD/MM/YYYY' : value,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: value.isEmpty ? Colors.grey[400] : Colors.black87,
+                      ),
+                    ),
+                  ),
+                  if (value.isNotEmpty)
+                    const Icon(Icons.check_circle, color: Colors.green),
+                ],
+              ),
+            ),
+          ),
+          if (note != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.info_outline,
+                    size: 14, color: isBad ? Colors.red : Colors.grey[600]),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    note,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: isBad ? Colors.red : Colors.grey[600]),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _model.dispose();
+    _permitNumberController.dispose();
     _registrationNumberController.dispose();
     _animationController.dispose();
     super.dispose();
@@ -912,6 +1077,138 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
 
                       const SizedBox(height: 24),
 
+                      // RC validity
+                      _buildDateCard(
+                        title: 'RC Valid Until',
+                        icon: Icons.event_available,
+                        value: _rcExpiry,
+                        note: _statusNote(_rcStatus),
+                        onTap: () => _pickDate(_rcExpiry, (v) => _rcExpiry = v),
+                      ),
+
+                      if (_permitRequired) ...[
+                        const SizedBox(height: 24),
+                        _buildImageCard(
+                          title: 'Commercial Permit',
+                          subtitle: 'Permit document, all details visible',
+                          icon: Icons.assignment,
+                          image: _permitImage,
+                          isValid: _permitImage != null || _permitOnServer,
+                          onTap: () async {
+                            final selectedMedia =
+                                await selectMediaWithSourceBottomSheet(
+                              context: context,
+                              allowPhoto: true,
+                            );
+                            if (selectedMedia != null &&
+                                selectedMedia.isNotEmpty &&
+                                selectedMedia.every((m) => validateFileFormat(
+                                    m.storagePath, context)) &&
+                                selectedMedia.every((m) =>
+                                    validateImageSize(m.bytes, context))) {
+                              final m = selectedMedia.first;
+                              setState(() {
+                                _permitImage = FFUploadedFile(
+                                  name: m.storagePath.split('/').last,
+                                  bytes: m.bytes,
+                                  height: m.dimensions?.height,
+                                  width: m.dimensions?.width,
+                                  blurHash: m.blurHash,
+                                  originalFilename: m.originalFilename,
+                                );
+                              });
+                              _showSnackBar('Permit uploaded!');
+                            }
+                          },
+                          onRemove: _permitImage == null
+                              ? null
+                              : () {
+                                  setState(() => _permitImage = null);
+                                  _showSnackBar('Permit removed',
+                                      isError: true);
+                                },
+                        ),
+                        const SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(Icons.confirmation_number,
+                                      color: AppColors.registrationOrange,
+                                      size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Permit Number',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _permitNumberController,
+                                textCapitalization:
+                                    TextCapitalization.characters,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[A-Za-z0-9/-]')),
+                                  LengthLimitingTextInputFormatter(50),
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: 'Permit number',
+                                  hintStyle:
+                                      TextStyle(color: Colors.grey[400]),
+                                  prefixIcon: const Icon(Icons.assignment,
+                                      color: AppColors.registrationOrange),
+                                  filled: true,
+                                  fillColor: AppColors.backgroundLight,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.registrationOrange,
+                                        width: 2),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildDateCard(
+                          title: 'Permit Valid Until',
+                          icon: Icons.event_available,
+                          value: _permitExpiry,
+                          note: _statusNote(_permitStatus),
+                          onTap: () => _pickDate(
+                              _permitExpiry, (v) => _permitExpiry = v),
+                        ),
+                      ],
+
+                      const SizedBox(height: 24),
+
                       // Guidelines
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -964,15 +1261,42 @@ class _RegistrationUpdateWidgetState extends State<RegistrationUpdateWidget>
                                 (_backImageUrl != null &&
                                     _backImageUrl!.isNotEmpty);
 
-                            if (!hasFrontImage) {
+                            // RC already on file: a date / permit-only update
+                            // doesn't need both sides again.
+                            if (!hasFrontImage && !_rcOnServer) {
                               _showSnackBar('Please upload front side',
                                   isError: true);
                               return;
                             }
-                            if (!hasBackImage) {
+                            if (!hasBackImage && !_rcOnServer) {
                               _showSnackBar('Please upload back side',
                                   isError: true);
                               return;
+                            }
+                            if (_rcExpiry.isEmpty) {
+                              _showSnackBar('Please select RC valid until date',
+                                  isError: true);
+                              return;
+                            }
+                            if (_permitRequired) {
+                              if (_permitImage == null && !_permitOnServer) {
+                                _showSnackBar('Please upload the commercial permit',
+                                    isError: true);
+                                return;
+                              }
+                              if (_permitImage != null && _permitExpiry.isEmpty) {
+                                _showSnackBar(
+                                    'Please select permit valid until date',
+                                    isError: true);
+                                return;
+                              }
+                            }
+                            FFAppState().rcExpiryDate = _rcExpiry;
+                            if (_permitRequired) {
+                              FFAppState().permitImage = _permitImage;
+                              FFAppState().permitNumber =
+                                  _permitNumberController.text.trim().toUpperCase();
+                              FFAppState().permitExpiryDate = _permitExpiry;
                             }
 
                             // Save all data to correct properties

@@ -27,6 +27,26 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   bool _useKycDocStatus = false;
   bool _allUploadedFromApi = false;
 
+  /// Mandatory-document status from the backend (GET /api/drivers/documents/status):
+  /// lets an approved driver renew a document that expired, is expiring or was rejected.
+  Map<String, Map<String, dynamic>> _docStatus = {};
+  static const _needsActionStatuses = {
+    'EXPIRED', 'EXPIRING_SOON', 'REJECTED', 'RENEWAL_REJECTED', 'MISSING', 'NO_EXPIRY_DATE',
+  };
+  bool _needsAction(String type) {
+    final d = _docStatus[type];
+    return d != null && d['required'] == true && _needsActionStatuses.contains(d['status']);
+  }
+  /// Worst status among the given documents, for the card label ('EXPIRED' > 'REJECTED' > …).
+  String? _actionStatus(List<String> types) {
+    const order = ['EXPIRED', 'REJECTED', 'RENEWAL_REJECTED', 'MISSING', 'NO_EXPIRY_DATE', 'EXPIRING_SOON'];
+    final statuses = types.where(_needsAction).map((t) => _docStatus[t]!['status'] as String).toSet();
+    for (final s in order) {
+      if (statuses.contains(s)) return s;
+    }
+    return null;
+  }
+
   // Track which documents are already uploaded on server
   final Map<String, bool> _serverDocuments = {
     'profilePhoto': false,
@@ -71,6 +91,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         id: driverId,
         token: token,
       );
+      final statusRes = await DriverDocumentStatusCall.call(token: token);
+      if (statusRes.succeeded && mounted) {
+        final next = <String, Map<String, dynamic>>{};
+        for (final t in const ['licence', 'rc', 'insurance', 'puc', 'permit']) {
+          final d = DriverDocumentStatusCall.document(statusRes.jsonBody, t);
+          if (d != null) next[t] = d;
+        }
+        _docStatus = next;
+      }
 
       if (response.succeeded) {
         final data = getJsonField(response.jsonBody, r'''$.data''');
@@ -146,6 +175,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   bool _showLicenseCard() {
+    if (_needsAction('licence')) return true;
     if (!_useKycDocStatus || _kycDocuments == null) return true;
     final d = _kycDocuments!;
     return !(d['license_front'] == true &&
@@ -170,6 +200,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   bool _showRegistrationCard() {
+    // The RC screen also carries the commercial permit.
+    if (_needsAction('rc') || _needsAction('permit')) return true;
     if (!_useKycDocStatus || _kycDocuments == null) return true;
     final d = _kycDocuments!;
     return !(d['rc_front'] == true && d['rc_back'] == true);
@@ -186,6 +218,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return _showVehicleCard() || _showRegistrationCard();
   }
 
+  /// Card label for a document the backend says needs renewal.
+  String? _actionLabel(String key) {
+    final status = key == 'imageLicense'
+        ? _actionStatus(const ['licence'])
+        : key == 'registrationImage'
+            ? _actionStatus(const ['rc', 'permit'])
+            : null;
+    if (status == null) return null;
+    final l = FFLocalizations.of(context);
+    if (status == 'EXPIRED') return l.getText('docx0001');
+    if (status == 'EXPIRING_SOON') return l.getText('docx0002');
+    if (status == 'REJECTED' || status == 'RENEWAL_REJECTED') return l.getText('docx0003');
+    return l.getText('docx0004');
+  }
+
   /// Helper to get local state doc (Newly picked files)
   dynamic _getLocalDoc(String key) {
     switch (key) {
@@ -200,7 +247,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       case 'vehicleImage':
         return FFAppState().vehicleImage;
       case 'registrationImage':
-        return FFAppState().registrationImage;
+        // RC images, or only a new RC expiry / permit entered on the RC screen.
+        return FFAppState().registrationImage ??
+            FFAppState().rcFrontImage ??
+            FFAppState().permitImage ??
+            (_hasNewRcOrPermitDetails() ? true : null);
       default:
         return null;
     }
@@ -226,8 +277,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (_showRegistrationCard() && _getLocalDoc('registrationImage') != null) {
       return true;
     }
+    if (_hasNewRcOrPermitDetails()) return true;
     return false;
   }
+
+  bool _hasNewRcOrPermitDetails() =>
+      FFAppState().permitImage != null ||
+      FFAppState().rcExpiryDate.isNotEmpty ||
+      FFAppState().permitExpiryDate.isNotEmpty ||
+      FFAppState().permitNumber.isNotEmpty;
 
   /// 2. Handle Update (Upload new files)
   Future<void> _handleUpdateDocuments() async {
@@ -292,6 +350,18 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         pollutionExpiryDate: FFAppState().pollutionExpiryDate.isNotEmpty
             ? FFAppState().pollutionExpiryDate
             : null,
+        rcExpiryDate: FFAppState().rcExpiryDate.isNotEmpty
+            ? DriverSignupSubmitService.formatDateForApi(
+                FFAppState().rcExpiryDate)
+            : null,
+        permitImage: FFAppState().permitImage,
+        permitNumber: FFAppState().permitNumber.isNotEmpty
+            ? FFAppState().permitNumber
+            : null,
+        permitExpiryDate: FFAppState().permitExpiryDate.isNotEmpty
+            ? DriverSignupSubmitService.formatDateForApi(
+                FFAppState().permitExpiryDate)
+            : null,
         vehicleTypeId: FFAppState().adminVehicleId > 0
             ? FFAppState().adminVehicleId
             : null,
@@ -318,6 +388,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           FFAppState().registrationImage = null;
           FFAppState().rcFrontImage = null;
           FFAppState().rcBackImage = null;
+          FFAppState().rcExpiryDate = '';
+          FFAppState().permitImage = null;
+          FFAppState().permitNumber = '';
+          FFAppState().permitExpiryDate = '';
         });
 
         if (!context.mounted) return;
@@ -481,7 +555,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (_useKycDocStatus && _allUploadedFromApi)
+                            if (_useKycDocStatus &&
+                                _allUploadedFromApi &&
+                                !_needsAction('licence') &&
+                                !_needsAction('rc') &&
+                                !_needsAction('permit'))
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 32),
@@ -670,6 +748,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       icon = Icons.cloud_upload_rounded;
       statusText = FFLocalizations.of(context).getText('docm0016');
       textColor = AppColors.primary;
+    } else if (_actionLabel(key) != null) {
+      // Uploaded before, but expired / expiring / rejected: same card, error colours.
+      bgColor = AppColors.error.withValues(alpha: 0.06);
+      borderColor = AppColors.error.withValues(alpha: 0.5);
+      iconColor = AppColors.error;
+      icon = Icons.error_outline_rounded;
+      statusText = _actionLabel(key)!;
+      textColor = AppColors.error;
     } else if (isServer) {
       bgColor = AppColors.sectionGreenTint;
       borderColor = AppColors.accentEmerald.withValues(alpha: 0.5);
