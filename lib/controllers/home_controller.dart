@@ -1057,10 +1057,30 @@ class HomeController extends ChangeNotifier {
       onRideChatMessage: _onRideChatSocketMessageForBanner,
       onDriverProfileSocketUpdate: (data) {
         if (_disposed) return;
+        _applyAdminStateFromSocket(data);
         _updateVerificationStateFromDriverData(data);
       },
     );
     DriverRealtimeSocketService.instance.connect(cb);
+  }
+
+  /// Backend `driver_updated` after an admin action (block, deactivate, force offline, KYC decision).
+  /// When the server took the driver offline, mirror it locally WITHOUT calling the API or
+  /// re-asserting "online" (the profile sync would otherwise silently undo the admin's action).
+  /// Then reload the authoritative profile so every widget shows the backend state.
+  void _applyAdminStateFromSocket(Map<String, dynamic> data) {
+    final source = data['data'] is Map ? Map<String, dynamic>.from(data['data'] as Map) : data;
+    if (!source.containsKey('action') && !source.containsKey('forced_offline')) return;
+    if (source['is_active'] is bool) _accountActive = source['is_active'] as bool;
+    // Never stop GPS during an active trip: the rider and the fare depend on it.
+    if (source['forced_offline'] == true && isOnline && !isActiveRideBlockingOffline) {
+      _stopLocationTracking();
+      isOnline = false;
+      FFAppState().isonline = false;
+      if (!_accountActive) onShowSnackBar('drv_account_inactive', isError: true);
+    }
+    _notify();
+    _fetchDriverProfile();
   }
 
   // ── Incentives & Earnings ──────────────────────────────────────────────────
