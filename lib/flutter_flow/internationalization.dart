@@ -15,13 +15,14 @@ class FFLocalizations {
 
   static List<String> languages() => ['en', 'te', 'hi'];
 
-  static late SharedPreferences _prefs;
-  static Future initialize() async =>
-      _prefs = await SharedPreferences.getInstance();
+  static SharedPreferences? _prefs;
+  static Future initialize() async {
+    _prefs ??= await SharedPreferences.getInstance();
+  }
   static Future storeLocale(String locale) =>
-      _prefs.setString(_kLocaleStorageKey, locale);
+      _prefs?.setString(_kLocaleStorageKey, locale) ?? Future.value(false);
   static Locale? getStoredLocale() {
-    final locale = _prefs.getString(_kLocaleStorageKey);
+    final locale = _prefs?.getString(_kLocaleStorageKey);
     return locale != null && locale.isNotEmpty ? createLocale(locale) : null;
   }
 

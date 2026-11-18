@@ -136,9 +136,16 @@ class DriverSignupSubmitService {
       vehicleJsonData['registration_date'] =
           _toApiDate(FFAppState().registrationDate);
     }
-    if (FFAppState().pollutionExpiryDate.isNotEmpty) {
-      vehicleJsonData['pollution_expiry_date'] =
-          _toApiDate(FFAppState().pollutionExpiryDate);
+    if (FFAppState().insuranceNumber.isNotEmpty) {
+      vehicleJsonData['insurance_number'] = FFAppState().insuranceNumber;
+    }
+    if (FFAppState().insuranceExpiryDate.isNotEmpty) {
+      vehicleJsonData['insurance_expiry_date'] =
+          _toApiDate(FFAppState().insuranceExpiryDate);
+    }
+    if (FFAppState().fitnessExpiryDate.isNotEmpty) {
+      vehicleJsonData['fitness_expiry_date'] =
+          _toApiDate(FFAppState().fitnessExpiryDate);
     }
 
     final apiResult = await CreateDriverCall.call(
@@ -154,7 +161,8 @@ class DriverSignupSubmitService {
       rcBackImage: FFAppState().rcBackImage,
       vehicleImage: FFAppState().vehicleImage,
       registrationImage: FFAppState().registrationImage,
-      pollutionImage: FFAppState().pollutioncertificateImage,
+      insuranceImage: FFAppState().insurancePdf ?? FFAppState().insuranceImage,
+      fitnessCertificateImage: FFAppState().fitnessCertificateImage,
       driverJson: driverJsonData,
       vehicleJson: vehicleJsonData,
       fcmToken: fcmToken ?? '',

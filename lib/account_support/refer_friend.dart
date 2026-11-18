@@ -516,7 +516,7 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
 
   // 🔹 WIDGET: Social Button
   Widget _socialButton(
-      {required IconData icon,
+      {required dynamic icon,
       required Color color,
       required String label,
       required VoidCallback onTap}) {
@@ -540,7 +540,9 @@ class _ReferFriendWidgetState extends State<ReferFriendWidget> {
               ],
             ),
             child: Center(
-              child: FaIcon(icon, color: color, size: 28),
+              child: icon is FaIconData
+                  ? FaIcon(icon, color: color, size: 28)
+                  : Icon(icon as IconData, color: color, size: 28),
             ),
           ),
         ),

@@ -3,7 +3,6 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
-    id "com.google.firebase.firebase-perf"
 }
 
 def localProperties = new Properties()
@@ -40,7 +39,7 @@ configurations.all {
 
 android {
     namespace "com.ugotaxi_rajkumar.driver"
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     compileOptions {
         coreLibraryDesugaringEnabled true

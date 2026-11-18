@@ -32,6 +32,7 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   bool _isVehicleImageValid = false;
   FFUploadedFile? _pollutionImage;
   FFUploadedFile? _insuranceImage;
+  FFUploadedFile? _fitnessImage;
   bool _isPollutionValid = false;
   bool _isInsuranceValid = false;
 
@@ -50,6 +51,8 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
   final TextEditingController _insuranceExpiryController =
       TextEditingController();
   final TextEditingController _pollutionExpiryController =
+      TextEditingController();
+  final TextEditingController _fitnessExpiryController =
       TextEditingController();
   final TextEditingController _vehicleNameController = TextEditingController();
 
@@ -364,6 +367,32 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                             color: AppColors.textDark)),
                     const SizedBox(height: 12),
                     _buildPhotoUpload(hasImage),
+                    const SizedBox(height: 24),
+                    _buildDateField(
+                      controller: _insuranceExpiryController,
+                      label: 'Insurance Expiry Date',
+                      hint: 'Tap to select date',
+                      icon: Icons.event,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildExtraImageUpload(
+                      image: _insuranceImage,
+                      isValid: _isInsuranceValid,
+                      onImageSelected: _onInsuranceSelected,
+                    ),
+                    const SizedBox(height: 24),
+                    _buildDateField(
+                      controller: _fitnessExpiryController,
+                      label: 'Fitness Certificate Expiry Date',
+                      hint: 'Tap to select date',
+                      icon: Icons.event_available,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildExtraImageUpload(
+                      image: _fitnessImage,
+                      isValid: _fitnessImage != null,
+                      onImageSelected: _onFitnessSelected,
+                    ),
                     // const SizedBox(height: 24),
                     // const Text('Pollution Certificate',
                     //     style: TextStyle(
@@ -613,6 +642,12 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
     } else {
       FFAppState().insuranceBase64 = '';
     }
+    FFAppState().update(() {});
+  }
+
+  void _onFitnessSelected(FFUploadedFile? file) {
+    setState(() => _fitnessImage = file);
+    FFAppState().fitnessCertificateImage = file;
     FFAppState().update(() {});
   }
 
@@ -1686,8 +1721,10 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
         _makeController.text.isNotEmpty &&
         _modelController.text.isNotEmpty &&
         hasImage &&
-        _pollutionImage != null &&
-        _insuranceImage != null;
+        _insuranceImage != null &&
+        _insuranceExpiryController.text.trim().isNotEmpty &&
+        _fitnessImage != null &&
+        _fitnessExpiryController.text.trim().isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -1744,6 +1781,9 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                   FFAppState().vehicleImage = _vehicleImage;
                   FFAppState().pollutionImage = _pollutionImage;
                   FFAppState().insuranceImage = _insuranceImage;
+                  FFAppState().fitnessExpiryDate =
+                      _fitnessExpiryController.text;
+                  FFAppState().fitnessCertificateImage = _fitnessImage;
                   if (_vehicleImage?.bytes != null) {
                     FFAppState().vehicleBase64 =
                         base64Encode(_vehicleImage!.bytes!);
@@ -1773,6 +1813,11 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                         insuranceExpiryDate:
                             _insuranceExpiryController.text.isNotEmpty
                                 ? _insuranceExpiryController.text
+                                : null,
+                        fitnessCertificateImage: _fitnessImage,
+                        fitnessExpiryDate:
+                            _fitnessExpiryController.text.isNotEmpty
+                                ? _fitnessExpiryController.text
                                 : null,
                         pollutionExpiryDate:
                             _pollutionExpiryController.text.isNotEmpty
@@ -1816,11 +1861,16 @@ class _VehicleImageUpdateWidgetState extends State<VehicleImageUpdateWidget>
                     _showSnackBar('Please select vehicle model', isError: true);
                   } else if (!hasImage) {
                     _showSnackBar('Please upload vehicle photo', isError: true);
-                  } else if (_pollutionImage == null) {
-                    _showSnackBar('Please upload pollution certificate',
-                        isError: true);
                   } else if (_insuranceImage == null) {
                     _showSnackBar('Please upload insurance document',
+                        isError: true);
+                  } else if (_insuranceExpiryController.text.trim().isEmpty) {
+                    _showSnackBar('Please select insurance expiry date',
+                        isError: true);
+                  } else if (_fitnessImage == null ||
+                      _fitnessExpiryController.text.trim().isEmpty) {
+                    _showSnackBar(
+                        'Please upload fitness certificate and select expiry date',
                         isError: true);
                   }
                 },

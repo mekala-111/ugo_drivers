@@ -35,6 +35,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     'panImage': false,
     'vehicleImage': false,
     'registrationImage': false,
+    'insuranceImage': false,
+    'fitnessImage': false,
   };
 
   @override
@@ -93,6 +95,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               inner.forEach((k, v) {
                 kycDocs![k.toString()] = v == true;
               });
+              final vehicle = data['vehicle'];
+              if (vehicle is Map) {
+                kycDocs['insurance'] = hasDoc(vehicle['insurance_image']);
+              }
               allUp = kycRaw['all_uploaded'] == true;
             }
           }
@@ -114,6 +120,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               _serverDocuments['vehicleImage'] = d['vehicle_image'] == true;
               _serverDocuments['registrationImage'] =
                   d['rc_front'] == true && d['rc_back'] == true;
+              _serverDocuments['insuranceImage'] = d['insurance'] == true;
+              _serverDocuments['fitnessImage'] = d['fitness'] == true;
             } else {
               _serverDocuments['profilePhoto'] = hasDoc(data['profile_image']);
               _serverDocuments['imageLicense'] =
@@ -129,6 +137,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   hasDoc(data['rc_image']) ||
                       hasDoc(data['rc_front_image']) ||
                       hasDoc(data['rc_back_image']);
+              final vehicle = data['vehicle'];
+              _serverDocuments['insuranceImage'] =
+                  hasDoc(data['insurance_image']) ||
+                      (vehicle is Map && hasDoc(vehicle['insurance_image']));
+              _serverDocuments['fitnessImage'] =
+                  hasDoc(data['fitness_certificate_image']) ||
+                      (vehicle is Map &&
+                          hasDoc(vehicle['fitness_certificate_image']));
             }
           });
         }
@@ -141,38 +157,27 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   bool _showProfileCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    return _kycDocuments!['profile_image'] != true;
+    return true;
   }
 
   bool _showLicenseCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    final d = _kycDocuments!;
-    return !(d['license_front'] == true &&
-        d['license_back'] == true &&
-        d['license_number'] == true);
+    return true;
   }
 
   bool _showAadhaarCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    final d = _kycDocuments!;
-    return !(d['aadhaar_front'] == true && d['aadhaar_back'] == true);
+    return true;
   }
 
   bool _showPanCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    return _kycDocuments!['pan_image'] != true;
+    return true;
   }
 
   bool _showVehicleCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    return _kycDocuments!['vehicle_image'] != true;
+    return true;
   }
 
   bool _showRegistrationCard() {
-    if (!_useKycDocStatus || _kycDocuments == null) return true;
-    final d = _kycDocuments!;
-    return !(d['rc_front'] == true && d['rc_back'] == true);
+    return true;
   }
 
   bool _showPersonalDocSection() {
@@ -201,6 +206,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         return FFAppState().vehicleImage;
       case 'registrationImage':
         return FFAppState().registrationImage;
+      case 'insuranceImage':
+        return FFAppState().insurancePdf ?? FFAppState().insuranceImage;
+      case 'fitnessImage':
+        return FFAppState().fitnessCertificateImage;
       default:
         return null;
     }
@@ -275,6 +284,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         rcFrontImage: FFAppState().rcFrontImage,
         rcBackImage: FFAppState().rcBackImage,
         pollutionImage: FFAppState().pollutioncertificateImage,
+        insuranceImage:
+            FFAppState().insurancePdf ?? FFAppState().insuranceImage,
+        insuranceNumber: FFAppState().insuranceNumber.isNotEmpty
+            ? FFAppState().insuranceNumber
+            : null,
+        insuranceExpiryDate: FFAppState().insuranceExpiryDate.isNotEmpty
+            ? DriverSignupSubmitService.formatDateForApi(
+                FFAppState().insuranceExpiryDate)
+            : null,
         vehicleName: FFAppState().vehicleMake,
         vehicleModel: FFAppState().vehicleModel,
         vehicleColor: FFAppState().vehicleColor.isNotEmpty
@@ -481,34 +499,28 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (_useKycDocStatus && _allUploadedFromApi)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 32),
-                                child: Center(
-                                  child: Column(
-                                    children: [
-                                      const Icon(
-                                        Icons.check_circle_rounded,
-                                        size: 56,
-                                        color: AppColors.accentEmerald,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        FFLocalizations.of(context)
-                                            .getText('docm0021'),
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            else ...[
+            if (_useKycDocStatus && _allUploadedFromApi) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded,
+                        color: AppColors.accentEmerald, size: 24),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        FFLocalizations.of(context).getText('docm0021'),
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
                               if (_showPersonalDocSection()) ...[
                                 _buildSectionHeader(FFLocalizations.of(context)
                                     .getText('docm0007')),
@@ -577,6 +589,18 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                       () => context.pushNamed(
                                           RegistrationUpdateWidget.routeName),
                                     ),
+                                  _buildStepItem(
+                                    'Insurance document',
+                                    'insuranceImage',
+                                    () => context.pushNamed(
+                                        VehicleImageUpdateWidget.routeName),
+                                  ),
+                                  _buildStepItem(
+                                    'Fitness certificate',
+                                    'fitnessImage',
+                                    () => context.pushNamed(
+                                        VehicleImageUpdateWidget.routeName),
+                                  ),
                                 ]),
                               ],
                               const SizedBox(height: 32),
@@ -616,7 +640,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                         ),
                                 ),
                               ),
-                            ],
+                            
                           ],
                         ),
                       ),

@@ -49,9 +49,9 @@ class DriverRealtimeSocketService {
     _disposeSocketInternal(clearCallbacks: false);
 
     _socket = io.io(
-      Config.baseUrl,
+      Config.socketUrl,
       io.OptionBuilder()
-          .setPath('/socket.io/')
+          .setPath(Config.socketPath)
           .setTransports(['websocket', 'polling'])
           .setTimeout(20000)
           .enableReconnection()

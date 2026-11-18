@@ -91,7 +91,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="${MAPS_API_KEY}"/>
+        <!-- Keep a build-time fallback so Maps still initializes when local.properties
+             is missing from a developer machine. -->
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDOi0Vw0vItsg45hIDHV3oAu8RB-zcra2Y" tools:replace="android:value"/>
 
     </application>
 

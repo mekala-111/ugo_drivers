@@ -46,11 +46,14 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
       TextEditingController();
   final TextEditingController _pollutionExpiryController =
       TextEditingController();
+  final TextEditingController _fitnessExpiryController =
+      TextEditingController();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   FFUploadedFile? _pollutionImage;
   FFUploadedFile? _insuranceImage;
+  FFUploadedFile? _fitnessImage;
 
   bool _isPollutionValid = false;
   bool _isInsuranceValid = false;
@@ -368,6 +371,45 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     ),
                     const SizedBox(height: 12),
                     _buildPhotoUpload(hasImage),
+                    const SizedBox(height: 24),
+                    _buildDateField(
+                      controller: _insuranceExpiryController,
+                      label: 'Insurance Expiry Date',
+                      labelText: 'Insurance Expiry Date',
+                      hintText: 'Tap to select date',
+                      icon: Icons.event,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildExtraImageUpload(
+                      image: _insuranceImage,
+                      isValid: _isInsuranceValid,
+                      onImageSelected: (file) {
+                        setState(() {
+                          _insuranceImage = file;
+                          _isInsuranceValid = file != null;
+                        });
+                        FFAppState().insuranceImage = file;
+                        FFAppState().update(() {});
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildDateField(
+                      controller: _fitnessExpiryController,
+                      label: 'Fitness Certificate Expiry Date',
+                      labelText: 'Fitness Certificate Expiry Date',
+                      hintText: 'Tap to select date',
+                      icon: Icons.event_available,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildExtraImageUpload(
+                      image: _fitnessImage,
+                      isValid: _fitnessImage != null,
+                      onImageSelected: (file) {
+                        setState(() => _fitnessImage = file);
+                        FFAppState().fitnessCertificateImage = file;
+                        FFAppState().update(() {});
+                      },
+                    ),
                     // const SizedBox(height: 24),
 
                     // Text(
@@ -1317,8 +1359,10 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
         _makeController.text.isNotEmpty &&
         _modelController.text.isNotEmpty &&
         hasImage &&
-        _pollutionImage != null &&
-        _insuranceImage != null;
+        _insuranceImage != null &&
+        _insuranceExpiryController.text.trim().isNotEmpty &&
+        _fitnessImage != null &&
+        _fitnessExpiryController.text.trim().isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -1371,6 +1415,9 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                       _insuranceNumberController.text;
                   FFAppState().insuranceExpiryDate =
                       _insuranceExpiryController.text;
+                  FFAppState().fitnessExpiryDate =
+                      _fitnessExpiryController.text;
+                  FFAppState().fitnessCertificateImage = _fitnessImage;
                   FFAppState().pollutionExpiryDate =
                       _pollutionExpiryController.text;
                   FFAppState().vehicleImage = _vehicleImage;
@@ -1406,13 +1453,17 @@ class _VehicleImageWidgetState extends State<VehicleImageWidget>
                     _showSnackBar(
                         FFLocalizations.of(context).getText('veh0028'),
                         isError: true);
-                  } else if (_pollutionImage == null) {
-                    _showSnackBar(
-                        FFLocalizations.of(context).getText('veh0029'),
-                        isError: true);
                   } else if (_insuranceImage == null) {
                     _showSnackBar(
                         FFLocalizations.of(context).getText('veh0030'),
+                        isError: true);
+                  } else if (_insuranceExpiryController.text.trim().isEmpty) {
+                    _showSnackBar('Please select insurance expiry date',
+                        isError: true);
+                  } else if (_fitnessImage == null ||
+                      _fitnessExpiryController.text.trim().isEmpty) {
+                    _showSnackBar(
+                        'Please upload fitness certificate and select expiry date',
                         isError: true);
                   }
                 },

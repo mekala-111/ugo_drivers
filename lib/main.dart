@@ -60,26 +60,32 @@ void main() {
 
       debugPrint('UGO_STARTUP: Initializing Remote Config...');
       // Initialize Firebase Remote Config (for secure Razorpay keys) with a timeout
-      await FirebaseRemoteConfigService().initialize().timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
-          );
+      if (!kIsWeb) {
+        await FirebaseRemoteConfigService().initialize().timeout(
+              const Duration(seconds: 5),
+              onTimeout: () => debugPrint('UGO_STARTUP: Remote Config Timeout'),
+            );
+      }
 
       // Before FCM / notifications touch FFAppState.fcmToken (writes prefs).
       debugPrint('UGO_STARTUP: Loading App State...');
       await appState.initializePersistedState();
 
       debugPrint('UGO_STARTUP: Initializing Notifications...');
-      await RideNotificationService().initialize().timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => debugPrint('UGO_STARTUP: Notifications Timeout'),
-          );
+      if (!kIsWeb) {
+        await RideNotificationService().initialize().timeout(
+              const Duration(seconds: 5),
+              onTimeout: () => debugPrint('UGO_STARTUP: Notifications Timeout'),
+            );
 
-      await RideNotificationService().cancelRideNotification();
+        await RideNotificationService().cancelRideNotification();
+      }
 
       debugPrint('UGO_STARTUP: Initializing Voice Service...');
-      await VoiceService().initFromStorage();
-      await VoiceService().stop();
+      if (!kIsWeb) {
+        await VoiceService().initFromStorage();
+        await VoiceService().stop();
+      }
 
       debugPrint('UGO_STARTUP: Initializing Theme...');
       await FlutterFlowTheme.initialize();

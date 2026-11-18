@@ -75,14 +75,17 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
       if (response.succeeded) {
         final data = DriverIdfetchCall.driverData(response.jsonBody);
-        final dataMap = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+        final dataMap =
+            data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
         final rawTrips = dataMap['total_rides_completed'];
 
         setState(() {
           driverData = dataMap;
           driverTripCount = rawTrips is int
               ? rawTrips
-              : (rawTrips is num ? rawTrips.toInt() : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
+              : (rawTrips is num
+                  ? rawTrips.toInt()
+                  : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
 
           // 1. Get Rating
           driverRating = dataMap['driver_rating']?.toString() ?? '5.0';
@@ -124,21 +127,26 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
       try {
         final cachedJson = jsonDecode(FFAppState().cachedDriverData);
         final data = DriverIdfetchCall.driverData(cachedJson);
-        final dataMap = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+        final dataMap =
+            data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
         final rawTrips = dataMap['total_rides_completed'];
 
         setState(() {
           driverData = dataMap;
           driverTripCount = rawTrips is int
               ? rawTrips
-              : (rawTrips is num ? rawTrips.toInt() : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
+              : (rawTrips is num
+                  ? rawTrips.toInt()
+                  : int.tryParse(rawTrips?.toString() ?? '') ?? 0);
 
           driverRating = dataMap['driver_rating']?.toString() ?? '5.0';
-          if (driverRating == 'null' || driverRating.isEmpty) driverRating = '5.0';
+          if (driverRating == 'null' || driverRating.isEmpty)
+            driverRating = '5.0';
 
           if (dataMap['created_at'] != null) {
             try {
-              DateTime createdDate = DateTime.parse(dataMap['created_at'].toString());
+              DateTime createdDate =
+                  DateTime.parse(dataMap['created_at'].toString());
               DateTime now = DateTime.now();
               double years = now.difference(createdDate).inDays / 365.0;
               if (years < 0.1) years = 0.1;
@@ -348,7 +356,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
     final isSmall = width < 360;
     final isTablet = width >= 600;
     final horizontalPadding = isTablet ? 32.0 : (isSmall ? 12.0 : 16.0);
-    final headerHeight = (height * 0.25).clamp(160.0, 220.0);
+    final bannerHeight = (height * 0.25).clamp(160.0, 220.0);
     final profileSize = isTablet ? 120.0 : (isSmall ? 96.0 : 110.0);
     final profileInnerSize = profileSize - 10.0;
     final profileBottom = isSmall ? -42.0 : -50.0;
@@ -365,6 +373,14 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
           : LayoutBuilder(builder: (context, constraints) {
               final isLandscape = constraints.maxWidth > constraints.maxHeight;
               return SingleChildScrollView(
+                // Keep the last menu cards and action buttons above the Android
+                // navigation bar when the device uses edge-to-edge layout.
+                // Android edge-to-edge can report a zero bottom padding even
+                // though the navigation bar overlays the last menu item.
+                // Keep enough scroll room for the final card and its shadow.
+                padding: EdgeInsets.only(
+                  bottom: (media.viewPadding.bottom + 72).clamp(96.0, 144.0),
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -373,13 +389,18 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                         // ==========================================
                         // 1️⃣ HEADER SECTION
                         // ==========================================
-                        Stack(
-                          alignment: Alignment.center,
+                        SizedBox(
+                          // Reserve the avatar overlap in the scroll layout,
+                          // instead of letting the Stack paint beyond its
+                          // height and overlap the menu content below.
+                          height: bannerHeight + profileSize + profileBottom,
+                          child: Stack(
+                          alignment: Alignment.topCenter,
                           clipBehavior: Clip.none,
                           children: [
                             // Banner Background
                             Container(
-                              height: headerHeight,
+                              height: bannerHeight,
                               width: double.infinity,
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
@@ -578,6 +599,7 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
                               ),
                             ),
                           ],
+                          ),
                         ),
 
                         SizedBox(height: isSmall ? 52 : 60),
@@ -692,17 +714,23 @@ class _AccountSupportWidgetState extends State<AccountSupportWidget> {
 
                         if (FFAppState().offlineMode)
                           Padding(
-                            padding: EdgeInsets.only(top: 16.0, left: horizontalPadding, right: horizontalPadding),
+                            padding: EdgeInsets.only(
+                                top: 16.0,
+                                left: horizontalPadding,
+                                right: horizontalPadding),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
                               decoration: BoxDecoration(
                                 color: Colors.orange.shade100,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.orange.shade400),
+                                border:
+                                    Border.all(color: Colors.orange.shade400),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.cloud_off, color: Colors.orange.shade800, size: 20),
+                                  Icon(Icons.cloud_off,
+                                      color: Colors.orange.shade800, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(

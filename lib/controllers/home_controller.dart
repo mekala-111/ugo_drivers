@@ -454,6 +454,9 @@ class HomeController extends ChangeNotifier {
   Future<void> _fetchAvailableDrivers() async {
     if (!isOnline || _disposed) return;
     try {
+      // Never keep showing the previous count while the latest request is in flight.
+      availableDriversCount = 0;
+      _notify();
       final res = await DriverRepository.instance.getAllDrivers(
         token: FFAppState().accessToken,
       );
@@ -463,7 +466,12 @@ class HomeController extends ChangeNotifier {
             GetAllDriversCall.availableDrivers(res.jsonBody).length;
         _notify();
       }
-    } catch (_) {}
+    } catch (_) {
+      if (!_disposed) {
+        availableDriversCount = 0;
+        _notify();
+      }
+    }
   }
 
   // ── Online/Offline ─────────────────────────────────────────────────────────

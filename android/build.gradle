@@ -9,6 +9,11 @@ rootProject.buildDir = '../build'
 
 subprojects {
     afterEvaluate { project ->
+        // AARs now require API 34+, and older Flutter plugins hard-code API 33.
+        // Align every Android library module with the app compile SDK.
+        if (project.hasProperty('android') && project.android.hasProperty('compileSdk')) {
+            project.android.compileSdk = 37
+        }
         if (project.hasProperty("kotlin")) {
             project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
                 kotlinOptions {

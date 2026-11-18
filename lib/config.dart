@@ -2,11 +2,20 @@ import '/services/firebase_remote_config_service.dart';
 
 class Config {
   static String get baseUrl {
-    const defaultUrl = 'https://ugo-api.icacorp.org';
-    //const defaultUrl = 'https://ugotaxi.icacorp.org';
-    return const String.fromEnvironment('API_BASE_URL',
-        defaultValue: defaultUrl);
+    const liveUrl = 'https://ugo-api.icacorp.org';
+    const testUrl = 'https://ugo-api.icacorp.org/test-api';
+    const environment = String.fromEnvironment('APP_ENV', defaultValue: 'live');
+    const explicitUrl = String.fromEnvironment('API_BASE_URL');
+
+    // API_BASE_URL can override APP_ENV for local or temporary builds.
+    if (explicitUrl.isNotEmpty) return explicitUrl;
+    return environment.toLowerCase() == 'test' ? testUrl : liveUrl;
   }
+
+  static String get socketUrl => Uri.parse(baseUrl).origin;
+  static String get socketPath => Uri.parse(baseUrl).path == '/test-api'
+      ? '/test-api/socket.io/'
+      : '/socket.io/';
 
   static String? fullImageUrl(String? path) {
     if (path == null || path.trim().isEmpty) return null;
@@ -45,8 +54,8 @@ class Config {
     if (firebaseKey.isNotEmpty) return firebaseKey;
 
     // Fallback: dart-define (for development without Firebase)
-    const primary =
-        String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: 'AIzaSyDOi0Vw0vItsg45hIDHV3oAu8RB-zcra2Y');
     if (primary.isNotEmpty) return primary;
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
   }
@@ -61,15 +70,15 @@ class Config {
     }
 
     // Fallback to dart-define (for development)
-    const primary =
-        String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: 'AIzaSyDOi0Vw0vItsg45hIDHV3oAu8RB-zcra2Y');
     if (primary.isNotEmpty) return primary;
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
   }
 
   static String get googleMapsApiKeySync {
-    const primary =
-        String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: '');
+    const primary = String.fromEnvironment('GOOGLE_MAPS_API_KEY',
+        defaultValue: 'AIzaSyDOi0Vw0vItsg45hIDHV3oAu8RB-zcra2Y');
     if (primary.isNotEmpty) return primary;
     return const String.fromEnvironment('MAPS_API_KEY', defaultValue: '');
   }

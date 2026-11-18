@@ -143,7 +143,8 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       final list = prefs.getStringList('ff_sessionDeclinedRideIds') ?? [];
-      _sessionDeclinedRideIds.addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
+      _sessionDeclinedRideIds
+          .addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
     });
     _safeInit(() {
       _autoAccept = prefs.getBool('ff_autoAccept') ?? false;
@@ -320,7 +321,8 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       final list = prefs.getStringList('ff_sessionDeclinedRideIds') ?? [];
       _sessionDeclinedRideIds.clear();
-      _sessionDeclinedRideIds.addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
+      _sessionDeclinedRideIds
+          .addAll(list.map((e) => int.tryParse(e) ?? 0).where((id) => id > 0));
     });
 
     _restoreUploadedFilesFromBase64();
@@ -1345,6 +1347,20 @@ class FFAppState extends ChangeNotifier {
   FFUploadedFile? get insurancePdf => _insurancePdf;
   set insurancePdf(FFUploadedFile? value) {
     _insurancePdf = value;
+    notifyListeners();
+  }
+
+  FFUploadedFile? _fitnessCertificateImage;
+  FFUploadedFile? get fitnessCertificateImage => _fitnessCertificateImage;
+  set fitnessCertificateImage(FFUploadedFile? value) {
+    _fitnessCertificateImage = value;
+    notifyListeners();
+  }
+
+  String _fitnessExpiryDate = '';
+  String get fitnessExpiryDate => _fitnessExpiryDate;
+  set fitnessExpiryDate(String value) {
+    _fitnessExpiryDate = value;
     notifyListeners();
   }
 

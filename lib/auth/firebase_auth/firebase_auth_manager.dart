@@ -216,9 +216,19 @@ class FirebaseAuthManager extends AuthManager
   }) async {
     phoneAuthManager.update(() => phoneAuthManager.onCodeSent = onCodeSent);
     if (kIsWeb) {
-      phoneAuthManager.webPhoneAuthConfirmationResult =
-          await FirebaseAuth.instance.signInWithPhoneNumber(phoneNumber);
-      phoneAuthManager.update(() => phoneAuthManager.triggerOnCodeSent = true);
+      try {
+        phoneAuthManager.webPhoneAuthConfirmationResult =
+            await FirebaseAuth.instance.signInWithPhoneNumber(phoneNumber);
+        phoneAuthManager.update(() {
+          phoneAuthManager.triggerOnCodeSent = true;
+          phoneAuthManager.phoneAuthError = null;
+        });
+      } on FirebaseAuthException catch (e) {
+        phoneAuthManager.update(() {
+          phoneAuthManager.triggerOnCodeSent = false;
+          phoneAuthManager.phoneAuthError = e;
+        });
+      }
       return;
     }
     final completer = Completer<bool>();

@@ -491,6 +491,7 @@ class CreateDriverCall {
     FFUploadedFile? registrationImage,
     FFUploadedFile? insuranceImage,
     FFUploadedFile? pollutionImage,
+    FFUploadedFile? fitnessCertificateImage,
     String? fcmToken = '',
   }) async {
     final driver = _serializeJson(driverJson);
@@ -521,6 +522,7 @@ class CreateDriverCall {
         'registration_image': registrationImage,
         'insurance_image': insuranceImage,
         'pollution_certificate_image': pollutionImage,
+        'fitness_certificate_image': fitnessCertificateImage,
         'fcm_token': fcmToken,
         'firebase_id_token': idToken,
       },
@@ -922,6 +924,8 @@ class UpdateDriverCall {
     String? insuranceNumber,
     String? insuranceExpiryDate,
     String? pollutionExpiryDate,
+    FFUploadedFile? fitnessCertificateImage,
+    String? fitnessExpiryDate,
     int? vehicleTypeId,
   }) async {
     // Build params dynamically - only include non-null values
@@ -1042,6 +1046,12 @@ class UpdateDriverCall {
     }
     if (insuranceExpiryDate != null && insuranceExpiryDate.isNotEmpty) {
       params['insurance_expiry_date'] = insuranceExpiryDate;
+    }
+    if (fitnessCertificateImage != null) {
+      params['fitness_certificate_image'] = fitnessCertificateImage;
+    }
+    if (fitnessExpiryDate != null && fitnessExpiryDate.isNotEmpty) {
+      params['fitness_expiry_date'] = fitnessExpiryDate;
     }
     if (pollutionExpiryDate != null && pollutionExpiryDate.isNotEmpty) {
       params['pollution_expiry_date'] = pollutionExpiryDate;

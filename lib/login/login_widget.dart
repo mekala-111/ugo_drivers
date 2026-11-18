@@ -101,7 +101,7 @@ class _LoginWidgetState extends State<LoginWidget> {
       at700: isPortrait ? 320.0 : 200.0,
       at800: isPortrait ? (isTablet ? 360.0 : 340.0) : 220.0,
       defaultVal: isPortrait ? 340.0 : 200.0,
-    );
+    ).clamp(240.0, 420.0);
 
     final scale = Responsive.scale(context);
     final hPad =
@@ -128,8 +128,8 @@ class _LoginWidgetState extends State<LoginWidget> {
       at900: 120.0,
       defaultVal: 100.0,
     );
-    final headlineFontSize = Responsive.fontSize(context, 36);
-    final subtitleFontSize = Responsive.fontSize(context, 28);
+    final headlineFontSize = Responsive.fontSize(context, 36).clamp(22.0, 36.0);
+    final subtitleFontSize = Responsive.fontSize(context, 28).clamp(18.0, 28.0);
     final phoneFontSize = Responsive.fontSize(context, 18);
     final buttonHeight = Responsive.buttonHeight(context, base: 56);
     final buttonFontSize = Responsive.fontSize(context, 18);
@@ -201,7 +201,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   ),
                                 ),
                               ),
-                              const Spacer(),
+                              SizedBox(height: 12 * scale),
                               Center(
                                 child: Text(
                                   FFLocalizations.of(context)
@@ -226,8 +226,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                  height: 60 * scale), // Space for card overlap
+                              SizedBox(height: 12 * scale),
                             ],
                           ),
                         ),
@@ -419,7 +418,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                             text: TextSpan(
                                               style: GoogleFonts.inter(
                                                 fontSize: 12 * scale,
-                                                color: Colors.grey[500],
+                                                color: Colors.grey[700],
                                                 height: 1.5,
                                               ),
                                               children: [
@@ -504,7 +503,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                             FFLocalizations.of(context).getText('hczr77o0'),
                             style: GoogleFonts.inter(
                               fontSize: Responsive.fontSize(context, 12),
-                              color: Colors.grey[500],
+                              color: Colors.grey[700],
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -641,7 +640,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   // 🔹 HELPER: Social Button (min 48dp touch target)
   Widget _socialButton(BuildContext context,
-      {required IconData icon,
+      {required dynamic icon,
       required Color color,
       required VoidCallback onTap}) {
     final btnSize = Responsive.buttonHeight(context, base: 56);
@@ -671,7 +670,9 @@ class _LoginWidgetState extends State<LoginWidget> {
             ],
           ),
           child: Center(
-            child: FaIcon(icon, color: color, size: iconSize),
+            child: icon is FaIconData
+                ? FaIcon(icon, color: color, size: iconSize)
+                : Icon(icon as IconData, color: color, size: iconSize),
           ),
         ),
       ),

@@ -226,7 +226,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 6),
                           Row(
                             children: [
                               InkWell(
@@ -253,8 +253,7 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                               ),
                             ],
                           ),
-                          const Spacer(),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 10),
                           Center(
                             child: Text(
                               FFLocalizations.of(context)
@@ -262,16 +261,15 @@ class _AccountManagementWidgetState extends State<AccountManagementWidget>
                               style: TextStyle(
                                 fontSize:
                                     MediaQuery.of(context).size.width < 360
-                                        ? 22
-                                        : 28,
+                                        ? 20
+                                        : 26,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 height: 1.1,
                               ),
                             ),
                           ),
-                          const Spacer(),
-                          const SizedBox(height: 60), // Space for card overlap
+                          const SizedBox(height: 24), // Space for card overlap
                         ],
                       ),
                     ),

@@ -238,6 +238,7 @@ class _HomeWidgetState extends State<HomeWidget>
       },
       onShowGoOnlinePermissions: () async {
         if (!mounted) return false;
+        if (kIsWeb) return true;
         final result = await Navigator.push<bool>(
           context,
           MaterialPageRoute(

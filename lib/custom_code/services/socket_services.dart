@@ -75,11 +75,11 @@ class SocketService {
     final cleanToken = jwtToken.replaceFirst('Bearer ', '').trim();
 
     socket = IO.io(
-      Config.baseUrl,
+      Config.socketUrl,
       IO.OptionBuilder()
           .setTransports(['websocket', 'polling']) // ✅ Try websocket first
           .setAuth({'token': cleanToken}) // ✅ Clean token
-          .setPath('/socket.io/') // ✅ Explicit path
+          .setPath(Config.socketPath)
           .setReconnectionAttempts(5)
           .setReconnectionDelay(1000)
           .setTimeout(20000)

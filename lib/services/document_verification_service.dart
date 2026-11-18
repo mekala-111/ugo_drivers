@@ -112,6 +112,14 @@ class DocumentVerificationService {
           'RC (Registration Certificate): Front and/or back image is required');
     }
 
+    if (!_hasDoc(FFAppState().insuranceImage) &&
+        !_hasDoc(FFAppState().insurancePdf)) {
+      errors.add('Insurance document image is required');
+    }
+    if (FFAppState().insuranceExpiryDate.trim().isEmpty) {
+      errors.add('Insurance expiry date is required');
+    }
+
     return DocumentVerificationResult(
       isValid: errors.isEmpty,
       errors: errors,

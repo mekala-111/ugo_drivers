@@ -199,7 +199,7 @@ class _SupportWidgetState extends State<SupportWidget> {
   }
 
   Widget _buildContactCard({
-    required IconData icon,
+    required dynamic icon,
     required Color iconColor,
     required Color bgColor,
     required String title,
@@ -233,7 +233,9 @@ class _SupportWidgetState extends State<SupportWidget> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(icon, color: iconColor, size: 24),
+                child: icon is FaIconData
+                    ? FaIcon(icon, color: iconColor, size: 24)
+                    : Icon(icon as IconData, color: iconColor, size: 24),
               ),
             ),
             const SizedBox(width: 16),
