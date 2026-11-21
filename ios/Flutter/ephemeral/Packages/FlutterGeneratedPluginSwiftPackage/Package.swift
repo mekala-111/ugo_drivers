@@ -17,9 +17,9 @@ let package = Package(
     dependencies: [
         .package(name: "device_info_plus", path: "../.packages/device_info_plus-11.5.0"),
         .package(name: "file_picker", path: "../.packages/file_picker-10.1.9"),
-        .package(name: "firebase_core", path: "../.packages/firebase_core-3.14.0"),
         .package(name: "firebase_app_check", path: "../.packages/firebase_app_check-0.3.2+7"),
         .package(name: "firebase_auth", path: "../.packages/firebase_auth-5.6.0"),
+        .package(name: "firebase_core", path: "../.packages/firebase_core-3.14.0"),
         .package(name: "firebase_crashlytics", path: "../.packages/firebase_crashlytics-4.3.7"),
         .package(name: "firebase_messaging", path: "../.packages/firebase_messaging-15.2.7"),
         .package(name: "firebase_performance", path: "../.packages/firebase_performance-0.10.1+7"),
@@ -46,9 +46,9 @@ let package = Package(
             dependencies: [
                 .product(name: "device-info-plus", package: "device_info_plus"),
                 .product(name: "file-picker", package: "file_picker"),
-                .product(name: "firebase-core", package: "firebase_core"),
                 .product(name: "firebase-app-check", package: "firebase_app_check"),
                 .product(name: "firebase-auth", package: "firebase_auth"),
+                .product(name: "firebase-core", package: "firebase_core"),
                 .product(name: "firebase-crashlytics", package: "firebase_crashlytics"),
                 .product(name: "firebase-messaging", package: "firebase_messaging"),
                 .product(name: "firebase-performance", package: "firebase_performance"),

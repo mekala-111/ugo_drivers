@@ -5,7 +5,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'dart:convert';
