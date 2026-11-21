@@ -63,6 +63,10 @@
     <string>UGO Driver needs your location to show nearby ride requests, navigate to pickup and drop points, and share your position with passengers during active rides.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>UGO Driver needs background location to continue tracking your position during active rides when the app is minimized, so passengers can see your live location and estimated arrival.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
     <string>In order to take a picture or video, this app requires permission to access the camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -107,6 +107,25 @@ class DriverRepository implements DriverRepositoryInterface {
   }) =>
       SetOnlineStatusCall.call(token: token, isOnline: isOnline);
 
+  /// Lightweight GPS heartbeat (POST /api/drivers/location). Not on
+  /// [DriverRepositoryInterface] so the generated test mock stays valid.
+  Future<ApiCallResponse> sendLocationHeartbeat({
+    required String token,
+    required double latitude,
+    required double longitude,
+    double? heading,
+    double? speed,
+    double? accuracy,
+  }) =>
+      DriverLocationHeartbeatCall.call(
+        token: token,
+        latitude: latitude,
+        longitude: longitude,
+        heading: heading,
+        speed: speed,
+        accuracy: accuracy,
+      );
+
   @override
   Future<ApiCallResponse> requestPreferredCityApproval({
     required String token,

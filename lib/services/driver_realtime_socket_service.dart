@@ -21,6 +21,10 @@ class DriverRealtimeSocketService {
   String _authToken = '';
   Timer? _deferredWatchTimer;
 
+  /// True once this socket instance has connected; a later connect is a *re*connect
+  /// (network back after a drop) and triggers [DriverSocketCallbacks.onReconnected].
+  bool _hasConnectedOnce = false;
+
   io.Socket? get rawSocket => _socket;
   bool get isConnected => _socket?.connected ?? false;
 
@@ -47,6 +51,7 @@ class DriverRealtimeSocketService {
     _authToken = token;
 
     _disposeSocketInternal(clearCallbacks: false);
+    _hasConnectedOnce = false;
 
     _socket = io.io(
       Config.socketUrl,
@@ -55,7 +60,10 @@ class DriverRealtimeSocketService {
           .setTransports(['websocket', 'polling'])
           .setTimeout(20000)
           .enableReconnection()
-          .setReconnectionAttempts(10)
+          // Never give up: a 10-attempt cap left drivers deaf to ride requests after
+          // ~1.5 min without network until the app was reopened. Backoff stays 1–10 s,
+          // so a reconnect lands within ~10 s of the network coming back.
+          .setReconnectionAttempts(double.infinity)
           .setReconnectionDelay(1000)
           .setReconnectionDelayMax(10000)
           .disableAutoConnect()
@@ -84,6 +92,20 @@ class DriverRealtimeSocketService {
     s.onConnect((_) {
       _log('CONNECTED id=${s.id}');
       _emitWatchEntityWithRetry(reason: 'onConnect');
+      // Fires for automatic reconnects too (socket_io_client emits connect on each).
+      // After a drop, events sent while we were away are lost: let the controller
+      // re-sync ride/online state and push a fresh location.
+      if (_hasConnectedOnce) {
+        final cb = _callbacks;
+        if (cb != null && !cb.isDisposed()) {
+          try {
+            cb.onReconnected?.call();
+          } catch (e) {
+            _log('onReconnected error: $e');
+          }
+        }
+      }
+      _hasConnectedOnce = true;
     });
 
     s.onReconnect((_) {
@@ -185,6 +207,7 @@ class DriverRealtimeSocketService {
     s.off('receive_ride_message');
     s.off('chat_message');
     s.off('watch_entity_ack');
+    s.off('driver_auto_offline');
 
     s.on('driver_rides', guard(cb.onSocketRideData));
     s.on(
@@ -222,6 +245,14 @@ class DriverRealtimeSocketService {
     s.on('chat_message', guard(cb.onRideChatMessage));
 
     s.on('watch_entity_ack', guard((dynamic d) => _log('watch_entity_ack $d')));
+
+    // Backend stale-driver sweep took this captain offline (no location for N minutes).
+    // Deliberately separate from driver_updated, which drives KYC routing.
+    s.on('driver_auto_offline', guard((dynamic d) {
+      _log('driver_auto_offline $d');
+      final m = d is Map ? Map<String, dynamic>.from(Map.from(d)) : <String, dynamic>{};
+      cb.onServerAutoOffline?.call(m);
+    }));
   }
 
   void Function(dynamic) _wrapRideLocationUpdated(DriverSocketCallbacks cb) {
@@ -363,6 +394,8 @@ class DriverSocketCallbacks {
     required this.onRideLocationUpdated,
     required this.onRideChatMessage,
     required this.onDriverProfileSocketUpdate,
+    this.onReconnected,
+    this.onServerAutoOffline,
   });
 
   final String Function() accessTokenProvider;
@@ -372,4 +405,10 @@ class DriverSocketCallbacks {
   final void Function(Map<String, dynamic> data) onRideLocationUpdated;
   final void Function(dynamic raw) onRideChatMessage;
   final void Function(Map<String, dynamic> data) onDriverProfileSocketUpdate;
+
+  /// Socket came back after a disconnect (network restored / server restart).
+  final void Function()? onReconnected;
+
+  /// Server marked the driver offline (`driver_auto_offline`).
+  final void Function(Map<String, dynamic> data)? onServerAutoOffline;
 }

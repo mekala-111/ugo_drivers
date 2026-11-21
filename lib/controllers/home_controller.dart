@@ -14,6 +14,7 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
     show
     DriverIdfetchCall,
     DriverAppDashboardCall,
+    DriverLocationHeartbeatCall,
     GetAllDriversCall,
     NotificationHistoryCall,
     AddMoneyToWalletCall,
@@ -21,7 +22,16 @@ import 'package:ugo_driver/backend/api_requests/api_calls.dart'
 
 import '../flutter_flow/flutter_flow_util.dart';
 
-const double _locationUpdateThreshold = 50.0;
+/// Minimum movement before a stream fix is sent to the server: idle vs on a trip
+/// (15 m on a trip so the rider's map moves smoothly instead of jumping every 50 m).
+const double _locationUpdateThresholdIdle = 50.0;
+const double _locationUpdateThresholdOnRide = 15.0;
+const int _distanceFilterIdle = 50;
+const int _distanceFilterOnRide = 15;
+
+/// Timed heartbeat while online, so a captain parked at a stand still counts as
+/// fresh (backend: nearby map hides fixes older than 2 min, stale sweep goes offline).
+const Duration _heartbeatInterval = Duration(seconds: 25);
 const double _notifyDistanceThreshold = 100.0;
 const Duration _notifyTimeThreshold = Duration(seconds: 2);
 
@@ -83,7 +93,17 @@ class HomeController extends ChangeNotifier {
   Timer? _availableDriversTimer;
   bool _driverSocketStarted = false;
   bool _disposed = false;
-  int _currentDistanceFilter = 50;
+  int _currentDistanceFilter = _distanceFilterIdle;
+  Timer? _heartbeatTimer;
+  Position? _latestPosition;
+  DateTime? _lastServerSendAt;
+  DateTime? _lastWentOnlineAt;
+  DateTime? _lastReconnectSyncAt;
+  bool _sendingLocation = false;
+
+  /// Set when the backend has no POST /api/drivers/location yet (404): fall back to
+  /// the legacy PUT /api/drivers/:id for the rest of the session.
+  bool _heartbeatEndpointUnavailable = false;
   int _subscribedRideChatRideId = 0;
   int? _lastChatBannerMessageId;
   DateTime? _lastResumeSyncAt;
@@ -402,6 +422,7 @@ class HomeController extends ChangeNotifier {
             '♻️ Syncing Online status from API (Previously hanging session)');
       isOnline = true;
       FFAppState().isonline = true;
+      _lastWentOnlineAt = DateTime.now();
       _startLocationTracking();
     }
     // If the driver IS locally online, but the API says they are NOT,
@@ -598,6 +619,7 @@ class HomeController extends ChangeNotifier {
     if (_disposed) return;
     if (res.succeeded) {
       isOnline = true;
+      _lastWentOnlineAt = DateTime.now();
       _startLocationTracking(
           skipDisclosure: true); // Already shown in goOnline()
       _fetchAvailableDrivers();
@@ -829,27 +851,84 @@ class HomeController extends ChangeNotifier {
     }
 
     _locationSub = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: _currentDistanceFilter,
-      ),
+      locationSettings: _buildLocationSettings(_currentDistanceFilter),
     ).listen(_handleLocationUpdate);
+    _startHeartbeatTimer();
+  }
+
+  /// Platform location settings. Android runs the stream in geolocator's foreground
+  /// service (ongoing notification + wake lock) so updates keep flowing with the screen
+  /// locked; iOS keeps background updates on (needs UIBackgroundModes=location).
+  LocationSettings _buildLocationSettings(int distanceFilter) {
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilter,
+        intervalDuration: const Duration(seconds: 15),
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationTitle: 'UGO TAXI Driver Online',
+          notificationText: 'Sharing live location for nearby ride requests',
+          enableWakeLock: true,
+          setOngoing: true,
+        ),
+      );
+    }
+    if (Platform.isIOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.automotiveNavigation,
+        distanceFilter: distanceFilter,
+        pauseLocationUpdatesAutomatically: false,
+        allowBackgroundLocationUpdates: true,
+        showBackgroundLocationIndicator: true,
+      );
+    }
+    return LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: distanceFilter,
+    );
+  }
+
+  void _startHeartbeatTimer() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(_heartbeatInterval, (_) {
+      unawaited(_sendHeartbeatTick());
+    });
+  }
+
+  void _stopHeartbeatTimer() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+  }
+
+  /// Resend the latest position while online even if the driver hasn't moved.
+  Future<void> _sendHeartbeatTick() async {
+    if (_disposed || !isOnline || !_isTrackingLocation) return;
+    final last = _lastServerSendAt;
+    // Moving: the stream already sent recently.
+    if (last != null &&
+        DateTime.now().difference(last) < const Duration(seconds: 20)) {
+      return;
+    }
+    Position? position = _latestPosition;
+    try {
+      position ??= await Geolocator.getLastKnownPosition();
+    } catch (_) {}
+    if (position == null || _disposed || !isOnline) return;
+    await _updateLocationToServer(position);
   }
 
   void _adjustLocationFilter(String status) {
-    int newFilter = 50;
+    int newFilter = _distanceFilterIdle;
     if (_normalizedRideStatusBlocksOffline(status)) {
-      newFilter = 10;
+      newFilter = _distanceFilterOnRide;
     }
 
     if (_currentDistanceFilter != newFilter && _isTrackingLocation) {
       _currentDistanceFilter = newFilter;
       _locationSub?.cancel();
       _locationSub = Geolocator.getPositionStream(
-        locationSettings: LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: _currentDistanceFilter,
-        ),
+        locationSettings: _buildLocationSettings(_currentDistanceFilter),
       ).listen(_handleLocationUpdate);
       if (kDebugMode) {
         debugPrint(
@@ -860,6 +939,7 @@ class HomeController extends ChangeNotifier {
 
   Future<void> _handleLocationUpdate(Position newPosition) async {
     final hasActiveRide = _normalizedRideStatusBlocksOffline(currentRideStatus);
+    _latestPosition = newPosition;
 
     if (_lastSavedPosition == null) {
       _lastSavedPosition = newPosition;
@@ -880,7 +960,10 @@ class HomeController extends ChangeNotifier {
       newPosition.longitude,
     );
 
-    if (distanceInMeters >= _locationUpdateThreshold) {
+    final sendThreshold = hasActiveRide
+        ? _locationUpdateThresholdOnRide
+        : _locationUpdateThresholdIdle;
+    if (distanceInMeters >= sendThreshold) {
       await _updateLocationToServer(newPosition);
       _lastSavedPosition = newPosition;
     }
@@ -911,7 +994,35 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> _updateLocationToServer(Position position) async {
+    // Live rider map first and independent of REST: a slow / failing request on
+    // flaky 4G no longer stalls tracking during a trip.
+    _emitSocketLiveLocation(position);
+
+    if (_sendingLocation) return; // previous request still in flight; next fix/tick resends
+    _sendingLocation = true;
+    _lastServerSendAt = DateTime.now();
     try {
+      if (!_heartbeatEndpointUnavailable) {
+        final res = await DriverRepository.instance.sendLocationHeartbeat(
+          token: FFAppState().accessToken,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          heading: position.heading,
+          speed: position.speed,
+          accuracy: position.accuracy,
+        );
+        if (_disposed) return;
+        if (res.statusCode == 404) {
+          // Backend without the heartbeat route: use the legacy endpoint from now on.
+          _heartbeatEndpointUnavailable = true;
+        } else {
+          if (res.succeeded &&
+              DriverLocationHeartbeatCall.isOnline(res.jsonBody) == false) {
+            _applyServerOffline(reason: 'heartbeat');
+          }
+          return;
+        }
+      }
       await DriverRepository.instance.updateDriver(
         id: FFAppState().driverid,
         token: FFAppState().accessToken,
@@ -919,9 +1030,54 @@ class HomeController extends ChangeNotifier {
         latitude: position.latitude,
         longitude: position.longitude,
       );
-      _emitSocketLiveLocation(position);
     } catch (e) {
       if (kDebugMode) debugPrint('Error updating location: $e');
+    } finally {
+      _sendingLocation = false;
+    }
+  }
+
+  /// The server says this captain is offline (stale-location sweep, or a heartbeat
+  /// reply with is_online=false). Mirror it locally without any KYC routing.
+  void _applyServerOffline({required String reason}) {
+    if (_disposed || !isOnline) return;
+    // On a trip the server never takes a captain offline; ignore a stale signal.
+    if (isActiveRideBlockingOffline) return;
+    // Reply to a request sent just before going online.
+    final wentOnline = _lastWentOnlineAt;
+    if (wentOnline != null &&
+        DateTime.now().difference(wentOnline) < const Duration(seconds: 15)) {
+      return;
+    }
+    if (kDebugMode) debugPrint('📴 Server set driver offline ($reason)');
+    isOnline = false;
+    FFAppState().isonline = false;
+    _stopLocationTracking();
+    onShowSnackBar(
+      'You were set offline because your location stopped updating. Go online again to get rides.',
+      isError: true,
+    );
+    _notify();
+  }
+
+  /// Socket reconnected after a drop (network back): events sent meanwhile are lost,
+  /// so re-sync profile / online state, the active ride, and push a fresh location.
+  Future<void> _onSocketReconnected() async {
+    if (_disposed) return;
+    final now = DateTime.now();
+    final last = _lastReconnectSyncAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 10)) return;
+    _lastReconnectSyncAt = now;
+    if (kDebugMode) debugPrint('🔌 Socket reconnected → refreshing driver state');
+    try {
+      await _fetchDriverProfile();
+      if (_disposed) return;
+      final activeRideId = FFAppState().activeRideId;
+      if (activeRideId > 0) onFetchRideById(activeRideId);
+      final p = _latestPosition;
+      if (isOnline && p != null) await _updateLocationToServer(p);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Reconnect sync error: $e');
     }
   }
 
@@ -1023,6 +1179,7 @@ class HomeController extends ChangeNotifier {
   void _stopLocationTracking() {
     _locationSub?.cancel();
     _locationSub = null;
+    _stopHeartbeatTimer();
     _isTrackingLocation = false;
     _lastSavedPosition = null;
     _lastNotifyTime = null;
@@ -1067,6 +1224,11 @@ class HomeController extends ChangeNotifier {
         if (_disposed) return;
         _updateVerificationStateFromDriverData(data);
       },
+      onReconnected: () {
+        if (_disposed) return;
+        unawaited(_onSocketReconnected());
+      },
+      onServerAutoOffline: (_) => _applyServerOffline(reason: 'stale_sweep'),
     );
     DriverRealtimeSocketService.instance.connect(cb);
   }

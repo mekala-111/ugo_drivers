@@ -1442,6 +1442,51 @@ class SetOnlineStatusCall {
       castToType<String>(getJsonField(response, r'$.message'));
 }
 
+/// Lightweight GPS heartbeat: POST /api/drivers/location
+/// (one UPDATE + Redis GEOADD on the server; replaces the multipart PUT /api/drivers/:id
+/// on every location tick). Response `data.is_online` tells the app whether the server
+/// still considers the captain online.
+class DriverLocationHeartbeatCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required double latitude,
+    required double longitude,
+    double? heading,
+    double? speed,
+    double? accuracy,
+  }) async {
+    final body = json.encode({
+      'latitude': latitude,
+      'longitude': longitude,
+      if (heading != null && heading.isFinite) 'heading': heading,
+      if (speed != null && speed.isFinite) 'speed': speed,
+      if (accuracy != null && accuracy.isFinite) 'accuracy': accuracy,
+    });
+    return ApiManager.instance.makeApiCall(
+      callName: 'driverLocationHeartbeat',
+      apiUrl: '$_baseUrl/api/drivers/location',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      params: {},
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  /// `data.is_online` from the server (null if absent / not parsed).
+  static bool? isOnline(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'$.data.is_online'));
+}
+
 class RequestPreferredCityApprovalCall {
   static Future<ApiCallResponse> call({
     required String token,
