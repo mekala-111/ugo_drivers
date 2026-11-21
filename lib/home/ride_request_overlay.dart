@@ -776,6 +776,36 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
   }
 
+  /// POST /drivers/accept-ride with a 15 s limit and ONE retry on network errors,
+  /// timeouts or 502–504. Safe to repeat: the server answers a repeat accept by the
+  /// same driver with "already accepted by this driver" (200), never a second booking.
+  /// This also covers the case where the first request succeeded but its reply was lost.
+  Future<ApiCallResponse> _callAcceptWithRetry({
+    required int rideId,
+    required int driverId,
+  }) async {
+    Future<ApiCallResponse> attempt() => AcceptRideCall.call(
+          token: FFAppState().accessToken,
+          rideId: rideId,
+          driverId: driverId,
+        ).timeout(
+          const Duration(seconds: 15),
+          onTimeout: () => const ApiCallResponse(null, {}, -1),
+        );
+    bool retryable(ApiCallResponse r) =>
+        r.statusCode == -1 || (r.statusCode >= 502 && r.statusCode <= 504);
+
+    var res = await attempt();
+    if (retryable(res) && mounted) {
+      if (kDebugMode) {
+        debugPrint('Accept ride: retrying after HTTP ${res.statusCode}');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      if (mounted) res = await attempt();
+    }
+    return res;
+  }
+
   Future<void> _acceptRide(int rideId) async {
     _stopAlert();
     if (_isAcceptingRide) return;
@@ -796,22 +826,36 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
     }
     setState(() => _isAcceptingRide = true);
     try {
-      final rideCheckRes = await authDio().get(
-        '${Config.baseUrl}/api/rides/$rideId',
-        options: Options(
-            headers: {'Authorization': 'Bearer ${FFAppState().accessToken}'}),
-      );
+      // Best-effort pre-check: only used to fail fast when the ride is clearly gone.
+      // It must never block the accept itself — POST /drivers/accept-ride is atomic
+      // on the server and answers "already accepted by another driver" on its own.
+      // Previously a dropped connection / proxy 502 on this GET threw and aborted the
+      // accept with "Failed to accept ride. Please check your connection."
       Map<String, dynamic>? rideData;
-      final raw = rideCheckRes.data;
-      if (raw is Map) {
-        final inner = raw['data'];
-        if (inner is Map) {
-          rideData = Map<String, dynamic>.from(inner);
-        } else if (inner == null && raw['ride_status'] != null) {
-          // Flat ride payload (no `data` wrapper)
-          rideData = Map<String, dynamic>.from(raw);
+      try {
+        final rideCheckRes = await authDio()
+            .get(
+              '${Config.baseUrl}/api/rides/$rideId',
+              options: Options(headers: {
+                'Authorization': 'Bearer ${FFAppState().accessToken}'
+              }),
+            )
+            .timeout(const Duration(seconds: 5));
+        final raw = rideCheckRes.data;
+        if (raw is Map) {
+          final inner = raw['data'];
+          if (inner is Map) {
+            rideData = Map<String, dynamic>.from(inner);
+          } else if (inner == null && raw['ride_status'] != null) {
+            // Flat ride payload (no `data` wrapper)
+            rideData = Map<String, dynamic>.from(raw);
+          }
         }
+      } catch (e) {
+        if (kDebugMode) debugPrint('Accept pre-check skipped: $e');
+        rideData = null; // let the accept API decide
       }
+      if (!mounted) return;
       final serverStatus =
           (rideData?['ride_status'] ?? '').toString().trim().toUpperCase();
       final assignedDriverId =
@@ -847,11 +891,7 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
         return;
       }
 
-      final acceptRes = await AcceptRideCall.call(
-        token: FFAppState().accessToken,
-        rideId: rideId,
-        driverId: myId,
-      );
+      final acceptRes = await _callAcceptWithRetry(rideId: rideId, driverId: myId);
       if (!mounted) return;
       final accepted = acceptRes.succeeded &&
           (AcceptRideCall.success(acceptRes.jsonBody) ?? true);
@@ -894,7 +934,10 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
           var apiMsg = AcceptRideCall.message(acceptRes.jsonBody)?.trim();
           if (apiMsg == null || apiMsg.isEmpty) {
             if (acceptRes.statusCode == -1) {
-              apiMsg = 'Network error. Check your connection.';
+              apiMsg = 'No connection to the server. Check your internet and try again.';
+            } else if (acceptRes.statusCode >= 500) {
+              apiMsg =
+                  'Server busy (HTTP ${acceptRes.statusCode}). Please try again.';
             } else if (acceptRes.statusCode > 0) {
               apiMsg =
                   'Could not accept ride (HTTP ${acceptRes.statusCode}). Try again.';
@@ -916,9 +959,14 @@ class RideRequestOverlayState extends State<RideRequestOverlay>
             : 'Failed to accept ride. Please check your connection.';
         if (e is DioException) {
           final d = e.response?.data;
+          final code = e.response?.statusCode;
           if (d is Map && d['message'] != null) {
             final m = d['message'].toString().trim();
             if (m.isNotEmpty) msg = m;
+          } else if (code != null && code >= 500) {
+            msg = 'Server busy (HTTP $code). Please try again.';
+          } else if (e.response == null) {
+            msg = 'No connection to the server. Check your internet and try again.';
           }
           if (kDebugMode) {
             debugPrint(
